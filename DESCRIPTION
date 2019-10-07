@@ -21,5 +21,6 @@ LazyData: true
 RoxygenNote: 6.1.1
 Imports:
     SSutils
+    r4ss
 Suggests: 
     testthat
