@@ -42,7 +42,7 @@ value is set to \code{0.01} seconds, just to be safe.}
 This function takes care of calling SS3. Importantly, it parses whether the
 user is on Unix or Windows and calls the binary correctly. This lower-level
 function is meant to be called by higher level functions such as
-\code{\link{run_ss3sim}}, \code{\link{ss3sim_base}}, or your own custom
+\code{run_ss3sim}, \code{ss3sim_base}, or your own custom
 function. From \href{https://github.com/ss3sim/ss3sim}{ss3sim}.
 }
 \details{
@@ -51,9 +51,6 @@ path. See the vignette \code{vignette("ss3sim-vignette")} for details on
 this process. The executables themselves can be downloaded from:
 \url{https://www.dropbox.com/sh/zg0sec6j20sfyyz/AACQiuk787qW882U2euVKoPna}
 #'
-}
-\seealso{
-\code{\link{ss3sim_base}}, \code{\link{run_ss3sim}}
 }
 \author{
 Sean C. Anderson
