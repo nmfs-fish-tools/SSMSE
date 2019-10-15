@@ -24,3 +24,6 @@ Imports:
     r4ss
 Suggests: 
     testthat
+Remotes:
+    r4ss/SSutils
+    r4ss/r4ss
