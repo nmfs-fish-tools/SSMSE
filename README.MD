@@ -2,6 +2,10 @@
 
 # (SSMSE) Management Strategy Evaluation for Stock Synthesis (SS)
 
+[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=development)](https://travis-ci.org/nmfs-fish-tools/SSMSE) (development)
+
+[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE) (master)
+
 **************
 
 https://nmfs-fish-tools.github.io/SSMSE/
