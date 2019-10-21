@@ -46,8 +46,6 @@ run_SSMSE_scen <- function() {
 #' @param impl_error Future parameter to specify implementation error.
 #' @param niter The iteration number
 #' @param verbose Want verbose output? Defaults to FALSE.
-#' 
-#' 
 run_SSMSE_iter <- function(OM_name     = "cod", 
                          use_SS_boot = TRUE, 
                          EM_name     = NULL,
