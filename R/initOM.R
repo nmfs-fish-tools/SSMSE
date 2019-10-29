@@ -8,11 +8,21 @@
 #' @param OM_dir The full path to the OM directory
 #' @param SA_dir The full path to the EM directory
 #' @param overwrite Overwrite existing files with matching names?
+#' @param add_dummy_dat Add dummy data to  indices and comps for each year so that
+#'   expected values and sampling is obtained for years other than those that 
+#'   already  have data? Defaults to FALSE.
 #' @param verbose Want verbose output? Defaults to FALSE.
 #' @return OM_dir, because this function is used mainly for its side effects.
 #' @importFrom SSutils copy_SS_inputs 
 #' @importFrom r4ss SS_readdat SS_writedat
-create_OM <-  function(OM_dir, SA_dir,overwrite = FALSE, verbose = FALSE) {
+create_OM <-  function(OM_dir, SA_dir,overwrite = FALSE, add_dummy_dat = FALSE,
+                       verbose = FALSE) {
+  if(add_dummy_dat) {
+    # TODO: develop this option. This will be necessary if we want to allow for 
+    # use with EMs that have different years of sampled data than the OM.
+    stop("Dummy data for indices and comps for all years cannot yet be added ",
+         "to the operating model.")
+  }
   # copy over SA model to OM.
   if(verbose) message("Copying over the model in ", SA_dir, " to ", OM_dir, ".")
   SSutils::copy_SS_inputs(dir.old = SA_dir, 
@@ -88,4 +98,16 @@ run_init_OM <- function(OM_dir, boot = TRUE, nboot = 1, verbose = FALSE) {
                           section = max_section, 
                           verbose = verbose)
   return(dat)
+}
+
+#' Get the sampling scheme in a data file.
+#' 
+#' Determine what the default sampling scheme is for a given data file.
+#' Produces a list object with the sampling scheme, which can be modified, if
+#' desired.
+#' 
+# get the initial sampling values 
+get_init_samp_scheme <- function(dat, 
+                                 dat_types = c("CPUE","lencomp", "agecomp")) {
+  #TODO: write this. Can be used for EM and OM.
 }
