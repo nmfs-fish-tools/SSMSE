@@ -114,8 +114,8 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   # TODO next steps: get feedback from management strategy to OM and loop.
   # # get a vector of the assessment years. could make this into a separate 
   # function if it ends up getting too long.
-  styr_MSE <- get_OM_lyr()
-  assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
+  #styr_MSE <- get_OM_lyr()
+  #assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
   #for (yr in assess_yrs) {
   # just do 1 iteration for now
     # check that future catch is not greater than population size (exit on error

@@ -77,7 +77,7 @@ extend_OM <- function(catch,
 
 #' Get the dummy data for a data type
 #' 
-#' @param dummy_dat_scheme
+#' @param dummy_dat_scheme The years, fleets, data types etc. to add
 get_dummy_dat <- function(dummy_dat_scheme) {
   #TODO: write this function
   dummy_dat_scheme

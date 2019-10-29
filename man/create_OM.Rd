@@ -4,7 +4,8 @@
 \alias{create_OM}
 \title{create the OM from a stock assessment model}
 \usage{
-create_OM(OM_dir, SA_dir, overwrite = FALSE, verbose = FALSE)
+create_OM(OM_dir, SA_dir, overwrite = FALSE, add_dummy_dat = FALSE,
+  verbose = FALSE)
 }
 \arguments{
 \item{OM_dir}{The full path to the OM directory}
@@ -12,6 +13,10 @@ create_OM(OM_dir, SA_dir, overwrite = FALSE, verbose = FALSE)
 \item{SA_dir}{The full path to the EM directory}
 
 \item{overwrite}{Overwrite existing files with matching names?}
+
+\item{add_dummy_dat}{Add dummy data to  indices and comps for each year so that
+expected values and sampling is obtained for years other than those that 
+already  have data? Defaults to FALSE.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
