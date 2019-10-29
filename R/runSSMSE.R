@@ -46,6 +46,7 @@ run_SSMSE_scen <- function() {
 #' @param impl_error Future parameter to specify implementation error.
 #' @param niter The iteration number
 #' @param verbose Want verbose output? Defaults to FALSE.
+#' @export
 run_SSMSE_iter <- function(OM_name     = "cod", 
                          use_SS_boot = TRUE, 
                          EM_name     = NULL,
@@ -93,31 +94,42 @@ run_SSMSE_iter <- function(OM_name     = "cod",
     #run_EM()
   } else {
     if(MS == "last_yr_catch") {
+      #TODO: extend this approach in the case of multiple fishery fleets.
       # get last year catch
       new_catch <- rep(OM_data$catch$catch[nrow(OM_data$catch)], 
                        length.out = nyrs_assess)
-      
+      new_catch_df <- data.frame(year = (OM_data$endyr+1):(OM_data$endyr+nyrs_assess+1), 
+                                 # assume always useing the same fleet and season for now
+                                 season = OM_data$catch$season[nrow(OM_data$catch)],
+                                 fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                                 catch = new_catch,
+                                 catch_se = OM_data$catch$fleet[nrow(OM_data$catch)]$catch_se)
     } else {
       stop("The only MS (management strategy) currently implemented is ",
       "last_yr_catch")
     }
   }
-  return(new_catch) # get rid of this in the future
+  
   
   # TODO next steps: get feedback from management strategy to OM and loop.
   # # get a vector of the assessment years. could make this into a separate 
-  # # function if it ends up getting too long.
-  # styr_MSE <- get_OM_lyr()
-  # assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
-  # for (yr in assess_yrs) {
-  # future_catch <- get_catch(MS = MS)
-  #add_catch_to_OM() # write a function to add the catch into the OM
-  # rerun OM, get samples, etc.
-  
+  # function if it ends up getting too long.
+  styr_MSE <- get_OM_lyr()
+  assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
+  #for (yr in assess_yrs) {
+  # just do 1 iteration for now
+    # check that future catch is not greater than population size (exit on error
+    # for now)
+    # note if the OM has catch in numbers, will need to extend this option
+    check_future_catch(catch = new_catch_df, OM_dir = OM_dir, catch_units = "bio")
+    #add catch to the OM
+    extend_OM(catch = new_catch_df)
+    # rerun OM, get samples, etc. ()
+    # create the new dataset to input into the EM
+    # loop EM and get management quantities.
+    # loop again for each assessment year, for the number of years the user has
+    # specified.
     
-  # 
-  
-  
-  # feedback new catch into the OM
-  # keep cycling through for a user specified amount of time.
+    # treturn TRUE invisibly if ran fine.
+    invisible(TRUE)
 }

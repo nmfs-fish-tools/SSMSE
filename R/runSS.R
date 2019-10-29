@@ -44,7 +44,6 @@ run_ss3model <- function(scenarios, iterations, type = c("om", "em"),
   
   # Input checking:
   admb_options <- sanitize_admb_options(admb_options, "-nohess")
-  admb_options <- sanitize_admb_options(admb_options, "-noest")
   
   os <- .Platform$OS.type
   ss_bin <- "ss"
