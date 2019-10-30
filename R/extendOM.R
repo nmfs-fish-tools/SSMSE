@@ -9,7 +9,7 @@
 #'  year,	season, fleet,	catch,	catch_se).
 #' length of the number of years (only works when catch is for 1 fleet)
 #' @param OM_dir The full path to the OM directory.
-#' @param nyrs An integer value of years to extend the model forward. Defaults
+#' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
 #' @param dummy_dat_scheme The sampling scheme for dummy data. A list of lists
 #' @param verbose Want verbose output? Defaults to FALSE.
@@ -17,7 +17,7 @@
 extend_OM <- function(catch,
                       OM_dir, 
                       dummy_dat_scheme = NULL,
-                      nyrs = 3,
+                      nyrs_extend = 3,
                       verbose = FALSE) {
   #input checks
   check_catch_df(catch)
@@ -27,14 +27,15 @@ extend_OM <- function(catch,
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
                                 verbose = verbose)
   # extend the number of yrs in the model and add in catch
-  dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose)
-  if(max(catch$year) > (dat$endyr + nyrs)) {
+  dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose,
+                          section = 1)
+  if(max(catch$year) > (dat$endyr + nyrs_extend)) {
     stop("The maximum year input for catch is ", max(catch$year),", but the ",
-         " nyrs used in function extend_OM only extends the model to the year ", 
-         (dat$endyr+nyrs), ". Please either remove years of catch data or ",
+         " nyrs_extend used in function extend_OM only extends the model to the year ", 
+         (dat$endyr+nyrs_extend), ". Please either remove years of catch data or ",
          "the end year of the model longer.")
   }
-  dat$endyr <- dat$endyr + nyrs
+  dat$endyr <- dat$endyr + nyrs_extend
   dat$catch <- rbind(dat$catch, catch)
   # add in dummy data: just do for indices, comps for now. Always do this in
   # case the EM needs this input (should be okay to remove if not needed?)
@@ -52,26 +53,6 @@ extend_OM <- function(catch,
                     outfile = file.path(OM_dir, start$datfile),
                     overwrite = TRUE,
                     verbose = verbose)
-  # if(start$last_estimation_phase != 0) {
-  #   stop("The max phase of the OM was not set to 0 during the extention of the",
-  #        " OM to future years. Please contact the developers for help ",
-  #        "troubleshooting this issue.")
-  # }
-  # run model without estimating anything to extend it forward
-  # bin <- get_bin()
-  # wd <- getwd()
-  # on.exit(setwd(wd))
-  # setwd(OM_dir)
-  # if(verbose) message("Running OM.")
-  # system(bin, invisible = TRUE, ignore.stdout = FALSE, 
-  #        show.output.on.console = FALSE)
-  # # stop on error if OM did not run.
-  # if(!file.exists(file.path(OM_dir, "data.ss_new"))) {
-  #   stop("OM did not run correctly, as a data.ss_new file was not created.", 
-  #        "Please check that the OM in ", OM_dir, " is valid.")
-  # } else {
-  #   if(verbose) message("OM ran in dir ", getwd())
-  # }
   invisible(catch)
 }
 
@@ -116,13 +97,15 @@ check_future_catch <- function(catch, OM_dir, catch_units = "bio") {
                                       fixed = TRUE)[[1]][2])
     if(yr > min(catch$year)) {
       stop("The highest year for which TotBio in ss_summary.sso is available (in", 
-          " the dir ", OM_dir, "is ", yr, "which is higher than the minimum year",
-           "value in catch, which is ", min(catch$year), ". The catch should ", 
+          " the dir ", OM_dir, " is ", yr, " which is higher than the minimum year",
+           " value in catch, which is ", min(catch$year), ". The catch should ", 
           "only contain values in the future compared to the model summary.")
     }
     if(any(catch$catch > tot_bio_lyear$Value)) {
       stop("Some input values for future catch are higher than the most recent",
-           " year's total biomass.")
+           " year's total biomass. Recent total biomass: ",
+           tot_bio_lyear$Value, "; future catch: ", 
+           paste0(catch$catch, collapse = ", "))
       #TODO: Maybe write a warning and work around instead of stop?
     }
   } else {
@@ -130,4 +113,57 @@ check_future_catch <- function(catch, OM_dir, catch_units = "bio") {
   }
   # return catch invisibly
   invisible(catch)
+}
+
+
+#' Run extended OM
+#' 
+#' This function is used to run an OM that has already been initialized and get
+#'  either expected values or bootstrap.
+#' @author Kathryn Doering
+#' @param OM_dir The full path to the OM directory
+#' @param boot Return the bootstrap dataset? If TRUE, function returns the 
+#'   number bootstrapped dataset specified in \code{nboot}. If FALSE, it returns
+#'   the expected values.
+#' @param nboot The number bootstrapped data set. This value is only used if 
+#'   \code{boot = TRUE}. Note that this numbering does NOT correspond with the
+#'   numbering in section of r4ss::SS_readdat. E.g., specifying section = 3 in 
+#'   SS_readdat is equivalent to specifying nboot = 1.
+#' @param verbose Want verbose output? Defaults to FALSE.
+#' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
+run_extended_OM <- function(OM_dir, boot = TRUE, nboot = 1, verbose = FALSE) {
+  # get exe location and run the model
+  # TODO: eventually, may want to wrap around the ss3sim functions in runSS so
+  # this is done in a platform independent way. 
+  # run_ss3model(dir = OM_dir, type = "om")
+  # OR at least combine run_extended_OM and run_init_OM
+  bin <- get_bin()
+  wd <- getwd()
+  on.exit(setwd(wd))
+  setwd(OM_dir)
+  # delete the old data.ss_new file (so can tell if OM ran properly)
+  file.remove("data.ss_new")
+  # run model
+  if(verbose) message("Running OM.")
+  #TODO: see if should use -phase option in ADMB instead?
+  system(bin, invisible = TRUE, ignore.stdout = FALSE, 
+         show.output.on.console = FALSE)
+  # stop on error if OM did not run.
+  if(!file.exists(file.path(OM_dir, "data.ss_new"))) {
+    stop("OM did not run correctly, as a data.ss_new file was not created.", 
+         "Please check that the OM in ", OM_dir, " is valid.")
+  } else {
+    if(verbose) message("OM ran in dir ", getwd())
+  }
+  # return the desired data set (expected values or bootstrap)
+  # #define which section to pull from the data file
+  if (boot) {
+    max_section <- nboot + 2
+  } else {
+    max_section <- 2
+  }
+  dat <- r4ss::SS_readdat("data.ss_new", 
+                          section = max_section, 
+                          verbose = verbose)
+  return(dat)
 }

@@ -31,7 +31,8 @@ run_SSMSE_scen <- function() {
 #'   as an EM. If value is NULL, no EM will be run. Currently only allows models
 #'   in the package, so valid inputs are: \code{"cod"} or \code{NULL}.
 #' @param MS The management strategy to use for this iteration. Options
-#'   currently are \code{"last_yr_catch"} which uses the previous year's catch.
+#'   currently are \code{"last_yr_catch"} which uses the previous year's catch 
+#'   and \code{"no_catch"} which uses 0 catch.
 #'   (Note that in the future there should be an option to use the management 
 #'   strategy from SS) 
 #' @param out_dir The directory to which to write output. IF NULL, will default
@@ -47,6 +48,23 @@ run_SSMSE_scen <- function() {
 #' @param niter The iteration number
 #' @param verbose Want verbose output? Defaults to FALSE.
 #' @export
+#' @examples 
+#' \dontrun{
+#'   # Create a temporary folder for the output and set the working directory:
+#'   temp_path <- file.path(tempdir(), "run_SSMSE_iter-example")
+#'   dir.create(temp_path, showWarnings = FALSE)
+#'   wd <- getwd()
+#'   setwd(temp_path)
+#'   on.exit(setwd(wd), add = TRUE)
+#'   # run 1 iteration and 1 scenario of SSMSE
+#'   run_SSMSE_iter(OM_name = "cod", 
+#'                  MS = "no_catch", 
+#'                  out_dir = temp_path,
+#'                  nyrs = 6, 
+#'                  nyrs_assess = 3
+#'                  )
+#'    unlink(temp_path, recursive = TRUE) # clean up
+#'  }
 run_SSMSE_iter <- function(OM_name     = "cod", 
                          use_SS_boot = TRUE, 
                          EM_name     = NULL,
@@ -98,38 +116,76 @@ run_SSMSE_iter <- function(OM_name     = "cod",
       # get last year catch
       new_catch <- rep(OM_data$catch$catch[nrow(OM_data$catch)], 
                        length.out = nyrs_assess)
-      new_catch_df <- data.frame(year = (OM_data$endyr+1):(OM_data$endyr+nyrs_assess+1), 
+      new_catch_df <- data.frame(year = (OM_data$endyr+1):(OM_data$endyr+nyrs_assess), 
                                  # assume always useing the same fleet and season for now
-                                 season = OM_data$catch$season[nrow(OM_data$catch)],
+                                 seas = OM_data$catch$seas[nrow(OM_data$catch)],
                                  fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
                                  catch = new_catch,
-                                 catch_se = OM_data$catch$fleet[nrow(OM_data$catch)]$catch_se)
-    } else {
+                                 catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
+    } else if(MS == "no_catch") {
+      new_catch_df <- data.frame(year = (OM_data$endyr+1):(OM_data$endyr+nyrs_assess), 
+                                 # assume always useing the same fleet and season for now
+                                 seas = OM_data$catch$seas[nrow(OM_data$catch)],
+                                 fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                                 catch = 0,
+                                 catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
+    }
+    else {
       stop("The only MS (management strategy) currently implemented is ",
       "last_yr_catch")
     }
   }
-  
-  
+
   # TODO next steps: get feedback from management strategy to OM and loop.
   # # get a vector of the assessment years. could make this into a separate 
   # function if it ends up getting too long.
-  #styr_MSE <- get_OM_lyr()
-  #assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
-  #for (yr in assess_yrs) {
-  # just do 1 iteration for now
+  styr_MSE <- OM_data$endyr
+  assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
+  assess_yrs <- assess_yrs[-1] # remove first value, because done in the intialization stage.
+  for (yr in assess_yrs) {
+    # just do 1 iteration for now
     # check that future catch is not greater than population size (exit on error
     # for now)
     # note if the OM has catch in numbers, will need to extend this option
-    check_future_catch(catch = new_catch_df, OM_dir = OM_dir, catch_units = "bio")
+    check_future_catch(catch = new_catch_df, 
+                       OM_dir = OM_dir,
+                       catch_units = "bio")
     #add catch to the OM
-    extend_OM(catch = new_catch_df)
+    extend_OM(catch = new_catch_df, 
+              OM_dir = OM_dir, 
+              nyrs_extend = nyrs_assess,
+              verbose = verbose)
     # rerun OM, get samples, etc. ()
+    new_OM_data <- run_extended_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
+                           verbose = verbose)
+    # Only want data for the new years: (yr-nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
+    if(MS == "last_yr_catch") {
+      #TODO: extend this approach in the case of multiple fishery fleets.
+      # get last year catch. Make sure this will work?
+      new_catch <- rep(OM_data$catch$catch[nrow(OM_data$catch)], 
+                       length.out = nyrs_assess)
+      new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
+                                 # assume always useing the same fleet and season for now
+                                 seas = OM_data$catch$seas[nrow(OM_data$catch)],
+                                 fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                                 catch = new_catch,
+                                 catch_se = OM_data$catch$fleet[nrow(OM_data$catch)]$catch_se)
+    } else if(MS == "no_catch") {
+      new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
+                                 # assume always useing the same fleet and season for now
+                                 seas = OM_data$catch$seas[nrow(OM_data$catch)],
+                                 fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                                 catch = 0,
+                                 catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
+    } else {
+      stop("The only MS (management strategy) currently implemented is ",
+           "last_yr_catch")
+    }
     # loop again for each assessment year, for the number of years the user has
     # specified.
-    
-    # treturn TRUE invisibly if ran fine.
+  }
+    # return TRUE invisibly if ran fine.
     invisible(TRUE)
 }

@@ -4,7 +4,7 @@
 \alias{extend_OM}
 \title{Extend the OM forward using next years' catch}
 \usage{
-extend_OM(catch, OM_dir, dummy_dat_scheme = NULL, nyrs = 3,
+extend_OM(catch, OM_dir, dummy_dat_scheme = NULL, nyrs_extend = 3,
   verbose = FALSE)
 }
 \arguments{
@@ -17,7 +17,7 @@ length of the number of years (only works when catch is for 1 fleet)}
 
 \item{dummy_dat_scheme}{The sampling scheme for dummy data. A list of lists}
 
-\item{nyrs}{An integer value of years to extend the model forward. Defaults
+\item{nyrs_extend}{An integer value of years to extend the model forward. Defaults
 to an arbitrary value of 3.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}

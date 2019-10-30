@@ -71,9 +71,9 @@ run_init_OM <- function(OM_dir, boot = TRUE, nboot = 1, verbose = FALSE) {
     max_section <- 2
   }
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
-                                verbose = FALSE)
+                                verbose = verbose)
   start$N_bootstraps <- max_section
-  r4ss::SS_writestarter(start, dir = OM_dir, verbose = FALSE, overwrite = TRUE)
+  r4ss::SS_writestarter(start, dir = OM_dir, verbose = verbose, overwrite = TRUE)
   # get exe location and run the model
   # TODO: eventually, may want to wrap around the ss3sim functions in runSS so
   # this is done in a platform independent way.
@@ -82,7 +82,8 @@ run_init_OM <- function(OM_dir, boot = TRUE, nboot = 1, verbose = FALSE) {
   wd <- getwd()
   on.exit(setwd(wd))
   setwd(OM_dir)
-  if(verbose) message("Running OM.")
+  if(verbose) message("Running OM.") 
+  #TODO: see if should use -phase option in ADMB instead?
   system(bin, invisible = TRUE, ignore.stdout = FALSE, 
          show.output.on.console = FALSE)
   # stop on error if OM did not run.

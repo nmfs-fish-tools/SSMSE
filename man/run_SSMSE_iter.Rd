@@ -21,7 +21,8 @@ as an EM. If value is NULL, no EM will be run. Currently only allows models
 in the package, so valid inputs are: \code{"cod"} or \code{NULL}.}
 
 \item{MS}{The management strategy to use for this iteration. Options
-currently are \code{"last_yr_catch"} which uses the previous year's catch.
+currently are \code{"last_yr_catch"} which uses the previous year's catch 
+and \code{"no_catch"} which uses 0 catch.
 (Note that in the future there should be an option to use the management 
 strategy from SS)}
 
@@ -46,6 +47,24 @@ assessments.)}
 \description{
 High level function to run 1 iteration of a scenario for a management 
 strategy evaluation using Stock Synthesis as the Operating model
+}
+\examples{
+\dontrun{
+  # Create a temporary folder for the output and set the working directory:
+  temp_path <- file.path(tempdir(), "run_SSMSE_iter-example")
+  dir.create(temp_path, showWarnings = FALSE)
+  wd <- getwd()
+  setwd(temp_path)
+  on.exit(setwd(wd), add = TRUE)
+  # run 1 iteration and 1 scenario of SSMSE
+  run_SSMSE_iter(OM_name = "cod", 
+                 MS = "no_catch", 
+                 out_dir = temp_path,
+                 nyrs = 6, 
+                 nyrs_assess = 3
+                 )
+   unlink(temp_path, recursive = TRUE) # clean up
+ }
 }
 \author{
 Kathryn Doering
