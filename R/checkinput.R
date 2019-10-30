@@ -3,7 +3,7 @@
 
 #' Check the catch dataframe
 #' 
-#' @param df The catch datafarme to test
+#' @param df The catch dataframe to test
 #' @author Kathryn Doering
 check_catch_df <- function(df) {
   catch_colnames <- c("year", "seas", "fleet", "catch", "catch_se")
