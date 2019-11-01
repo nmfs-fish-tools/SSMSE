@@ -16,10 +16,10 @@
 #' @importFrom SSutils copy_SS_inputs 
 #' @importFrom r4ss SS_readdat SS_writedat
 create_OM <- function(OM_dir, 
-                       SA_dir,
-                       overwrite     = FALSE,
-                       add_dummy_dat = FALSE,
-                       verbose       = FALSE) {
+                      SA_dir,
+                      overwrite     = FALSE,
+                      add_dummy_dat = FALSE,
+                      verbose       = FALSE) {
   if(add_dummy_dat) {
     stop("Dummy data for indices and comps for all years cannot yet be added ",
          "to the operating model.")
@@ -34,17 +34,8 @@ create_OM <- function(OM_dir,
                  use_ss_new = TRUE, # will rename the ss new files, also.
                  copy_par = TRUE,
                  verbose = verbose)
-  # read in files needed to manipulate.
-  start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
-                                verbose = verbose)
   # validate using model as an OM? may want to make a seperate function that can
   # validate if the model can be used as an OM or not.
-  # manipulate to make an OM (set maxphase = 0, anything else?)
-  start$last_estimation_phase <- 0
-  r4ss::SS_writestarter(start, 
-                        dir = OM_dir, 
-                        overwrite = overwrite, 
-                        verbose = verbose)
   invisible(OM_dir)
 }
 
@@ -61,41 +52,30 @@ create_OM <- function(OM_dir,
 #'   \code{boot = TRUE}. Note that this numbering does NOT correspond with the
 #'   numbering in section of r4ss::SS_readdat. E.g., specifying section = 3 in 
 #'   SS_readdat is equivalent to specifying nboot = 1.
+#' @param init_run Is this the initial iteration of the OM? Defaults to FALSE.
 #' @param verbose Want verbose output? Defaults to FALSE.
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
-run_init_OM <- function(OM_dir, boot = TRUE, nboot = 1, verbose = FALSE) {
+run_OM <- function(OM_dir, 
+                        boot = TRUE,
+                        nboot = 1, 
+                        init_run = FALSE, 
+                        verbose = FALSE) {
   # make sure OM generates the correct number of data sets.
   if (boot) {
     max_section <- nboot + 2
   } else {
     max_section <- 2
   }
+  if(init_run == TRUE) {
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
                                 verbose = verbose)
   start$N_bootstraps <- max_section
   r4ss::SS_writestarter(start, dir = OM_dir, verbose = verbose, overwrite = TRUE)
-  # get exe location and run the model
-  # TODO: eventually, may want to wrap around the ss3sim functions in runSS so
-  # this is done in a platform independent way.
-  # run_ss3model(dir = OM_dir, type = "om")
-  bin <- get_bin()
-  wd <- getwd()
-  on.exit(setwd(wd))
-  setwd(OM_dir)
-  if(verbose) message("Running OM.") 
-  #TODO: see if should use -phase option in ADMB instead?
-  system(bin, invisible = TRUE, ignore.stdout = FALSE, 
-         show.output.on.console = FALSE)
-  # stop on error if OM did not run.
-  if(!file.exists(file.path(OM_dir, "data.ss_new"))) {
-    stop("OM did not run correctly, as a data.ss_new file was not created.", 
-         "Please check that the OM in ", OM_dir, " is valid.")
-  } else {
-    if(verbose) message("OM ran in dir ", getwd())
   }
-  # return the desired data set (expected values or bootstrap)
+  # run SS and get the data set
+  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess")
 
-  dat <- r4ss::SS_readdat("data.ss_new", 
+  dat <- r4ss::SS_readdat(file.path(OM_dir,"data.ss_new"), 
                           section = max_section, 
                           verbose = verbose)
   return(dat)

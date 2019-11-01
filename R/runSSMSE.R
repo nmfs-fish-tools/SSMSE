@@ -98,8 +98,8 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   create_OM(OM_dir = OM_dir, SA_dir, overwrite = TRUE, verbose = verbose)
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
-    OM_data <- run_init_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
-                           verbose = verbose)
+    OM_data <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
+                           verbose = verbose, init_run = TRUE)
   }
   if(use_SS_boot == FALSE) {
     stop("Currently, only sampling can be done using the bootstrapping ", 
@@ -153,7 +153,7 @@ run_SSMSE_iter <- function(OM_name     = "cod",
               nyrs_extend = nyrs_assess,
               verbose = verbose)
     # rerun OM, get samples, etc. ()
-    new_OM_data <- run_extended_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
+    new_OM_data <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
                            verbose = verbose)
     # Only want data for the new years: (yr-nyrs_assess):yr
     # create the new dataset to input into the EM

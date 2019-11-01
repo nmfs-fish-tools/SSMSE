@@ -29,7 +29,7 @@ check_catch_df <- function(df) {
 #' @param dir Input to check. Should be a directory name that should contain an
 #'  SS model that can be used
 #'  as an OM.
-check_OM_dir <- function(dir) {
+check_dir <- function(dir) {
   # chack that the dir contains expected SS model files
   all_files <- list.files(dir)
   errors <- NULL

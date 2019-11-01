@@ -2,7 +2,6 @@
 
 export(get_bin)
 export(run_SSMSE_iter)
-export(run_ss3model)
 importFrom(SSutils,copy_SS_inputs)
 importFrom(r4ss,SS_read_summary)
 importFrom(r4ss,SS_readdat)

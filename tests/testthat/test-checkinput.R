@@ -17,11 +17,11 @@ test_that("check_catch_df works", {
                "The catch data frame does not have the correct column names")
 })
 
-test_that("check_OM_dir works", {
+test_that("check_dir works", {
   good_dir <- file.path(extdat_path, "models", "cod") 
   bad_dir <- file.path(extdat_path, "models")
-  out <- check_OM_dir(good_dir)
+  out <- check_dir(good_dir)
   expect_equal(out, good_dir)
-  expect_error(check_OM_dir(bad_dir), 
+  expect_error(check_dir(bad_dir), 
                "Please change to a directory containing a valid SS model")
 })

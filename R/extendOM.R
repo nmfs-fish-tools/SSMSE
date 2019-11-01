@@ -21,7 +21,7 @@ extend_OM <- function(catch,
                       verbose = FALSE) {
   #input checks
   check_catch_df(catch)
-  check_OM_dir(OM_dir)
+  check_dir(OM_dir)
   #TODO: add function to check dummy_dat_scheme
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
@@ -79,7 +79,7 @@ get_dummy_dat <- function(dummy_dat_scheme) {
 check_future_catch <- function(catch, OM_dir, catch_units = "bio") {
   #input checks
   check_catch_df(catch)
-  check_OM_dir(OM_dir)
+  check_dir(OM_dir)
   summary <- r4ss::SS_read_summary(file.path(OM_dir, "ss_summary.sso"))
   if(is.null(summary)) {
     stop("File ss_summary.sso was not found in directory: ", OM_dir, ". Please",
@@ -113,57 +113,4 @@ check_future_catch <- function(catch, OM_dir, catch_units = "bio") {
   }
   # return catch invisibly
   invisible(catch)
-}
-
-
-#' Run extended OM
-#' 
-#' This function is used to run an OM that has already been initialized and get
-#'  either expected values or bootstrap.
-#' @author Kathryn Doering
-#' @param OM_dir The full path to the OM directory
-#' @param boot Return the bootstrap dataset? If TRUE, function returns the 
-#'   number bootstrapped dataset specified in \code{nboot}. If FALSE, it returns
-#'   the expected values.
-#' @param nboot The number bootstrapped data set. This value is only used if 
-#'   \code{boot = TRUE}. Note that this numbering does NOT correspond with the
-#'   numbering in section of r4ss::SS_readdat. E.g., specifying section = 3 in 
-#'   SS_readdat is equivalent to specifying nboot = 1.
-#' @param verbose Want verbose output? Defaults to FALSE.
-#' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
-run_extended_OM <- function(OM_dir, boot = TRUE, nboot = 1, verbose = FALSE) {
-  # get exe location and run the model
-  # TODO: eventually, may want to wrap around the ss3sim functions in runSS so
-  # this is done in a platform independent way. 
-  # run_ss3model(dir = OM_dir, type = "om")
-  # OR at least combine run_extended_OM and run_init_OM
-  bin <- get_bin()
-  wd <- getwd()
-  on.exit(setwd(wd))
-  setwd(OM_dir)
-  # delete the old data.ss_new file (so can tell if OM ran properly)
-  file.remove("data.ss_new")
-  # run model
-  if(verbose) message("Running OM.")
-  #TODO: see if should use -phase option in ADMB instead?
-  system(bin, invisible = TRUE, ignore.stdout = FALSE, 
-         show.output.on.console = FALSE)
-  # stop on error if OM did not run.
-  if(!file.exists(file.path(OM_dir, "data.ss_new"))) {
-    stop("OM did not run correctly, as a data.ss_new file was not created.", 
-         "Please check that the OM in ", OM_dir, " is valid.")
-  } else {
-    if(verbose) message("OM ran in dir ", getwd())
-  }
-  # return the desired data set (expected values or bootstrap)
-  # #define which section to pull from the data file
-  if (boot) {
-    max_section <- nboot + 2
-  } else {
-    max_section <- 2
-  }
-  dat <- r4ss::SS_readdat("data.ss_new", 
-                          section = max_section, 
-                          verbose = verbose)
-  return(dat)
 }
