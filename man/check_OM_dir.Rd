@@ -12,5 +12,5 @@ SS model that can be used
 as an OM.}
 }
 \description{
-Check that the directory for an OM is valid
+Check that the directory contains starter and forecast SS files.
 }

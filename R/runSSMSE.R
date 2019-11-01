@@ -15,13 +15,12 @@ run_SSMSE_scen <- function() {
   
 }
 
-#' Run an iteration of an MSE using SS OM
+#' Run 1 iteration of an MSE using SS OM
 #' 
 #' High level function to run 1 iteration of a scenario for a management 
-#' strategy evaluation using Stock Synthesis as the Operating model
+#' strategy evaluation using Stock Synthesis as the Operating model.
 #' 
 #' @author Kathryn Doering
-#' 
 #' @param OM_name Name of a valid Stock Synthesis stock assessment model from 
 #'   which to create the OM. Currently, only allows models in the package, so 
 #'   valid inputs are: \code{"cod"}.
@@ -66,15 +65,15 @@ run_SSMSE_scen <- function() {
 #'    unlink(temp_path, recursive = TRUE) # clean up
 #'  }
 run_SSMSE_iter <- function(OM_name     = "cod", 
-                         use_SS_boot = TRUE, 
-                         EM_name     = NULL,
-                         MS          = "last_yr_catch",
-                         out_dir     = NULL,
-                         nyrs        = 100, 
-                         nyrs_assess = 3,
-                         impl_error  = NULL,
-                         niter = 1, 
-                         verbose = FALSE) {
+                           use_SS_boot = TRUE, 
+                           EM_name     = NULL,
+                           MS          = "last_yr_catch",
+                           out_dir     = NULL,
+                           nyrs        = 100, 
+                           nyrs_assess = 3,
+                           impl_error  = NULL,
+                           niter = 1, 
+                           verbose = FALSE) {
   # input checks ----
   pkg_mods <- list.files(system.file("extdata", "models", package = "SSMSE"))
   if(!OM_name %in% pkg_mods) {
@@ -93,13 +92,15 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   # create the OM directory
   OM_dir <- file.path(out_dir, paste0(OM_name, "_OM"))
   dir.create(OM_dir)
-  
+
   # MSE first iteration ----
   # turn the EM into an OM
   create_OM(OM_dir = OM_dir, SA_dir, overwrite = TRUE, verbose = verbose)
   # Complete the OM run so it can be use for expect values or bootstrap
-  OM_data <- run_init_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
-                             verbose = verbose)
+  if(use_SS_boot == TRUE) {
+    OM_data <- run_init_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
+                           verbose = verbose)
+  }
   if(use_SS_boot == FALSE) {
     stop("Currently, only sampling can be done using the bootstrapping ", 
          "capabilities within SS")
@@ -109,8 +110,9 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   
   if(!is.null(EM_name)) {
     stop("Option to run EM is not yet possible")
-    #run_EM()
+    #TODO: implement.
   } else {
+    #TODO: make a get catch management strategy function
     if(MS == "last_yr_catch") {
       #TODO: extend this approach in the case of multiple fishery fleets.
       # get last year catch
@@ -131,22 +133,17 @@ run_SSMSE_iter <- function(OM_name     = "cod",
                                  catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
     }
     else {
-      stop("The only MS (management strategy) currently implemented is ",
-      "last_yr_catch")
+      stop("The only MS (management strategy) currently implemented are ",
+      "last_yr_catch and no_catch")
     }
   }
 
-  # TODO next steps: get feedback from management strategy to OM and loop.
-  # # get a vector of the assessment years. could make this into a separate 
-  # function if it ends up getting too long.
+  # Next iterations ----
   styr_MSE <- OM_data$endyr
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
-  assess_yrs <- assess_yrs[-1] # remove first value, because done in the intialization stage.
+  # remove first value, because done in the intialization stage.
+  assess_yrs <- assess_yrs[-1]
   for (yr in assess_yrs) {
-    # just do 1 iteration for now
-    # check that future catch is not greater than population size (exit on error
-    # for now)
-    # note if the OM has catch in numbers, will need to extend this option
     check_future_catch(catch = new_catch_df, 
                        OM_dir = OM_dir,
                        catch_units = "bio")
@@ -161,6 +158,8 @@ run_SSMSE_iter <- function(OM_name     = "cod",
     # Only want data for the new years: (yr-nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
+    # TODO: make parsing the management stategy to get the new catch dataframe
+    # a separate function
     if(MS == "last_yr_catch") {
       #TODO: extend this approach in the case of multiple fishery fleets.
       # get last year catch. Make sure this will work?
@@ -183,9 +182,6 @@ run_SSMSE_iter <- function(OM_name     = "cod",
       stop("The only MS (management strategy) currently implemented is ",
            "last_yr_catch")
     }
-    # loop again for each assessment year, for the number of years the user has
-    # specified.
   }
-    # return TRUE invisibly if ran fine.
-    invisible(TRUE)
+  invisible(TRUE)
 }

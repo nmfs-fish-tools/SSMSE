@@ -3,6 +3,8 @@
 
 #' Check the catch dataframe
 #' 
+#' Ensure the catch data frame has the correct column names in the correct order
+#' and the correct number of column names.
 #' @param df The catch dataframe to test
 #' @author Kathryn Doering
 check_catch_df <- function(df) {
@@ -23,6 +25,7 @@ check_catch_df <- function(df) {
 
 #' Check that the directory for an OM is valid
 #' 
+#' Check that the directory contains starter and forecast SS files.
 #' @param dir Input to check. Should be a directory name that should contain an
 #'  SS model that can be used
 #'  as an OM.
@@ -33,13 +36,14 @@ check_OM_dir <- function(dir) {
   if(!"starter.ss" %in% all_files) {
     errors <- c(errors, "starter.ss")
   }
-  if(!"forecast.ss" %in% all_files){
+  if(!"forecast.ss" %in% all_files) {
     errors <- c(errors, "forecast.ss")
   }
-  if(!is.null(errors)){
-    stop("The file(s): ", paste(errors, collapse = ", "), " is/are missing from ",
-        "the directory ", dir, ", which suggests that it is not a valid SS OM ",
-        "directory. Please change to a directory containing a valid SS model.")
+  if(!is.null(errors)) {
+    stop("The file(s): ", paste(errors, collapse = ", "), " is/are missing ", 
+        "from the directory ", dir, ", which suggests that it is not a valid ", 
+        "SS OM directory. Please change to a directory containing a valid SS ",
+        "model.")
   }
   invisible(dir)
 }

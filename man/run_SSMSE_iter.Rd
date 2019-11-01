@@ -2,7 +2,7 @@
 % Please edit documentation in R/runSSMSE.R
 \name{run_SSMSE_iter}
 \alias{run_SSMSE_iter}
-\title{Run an iteration of an MSE using SS OM}
+\title{Run 1 iteration of an MSE using SS OM}
 \usage{
 run_SSMSE_iter(OM_name = "cod", use_SS_boot = TRUE, EM_name = NULL,
   MS = "last_yr_catch", out_dir = NULL, nyrs = 100,
@@ -46,7 +46,7 @@ assessments.)}
 }
 \description{
 High level function to run 1 iteration of a scenario for a management 
-strategy evaluation using Stock Synthesis as the Operating model
+strategy evaluation using Stock Synthesis as the Operating model.
 }
 \examples{
 \dontrun{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/initOM.R
 \name{create_OM}
 \alias{create_OM}
-\title{create the OM from a stock assessment model}
+\title{Create the OM from a stock assessment model}
 \usage{
 create_OM(OM_dir, SA_dir, overwrite = FALSE, add_dummy_dat = FALSE,
   verbose = FALSE)
@@ -14,9 +14,9 @@ create_OM(OM_dir, SA_dir, overwrite = FALSE, add_dummy_dat = FALSE,
 
 \item{overwrite}{Overwrite existing files with matching names?}
 
-\item{add_dummy_dat}{Add dummy data to  indices and comps for each year so that
-expected values and sampling is obtained for years other than those that 
-already  have data? Defaults to FALSE.}
+\item{add_dummy_dat}{Add dummy data to indices and comps for each year so 
+that expected values and sampling is obtained for years other than those 
+that already have data? Defaults to FALSE.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }

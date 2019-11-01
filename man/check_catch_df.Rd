@@ -7,10 +7,11 @@
 check_catch_df(df)
 }
 \arguments{
-\item{df}{The catch datafarme to test}
+\item{df}{The catch dataframe to test}
 }
 \description{
-Check the catch dataframe
+Ensure the catch data frame has the correct column names in the correct order
+and the correct number of column names.
 }
 \author{
 Kathryn Doering
