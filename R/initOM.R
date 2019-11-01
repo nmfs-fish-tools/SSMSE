@@ -11,7 +11,7 @@
 #' @param add_dummy_dat Add dummy data to indices and comps for each year so 
 #'   that expected values and sampling is obtained for years other than those 
 #'   that already have data? Defaults to FALSE.
-#' @param verbose Want verbose output? Defaults to FALSE.
+#' @template verbose
 #' @return OM_dir, because this function is used mainly for its side effects.
 #' @importFrom SSutils copy_SS_inputs 
 #' @importFrom r4ss SS_readdat SS_writedat
@@ -53,7 +53,7 @@ create_OM <- function(OM_dir,
 #'   numbering in section of r4ss::SS_readdat. E.g., specifying section = 3 in 
 #'   SS_readdat is equivalent to specifying nboot = 1.
 #' @param init_run Is this the initial iteration of the OM? Defaults to FALSE.
-#' @param verbose Want verbose output? Defaults to FALSE.
+#' @template verbose
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 run_OM <- function(OM_dir, 
                         boot = TRUE,

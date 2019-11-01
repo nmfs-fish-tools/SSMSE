@@ -12,7 +12,7 @@
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
 #' @param dummy_dat_scheme The sampling scheme for dummy data. A list of lists
-#' @param verbose Want verbose output? Defaults to FALSE.
+#' @template verbose
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 extend_OM <- function(catch,
                       OM_dir, 

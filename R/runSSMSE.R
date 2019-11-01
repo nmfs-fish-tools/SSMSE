@@ -45,7 +45,7 @@ run_SSMSE_scen <- function() {
 #'   assessments.)
 #' @param impl_error Future parameter to specify implementation error.
 #' @param niter The iteration number
-#' @param verbose Want verbose output? Defaults to FALSE.
+#' @template verbose
 #' @export
 #' @examples 
 #' \dontrun{

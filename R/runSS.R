@@ -33,7 +33,7 @@
 #' @param check_run Should it be checked that the model ran by deleting the 
 #'  data.ss_new file if one exists and then checking if one was created?
 #'  Defaults to TRUE.
-#' @param verbose Want verbose output? Defaults to FALSE.
+#' @template verbose 
 #' @param ... Anything else to pass to \code{\link[base]{system}}.
 #' @author Sean C. Anderson, Kathryn Doering
 run_ss_model <- function(dir,
