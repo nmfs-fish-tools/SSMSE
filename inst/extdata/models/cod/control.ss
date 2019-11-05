@@ -214,14 +214,14 @@
 #
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn  #  parm_name
 # 1   Fishery LenSelex
-          5.08         101.6          50.8          50.8          0.05             0          2          0          0          0          0          0          0          0  #  SizeSel_P1_Fishery(1)
+          20         101.6          50.8          50.8          0.05             0          2          0          0          0          0          0          0          0  #  SizeSel_P1_Fishery(1)
             -5             3            -3            -3          0.05             0        -99          0          0          0          0          0          0          0  #  SizeSel_P2_Fishery(1)
              0          25.5           5.1           5.1          0.05             0          3          0          0          0          0          0          0          0  #  SizeSel_P3_Fishery(1)
             -2            16            15            15          0.05             0        -99          0          0          0          0          0          0          0  #  SizeSel_P4_Fishery(1)
            -15             5          -999          -999          0.05             0        -99          0          0          0          0          0          0          0  #  SizeSel_P5_Fishery(1)
             -5          1000           999           999          0.05             0        -99          0          0          0          0          0          0          0  #  SizeSel_P6_Fishery(1)
 # 2   Survey LenSelex
-          4.18          83.6          41.8          41.8          0.05             0          2          0          0          0          0          0          0          0  #  SizeSel_P1_Survey(2)
+          20          83.6          41.8          41.8          0.05             0          2          0          0          0          0          0          0          0  #  SizeSel_P1_Survey(2)
             -5             3            -4            -4          0.05             0        -99          0          0          0          0          0          0          0  #  SizeSel_P2_Survey(2)
              0            26           5.2           5.2          0.05             0          3          0          0          0          0          0          0          0  #  SizeSel_P3_Survey(2)
             -2            15            14            14          0.05             0        -99          0          0          0          0          0          0          0  #  SizeSel_P4_Survey(2)

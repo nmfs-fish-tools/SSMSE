@@ -4,7 +4,7 @@
 #C file write time: 2019-09-25 11:08:20
 #
 ss3.dat #_datfile
-em.ctl #_ctlfile
+control.ss #_ctlfile
 0 #_init_values_src
 0 #_run_display_detail
 1 #_detailed_age_structure
