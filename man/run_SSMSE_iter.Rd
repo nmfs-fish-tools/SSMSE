@@ -63,7 +63,16 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  nyrs = 6, 
                  nyrs_assess = 3
                  )
-   unlink(temp_path, recursive = TRUE) # clean up
+   unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"), recursive = TRUE)
+  # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
+  # currently exits on error after the first loop.
+     run_SSMSE_iter(OM_name = "cod",
+                 MS = "EM",
+                 out_dir = temp_path,
+                 EM_name = "cod",
+                 nyrs = 6,
+                 nyrs_assess = 3
+     )
  }
 }
 \author{

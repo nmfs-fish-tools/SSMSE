@@ -46,6 +46,7 @@ run_SSMSE_scen <- function() {
 #' @param impl_error Future parameter to specify implementation error.
 #' @param niter The iteration number
 #' @template verbose
+#' @importFrom SSutils copy_SS_inputs
 #' @export
 #' @examples 
 #' \dontrun{
@@ -55,6 +56,7 @@ run_SSMSE_scen <- function() {
 #'   wd <- getwd()
 #'   setwd(temp_path)
 #'   on.exit(setwd(wd), add = TRUE)
+#'   on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 #'   # run 1 iteration and 1 scenario of SSMSE
 #'   run_SSMSE_iter(OM_name = "cod", 
 #'                  MS = "no_catch", 
@@ -62,8 +64,19 @@ run_SSMSE_scen <- function() {
 #'                  nyrs = 6, 
 #'                  nyrs_assess = 3
 #'                  )
-#'    unlink(temp_path, recursive = TRUE) # clean up
+#'   unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"), 
+#'          recursive = TRUE)
+#'   # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
+#'   # currently exits on error after the first loop.
+#'      run_SSMSE_iter(OM_name = "cod",
+#'                  MS = "EM",
+#'                  out_dir = temp_path,
+#'                  EM_name = "cod",
+#'                  nyrs = 6,
+#'                  nyrs_assess = 3
+#'      )
 #'  }
+
 run_SSMSE_iter <- function(OM_name     = "cod", 
                            use_SS_boot = TRUE, 
                            EM_name     = NULL,
@@ -107,10 +120,33 @@ run_SSMSE_iter <- function(OM_name     = "cod",
     # TODO: add sampling functionsthen run a future sampling function that would
     # make it into a dataset.
   }
-  
   if(!is.null(EM_name)) {
-    stop("Option to run EM is not yet possible")
-    #TODO: implement.
+    orig_EM_dir <- pkg_dirs[grep(EM_name, pkg_dirs, fixed = TRUE)]
+    if(!EM_name %in% pkg_mods) {
+      stop("Currently, EM_name can only be one of the following: ", pkg_mods)
+    }
+    # create folder 
+    EM_dir <- file.path(out_dir, paste0(EM_name, "_EM"))
+    copy_SS_inputs(dir.old = orig_EM_dir, dir.new = EM_dir)
+    check_dir(EM_dir)
+    # copy over raw data file from the OM
+    r4ss::SS_writedat(OM_data, 
+                      file.path(EM_dir, "new_data.ss"), 
+                      overwrite = TRUE, 
+                      verbose = verbose)
+    # make sure the data file has the correct formatting (use existing data file
+    # in the EM directory to make sure)??
+    change_data(OM_datafile = "new_data.ss",
+                EM_dir = EM_dir,
+                do_checks = TRUE,
+                verbose = verbose)
+    # given all checks are good, run the EM
+    # check convergence (figure out way to error if need convergence)
+    # get the future catch using the management strategy used in the SS model.
+    new_catch_df <- run_EM(EM_dir = EM_dir, verbose = verbose,
+                           check_converged = TRUE, nyrs_proj = nyrs_assess, 
+                           change_fcast = TRUE)
+    stop("Using an EM in SSMSE is not yet possible beyond the first EM run")
   } else {
     #TODO: make a get catch management strategy function
     if(MS == "last_yr_catch") {
@@ -137,7 +173,6 @@ run_SSMSE_iter <- function(OM_name     = "cod",
       "last_yr_catch and no_catch")
     }
   }
-
   # Next iterations ----
   styr_MSE <- OM_data$endyr
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
@@ -160,27 +195,31 @@ run_SSMSE_iter <- function(OM_name     = "cod",
     # loop EM and get management quantities.
     # TODO: make parsing the management stategy to get the new catch dataframe
     # a separate function
-    if(MS == "last_yr_catch") {
-      #TODO: extend this approach in the case of multiple fishery fleets.
-      # get last year catch. Make sure this will work?
-      new_catch <- rep(OM_data$catch$catch[nrow(OM_data$catch)], 
-                       length.out = nyrs_assess)
-      new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
-                                 # assume always useing the same fleet and season for now
-                                 seas = OM_data$catch$seas[nrow(OM_data$catch)],
-                                 fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
-                                 catch = new_catch,
-                                 catch_se = OM_data$catch$fleet[nrow(OM_data$catch)]$catch_se)
-    } else if(MS == "no_catch") {
-      new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
-                                 # assume always useing the same fleet and season for now
-                                 seas = OM_data$catch$seas[nrow(OM_data$catch)],
-                                 fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
-                                 catch = 0,
-                                 catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
+    if(!is.null(EM_name)){
+      stop("Using an EM in future loops has not yet been implemented")
     } else {
-      stop("The only MS (management strategy) currently implemented is ",
-           "last_yr_catch")
+      if(MS == "last_yr_catch") {
+        #TODO: extend this approach in the case of multiple fishery fleets.
+        # get last year catch. Make sure this will work?
+        new_catch <- rep(OM_data$catch$catch[nrow(OM_data$catch)], 
+                         length.out = nyrs_assess)
+        new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
+                                   # assume always useing the same fleet and season for now
+                                   seas = OM_data$catch$seas[nrow(OM_data$catch)],
+                                   fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                                   catch = new_catch,
+                                   catch_se = OM_data$catch$fleet[nrow(OM_data$catch)]$catch_se)
+      } else if(MS == "no_catch") {
+        new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
+                                   # assume always useing the same fleet and season for now
+                                   seas = OM_data$catch$seas[nrow(OM_data$catch)],
+                                   fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                                   catch = 0,
+                                   catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
+      } else {
+        stop("The only MS (management strategy) currently implemented is ",
+             "last_yr_catch")
+      }
     }
   }
   invisible(TRUE)

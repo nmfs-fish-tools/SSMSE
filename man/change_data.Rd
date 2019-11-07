@@ -19,3 +19,8 @@ datafile to use.}
 \description{
 Change dataset from OM into format for EM
 }
+\examples{
+\dontrun{
+#TODO: Add example
+}
+}

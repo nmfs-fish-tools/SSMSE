@@ -47,3 +47,80 @@ check_dir <- function(dir) {
   }
   invisible(dir)
 }
+
+#' check that an OM data set has at least the same data as an estimation model
+#' @param OM_dat A data set read in using r4ss::SS_readdat from an operating 
+#'  model. Note that it should span the same years as EM_dat.
+#' @param EM_dat A data set read in using r4ss::SS_readdata from an estimation 
+#'  model. Note that it should span the same years as EM_dat
+check_OM_dat <- function(OM_dat, EM_dat) {
+  # check start and end years match
+  if(OM_dat$styr != EM_dat$styr | OM_dat$endyr != EM_dat$endyr) {
+    stop("OM_dat and EM_dat should have the same start and end years. However, ",
+         "OM_dat has styr = ", OM_dat$styr, " and endyr = ", OM_dat$endyr, 
+         ", while EM_dat has styr = ", EM_dat$styr, " and endyr = ",
+         EM_dat$endyr)
+  }
+  # check all index years/fleets in EM available in OM. (but not vice versa)
+  # a general function that can be used
+  #@param EM_dat An SS data file read in using r4ss for an EM
+  #@param OM_dat An SS data file read in using r4ss for an OM
+  #@param list_item A component in both EM_dat and OM_dat to check values for.
+  # This should be a single string value.
+  #@param colnames The column names of data to append together.
+  check_avail_dat <- function(EM_dat, OM_dat, 
+                              list_item = "CPUE", 
+                              colnames = c("year", "seas", "index")) {
+    EM_item <- EM_dat[[list_item]]
+    OM_item <- OM_dat[[list_item]]
+    combo_EM <- combo_OM <-  NULL
+    for(n in colnames) {
+      combo_EM <- c(paste0(combo_EM, EM_item[, n], "_"))
+      combo_OM <- c(paste0(combo_OM, OM_item[, n], "_"))
+    }
+    if(any(!(combo_EM %in% combo_OM))) {
+      stop("The OM_dat does not include all values of ",
+           paste0(colnames, collapse = ", "), " needed for ", list_item, ".")
+    }
+  }
+  check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "CPUE", 
+                  colnames = c("year", "seas", "index"))
+  # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
+  # TODO: add in capabilities to deal with this type of data and remove stop msgs
+  if(OM_dat$use_meanbodywt == 1 | EM_dat$use_meanbodywt == 1) {
+    stop("Models with mean body size observations cannot yet be used as OMs ",
+         "or EMs in SSMSE")
+  }
+  if(OM_dat$use_MeanSize_at_Age_obs == 1 | EM_dat$use_meanbodywt == 1) {
+    stop("Models with mean size-at-age observations cannot yet be used as OMs ",
+         "or EMs in SSMSE")
+  }
+  # check population length bins
+  # check lcomp bins and lcomp bins (if exists)
+  if(EM_dat$use_lencomp == 1) {
+    if(OM_dat$use_lencomp != 1) {
+      stop("The EM expects length composition data, but the OM does not have ",
+           "any. Please add length composition to the ")
+    }
+    # check there are the correct number of columns and same names
+    if(paste0(colnames(OM_dat$lencomp), collapse = "") != 
+       paste0(colnames(EM_dat$lencomp), collapse = "")) {
+      stop("Column names for length composition were not the same for the OM ",
+           "and EM. Please make the length comp bins the same.")
+    }
+    # check there is the same data for Years, Seas, FltSvy available
+    check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "lencomp", 
+                    colnames = c("Yr", "Seas", "FltSvy"))
+    # there may be more rigorous checks to do (checking that gender and partion
+    # is the same?
+  }
+  # check age comp
+  if(paste0(colnames(OM_dat$agecomp), collapse = "") != 
+     paste0(colnames(EM_dat$agecomp), collapse = "")) {
+    stop("Column names for age composition were not the same for the OM ",
+         "and EM. Please make the age comp bins the same.")
+  }
+  check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "agecomp", 
+                  colnames = c("Yr", "Seas", "FltSvy"))
+  invisible(OM_dat)
+}
