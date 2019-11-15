@@ -4,8 +4,13 @@
 \alias{create_OM}
 \title{Create the OM from a stock assessment model}
 \usage{
-create_OM(OM_dir, SA_dir, overwrite = FALSE, add_dummy_dat = FALSE,
-  verbose = FALSE)
+create_OM(
+  OM_dir,
+  SA_dir,
+  overwrite = FALSE,
+  add_dummy_dat = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{OM_dir}{The full path to the OM directory}

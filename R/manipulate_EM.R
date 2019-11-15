@@ -199,6 +199,7 @@ run_EM <- function(EM_dir,
 #' @return A new SS datafile containing the data in EM_datafile with new data 
 #' from OM_data appended
 #' @importFrom r4ss SS_readdat SS_writedat
+#' @importFrom stats na.omit
 add_new_dat <- function(OM_data, 
                         EM_datafile,
                         dat_str = NULL,

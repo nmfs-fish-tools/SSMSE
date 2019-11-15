@@ -68,6 +68,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
   #' @param list_item A component in both EM_dat and OM_dat to check values for.
   #' This should be a single string value.
   #' @param colnames The column names of data to append together.
+  #' @noRd
   check_avail_dat <- function(EM_dat, OM_dat, 
                               list_item = "CPUE", 
                               colnames = c("year", "seas", "index")) {

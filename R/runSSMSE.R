@@ -176,7 +176,7 @@ run_SSMSE_iter <- function(OM_name     = "cod",
                              out_dir = out_dir, OM_data = OM_data, 
                              init_loop = FALSE, verbose = verbose,
                              nyrs_assess = nyrs_assess, 
-                             dat_yrs = (yr+1):(yr+nyears_assess),
+                             dat_yrs = (yr+1):(yr+nyrs_assess),
                              dat_str = dat_str)
    }
   invisible(TRUE)

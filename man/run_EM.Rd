@@ -4,9 +4,17 @@
 \alias{run_EM}
 \title{Run the estimation model}
 \usage{
-run_EM(EM_dir, hess = FALSE, check_converged = TRUE, nyrs_proj,
-  set_use_par = FALSE, change_fcast = FALSE, seas = 1,
-  catch_se = 0.01, verbose = FALSE)
+run_EM(
+  EM_dir,
+  hess = FALSE,
+  check_converged = TRUE,
+  nyrs_proj,
+  set_use_par = FALSE,
+  change_fcast = FALSE,
+  seas = 1,
+  catch_se = 0.01,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{EM_dir}{Absolute or relative path to the estimation model directory}

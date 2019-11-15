@@ -2,11 +2,22 @@
 % Please edit documentation in R/runSSMSE.R
 \name{run_SSMSE_iter}
 \alias{run_SSMSE_iter}
-\title{Run 1 iteration of an MSE using SS OM}
+\title{Run one iteration of an MSE using SS OM}
 \usage{
-run_SSMSE_iter(OM_name = "cod", use_SS_boot = TRUE, EM_name = NULL,
-  MS = "last_yr_catch", out_dir = NULL, nyrs = 100,
-  nyrs_assess = 3, impl_error = NULL, niter = 1, verbose = FALSE)
+run_SSMSE_iter(
+  OM_name = "cod",
+  use_SS_boot = TRUE,
+  EM_name = NULL,
+  EM_dir = NULL,
+  MS = "last_yr_catch",
+  out_dir = NULL,
+  nyrs = 100,
+  nyrs_assess = 3,
+  impl_error = NULL,
+  niter = 1,
+  dat_str = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{OM_name}{Name of a valid Stock Synthesis stock assessment model from 
@@ -18,9 +29,13 @@ Defaults to TRUE.}
 
 \item{EM_name}{Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
 Synthesis stock assessment model to use as an EM. If the value of EM_name 
-is NULL and  \code{MS = "EM}, then SSMSE will look for the estimation model
+is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
 in the path specified in EM_dir. valid inputs for EM_name are: \code{"cod"}
  or \code{NULL}.}
+
+\item{EM_dir}{Relative or absolute path to the estimation model, if using a 
+model outside of the SSMSE package. Note that this value should be NULL if
+\code{MS} has a value other than "EM".}
 
 \item{MS}{The management strategy to use. Current options
 are:  \code{"last_yr_catch"} which uses the previous year's catch; 
@@ -43,11 +58,13 @@ assessments.)}
 
 \item{niter}{The iteration number}
 
-\item{verbose}{Want verbose output? Defaults to FALSE.}
+\item{dat_str}{A optional list including which years, seasons, and fleets
+should be  added from the OM into the EM for different types of data.
+If NULL, the data structure will try to be infered from the pattern found 
+for each of the datatypes within the EM datafiles. Include this strucutre
+for the number of years to extend the model out.}
 
-\item{EM_dir}{Relative or absolute path to the estimation model, if using a 
-model outside of the SSMSE package. Note that this value should be NULL if
-\code{MS} has a value other than "EM".}
+\item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \description{
 High level function to run 1 iteration of a scenario for a management 
@@ -61,16 +78,17 @@ strategy evaluation using Stock Synthesis as the Operating model.
   wd <- getwd()
   setwd(temp_path)
   on.exit(setwd(wd), add = TRUE)
-  on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
-  # run 1 iteration and 1 scenario of SSMSE
-  run_SSMSE_iter(OM_name = "cod", 
-                 MS = "no_catch", 
+  #on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+  #run 1 iteration and 1 scenario of SSMSE
+  run_SSMSE_iter(OM_name = "cod",
+                 MS = "no_catch",
                  out_dir = temp_path,
-                 nyrs = 6, 
+                 nyrs = 6,
                  nyrs_assess = 3
                  )
-  unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"), 
-         recursive = TRUE)
+                 browser()
+   unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"), 
+          recursive = TRUE)
   # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
   # currently exits on error after the first loop.
      run_SSMSE_iter(OM_name = "cod",
@@ -78,7 +96,11 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  out_dir = temp_path,
                  EM_name = "cod",
                  nyrs = 6,
-                 nyrs_assess = 3
+                 nyrs_assess = 3,
+                 dat_str = list(
+                   catch = data.frame(year = 100:106, seas = 1, fleet = 1),
+                   CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
+                 )
      )
  }
 }

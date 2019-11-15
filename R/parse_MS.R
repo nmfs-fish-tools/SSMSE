@@ -14,7 +14,7 @@
 #' @param EM_dir Relative or absolute path to the estimation model, if using a 
 #'   model outside of the SSMSE package. Note that this value should be NULL if
 #'   \code{MS} has a value other than \code{"EM"}.
-#' @param init_loop. Logical. If this is the first initialization loop of the 
+#' @param init_loop Logical. If this is the first initialization loop of the 
 #'   MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 #'   be FALSE.
 #' @param out_dir The directory to which to write output. IF NULL, will default

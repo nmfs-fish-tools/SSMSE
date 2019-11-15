@@ -4,10 +4,17 @@
 \alias{run_ss_model}
 \title{Run an operating or estimation model}
 \usage{
-run_ss_model(dir, admb_options = "", ss_bin = "ss",
-  ignore.stdout = TRUE, admb_pause = 0.05,
-  show.output.on.console = FALSE, check_run = TRUE, verbose = FALSE,
-  ...)
+run_ss_model(
+  dir,
+  admb_options = "",
+  ss_bin = "ss",
+  ignore.stdout = TRUE,
+  admb_pause = 0.05,
+  show.output.on.console = FALSE,
+  check_run = TRUE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{dir}{The full or relative path to the model directory}

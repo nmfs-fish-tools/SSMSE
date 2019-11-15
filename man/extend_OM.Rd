@@ -4,8 +4,13 @@
 \alias{extend_OM}
 \title{Extend the OM forward using next years' catch}
 \usage{
-extend_OM(catch, OM_dir, dummy_dat_scheme = NULL, nyrs_extend = 3,
-  verbose = FALSE)
+extend_OM(
+  catch,
+  OM_dir,
+  dummy_dat_scheme = NULL,
+  nyrs_extend = 3,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{catch}{A dataframe of catch values and its associated information to

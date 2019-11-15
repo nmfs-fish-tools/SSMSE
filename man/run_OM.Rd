@@ -4,8 +4,7 @@
 \alias{run_OM}
 \title{Initial run of the OM}
 \usage{
-run_OM(OM_dir, boot = TRUE, nboot = 1, init_run = FALSE,
-  verbose = FALSE)
+run_OM(OM_dir, boot = TRUE, nboot = 1, init_run = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{OM_dir}{The full path to the OM directory}

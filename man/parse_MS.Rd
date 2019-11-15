@@ -4,8 +4,18 @@
 \alias{parse_MS}
 \title{Parse management strategy options}
 \usage{
-parse_MS(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
-  out_dir, OM_data, verbose = FALSE, nyrs_assess)
+parse_MS(
+  MS,
+  EM_name = NULL,
+  EM_dir = NULL,
+  init_loop = TRUE,
+  out_dir,
+  OM_data,
+  verbose = FALSE,
+  nyrs_assess,
+  dat_yrs,
+  dat_str
+)
 }
 \arguments{
 \item{MS}{The management strategy to use. Current options
@@ -15,13 +25,17 @@ management strategy in the estimation model.}
 
 \item{EM_name}{Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
 Synthesis stock assessment model to use as an EM. If the value of EM_name 
-is NULL and  \code{MS = "EM}, then SSMSE will look for the estimation model
+is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
 in the path specified in EM_dir. valid inputs for EM_name are: \code{"cod"}
 or \code{NULL}.}
 
 \item{EM_dir}{Relative or absolute path to the estimation model, if using a 
 model outside of the SSMSE package. Note that this value should be NULL if
-\code{MS} has a value other than "EM".}
+\code{MS} has a value other than \code{"EM"}.}
+
+\item{init_loop}{Logical. If this is the first initialization loop of the 
+MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
+be FALSE.}
 
 \item{out_dir}{The directory to which to write output. IF NULL, will default
 to the working directory.}
@@ -34,9 +48,13 @@ this should be sampled data.}
 \item{nyrs_assess}{The number of years between assessments. E.g., if an
 assessment is conducted every 3 years, put 3 here. A single integer value.}
 
-\item{init_loop.}{Logical. If this is the first initialization loop of the 
-MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
-be FALSE.}
+\item{dat_yrs}{Which years should be added to the new model? Ignored if
+init_loop is TRUE.}
+
+\item{dat_str}{A optional list including which years and fleets should be 
+added from the OM into the EM for different types of data. If NULL, the data
+structure will try to be infered from the pattern found for each of the 
+datatypes within EM_datafile. Ignored if init_loop is TRUE.}
 }
 \description{
 This function matches each management strategy with its correct method. And
