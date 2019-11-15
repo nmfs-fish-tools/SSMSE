@@ -61,13 +61,13 @@ check_OM_dat <- function(OM_dat, EM_dat) {
          ", while EM_dat has styr = ", EM_dat$styr, " and endyr = ",
          EM_dat$endyr)
   }
-  # check all index years/fleets in EM available in OM. (but not vice versa)
-  # a general function that can be used
-  #@param EM_dat An SS data file read in using r4ss for an EM
-  #@param OM_dat An SS data file read in using r4ss for an OM
-  #@param list_item A component in both EM_dat and OM_dat to check values for.
-  # This should be a single string value.
-  #@param colnames The column names of data to append together.
+  #'  check all index years/fleets in EM available in OM. (but not vice versa)
+  #'  a general function that can be used
+  #' @param EM_dat An SS data file read in using r4ss for an EM
+  #' @param OM_dat An SS data file read in using r4ss for an OM
+  #' @param list_item A component in both EM_dat and OM_dat to check values for.
+  #' This should be a single string value.
+  #' @param colnames The column names of data to append together.
   check_avail_dat <- function(EM_dat, OM_dat, 
                               list_item = "CPUE", 
                               colnames = c("year", "seas", "index")) {
@@ -123,4 +123,76 @@ check_OM_dat <- function(OM_dat, EM_dat) {
   check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "agecomp", 
                   colnames = c("Yr", "Seas", "FltSvy"))
   invisible(OM_dat)
+}
+
+#' Check dat_str_list
+#' 
+#' Check that list object dat_str_list has the expected form, including the 
+#' correct names, correct column names (as in r4ss), and that all values in the
+#' dataframes are integer or numeric. This does not check for if numeric or 
+#' interger values make sense given the model used.
+#' @param dat_str The list to check. Should be a list including which years and
+#'  fleets should be added from the OM into the EM for different types of data.
+check_dat_str <- function(dat_str) {
+  # list components should have same names as in r4ss
+  valid_names <- list(catch   = c("year", "seas", "fleet"),
+                      CPUE    = c("year", "seas", "index"),
+                      lencomp = c("Yr", "Seas", "FltSvy", "Gender", "Part"), 
+                      agecomp = c("Yr", "Seas", "FltSvy", "Gender","Part",
+                                  "Ageerr", "Lbin_lo", "Lbin_hi")
+                      )
+  # check no repeat names
+  if(length(unique(names(dat_str))) != length(names(dat_str))) {
+    stop("There are repeated names in dat_str. Please make sure each list ",
+         "component has a unique name.")
+  }
+  # Check correct names and column names
+  error <- mapply(function(x, x_name, valid_names) {
+    #
+    col_names <- colnames(x)
+    # find the valid_names that matches x_names
+    err <- NULL
+    if(! x_name %in% names(valid_names)) {
+      err <- "wrong list name"
+    } else {
+      valid_cols <- valid_names[[which(names(valid_names) == x_name)]]
+      if(any(col_names != valid_cols)) {
+        err <- "wrong column names in list component"
+      }
+    }
+    err
+  }, 
+  x = dat_str, x_name = names(dat_str),
+  MoreArgs =  list(valid_names = valid_names), 
+  SIMPLIFY = FALSE)
+  
+  lapply(error, function(e, v) {
+    if(!is.null(e)) {
+      stop("Invalid input for dat_str due to ", e, ". Please check that all", 
+           " names are not anything other than ", 
+           paste0(names(v), collapse = ", "), " and have the column names ",
+           "that match with r4ss data lists:\n",
+           paste0(paste0(names(v),": ", v), collapse = "\n"))
+    }
+    invisible("no_error")
+  }, v = valid_names)
+  # check that all values can be coerced to numeric
+  lapply(dat_str, function(dataframe) {
+    apply(dataframe, 2, function(col) {
+      if(!is.numeric(col) & !is.integer(col)) {
+        stop("Some values in dat_str are not integers or numeric. Please check ", 
+             "that all values in the list components (dataframes) of dat_str", 
+             "are either integer or numeric.")
+      }
+    })
+  })
+  invisible("no_error")
+}
+
+#' Error if object is not an r4ss object 
+#' @param obj_name Object name that is not an r4ss object to print in the error
+#' @param type Type that obj_name was expected to be, but is not, 
+r4ss_obj_err <- function(obj_name = "object ", type = "list") {
+  stop(obj_name, " was found to not be an r4ss ", type, ". Please read in ", 
+       obj_name, " using r4ss read functions.")
 }

@@ -21,7 +21,7 @@ test_that("get_EM_dat works", {
   EM_dat$CPUE <- EM_dat$CPUE[-rm_ind, ] #remove the first 2 rows
   EM_dat$lencomp <- EM_dat$lencomp[-rm_ind, ]
   EM_dat$agecomp <- EM_dat$agecomp[-rm_ind, ]
-  
+
   EM_dat$CPUE$obs <- 999 #to make it easier to identify if the values change4
   new_dat <- get_EM_dat(OM_dat, EM_dat,  do_checks = FALSE)
   row_names <- c("year", "seas", "index")
@@ -72,3 +72,35 @@ test_that("run_EM exits on error when it should", {
                       change_fcast = TRUE),
                "argument \"nyrs_proj\" is missing, with no default")
 })
+
+test_that("add_new_dat works", {
+  OM_dat <- r4ss::SS_readdat(file.path(cod_mod, "ss3.dat"), verbose = FALSE)
+  EM_dat <- OM_dat #for simplicity, mock OM/EM dat.
+  # get rid of a few years of data
+  c  <- EM_dat$catch[(nrow(EM_dat$catch)-2):nrow(EM_dat$catch), 1:3]
+  CP <- EM_dat$CPUE[nrow(EM_dat$CPUE), 1:3, drop = FALSE]
+  EM_dat$catch <- EM_dat$catch[-((nrow(EM_dat$catch)-2):nrow(EM_dat$catch)), ]
+  EM_dat$CPUE  <- EM_dat$CPUE[-nrow(EM_dat$CPUE), ]
+  # the data structure is the 
+  dat_str <- list(
+    catch = c,
+    CPUE  = CP)
+  r4ss::SS_writedat(EM_dat, file.path(temp_path, "cod_EM_dat.ss"), 
+                    overwrite = TRUE)
+  new_EM_dat <- add_new_dat(
+                  OM_data = OM_dat,
+                  EM_datafile = "cod_EM_dat.ss",
+                  dat_str = dat_str, 
+                  EM_dir = temp_path,
+                  do_checks = TRUE, 
+                  new_datafile_name = NULL, 
+                  verbose = FALSE)
+  expect_equal(OM_dat$catch$year[order(OM_dat$catch$year)], 
+               new_EM_dat$catch$year[order(new_EM_dat$catch$year)])
+  expect_equal(OM_dat$CPUE$year[order(OM_dat$CPUE$year)], 
+               new_EM_dat$CPUE$year[order(new_EM_dat$CPUE$year)])
+})
+
+#TODO: write this test
+# test_that("add_new_dat fails as expected", {
+# })
