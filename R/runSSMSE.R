@@ -15,12 +15,11 @@ run_SSMSE_scen <- function() {
   
 }
 
-#' Run 1 iteration of an MSE using SS OM
+#' Run one iteration of an MSE using SS OM
 #' 
 #' High level function to run 1 iteration of a scenario for a management 
 #' strategy evaluation using Stock Synthesis as the Operating model.
 #' 
-#' @author Kathryn Doering
 #' @param OM_name Name of a valid Stock Synthesis stock assessment model from 
 #'   which to create the OM. Currently, only allows models in the package, so 
 #'   valid inputs are: \code{"cod"}.
@@ -29,7 +28,7 @@ run_SSMSE_scen <- function() {
 #' @template MS
 #' @param EM_name Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
 #'   Synthesis stock assessment model to use as an EM. If the value of EM_name 
-#'   is NULL and  \code{MS = "EM}, then SSMSE will look for the estimation model
+#'   is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
 #'   in the path specified in EM_dir. valid inputs for EM_name are: \code{"cod"}
 #'    or \code{NULL}.
 #' @param EM_dir Relative or absolute path to the estimation model, if using a 
@@ -46,9 +45,15 @@ run_SSMSE_scen <- function() {
 #'   assessments.)
 #' @param impl_error Future parameter to specify implementation error.
 #' @param niter The iteration number
+#' @param dat_str A optional list including which years, seasons, and fleets
+#'  should be  added from the OM into the EM for different types of data.
+#'  If NULL, the data structure will try to be infered from the pattern found 
+#'  for each of the datatypes within the EM datafiles. Include this strucutre
+#'  for the number of years to extend the model out.
 #' @template verbose
 #' @importFrom SSutils copy_SS_inputs
 #' @export
+#' @author Kathryn Doering
 #' @examples 
 #' \dontrun{
 #'   # Create a temporary folder for the output and set the working directory:
@@ -57,16 +62,17 @@ run_SSMSE_scen <- function() {
 #'   wd <- getwd()
 #'   setwd(temp_path)
 #'   on.exit(setwd(wd), add = TRUE)
-#'   on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
-#'   # run 1 iteration and 1 scenario of SSMSE
-#'   run_SSMSE_iter(OM_name = "cod", 
-#'                  MS = "no_catch", 
+#'   #on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+#'   #run 1 iteration and 1 scenario of SSMSE
+#'   run_SSMSE_iter(OM_name = "cod",
+#'                  MS = "no_catch",
 #'                  out_dir = temp_path,
-#'                  nyrs = 6, 
+#'                  nyrs = 6,
 #'                  nyrs_assess = 3
 #'                  )
-#'   unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"), 
-#'          recursive = TRUE)
+#'                  browser()
+#'    unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"), 
+#'           recursive = TRUE)
 #'   # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
 #'   # currently exits on error after the first loop.
 #'      run_SSMSE_iter(OM_name = "cod",
@@ -74,19 +80,25 @@ run_SSMSE_scen <- function() {
 #'                  out_dir = temp_path,
 #'                  EM_name = "cod",
 #'                  nyrs = 6,
-#'                  nyrs_assess = 3
+#'                  nyrs_assess = 3,
+#'                  dat_str = list(
+#'                    catch = data.frame(year = 100:106, seas = 1, fleet = 1),
+#'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
+#'                  )
 #'      )
 #'  }
 
 run_SSMSE_iter <- function(OM_name     = "cod", 
                            use_SS_boot = TRUE, 
                            EM_name     = NULL,
+                           EM_dir      = NULL,
                            MS          = "last_yr_catch",
                            out_dir     = NULL,
                            nyrs        = 100, 
                            nyrs_assess = 3,
                            impl_error  = NULL,
                            niter = 1, 
+                           dat_str = NULL,
                            verbose = FALSE) {
   # input checks ----
   pkg_mods <- list.files(system.file("extdata", "models", package = "SSMSE"))
@@ -118,13 +130,15 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   if(use_SS_boot == FALSE) {
     stop("Currently, only sampling can be done using the bootstrapping ", 
          "capabilities within SS")
-    # TODO: add sampling functionsthen run a future sampling function that would
+    # TODO: add sampling functions then run a future sampling function that would
     # make it into a dataset.
   }
   # get catch using the chosen management strategy ----
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
-  new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir)
+  new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir, 
+                           out_dir = out_dir, OM_data = OM_data, 
+                           verbose = verbose, nyrs_assess = nyrs_assess)
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
@@ -133,48 +147,37 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   assess_yrs <- assess_yrs[-1]
   # Loop over the assessment years.
   for (yr in assess_yrs) {
+    # checks, esp. to make sure future catch is not larger than the population
+    # biomass (or size, depending on units)
     check_future_catch(catch = new_catch_df, 
                        OM_dir = OM_dir,
                        catch_units = "bio")
-    #add catch to the OM
+    #add new years of catch to the OM and add dummy values where necessary.
     extend_OM(catch = new_catch_df, 
               OM_dir = OM_dir, 
               nyrs_extend = nyrs_assess,
               verbose = verbose)
-    # rerun OM, get samples, etc. ()
+    # rerun OM (without estimation), get samples (or expected values)
+    if(use_SS_boot == TRUE) {
     new_OM_data <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
                            verbose = verbose)
-    # Only want data for the new years: (yr-nyrs_assess):yr
+    } else {
+      stop("Currently, only sampling can be done using the bootstrapping ", 
+           "capabilities within SS")
+    }
+    # Only want data for the new years: (yr+nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
     # TODO: make parsing the management stategy to get the new catch dataframe
-    # a separate function
-    if(!is.null(EM_name)){
-      stop("Using an EM in future loops has not yet been implemented")
-    } else {
-      if(MS == "last_yr_catch") {
-        #TODO: extend this approach in the case of multiple fishery fleets.
-        # get last year catch. Make sure this will work?
-        new_catch <- rep(OM_data$catch$catch[nrow(OM_data$catch)], 
-                         length.out = nyrs_assess)
-        new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
-                                   # assume always useing the same fleet and season for now
-                                   seas = OM_data$catch$seas[nrow(OM_data$catch)],
-                                   fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
-                                   catch = new_catch,
-                                   catch_se = OM_data$catch$fleet[nrow(OM_data$catch)]$catch_se)
-      } else if(MS == "no_catch") {
-        new_catch_df <- data.frame(year = (yr + 1):(yr + nyrs_assess), 
-                                   # assume always useing the same fleet and season for now
-                                   seas = OM_data$catch$seas[nrow(OM_data$catch)],
-                                   fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
-                                   catch = 0,
-                                   catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
-      } else {
-        stop("The only MS (management strategy) currently implemented is ",
-             "last_yr_catch")
-      }
-    }
-  }
+    # a separate function - need separate function from already created? Or 
+    # build on the exiting one?
+    #parse_MS_future(dat_str = dat_str)
+    new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir, 
+                             out_dir = out_dir, OM_data = OM_data, 
+                             init_loop = FALSE, verbose = verbose,
+                             nyrs_assess = nyrs_assess, 
+                             dat_yrs = (yr+1):(yr+nyears_assess),
+                             dat_str = dat_str)
+   }
   invisible(TRUE)
 }

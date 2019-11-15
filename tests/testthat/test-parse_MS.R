@@ -44,6 +44,8 @@ test_that("parse_MS works as currently expected for estimation model methods", {
   expect_true(ncol(catch_df_3) == 5)
   expect_equivalent(colnames(catch_df_3),
                     c("year", "seas", "fleet", "catch", "catch_se"))
+  #TODO: add tests to make sure parse_MS works for future iterations
+  
 })
 
 test_that("parse_MS catches errors when it should", {
