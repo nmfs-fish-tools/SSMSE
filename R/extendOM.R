@@ -47,7 +47,6 @@ extend_OM <- function(catch,
     dat$lencomp <- rbind(dat$lencomp, dummy_dat$lencomp)
     dat$agecomp <- rbind(dat$agecomp, dummy_dat$agecomp)
   }
-
   # write the new data file
   r4ss::SS_writedat(dat, 
                     outfile = file.path(OM_dir, start$datfile),
@@ -73,33 +72,48 @@ get_dummy_dat <- function(dummy_dat_scheme) {
 #'  year,	season, fleet,	catch,	catch_se).
 #' length of the number of years (only works when catch is for 1 fleet)
 #' @param OM_dir The full path to the OM directory.
+#' @param datfile The optional name (as a character string) of the datafile, 
+#'  presumed to exist in \code{OM_dir}. Defaults to NULL, and if is NULL, the 
+#'  function will get the datfile name from the starter.ss file in \code{OM_dir}.
 #' @param catch_units What units is the catch in? "bio" for biomass or "num" for
 #'   numbers? Defaults to "bio".
-#' @importFrom r4ss SS_read_summary
-check_future_catch <- function(catch, OM_dir, catch_units = "bio") {
+#' @importFrom r4ss SS_read_summary SS_readstarter SS_readdat
+check_future_catch <- function(catch, OM_dir, catch_units = "bio", 
+                               datfile = NULL) {
   #input checks
   check_catch_df(catch)
   check_dir(OM_dir)
   summary <- r4ss::SS_read_summary(file.path(OM_dir, "ss_summary.sso"))
+  if(is.null(datfile)) {
+    start <- SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = FALSE)
+    dat   <- SS_readdat(file.path(OM_dir, start$datfile), verbose = FALSE, 
+                        section = 1)
+  } else {
+    dat   <- SS_readdat(file.path(OM_dir, datfile), verbose = FALSE, 
+                        section = 1)
+  }
   if(is.null(summary)) {
     stop("File ss_summary.sso was not found in directory: ", OM_dir, ". Please",
+         " add the file to the directory or change OM_dir to one with this ",
+         "file.")
+  }
+  if(is.null(dat)) {
+    stop("Datafile was not found in directory: ", OM_dir, ". Please",
          " add the file to the directory or change OM_dir to one with this ",
          "file.")
   }
   #TODO: check that can you always get biomass for any model? Probalby not if
   # catch units are in numbers. Any other scenarios when this is true?
   if(catch_units == "bio") {
-    tot_bio <- summary$biomass[grep("TotBio", rownames(summary$biomass)), ]
-    #this should be the last model year, but could make it more robust
-    tot_bio_lyear <- tot_bio[nrow(tot_bio), ]
-    yr <- as.numeric(strsplit(rownames(tot_bio_lyear), 
-                                      split = "_", 
-                                      fixed = TRUE)[[1]][2])
-    if(yr > min(catch$year)) {
+    tot_bio_lyear <- 
+      summary$biomass[
+        grep(paste0("TotBio_", dat$endyr), rownames(summary$biomass)), ]
+    if(dat$endyr >= min(catch$year)) {
       stop("The highest year for which TotBio in ss_summary.sso is available (in", 
-          " the dir ", OM_dir, " is ", yr, " which is higher than the minimum year",
-           " value in catch, which is ", min(catch$year), ". The catch should ", 
-          "only contain values in the future compared to the model summary.")
+          " the dir ", OM_dir, " is ", dat$endyr, " which is equal to or higher than ",
+          "the minimum year value in catch, which is ", min(catch$year), ". ",
+          "The catch should only contain values in the future compared to the ",
+          "model summary.")
     }
     if(any(catch$catch > tot_bio_lyear$Value)) {
       stop("Some input values for future catch are higher than the most recent",
