@@ -126,7 +126,7 @@ run_SSMSE_iter <- function(OM_name     = "cod",
             verbose = verbose, writedat = TRUE)
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
-    OM_data <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
+    OM_dat <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
                            verbose = verbose, init_run = TRUE)
   }
   if(use_SS_boot == FALSE) {
@@ -139,12 +139,12 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
   new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir, 
-                           out_dir = out_dir, OM_data = OM_data, 
+                           out_dir = out_dir, OM_dat = OM_dat, 
                            verbose = verbose, nyrs_assess = nyrs_assess)
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
-  styr_MSE <- OM_data$endyr
+  styr_MSE <- OM_dat$endyr
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
   assess_yrs <- assess_yrs[-1]
   # Loop over the assessment years.
@@ -161,7 +161,7 @@ run_SSMSE_iter <- function(OM_name     = "cod",
               verbose = verbose)
     # rerun OM (without estimation), get samples (or expected values)
     if(use_SS_boot == TRUE) {
-    new_OM_data <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
+    new_OM_dat <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
                            verbose = verbose)
     } else {
       stop("Currently, only sampling can be done using the bootstrapping ", 
@@ -175,7 +175,7 @@ run_SSMSE_iter <- function(OM_name     = "cod",
     # build on the exiting one?
     #parse_MS_future(dat_str = dat_str)
     new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir, 
-                             out_dir = out_dir, OM_data = new_OM_data, 
+                             out_dir = out_dir, OM_dat = new_OM_dat, 
                              init_loop = FALSE, verbose = verbose,
                              nyrs_assess = nyrs_assess, 
                              dat_yrs = (yr+1):(yr+nyrs_assess),

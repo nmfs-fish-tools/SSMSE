@@ -5,39 +5,39 @@
 \title{Add new data to an existing EM dataset}
 \usage{
 add_new_dat(
-  OM_data,
-  EM_datafile,
+  OM_dat,
+  EM_datfile,
   dat_str = NULL,
   EM_dir,
   do_checks = TRUE,
-  new_datafile_name = NULL,
+  new_datfile_name = NULL,
   verbose = FALSE
 )
 }
 \arguments{
-\item{OM_data}{An valid SS data file read in using r4ss. In particular,
+\item{OM_dat}{An valid SS data file read in using r4ss. In particular,
 this should be sampled data.}
 
-\item{EM_datafile}{Datafile name run in previous iterations with the EM.
+\item{EM_datfile}{Datafile name run in previous iterations with the EM.
 Assumed to exist in EM_dir.}
 
 \item{dat_str}{A optional list including which years and fleets should be 
 added from the OM into the EM for different types of data. If NULL, the data
 structure will try to be infered from the pattern found for each of the 
-datatypes within EM_datafile.}
+datatypes within EM_datfile.}
 
 \item{EM_dir}{Absolute or relative path to the Estimation model directory.}
 
 \item{do_checks}{Should checks on the data be performed? Defaults to TRUE.}
 
-\item{new_datafile_name}{An optional name of a file to write the new datafile
+\item{new_datfile_name}{An optional name of a file to write the new datafile
 to. If NULL, a new datafile will not be written.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \value{
-A new SS datafile containing the data in EM_datafile with new data 
-from OM_data appended
+A new SS datafile containing the data in EM_datfile with new data 
+from OM_dat appended
 }
 \description{
 This should be used for the feedback loops when an EM is used.

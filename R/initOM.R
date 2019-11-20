@@ -94,12 +94,12 @@ create_OM <- function(OM_dir,
                                      Part   = tmp_metacols["Part"],
                                      Nsamp = 125 # may need to make this more robust
                                      ))
-        tmp_df_data <- matrix(1,
+        tmp_df_dat <- matrix(1,
                            nrow = nrow(tmp_df_lencomp),
                            ncol = ncol(old_lencomp) - 6)
-        colnames(tmp_df_data) <- colnames(old_lencomp)[7:ncol(old_lencomp)]
-        tmp_df_data <- as.data.frame(tmp_df_data)
-        tmp_df_lencomp <- cbind(tmp_df_lencomp, tmp_df_data)
+        colnames(tmp_df_dat) <- colnames(old_lencomp)[7:ncol(old_lencomp)]
+        tmp_df_dat <- as.data.frame(tmp_df_dat)
+        tmp_df_lencomp <- cbind(tmp_df_lencomp, tmp_df_dat)
         # add these new dummy lines to the lencomp
         new_lencomp <- rbind(new_lencomp, tmp_df_lencomp)
       }
@@ -142,12 +142,12 @@ create_OM <- function(OM_dir,
                                    Lbin_hi = tmp_metacols["Lbin_hi"],
                                    Nsamp   = 125 # may need to make this more robust
       ))
-      tmp_df_data <- matrix(1,
+      tmp_df_dat <- matrix(1,
                             nrow = nrow(tmp_df_agecomp),
                             ncol = ncol(old_agecomp) - 9)
-      colnames(tmp_df_data) <- colnames(old_agecomp)[10:ncol(old_agecomp)]
-      tmp_df_data <- as.data.frame(tmp_df_data)
-      tmp_df_agecomp <- cbind(tmp_df_agecomp, tmp_df_data)
+      colnames(tmp_df_dat) <- colnames(old_agecomp)[10:ncol(old_agecomp)]
+      tmp_df_dat <- as.data.frame(tmp_df_dat)
+      tmp_df_agecomp <- cbind(tmp_df_agecomp, tmp_df_dat)
       # add these new dummy lines to the lencomp
       new_agecomp <- rbind(new_agecomp, tmp_df_agecomp)
     }

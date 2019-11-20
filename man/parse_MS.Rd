@@ -10,7 +10,7 @@ parse_MS(
   EM_dir = NULL,
   init_loop = TRUE,
   out_dir,
-  OM_data,
+  OM_dat,
   verbose = FALSE,
   nyrs_assess,
   dat_yrs,
@@ -40,7 +40,7 @@ be FALSE.}
 \item{out_dir}{The directory to which to write output. IF NULL, will default
 to the working directory.}
 
-\item{OM_data}{An valid SS data file read in using r4ss. In particular,
+\item{OM_dat}{An valid SS data file read in using r4ss. In particular,
 this should be sampled data.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
@@ -54,7 +54,7 @@ init_loop is TRUE.}
 \item{dat_str}{A optional list including which years and fleets should be 
 added from the OM into the EM for different types of data. If NULL, the data
 structure will try to be infered from the pattern found for each of the 
-datatypes within EM_datafile. Ignored if init_loop is TRUE.}
+datatypes within EM_datfile. Ignored if init_loop is TRUE.}
 }
 \description{
 This function matches each management strategy with its correct method. And

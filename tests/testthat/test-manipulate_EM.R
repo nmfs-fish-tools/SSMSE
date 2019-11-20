@@ -88,12 +88,12 @@ test_that("add_new_dat works", {
   r4ss::SS_writedat(EM_dat, file.path(temp_path, "cod_EM_dat.ss"), 
                     overwrite = TRUE)
   new_EM_dat <- add_new_dat(
-                  OM_data = OM_dat,
-                  EM_datafile = "cod_EM_dat.ss",
+                  OM_dat = OM_dat,
+                  EM_datfile = "cod_EM_dat.ss",
                   dat_str = dat_str, 
                   EM_dir = temp_path,
                   do_checks = TRUE, 
-                  new_datafile_name = NULL, 
+                  new_datfile_name = NULL, 
                   verbose = FALSE)
   expect_equal(OM_dat$catch$year[order(OM_dat$catch$year)], 
                new_EM_dat$catch$year[order(new_EM_dat$catch$year)])

@@ -1,7 +1,7 @@
 # functions to manipulate the estimation model.
 
 #' Change dataset from OM into format for EM
-#' @param OM_datafile Relative or absolute path with filename to the
+#' @param OM_datfile Relative or absolute path with filename to the
 #' datafile to use.
 #' @param EM_dir Absolute or relative path to the Estimation model directory.
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
@@ -10,14 +10,14 @@
 #' @examples \dontrun{
 #' #TODO: Add example
 #' }
-change_data <- function(OM_datafile, EM_dir, do_checks = TRUE, verbose = FALSE) {
+change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
   EM_dir <- normalizePath(EM_dir)
   # checks
   check_dir(EM_dir)
   # get the name of the original datafile
   start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
   orig_dat <- SS_readdat(file.path(EM_dir, start$datfile), verbose = verbose)
-  OM_dat <- SS_readdat(file.path(EM_dir, OM_datafile), verbose = verbose)
+  OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = verbose)
   # remove extra years of data in the OM data file, maybe something in ss3sim?
   new_EM_dat <- get_EM_dat(OM_dat = OM_dat, EM_dat = orig_dat, 
                            do_checks = do_checks)
@@ -27,7 +27,7 @@ change_data <- function(OM_datafile, EM_dir, do_checks = TRUE, verbose = FALSE) 
               overwrite = TRUE)
   start$datfile <- "init_dat.ss"
   SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE)
-  invisible(OM_datafile) # b/c function written for side effects.
+  invisible(OM_datfile) # b/c function written for side effects.
 }
 
 #' Change the OM data to match the format of the EM data
@@ -184,86 +184,86 @@ run_EM <- function(EM_dir,
 #' Add new data to an existing EM dataset
 #' 
 #' This should be used for the feedback loops when an EM is used.
-#' @param OM_data An valid SS data file read in using r4ss. In particular,
+#' @param OM_dat An valid SS data file read in using r4ss. In particular,
 #'   this should be sampled data.
-#' @param EM_datafile Datafile name run in previous iterations with the EM.
+#' @param EM_datfile Datafile name run in previous iterations with the EM.
 #'  Assumed to exist in EM_dir.
 #' @param dat_str A optional list including which years and fleets should be 
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the 
-#'  datatypes within EM_datafile.
+#'  datatypes within EM_datfile.
 #' @param EM_dir Absolute or relative path to the Estimation model directory.
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
-#' @param new_datafile_name An optional name of a file to write the new datafile
+#' @param new_datfile_name An optional name of a file to write the new datafile
 #'  to. If NULL, a new datafile will not be written.
 #' @template verbose
-#' @return A new SS datafile containing the data in EM_datafile with new data 
-#' from OM_data appended
+#' @return A new SS datafile containing the data in EM_datfile with new data 
+#' from OM_dat appended
 #' @importFrom r4ss SS_readdat SS_writedat
 #' @importFrom stats na.omit
-add_new_dat <- function(OM_data, 
-                        EM_datafile,
+add_new_dat <- function(OM_dat, 
+                        EM_datfile,
                         dat_str = NULL,
                         EM_dir, 
                         do_checks = TRUE,
-                        new_datafile_name = NULL,
+                        new_datfile_name = NULL,
                         verbose = FALSE) {
 
   if(do_checks) {
-    # TODO: do input checks: check OM_data is valid r4ss list, check data. only do if
+    # TODO: do input checks: check OM_dat is valid r4ss list, check data. only do if
     # do_checks = TRUE?
-    if(OM_data$type != "Stock_Synthesis_data_file") {
-      r4ss_obj_err("OM_data", "data list")
+    if(OM_dat$type != "Stock_Synthesis_data_file") {
+      r4ss_obj_err("OM_dat", "data list")
     }
     if(!is.null(dat_str)) check_dat_str(dat_str)
   }
-  # Read in EM_datafile
-  EM_data <- SS_readdat(file.path(EM_dir, EM_datafile), verbose = verbose)
-  new_EM_data <- EM_data
-  new_EM_data$endyr <- OM_data$endyr # want to be the same as the OM
+  # Read in EM_datfile
+  EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = verbose)
+  new_EM_dat <- EM_dat
+  new_EM_dat$endyr <- OM_dat$endyr # want to be the same as the OM
   
-  # add the data from OM_data into EM_data
+  # add the data from OM_dat into EM_dat
   if(is.null(dat_str)) {
-    stop("Option to determine sampling from EM_datafile not yet developed. ",
+    stop("Option to determine sampling from EM_datfile not yet developed. ",
          "Please specify sampling using dat_str.")
-    # see if there is a consistent pattern in sampling design in EM_datafile
-    # if so, use this pattern to extract data from OM_data
+    # see if there is a consistent pattern in sampling design in EM_datfile
+    # if so, use this pattern to extract data from OM_dat
     # stop on error (or generate warning and add all data??) if cannot determine
      # a specific pattern
   } else {
-    # checks in relation to OM_data: check that years, fleets, etc. ar valid
+    # checks in relation to OM_dat: check that years, fleets, etc. ar valid
     
-    # extract data from OM_data based on valid data structure
+    # extract data from OM_dat based on valid data structure
 
    extracted_dat <- 
      mapply(
-      function(df, df_name, OM_data) {
-        OM_df <- OM_data[[df_name]]
+      function(df, df_name, OM_dat) {
+        OM_df <- OM_dat[[df_name]]
         new_dat <- merge(df, OM_df, all.x = TRUE, all.y = FALSE)
         # warn if there were matches not found for OM_df, but remove to continue
         if(any(is.na(new_dat))) {
           warning("Some values specified in dat_str (list component ", df_name,
-                  ") were not found in OM_data, so they will not be added to ",
+                  ") were not found in OM_dat, so they will not be added to ",
                   "the EM_dat.")
           new_dat <- na.omit(new_dat)
         }
         new_dat
       }, 
       df = dat_str, df_name = names(dat_str), 
-      MoreArgs = list(OM_data = OM_data), 
+      MoreArgs = list(OM_dat = OM_dat), 
       SIMPLIFY = FALSE, USE.NAMES = TRUE)
-    # insert this data into the EM_datafile
+    # insert this data into the EM_datfile
    for(n in names(extracted_dat)) {
-    new_EM_data[[n]] <- rbind(new_EM_data[[n]], extracted_dat[[n]])
+    new_EM_dat[[n]] <- rbind(new_EM_dat[[n]], extracted_dat[[n]])
    }
-  # write the new datafile if new_datafile_name isn't NULL
-    if(!is.null(new_datafile_name)) {
-      SS_writedat(new_EM_data, 
-                  file.path(EM_dir, new_datafile_name),
+  # write the new datafile if new_datfile_name isn't NULL
+    if(!is.null(new_datfile_name)) {
+      SS_writedat(new_EM_dat, 
+                  file.path(EM_dir, new_datfile_name),
                   overwrite = TRUE,
                   verbose = verbose)
     }
   }
-   new_EM_data
+   new_EM_dat
 }
 

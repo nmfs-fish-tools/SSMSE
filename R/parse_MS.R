@@ -19,7 +19,7 @@
 #'   be FALSE.
 #' @param out_dir The directory to which to write output. IF NULL, will default
 #'   to the working directory.
-#' @param OM_data An valid SS data file read in using r4ss. In particular,
+#' @param OM_dat An valid SS data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template verbose
 #' @param nyrs_assess The number of years between assessments. E.g., if an
@@ -29,11 +29,11 @@
 #' @param dat_str A optional list including which years and fleets should be 
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the 
-#'  datatypes within EM_datafile. Ignored if init_loop is TRUE.
+#'  datatypes within EM_datfile. Ignored if init_loop is TRUE.
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 #' @importFrom SSutils copy_SS_inputs
 parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE, 
-                     out_dir, OM_data, verbose = FALSE, nyrs_assess, dat_yrs,
+                     out_dir, OM_dat, verbose = FALSE, nyrs_assess, dat_yrs,
                      dat_str) {
   # input checks ----
   if(init_loop) {
@@ -78,7 +78,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
     check_dir(EM_dir)
     if(init_loop) {
     # copy over raw data file from the OM
-    SS_writedat(OM_data, 
+    SS_writedat(OM_dat, 
                       file.path(EM_dir, "init_dat.ss"), 
                       overwrite = TRUE, 
                       verbose = verbose)
@@ -90,7 +90,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                     overwrite = TRUE)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
-    change_data(OM_datafile = "init_dat.ss",
+    change_dat(OM_datfile = "init_dat.ss",
                 EM_dir = EM_dir,
                 do_checks = TRUE,
                 verbose = verbose)
@@ -102,12 +102,12 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
       } else {
         dat_str_sub <- NULL
       }
-      new_EM_data <- add_new_dat(OM_data = OM_data,
-                                 EM_datafile = "init_dat.ss",
+      new_EM_dat <- add_new_dat(OM_dat = OM_dat,
+                                 EM_datfile = "init_dat.ss",
                                  dat_str = dat_str_sub,
                                  EM_dir = EM_dir,
                                  do_checks = TRUE,
-                                 new_datafile_name = "init_dat.ss",
+                                 new_datfile_name = "init_dat.ss",
                                  verbose = verbose)
     }
     # given all checks are good, run the EM
@@ -120,23 +120,23 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
   if(MS == "last_yr_catch") {
     #TODO: extend this approach in the case of multiple fishery fleets.
     # get last year catch
-    new_catch <- rep(OM_data$catch$catch[nrow(OM_data$catch)], 
+    new_catch <- rep(OM_dat$catch$catch[nrow(OM_dat$catch)], 
                      length.out = nyrs_assess)
-    new_catch_df <- data.frame(year = (OM_data$endyr+1):(OM_data$endyr+nyrs_assess), 
+    new_catch_df <- data.frame(year = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess), 
                                # assume always useing the same fleet and season for now
-                               seas = OM_data$catch$seas[nrow(OM_data$catch)],
-                               fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                               seas = OM_dat$catch$seas[nrow(OM_dat$catch)],
+                               fleet = OM_dat$catch$fleet[nrow(OM_dat$catch)],
                                catch = new_catch,
-                               catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
+                               catch_se = OM_dat$catch$catch_se[nrow(OM_dat$catch)])
     
   }
   if(MS == "no_catch") {
-    new_catch_df <- data.frame(year = (OM_data$endyr+1):(OM_data$endyr+nyrs_assess), 
+    new_catch_df <- data.frame(year = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess), 
                                # assume always useing the same fleet and season for now
-                               seas = OM_data$catch$seas[nrow(OM_data$catch)],
-                               fleet = OM_data$catch$fleet[nrow(OM_data$catch)],
+                               seas = OM_dat$catch$seas[nrow(OM_dat$catch)],
+                               fleet = OM_dat$catch$fleet[nrow(OM_dat$catch)],
                                catch = 0,
-                               catch_se = OM_data$catch$catch_se[nrow(OM_data$catch)])
+                               catch_se = OM_dat$catch$catch_se[nrow(OM_dat$catch)])
     
   }
 # check output before returning
