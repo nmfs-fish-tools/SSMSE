@@ -21,7 +21,7 @@ control.ss #_ctlfile
 -1 #_minyr_sdreport
 101 #_maxyr_sdreport
 0 #_N_STD_yrs
-1e-04 #_converge_criterion
+0.1 #_converge_criterion
 0 #_retro_yr
 1 #_min_age_summary_bio
 1 #_depl_basis

@@ -153,12 +153,13 @@ run_EM <- function(EM_dir,
   }
   run_ss_model(EM_dir, options)
   if(check_converged == TRUE) {
-    # TODO: add additional checks for convergence?
+    # TODO: add additional checks for convergence, and if additional model runs
+    # should be done. perhaps user defined?
     warn <- readLines(file.path(EM_dir, "warning.sso"))
     grad_warn <- grep("^Final gradient\\:\\s+\\d*\\.\\d*\\sis larger than final_conv\\:", warn)
     if(length(grad_warn) > 0) {
-      warning("Estimation model did not converge this iteration.")
-      #TODO: decide if this should be a stop() message instead? 
+      warning("Estimation model did not converge this iteration based on the", 
+              " convergence criterion set in the starter.ss file.")
     }
   }
   # get projected catch values
