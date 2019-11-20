@@ -9,6 +9,7 @@ create_OM(
   SA_dir,
   overwrite = FALSE,
   add_dummy_dat = FALSE,
+  writedat = TRUE,
   verbose = FALSE
 )
 }
@@ -23,10 +24,13 @@ create_OM(
 that expected values and sampling is obtained for years other than those 
 that already have data? Defaults to FALSE.}
 
+\item{writedat}{Should a new datafile be written? Only used if add_dummy_dat
+is \code{TRUE}.}
+
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \value{
-OM_dir, because this function is used mainly for its side effects.
+A new datafile as read in for r4ss, but with dummy data added.
 }
 \description{
 This function copies over the stock assessment model and manipulates it as

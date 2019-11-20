@@ -6,7 +6,7 @@ context("Check that functions in manipulate_EM script work")
 temp_path <- file.path(tempdir(), "test-manipulate_EM")
 dir.create(temp_path, showWarnings = FALSE)
 wd <- getwd()
-#on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
 cod_mod <- file.path(extdat_path, "models", "cod")
