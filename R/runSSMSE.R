@@ -121,8 +121,8 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   dir.create(OM_dir)
 
   # MSE first iteration ----
-  # turn the EM into an OM
-  create_OM(OM_dir = OM_dir, SA_dir, overwrite = TRUE, add_dummy_dat = TRUE,
+  # turn the stock assessment model into an OM
+  create_OM(OM_dir = OM_dir, SA_dir = SA_dir, overwrite = TRUE, add_dummy_dat = TRUE,
             verbose = verbose, writedat = TRUE)
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
