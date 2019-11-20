@@ -62,17 +62,18 @@ run_SSMSE_scen <- function() {
 #'   wd <- getwd()
 #'   setwd(temp_path)
 #'   on.exit(setwd(wd), add = TRUE)
+#'
 #'   #on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
-#'   #run 1 iteration and 1 scenario of SSMSE
+#'   # run 1 iteration and 1 scenario of SSMSE
 #'   run_SSMSE_iter(OM_name = "cod",
 #'                  MS = "no_catch",
 #'                  out_dir = temp_path,
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3
 #'                  )
-#'                  browser()
-#'    unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"), 
-#'           recursive = TRUE)
+#'  unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"),
+#'         recursive = TRUE)
+#'   
 #'   # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
 #'   # currently exits on error after the first loop.
 #'      run_SSMSE_iter(OM_name = "cod",
@@ -82,8 +83,8 @@ run_SSMSE_scen <- function() {
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3,
 #'                  dat_str = list(
-#'                    catch = data.frame(year = 100:106, seas = 1, fleet = 1),
-#'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
+#'                    catch = data.frame(year = 100:108, seas = 1, fleet = 1)#,
+#'                    #CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
 #'                  )
 #'      )
 #'  }
@@ -121,7 +122,8 @@ run_SSMSE_iter <- function(OM_name     = "cod",
 
   # MSE first iteration ----
   # turn the EM into an OM
-  create_OM(OM_dir = OM_dir, SA_dir, overwrite = TRUE, verbose = verbose)
+  create_OM(OM_dir = OM_dir, SA_dir, overwrite = TRUE, add_dummy_dat = TRUE,
+            verbose = verbose, writedat = TRUE)
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
     OM_data <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 

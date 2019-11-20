@@ -23,7 +23,8 @@ change_data <- function(OM_datafile, EM_dir, do_checks = TRUE, verbose = FALSE) 
                            do_checks = do_checks)
   
   # write out the modified files that can be used in future EM run
-  SS_writedat(new_EM_dat, file.path(EM_dir, "init_dat.ss"), verbose = verbose)
+  SS_writedat(new_EM_dat, file.path(EM_dir, "init_dat.ss"), verbose = verbose, 
+              overwrite = TRUE)
   start$datfile <- "init_dat.ss"
   SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE)
   invisible(OM_datafile) # b/c function written for side effects.
@@ -218,6 +219,9 @@ add_new_dat <- function(OM_data,
   }
   # Read in EM_datafile
   EM_data <- SS_readdat(file.path(EM_dir, EM_datafile), verbose = verbose)
+  new_EM_data <- EM_data
+  new_EM_data$endyr <- OM_data$endyr # want to be the same as the OM
+  
   # add the data from OM_data into EM_data
   if(is.null(dat_str)) {
     stop("Option to determine sampling from EM_datafile not yet developed. ",
@@ -249,7 +253,6 @@ add_new_dat <- function(OM_data,
       MoreArgs = list(OM_data = OM_data), 
       SIMPLIFY = FALSE, USE.NAMES = TRUE)
     # insert this data into the EM_datafile
-   new_EM_data <- EM_data
    for(n in names(extracted_dat)) {
     new_EM_data[[n]] <- rbind(new_EM_data[[n]], extracted_dat[[n]])
    }

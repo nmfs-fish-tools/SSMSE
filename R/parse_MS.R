@@ -79,18 +79,18 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
     if(init_loop) {
     # copy over raw data file from the OM
     SS_writedat(OM_data, 
-                      file.path(EM_dir, "init_data.ss"), 
+                      file.path(EM_dir, "init_dat.ss"), 
                       overwrite = TRUE, 
                       verbose = verbose)
     # change the name of data file.
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), 
                                   verbose = verbose)
-    start$datfile <- "init_data.ss"
+    start$datfile <- "init_dat.ss"
     SS_writestarter(start, file.path(EM_dir), verbose = verbose,
                     overwrite = TRUE)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
-    change_data(OM_datafile = "init_data.ss",
+    change_data(OM_datafile = "init_dat.ss",
                 EM_dir = EM_dir,
                 do_checks = TRUE,
                 verbose = verbose)
@@ -103,11 +103,11 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
         dat_str_sub <- NULL
       }
       new_EM_data <- add_new_dat(OM_data = OM_data,
-                                 EM_datafile = "init_data.ss",
+                                 EM_datafile = "init_dat.ss",
                                  dat_str = dat_str_sub,
                                  EM_dir = EM_dir,
                                  do_checks = TRUE,
-                                 new_datafile_name = "init_data.ss",
+                                 new_datafile_name = "init_dat.ss",
                                  verbose = verbose)
     }
     # given all checks are good, run the EM

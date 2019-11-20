@@ -76,7 +76,7 @@ test_that("check_future_catch works", {
   summary <- r4ss::SS_read_summary(file.path(temp_path, "cod", "ss_summary.sso"))
   summary <- summary$biomass
   large_catch <- new_catch
-  large_catch_val <- summary["TotBio_101", "Value"] + 1000
+  large_catch_val <- summary["TotBio_100", "Value"] + 1000
   large_catch[2,"catch"] <- large_catch_val
   expect_error(check_future_catch(catch = large_catch, 
                                   OM_dir = file.path(temp_path, "cod")), 

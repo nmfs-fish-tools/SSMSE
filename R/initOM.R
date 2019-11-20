@@ -11,21 +11,19 @@
 #' @param add_dummy_dat Add dummy data to indices and comps for each year so 
 #'   that expected values and sampling is obtained for years other than those 
 #'   that already have data? Defaults to FALSE.
+#' @param writedat Should a new datafile be written? Only used if add_dummy_dat
+#'  is \code{TRUE}.
 #' @template verbose
-#' @return OM_dir, because this function is used mainly for its side effects.
+#' @return A new datafile as read in for r4ss, but with dummy data added.
 #' @importFrom SSutils copy_SS_inputs 
-#' @importFrom r4ss SS_readdat SS_writedat
+#' @importFrom r4ss SS_readdat SS_writedat SS_readstarter SS_writestarter
 create_OM <- function(OM_dir, 
                       SA_dir,
                       overwrite     = FALSE,
                       add_dummy_dat = FALSE,
+                      writedat = TRUE,
                       verbose       = FALSE) {
-  if(add_dummy_dat) {
-    stop("Dummy data for indices and comps for all years cannot yet be added ",
-         "to the operating model.")
-    # TODO: develop this option. This will be necessary if we want to allow for 
-    # use with EMs that have different years of sampled data than the OM.
-  }
+  
   # copy over SA model to OM.
   if(verbose) message("Copying over model in ", SA_dir, " to ", OM_dir, ".")
   SSutils::copy_SS_inputs(dir.old = SA_dir, 
@@ -34,9 +32,135 @@ create_OM <- function(OM_dir,
                  use_ss_new = TRUE, # will rename the ss new files, also.
                  copy_par = TRUE,
                  verbose = verbose)
+
+  if(add_dummy_dat) {
+    # TODO: develop code to do this for other types of data (mean length at age)
+    start <- SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = verbose)
+    dat <- SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose, 
+                      section = 1)
+    # get minimum and maximum years for the model (in dat)
+    # add in dummy values to CPUE, length comp, age comp by using -fleet.
+    # CPUE
+    #TODO: refactor and write a function.
+    old_CPUE <- dat$CPUE
+    new_CPUE <- old_CPUE # initialize, because want all old values, plus some new ones
+    CPUE_seas_flt <- unique(dat$CPUE[, c("seas", "index")])
+    dat_yrs <- dat$styr:dat$endyr
+    for(i in 1:nrow(CPUE_seas_flt)) {
+      #get currently  used values
+      tmp_seas <- CPUE_seas_flt[i, "seas"]
+      tmp_flt  <- CPUE_seas_flt[i, "index"]
+      # below is the data for the season and fleet combo that already in the OM.
+      tmp_CPUE <-  old_CPUE[(old_CPUE$seas == tmp_seas & old_CPUE$index == tmp_flt), ]
+      # find which years need to be added
+      tmp_miss_yrs <- dat_yrs[!dat_yrs %in% tmp_CPUE$year]
+      tmp_df <- data.frame(year  = tmp_miss_yrs,
+                     seas  = tmp_seas,
+                     index = -tmp_flt, 
+                     obs   = 1, 
+                     #TODO: make se_log more general, if its value matters
+                     se_log = 0.2,
+                     stringsAsFactors = FALSE)
+      # add these to the CPUE
+      new_CPUE <- rbind(new_CPUE, tmp_df)
+    }
+    #overwrite the old lines
+    dat$CPUE <- new_CPUE
+    #length comp
+    if(dat$use_lencomp == 1) {
+      old_lencomp <- dat$lencomp
+      new_lencomp <- old_lencomp
+      meta_cols <- c("Seas", "FltSvy", "Gender", "Part")
+      lcomp_combo <- unique(dat$lencomp[, meta_cols])
+      for(i in 1:nrow(lcomp_combo)) {
+        #get currently  used values (write a lapply function to make more concise)
+        tmp_metacols <- vapply(meta_cols, 
+                               function(col, i, lcomp_combo) lcomp_combo[i, col],
+                               FUN.VALUE = 1,
+                               i = i, lcomp_combo = lcomp_combo, 
+                               USE.NAMES = TRUE)
+        tmp_lencomp <-  old_lencomp[old_lencomp$Seas == tmp_metacols["Seas"] & 
+                                 old_lencomp$FltSvy == tmp_metacols["FltSvy"] &
+                                 old_lencomp$Gender == tmp_metacols["Gender"] &
+                                 old_lencomp$Part == tmp_metacols["Part"], ]
+        # find which years need to be added
+        tmp_miss_yrs_lencomp <- dat_yrs[!dat_yrs %in% tmp_lencomp$Yr]
+        # used suppressWarning because creates an unwanted warning that can be 
+        # safely ignored
+        suppressWarnings(tmp_df_lencomp <- data.frame(Yr     = tmp_miss_yrs_lencomp,
+                                     Seas   = tmp_metacols["Seas"],
+                                     FltSvy = -tmp_metacols["FltSvy"], 
+                                     Gender = tmp_metacols["Gender"],
+                                     Part   = tmp_metacols["Part"],
+                                     Nsamp = 125 # may need to make this more robust
+                                     ))
+        tmp_df_data <- matrix(1,
+                           nrow = nrow(tmp_df_lencomp),
+                           ncol = ncol(old_lencomp) - 6)
+        colnames(tmp_df_data) <- colnames(old_lencomp)[7:ncol(old_lencomp)]
+        tmp_df_data <- as.data.frame(tmp_df_data)
+        tmp_df_lencomp <- cbind(tmp_df_lencomp, tmp_df_data)
+        # add these new dummy lines to the lencomp
+        new_lencomp <- rbind(new_lencomp, tmp_df_lencomp)
+      }
+      #overwrite the old lines
+      dat$lencomp <- new_lencomp
+    }
+    #agecomp
+    old_agecomp <- dat$agecomp
+    new_agecomp <- old_agecomp
+    meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo", 
+                   "Lbin_hi")
+    agecomp_combo <- unique(dat$agecomp[, meta_cols_agecomp])
+    for(i in 1:nrow(agecomp_combo)) {
+      #get currently  used values (write a lapply function to make more concise)
+      tmp_metacols <- vapply(meta_cols_agecomp, 
+                             function(col, i, agecomp_combo) agecomp_combo[i, col],
+                             FUN.VALUE = 1,
+                             i = i, agecomp_combo = agecomp_combo, 
+                             USE.NAMES = TRUE)
+      tmp_agecomp <-  old_agecomp[
+                        old_agecomp$Seas == tmp_metacols["Seas"] & 
+                        old_agecomp$FltSvy == tmp_metacols["FltSvy"] &
+                        old_agecomp$Gender == tmp_metacols["Gender"] &
+                        old_agecomp$Part == tmp_metacols["Part"] &
+                        old_agecomp$Ageerr == tmp_metacols["Ageerr"] &
+                        old_agecomp$Lbin_lo == tmp_metacols["Lbin_lo"] &
+                        old_agecomp$Lbin_hi == tmp_metacols["Lbin_hi"],
+                        ]
+      # find which years need to be added
+      tmp_miss_yrs_agecomp <- dat_yrs[!dat_yrs %in% tmp_agecomp$Yr]
+      # used suppressWarning because creates an unwanted warning that can be 
+      # safely ignored
+      suppressWarnings(tmp_df_agecomp <- data.frame(Yr      = tmp_miss_yrs_agecomp,
+                                   Seas    = tmp_metacols["Seas"],
+                                   FltSvy  = -tmp_metacols["FltSvy"], 
+                                   Gender  = tmp_metacols["Gender"],
+                                   Part    = tmp_metacols["Part"],
+                                   Ageerr  = tmp_metacols["Ageerr"],
+                                   Lbin_lo = tmp_metacols["Lbin_lo"],
+                                   Lbin_hi = tmp_metacols["Lbin_hi"],
+                                   Nsamp   = 125 # may need to make this more robust
+      ))
+      tmp_df_data <- matrix(1,
+                            nrow = nrow(tmp_df_agecomp),
+                            ncol = ncol(old_agecomp) - 9)
+      colnames(tmp_df_data) <- colnames(old_agecomp)[10:ncol(old_agecomp)]
+      tmp_df_data <- as.data.frame(tmp_df_data)
+      tmp_df_agecomp <- cbind(tmp_df_agecomp, tmp_df_data)
+      # add these new dummy lines to the lencomp
+      new_agecomp <- rbind(new_agecomp, tmp_df_agecomp)
+    }
+    #overwrite the old lines
+    dat$agecomp <- new_agecomp
+    if(writedat) {
+      SS_writedat(dat, file.path(OM_dir, start$datfile), overwrite = overwrite, 
+                  verbose = verbose)
+    }
+  }
   # validate using model as an OM? may want to make a seperate function that can
   # validate if the model can be used as an OM or not.
-  invisible(OM_dir)
+  invisible(dat)
 }
 
 #' Initial run of the OM
