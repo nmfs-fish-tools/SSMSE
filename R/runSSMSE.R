@@ -63,7 +63,7 @@ run_SSMSE_scen <- function() {
 #'   setwd(temp_path)
 #'   on.exit(setwd(wd), add = TRUE)
 #'
-#'   #on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+#'   on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 #'   # run 1 iteration and 1 scenario of SSMSE
 #'   run_SSMSE_iter(OM_name = "cod",
 #'                  MS = "no_catch",
@@ -71,9 +71,8 @@ run_SSMSE_scen <- function() {
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3
 #'                  )
-#'  unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"),
+#'  unlink(file.path(temp_path, "1"),
 #'         recursive = TRUE)
-#'   
 #'   # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
 #'   # currently exits on error after the first loop.
 #'      run_SSMSE_iter(OM_name = "cod",
@@ -83,8 +82,8 @@ run_SSMSE_scen <- function() {
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3,
 #'                  dat_str = list(
-#'                    catch = data.frame(year = 100:108, seas = 1, fleet = 1)#,
-#'                    #CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
+#'                    catch = data.frame(year = 101:106, seas = 1, fleet = 1),
+#'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
 #'                  )
 #'      )
 #'  }
@@ -122,8 +121,9 @@ run_SSMSE_iter <- function(OM_name     = "cod",
 
   # MSE first iteration ----
   # turn the stock assessment model into an OM
-  create_OM(OM_dir = OM_dir, SA_dir = SA_dir, overwrite = TRUE, add_dummy_dat = TRUE,
+  create_OM(OM_dir = OM_dir, SA_dir = SA_dir, overwrite = TRUE, add_dummy_dat = FALSE,
             verbose = verbose, writedat = TRUE)
+  message("Finished initialization of OM for iteration ", niter, ".")
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
     OM_dat <- run_OM(OM_dir = OM_dir, boot = use_SS_boot, nboot = 1, 
@@ -141,6 +141,9 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir, 
                            out_dir = out_dir, OM_dat = OM_dat, 
                            verbose = verbose, nyrs_assess = nyrs_assess)
+  message("Finished getting new catch (years ", OM_dat$endyr, " to ", 
+          (OM_dat$endyr + nyrs_assess),") to feed into OM for iteration ", 
+          niter, ".")
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
@@ -157,6 +160,7 @@ run_SSMSE_iter <- function(OM_name     = "cod",
     #add new years of catch to the OM and add dummy values where necessary.
     extend_OM(catch = new_catch_df, 
               OM_dir = OM_dir, 
+              dummy_dat_scheme = "all", 
               nyrs_extend = nyrs_assess,
               verbose = verbose)
     # rerun OM (without estimation), get samples (or expected values)
@@ -178,8 +182,11 @@ run_SSMSE_iter <- function(OM_name     = "cod",
                              out_dir = out_dir, OM_dat = new_OM_dat, 
                              init_loop = FALSE, verbose = verbose,
                              nyrs_assess = nyrs_assess, 
-                             dat_yrs = (yr+1):(yr+nyrs_assess),
+                             dat_yrs = (yr + 1):(yr + nyrs_assess),
                              dat_str = dat_str)
-   }
+  message("Finished getting new catch (years ", (yr + 1), " to ", 
+          (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
+  }
+  message("Finished iteration ", niter, ".")
   invisible(TRUE)
 }

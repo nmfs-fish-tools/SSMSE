@@ -79,7 +79,7 @@ strategy evaluation using Stock Synthesis as the Operating model.
   setwd(temp_path)
   on.exit(setwd(wd), add = TRUE)
 
-  #on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+  on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
   # run 1 iteration and 1 scenario of SSMSE
   run_SSMSE_iter(OM_name = "cod",
                  MS = "no_catch",
@@ -87,9 +87,9 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  nyrs = 6,
                  nyrs_assess = 3
                  )
- unlink(file.path(temp_path, "run_SSMSE_iter-example", "1"),
+ unlink(file.path(temp_path, "1"),
         recursive = TRUE)
-  
+  browser()
   # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
   # currently exits on error after the first loop.
      run_SSMSE_iter(OM_name = "cod",
@@ -99,8 +99,8 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  nyrs = 6,
                  nyrs_assess = 3,
                  dat_str = list(
-                   catch = data.frame(year = 100:108, seas = 1, fleet = 1)#,
-                   #CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
+                   catch = data.frame(year = 101:106, seas = 1, fleet = 1),
+                   CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
                  )
      )
  }

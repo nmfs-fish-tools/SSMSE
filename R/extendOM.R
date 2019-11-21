@@ -11,18 +11,28 @@
 #' @param OM_dir The full path to the OM directory.
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
-#' @param dummy_dat_scheme The sampling scheme for dummy data. A list of lists
+#' @param dummy_dat_scheme The sampling scheme for dummy data. Current options
+#'  are NULL, which means no new dummy data will be added CPUE, length comps, or
+#'  age comps, or \code{"all"}, which means that new years of data will be added 
+#'  for CPUE, length comps (if using), and age comps, for all new years and 
+#'  combinations of fleet and season. For length comps and age comps, a dummy
+#'  value will also be added for each combination of other metadata values,
+#'  including (but not limited to ) sex, partition, and bin high and low values.
+#' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
 #' @template verbose
+#' @return A new dat list object (format as created by r4ss::SS_readdat) that
+#'  has been extended forward  as if read in by r4ss function SS_readdat
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 extend_OM <- function(catch,
                       OM_dir, 
                       dummy_dat_scheme = NULL,
                       nyrs_extend = 3,
+                      write_dat = TRUE,
                       verbose = FALSE) {
   #input checks
   check_catch_df(catch)
   check_dir(OM_dir)
-  #TODO: add function to check dummy_dat_scheme
+  #TODO: add function to check dummy_dat_scheme (if has more detailed input)
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
                                 verbose = verbose)
@@ -40,27 +50,83 @@ extend_OM <- function(catch,
   # add in dummy data: just do for indices, comps for now. Always do this in
   # case the EM needs this input (should be okay to remove if not needed?)
   if(!is.null(dummy_dat_scheme)) {
-    stop("Code to add in dummy data lines have not been implemented")
-    dummy_dat <- get_dummy_dat(dummy_dat_scheme = dummy_dat_scheme)
-    #TODO: change to using mapply here instead
-    dat$CPUE <- rbind(dat$CPUE, dummy_dat$CPUE)
-    dat$lencomp <- rbind(dat$lencomp, dummy_dat$lencomp)
-    dat$agecomp <- rbind(dat$agecomp, dummy_dat$agecomp)
+    if(dummy_dat_scheme == "all") {
+      # figure out which unique combos of fleets and seas exist in each of
+      # CPUE, lencomp, agecomp, then get the dummy values
+      CPUE_combo <- dat$CPUE[, c("seas", "index")]
+      CPUE_combo$index <- abs(CPUE_combo$index)
+      CPUE_combo <- unique(CPUE_combo)
+      for (i in 1:nrow(CPUE_combo)) { # loop through combinations and add
+        tmp_CPUE_df <- data.frame(year = (dat$endyr-nyrs_extend+1):dat$endyr, 
+                                  seas = CPUE_combo$seas[i], 
+                                  index = -CPUE_combo$index[i],
+                                  obs = 1, 
+                                  se_log = 0.2) # need to make this more general.
+       dat$CPUE <- rbind(dat$CPUE, tmp_CPUE_df)
+      }
+      if(dat$use_lencomp == 1) {
+        meta_cols_lencomp <- c("Seas", "FltSvy", "Gender", "Part")
+        lencomp_combo <- dat$lencomp[, meta_cols_lencomp]
+        lencomp_combo$FltSvy <- abs(lencomp_combo$FltSvy)
+        lencomp_combo <- unique(lencomp_combo)
+        # get col names to use later
+        lencomp_dat_colnames <- colnames(dat$lencomp)[7:ncol(dat$lencomp)]
+        for(i in 1:nrow(lencomp_combo)) {
+          lencomp_df <- data.frame(Yr = (dat$endyr-nyrs_extend+1):dat$endyr, 
+                                   Seas = lencomp_combo[i, "Seas"], 
+                                   FltSvy = -lencomp_combo[i, "FltSvy"],
+                                   Gender = lencomp_combo[i, "Gender"],
+                                   Part = lencomp_combo[i, "Part"],
+                                   Nsamp = 500
+                                   )
+          #get col names
+          tmp_df_dat <- matrix(1, 
+                               nrow = nrow(lencomp_df),
+                               ncol = length(lencomp_dat_colnames))
+          colnames(tmp_df_dat) <- lencomp_dat_colnames
+          lencomp_df <- cbind(lencomp_df, as.data.frame(tmp_df_dat))
+          dat$lencomp <- rbind(dat$lencomp, lencomp_df)
+        }
+      }
+      meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr", 
+                             "Lbin_lo", 
+                             "Lbin_hi")
+      agecomp_combo <- dat$agecomp[, meta_cols_agecomp]
+      agecomp_combo$FltSvy <- abs(agecomp_combo$FltSvy)
+      agecomp_combo <- unique(agecomp_combo)
+      # get col names to use later
+      agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
+      for(i in 1:nrow(agecomp_combo)) {
+        agecomp_df <- data.frame(Yr = (dat$endyr-nyrs_extend+1):dat$endyr, 
+                                 Seas    =  agecomp_combo[i, "Seas"], 
+                                 FltSvy  = -agecomp_combo[i, "FltSvy"],
+                                 Gender  =  agecomp_combo[i, "Gender"],
+                                 Part    =  agecomp_combo[i, "Part"],
+                                 Ageerr  =  agecomp_combo[i, "Ageerr"],
+                                 Lbin_lo =  agecomp_combo[i, "Lbin_lo"],
+                                 Lbin_hi =  agecomp_combo[i, "Lbin_hi"],
+                                 Nsamp = 500
+        )
+        tmp_df_dat <- matrix(1, 
+                             nrow = nrow(agecomp_df),
+                             ncol = length(agecomp_dat_colnames))
+        colnames(tmp_df_dat) <- agecomp_dat_colnames
+        agecomp_df <- cbind(agecomp_df, as.data.frame(tmp_df_dat))
+        dat$agecomp <- rbind(dat$agecomp, agecomp_df)
+      }
+    } else {
+      stop("Code to add in dummy data lines for a specific scheme has not yet", 
+           "been implemented. Please use dummy_dat_scheme = 'all'.")
+    }
   }
   # write the new data file
-  r4ss::SS_writedat(dat, 
-                    outfile = file.path(OM_dir, start$datfile),
-                    overwrite = TRUE,
-                    verbose = verbose)
-  invisible(catch)
-}
-
-#' Get the dummy data for a data type
-#' 
-#' @param dummy_dat_scheme The years, fleets, data types etc. to add
-get_dummy_dat <- function(dummy_dat_scheme) {
-  #TODO: write this function
-  dummy_dat_scheme
+  if(write_dat) {
+    r4ss::SS_writedat(dat, 
+                      outfile = file.path(OM_dir, start$datfile),
+                      overwrite = TRUE,
+                      verbose = verbose)
+  }
+    invisible(dat)
 }
 
 #' Check future catch smaller than the last year's population size.

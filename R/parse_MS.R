@@ -98,7 +98,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
       if(!is.null(dat_str)) {
         dat_str_sub <- lapply(dat_str,
                               function(df, y) df[df[,1] %in% y, ],
-                              y = dat_yrs)
+                              y = dat_yrs - nyrs_assess)
       } else {
         dat_str_sub <- NULL
       }

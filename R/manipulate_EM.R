@@ -235,11 +235,11 @@ add_new_dat <- function(OM_dat,
     # checks in relation to OM_dat: check that years, fleets, etc. ar valid
     
     # extract data from OM_dat based on valid data structure
-
    extracted_dat <- 
      mapply(
       function(df, df_name, OM_dat) {
         OM_df <- OM_dat[[df_name]]
+        OM_df[, 3] <- abs(OM_df[, 3]) #get rid of negative fleet values from OM
         new_dat <- merge(df, OM_df, all.x = TRUE, all.y = FALSE)
         # warn if there were matches not found for OM_df, but remove to continue
         if(any(is.na(new_dat))) {
