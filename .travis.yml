@@ -7,7 +7,9 @@ r:
   - devel
 sudo: required
 cache: packages
-dist: xenial
+os:
+  - linux
+  - osx
 
 services:
   - xvfb
