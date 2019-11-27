@@ -1,15 +1,23 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# This runs old, current, and dev release of r on linux, but only current
+# release of r on osx. This decision was because the packages that travis tried
+# to download while testing out the osx build with dev version of r were not
+# available at the url. The erroring of this build had nothing to do with the 
+# SSMSE R package.
 
 language: r
-r:
-  - oldrel
-  - release
-  - devel
+jobs:
+  include:
+  - r: oldrel
+    os: linux
+  - r: release
+    os: linux
+  - r: devel
+    os: linux
+  - r: release
+    os: osx
 sudo: required
 cache: packages
-os:
-  - linux
-  - osx
 
 services:
   - xvfb
