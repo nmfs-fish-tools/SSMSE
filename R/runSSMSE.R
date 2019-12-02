@@ -56,14 +56,10 @@ run_SSMSE_scen <- function() {
 #' @author Kathryn Doering
 #' @examples 
 #' \dontrun{
-#'   # Create a temporary folder for the output and set the working directory:
-#'   temp_path <- file.path(tempdir(), "run_SSMSE_iter-example")
-#'   dir.create(temp_path, showWarnings = FALSE)
-#'   wd <- getwd()
-#'   setwd(temp_path)
-#'   on.exit(setwd(wd), add = TRUE)
-#'
-#'   on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+#'   # Create a temporary folder for the output
+#'   temp_path <- file.path(tempdir(), "run_SSMSE_iter-ex")
+#'   dir.create(temp_path)
+#'   
 #'   # run 1 iteration and 1 scenario of SSMSE
 #'   run_SSMSE_iter(OM_name = "cod",
 #'                  MS = "no_catch",
@@ -71,10 +67,8 @@ run_SSMSE_scen <- function() {
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3
 #'                  )
-#'  unlink(file.path(temp_path, "1"),
-#'         recursive = TRUE)
-#'   # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
-#'   # currently exits on error after the first loop.
+#'   unlink(file.path(temp_path, "1"), recursive = TRUE)
+#'   # run 1 iteration and 1 scenario of SSMSE using an EM.
 #'      run_SSMSE_iter(OM_name = "cod",
 #'                  MS = "EM",
 #'                  out_dir = temp_path,
@@ -86,6 +80,7 @@ run_SSMSE_scen <- function() {
 #'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
 #'                  )
 #'      )
+#'      unlink(temp_path, recursive = TRUE)
 #'  }
 
 run_SSMSE_iter <- function(OM_name     = "cod", 
@@ -109,11 +104,8 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   # get the directory to the models
   pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
   SA_dir <- pkg_dirs[grep(OM_name, pkg_dirs, fixed = TRUE)]
-  if(is.null(out_dir)) {
-    out_dir <- file.path(getwd(), as.character(niter))
-  } else {
-    out_dir <- file.path(normalizePath(out_dir), as.character(niter))  
-  } 
+  if(is.null(out_dir)) out_dir <- getwd()
+  out_dir <- file.path(out_dir, as.character(niter))
   dir.create(out_dir)
   # create the OM directory
   OM_dir <- file.path(out_dir, paste0(OM_name, "_OM"))

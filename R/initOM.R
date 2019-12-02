@@ -32,12 +32,11 @@ create_OM <- function(OM_dir,
                  use_ss_new = TRUE, # will rename the ss new files, also.
                  copy_par = TRUE,
                  verbose = verbose)
-
+  start <- SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = verbose)
+  dat <- SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose, 
+                    section = 1)
   if(add_dummy_dat) {
     # TODO: develop code to do this for other types of data (mean length at age)
-    start <- SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = verbose)
-    dat <- SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose, 
-                      section = 1)
     # get minimum and maximum years for the model (in dat)
     # add in dummy values to CPUE, length comp, age comp by using -fleet.
     # CPUE

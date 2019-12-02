@@ -72,14 +72,10 @@ strategy evaluation using Stock Synthesis as the Operating model.
 }
 \examples{
 \dontrun{
-  # Create a temporary folder for the output and set the working directory:
-  temp_path <- file.path(tempdir(), "run_SSMSE_iter-example")
-  dir.create(temp_path, showWarnings = FALSE)
-  wd <- getwd()
-  setwd(temp_path)
-  on.exit(setwd(wd), add = TRUE)
-
-  on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+  # Create a temporary folder for the output
+  temp_path <- file.path(tempdir(), "run_SSMSE_iter-ex")
+  dir.create(temp_path)
+  
   # run 1 iteration and 1 scenario of SSMSE
   run_SSMSE_iter(OM_name = "cod",
                  MS = "no_catch",
@@ -87,11 +83,8 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  nyrs = 6,
                  nyrs_assess = 3
                  )
- unlink(file.path(temp_path, "1"),
-        recursive = TRUE)
-  browser()
-  # run 1 iteration and 1 scenario of SSMSE using an EM. Note that this
-  # currently exits on error after the first loop.
+  unlink(file.path(temp_path, "1"), recursive = TRUE)
+  # run 1 iteration and 1 scenario of SSMSE using an EM.
      run_SSMSE_iter(OM_name = "cod",
                  MS = "EM",
                  out_dir = temp_path,
@@ -103,6 +96,7 @@ strategy evaluation using Stock Synthesis as the Operating model.
                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
                  )
      )
+     unlink(temp_path, recursive = TRUE)
  }
 }
 \author{
