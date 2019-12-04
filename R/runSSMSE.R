@@ -46,15 +46,13 @@ run_SSMSE <- function() {
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
 #' @template verbose
+#' @export
 #' @examples
+#' \dontrun{
 #'   # Create a temporary folder for the output and set the working directory:
 #'   temp_path <- file.path(tempdir(), "run_SSMSE_scen-example")
 #'   dir.create(temp_path, showWarnings = FALSE)
-#'   wd <- getwd()
-#'   setwd(temp_path)
-#'   on.exit(setwd(wd), add = TRUE)
-#'
-#'   #on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+#'   
 #'   # run 2 iteration and 1 scenario of SSMSE
 #'   run_SSMSE_scen(scen_name = "no_catch",
 #'                  iter = 1:2,
@@ -64,6 +62,7 @@ run_SSMSE <- function() {
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3
 #'                  )
+#'}
                 
 run_SSMSE_scen <- function(scen_name = "scen_1",
                             iter = 1:2,
@@ -71,7 +70,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                             use_SS_boot = TRUE, 
                             EM_name     = NULL,
                             EM_dir      = NULL,
-                            MS          = "last_yr_catch",
+                            MS          = "no_catch",
                             out_dir_scen = NULL,
                             nyrs        = 100, 
                             nyrs_assess = 3,

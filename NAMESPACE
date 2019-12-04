@@ -3,6 +3,7 @@
 export(get_bin)
 export(run_EM)
 export(run_SSMSE_iter)
+export(run_SSMSE_scen)
 importFrom(SSutils,copy_SS_inputs)
 importFrom(r4ss,SS_read_summary)
 importFrom(r4ss,SS_readdat)

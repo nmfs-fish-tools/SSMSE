@@ -86,7 +86,6 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  )
   unlink(file.path(temp_path, "1"), recursive = TRUE)
   # run 1 iteration and 1 scenario of SSMSE using an EM.
-
      run_SSMSE_iter(OM_name = "cod",
                  MS = "EM",
                  out_dir = temp_path,
