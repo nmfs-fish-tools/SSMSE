@@ -2,9 +2,16 @@
 % Please edit documentation in R/initOM.R
 \name{create_OM}
 \alias{create_OM}
-\title{create the OM from a stock assessment model}
+\title{Create the OM from a stock assessment model}
 \usage{
-create_OM(OM_dir, SA_dir, overwrite = FALSE, verbose = FALSE)
+create_OM(
+  OM_dir,
+  SA_dir,
+  overwrite = FALSE,
+  add_dummy_dat = FALSE,
+  writedat = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{OM_dir}{The full path to the OM directory}
@@ -13,10 +20,17 @@ create_OM(OM_dir, SA_dir, overwrite = FALSE, verbose = FALSE)
 
 \item{overwrite}{Overwrite existing files with matching names?}
 
+\item{add_dummy_dat}{Add dummy data to indices and comps for each year so 
+that expected values and sampling is obtained for years other than those 
+that already have data? Defaults to FALSE.}
+
+\item{writedat}{Should a new datafile be written? Only used if add_dummy_dat
+is \code{TRUE}.}
+
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \value{
-OM_dir, because this function is used mainly for its side effects.
+A new datafile as read in for r4ss, but with dummy data added.
 }
 \description{
 This function copies over the stock assessment model and manipulates it as

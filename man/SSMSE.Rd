@@ -3,7 +3,6 @@
 \docType{package}
 \name{SSMSE}
 \alias{SSMSE}
-\alias{SSMSE-package}
 \title{SSMSE: A package for Management Strategy Evaluation (MSE) using Stock 
 Synthesis (SS)}
 \description{

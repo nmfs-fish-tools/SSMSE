@@ -4,7 +4,7 @@
 #C file write time: 2019-09-25 11:08:20
 #
 ss3.dat #_datfile
-em.ctl #_ctlfile
+control.ss #_ctlfile
 0 #_init_values_src
 0 #_run_display_detail
 1 #_detailed_age_structure
@@ -21,7 +21,7 @@ em.ctl #_ctlfile
 -1 #_minyr_sdreport
 101 #_maxyr_sdreport
 0 #_N_STD_yrs
-1e-04 #_converge_criterion
+0.1 #_converge_criterion
 0 #_retro_yr
 1 #_min_age_summary_bio
 1 #_depl_basis

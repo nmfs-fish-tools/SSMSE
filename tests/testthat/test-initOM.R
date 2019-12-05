@@ -10,13 +10,39 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
 
-test_that("create_OM works", {
-  
-  create_OM(OM_dir = "cod", 
-            SA_dir = file.path(extdat_path, "models", "cod"), 
-            overwrite = TRUE, 
-            verbose = FALSE)
-  expect_true(file.exists(file.path("cod", "starter.ss")))
-  start <- r4ss::SS_readstarter(file.path("cod", "starter.ss"))
-  expect_equivalent(start$last_estimation_phase, 0)
+test_that("create_OM can add in dummy data", {
+  new_dat <- create_OM(OM_dir = "cod",
+                       SA_dir = file.path(extdat_path, "models", "cod"),
+                       overwrite = TRUE,
+                       add_dummy_dat = TRUE,
+                       verbose = FALSE)
+  dat_types <- c("CPUE", "lencomp", "agecomp")
+  new_dat_yrs <- lapply(dat_types, function(type, datlist) {
+                  unique_yrs <- unique(datlist[[type]][,1])
+                  ordered_yrs <- unique_yrs[order(unique_yrs)]
+                  },
+                  datlist = new_dat
+                  )
+  names(new_dat_yrs) <- dat_types
+  # check that all years of data were added
+  lapply(new_dat_yrs, function(new_yrs, expected_yrs) {
+    expect_equivalent(new_yrs, expected_yrs)
+    }, expected_yrs = new_dat$styr:new_dat$endyr)
+  #following should be true b/c there is only 1 fleet and season
+  expect_equal(length(new_dat$CPUE$year), length(new_dat$styr:new_dat$endyr))
+  expect_equal(length(new_dat$lencomp$Yr), length(new_dat$styr:new_dat$endyr))
+  expect_equal(length(new_dat$agecomp$Yr), length(new_dat$styr:new_dat$endyr))
+  # check that no duplicated data
+  expect_equal(new_dat$CPUE[, c("year", "seas", "index")], 
+               unique(new_dat$CPUE[, c("year", "seas", "index")])
+               )
+  cols_lencomp <- c("Yr", "Seas", "FltSvy", "Gender", "Part")
+  expect_equal(new_dat$lencomp[, cols_lencomp], 
+               unique(new_dat$lencomp[, cols_lencomp])
+  )
+  cols_agecomp <- c("Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo", 
+                         "Lbin_hi")
+  expect_equal(new_dat$agecomp[, cols_agecomp], 
+               unique(new_dat$agecomp[, cols_agecomp])
+  )
 })

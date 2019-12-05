@@ -13,7 +13,7 @@ https://nmfs-fish-tools.github.io/SSMSE/
 
 **************
 
-## This is a repository for the Stock Assesment Tool: SSMSE
+## This is a repository for the Stock Assessment Tool: SSMSE
 - Supported by the NOAA Fisheries Integrated Toolbox
 
 
