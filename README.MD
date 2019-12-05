@@ -2,9 +2,12 @@
 
 # (SSMSE) Management Strategy Evaluation for Stock Synthesis (SS)
 
-[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=development)](https://travis-ci.org/nmfs-fish-tools/SSMSE) (development)
-
-[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE) (master)
+development:
+[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=development)](https://travis-ci.org/nmfs-fish-tools/SSMSE) 
+[![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/development/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
+ 
+master:
+[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
 
 **************
 
