@@ -197,3 +197,17 @@ r4ss_obj_err <- function(obj_name = "object ", type = "list") {
   stop(obj_name, " was found to not be an r4ss ", type, ". Please read in ", 
        obj_name, " using r4ss read functions.")
 }
+
+#' Check structure of the object scen_list
+#' 
+#' Check the structure that is input to \code{\link{run_SSMSE}}.
+#' @param list A list to check
+#' @template verbose
+check_scen_list <- function(list, verbose = FALSE) {
+  # some columns are required, but others are optional. Check that the required
+  # columns are there, and warn if the optional ones arent, if verbose.
+  #TODO: write this function. Did not want to write until we decide on input
+  warning("No check for scen_list structure yet implemented. Use at your own ", 
+   "risk.")
+  invisible(list)
+}

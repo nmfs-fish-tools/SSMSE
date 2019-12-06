@@ -22,7 +22,9 @@ RoxygenNote: 7.0.0
 Imports:
     SSutils,
     stats,
-    r4ss
+    r4ss,
+    assertive.types,
+    rlang
 Suggests: 
     testthat
 Remotes:
