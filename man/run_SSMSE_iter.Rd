@@ -77,7 +77,6 @@ strategy evaluation using Stock Synthesis as the Operating model.
   dir.create(temp_path)
   
   # run 1 iteration and 1 scenario of SSMSE
-  browser()
   run_SSMSE_iter(OM_name = "cod",
                  MS = "no_catch",
                  out_dir = temp_path,

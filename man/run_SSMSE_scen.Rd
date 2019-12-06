@@ -71,8 +71,6 @@ for each of the datatypes within the EM datafiles. Include this strucutre
 for the number of years to extend the model out.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
-
-\item{niter}{The iteration number}
 }
 \description{
 High level function to run 1 scenario (but potentially many iterations) for 
@@ -93,5 +91,6 @@ a management strategy evaluation using Stock Synthesis as the Operating Model
                  nyrs = 6,
                  nyrs_assess = 3
                  )
+  unlink(temp_path, recursive = TRUE)
 }
 }
