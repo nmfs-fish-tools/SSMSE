@@ -3,11 +3,13 @@
 # (SSMSE) Management Strategy Evaluation for Stock Synthesis (SS)
 
 development:
-[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=development)](https://travis-ci.org/nmfs-fish-tools/SSMSE) 
+[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=development)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE?branch=development&svg=true)](https://ci.appveyor.com/project/nmfs-fish-tools/SSMSE)
 [![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/development/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
  
 master:
 [![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE?branch=master&svg=true)](https://ci.appveyor.com/project/nmfs-fish-tools/SSMSE)
 
 **************
 
