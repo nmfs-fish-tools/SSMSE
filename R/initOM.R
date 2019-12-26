@@ -201,6 +201,17 @@ run_OM <- function(OM_dir,
   dat <- r4ss::SS_readdat(file.path(OM_dir,"data.ss_new"), 
                           section = max_section, 
                           verbose = verbose)
+  # If using bootstrap, do not want to use bootstrapped catch. Instead, replace
+  # with the expected catch values.
+  # TODO: may want to add check if using F method 1 or 3 that the expected vals
+  # and the input values match. May not match for method 2.
+  if (max_section > 2) {
+    if(verbose) message("Adding expected catch to the bootstrapped dataset.")
+    exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"), 
+                                 section = 2, 
+                                 verbose = verbose)
+    dat$catch <- exp_vals$catch
+  }
   return(dat)
 }
 
