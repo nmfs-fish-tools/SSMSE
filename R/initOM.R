@@ -5,12 +5,13 @@
 #' This function copies over the stock assessment model and manipulates it as
 #' needed so that it can be used as an operating model.
 #' @author Kathryn Doering
-#' @param OM_dir The full path to the OM directory
-#' @param SA_dir The full path to the EM directory
+#' @param OM_dir The full path to the directory in which the OM will be created.
+#' @param SA_dir The full path to the directory that houses the stock assessment 
+#'  model that will be used to create the OM.
 #' @param overwrite Overwrite existing files with matching names?
-#' @param add_dummy_dat Add dummy data to indices and comps for each year so 
-#'   that expected values and sampling is obtained for years other than those 
-#'   that already have data? Defaults to FALSE.
+#' @param add_dummy_dat Should dummy data be added to indices and comps for each
+#'  year so that expected values and sampling is obtained for years other than
+#'  those that already have data? Defaults to FALSE.
 #' @param writedat Should a new datafile be written? Only used if add_dummy_dat
 #'  is \code{TRUE}.
 #' @template verbose
