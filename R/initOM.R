@@ -54,12 +54,21 @@ create_OM <- function(OM_dir,
       tmp_CPUE <-  old_CPUE[(old_CPUE$seas == tmp_seas & old_CPUE$index == tmp_flt), ]
       # find which years need to be added
       tmp_miss_yrs <- dat_yrs[!dat_yrs %in% tmp_CPUE$year]
+      # get the standard error from the old CPUE. For now, just use the 
+      # most common method (hard coded)
+      #TODO: make se_log more general by allowing more options for "method: (
+      # may need to read in a user value))
+      se_log_val <- get_input_value(data = old_CPUE, 
+                                    method = "most_common_value", 
+                                    colname = "se_log")
+      message("Input uncertainty for CPUE OM currently can only have a single 
+              value. All CPUE data added to the operating model is assigned the
+              most common value of se_log, which is ", se_log_val)
       tmp_df <- data.frame(year  = tmp_miss_yrs,
                      seas  = tmp_seas,
                      index = -tmp_flt, 
-                     obs   = 1, 
-                     #TODO: make se_log more general, if its value matters
-                     se_log = 0.2,
+                     obs   = 1,
+                     se_log = se_log_val,
                      stringsAsFactors = FALSE)
       # add these to the CPUE
       new_CPUE <- rbind(new_CPUE, tmp_df)
@@ -72,7 +81,7 @@ create_OM <- function(OM_dir,
       new_lencomp <- old_lencomp
       meta_cols <- c("Seas", "FltSvy", "Gender", "Part")
       lcomp_combo <- unique(dat$lencomp[, meta_cols])
-      for(i in 1:nrow(lcomp_combo)) {
+      for(i in seq_len(nrow(lcomp_combo))) {
         #get currently  used values (write a lapply function to make more concise)
         tmp_metacols <- vapply(meta_cols, 
                                function(col, i, lcomp_combo) lcomp_combo[i, col],
@@ -85,6 +94,14 @@ create_OM <- function(OM_dir,
                                  old_lencomp$Part == tmp_metacols["Part"], ]
         # find which years need to be added
         tmp_miss_yrs_lencomp <- dat_yrs[!dat_yrs %in% tmp_lencomp$Yr]
+        # get the Nsamp
+        #TODO: add more options for getting sample size.
+        len_Nsamp_val <- get_input_value(data = old_lencomp, 
+                                      method = "most_common_value", 
+                                      colname = "Nsamp")
+        message("Input uncertainty for lencomp OM currently can only have a single 
+              value. All lencomp data added to the operating model is assigned the
+              most common value of Nsamp, which is ", len_Nsamp_val)
         # used suppressWarning because creates an unwanted warning that can be 
         # safely ignored
         suppressWarnings(tmp_df_lencomp <- data.frame(Yr     = tmp_miss_yrs_lencomp,
@@ -92,7 +109,7 @@ create_OM <- function(OM_dir,
                                      FltSvy = -tmp_metacols["FltSvy"], 
                                      Gender = tmp_metacols["Gender"],
                                      Part   = tmp_metacols["Part"],
-                                     Nsamp = 125 # may need to make this more robust
+                                     Nsamp = len_Nsamp_val # may need to make this more robust
                                      ))
         tmp_df_dat <- matrix(1,
                            nrow = nrow(tmp_df_lencomp),
@@ -130,6 +147,14 @@ create_OM <- function(OM_dir,
                         ]
       # find which years need to be added
       tmp_miss_yrs_agecomp <- dat_yrs[!dat_yrs %in% tmp_agecomp$Yr]
+      # get the Nsamp
+      #TODO: add more options for getting sample size.
+      age_Nsamp_val <- get_input_value(data = old_agecomp, 
+                                       method = "most_common_value", 
+                                       colname = "Nsamp")
+      message("Input uncertainty for agecomp OM currently can only have a single 
+              value. All lencomp data added to the operating model is assigned the
+              most common value of Nsamp, which is ", age_Nsamp_val)
       # used suppressWarning because creates an unwanted warning that can be 
       # safely ignored
       suppressWarnings(tmp_df_agecomp <- data.frame(Yr      = tmp_miss_yrs_agecomp,
@@ -140,7 +165,7 @@ create_OM <- function(OM_dir,
                                    Ageerr  = tmp_metacols["Ageerr"],
                                    Lbin_lo = tmp_metacols["Lbin_lo"],
                                    Lbin_hi = tmp_metacols["Lbin_hi"],
-                                   Nsamp   = 125 # may need to make this more robust
+                                   Nsamp   = age_Nsamp_val
       ))
       tmp_df_dat <- matrix(1,
                             nrow = nrow(tmp_df_agecomp),

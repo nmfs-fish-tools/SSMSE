@@ -56,12 +56,20 @@ extend_OM <- function(catch,
       CPUE_combo <- dat$CPUE[, c("seas", "index")]
       CPUE_combo$index <- abs(CPUE_combo$index)
       CPUE_combo <- unique(CPUE_combo)
+      # get sample size to use
+      # TODO make this more general
+      se_log_val <- get_input_value(data = dat[["CPUE"]], 
+                                    method = "most_common_value", 
+                                    colname = "se_log")
+      message("Input uncertainty for extending OM CPUE currently can only have a single 
+              value. All CPUE data added to the operating model is assigned the
+              most common value of se_log, which is ", se_log_val)
       for (i in 1:nrow(CPUE_combo)) { # loop through combinations and add
         tmp_CPUE_df <- data.frame(year = (dat$endyr-nyrs_extend+1):dat$endyr, 
                                   seas = CPUE_combo$seas[i], 
                                   index = -CPUE_combo$index[i],
                                   obs = 1, 
-                                  se_log = 0.2) # need to make this more general.
+                                  se_log = se_log_val) # need to make this more general.
        dat$CPUE <- rbind(dat$CPUE, tmp_CPUE_df)
       }
       if(dat$use_lencomp == 1) {
@@ -71,13 +79,21 @@ extend_OM <- function(catch,
         lencomp_combo <- unique(lencomp_combo)
         # get col names to use later
         lencomp_dat_colnames <- colnames(dat$lencomp)[7:ncol(dat$lencomp)]
+        #TODO: add more options for extending len comp
+        len_Nsamp_val <- get_input_value(data = dat[["lencomp"]], 
+                                      method = "most_common_value", 
+                                      colname = "Nsamp")
+        message("Input uncertainty for extending OM lencomp currently can only
+                 have a single value. All lencomp data added to the operating 
+                 model is assigned the most common value of Nsamp, which is ",
+                 len_Nsamp_val)
         for(i in 1:nrow(lencomp_combo)) {
           lencomp_df <- data.frame(Yr = (dat$endyr-nyrs_extend+1):dat$endyr, 
                                    Seas = lencomp_combo[i, "Seas"], 
                                    FltSvy = -lencomp_combo[i, "FltSvy"],
                                    Gender = lencomp_combo[i, "Gender"],
                                    Part = lencomp_combo[i, "Part"],
-                                   Nsamp = 500
+                                   Nsamp = len_Nsamp_val
                                    )
           #get col names
           tmp_df_dat <- matrix(1, 
@@ -96,6 +112,13 @@ extend_OM <- function(catch,
       agecomp_combo <- unique(agecomp_combo)
       # get col names to use later
       agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
+      age_Nsamp_val <- get_input_value(data = dat[["agecomp"]], 
+                                       method = "most_common_value", 
+                                       colname = "Nsamp")
+      message("Input uncertainty for extending OM agecomp currently can only
+                 have a single value. All agecomp data added to the operating 
+                 model is assigned the most common value of Nsamp, which is ",
+              age_Nsamp_val)
       for(i in 1:nrow(agecomp_combo)) {
         agecomp_df <- data.frame(Yr = (dat$endyr-nyrs_extend+1):dat$endyr, 
                                  Seas    =  agecomp_combo[i, "Seas"], 
@@ -105,7 +128,7 @@ extend_OM <- function(catch,
                                  Ageerr  =  agecomp_combo[i, "Ageerr"],
                                  Lbin_lo =  agecomp_combo[i, "Lbin_lo"],
                                  Lbin_hi =  agecomp_combo[i, "Lbin_hi"],
-                                 Nsamp = 500
+                                 Nsamp = age_Nsamp_val
         )
         tmp_df_dat <- matrix(1, 
                              nrow = nrow(agecomp_df),

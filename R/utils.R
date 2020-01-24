@@ -163,3 +163,78 @@ create_scen_list <- function(scen_name_vec,
   # return list
   scen_list
 }
+
+#' return a value from a data frame
+#'
+#' Return a single value from a column of a dataframe using the method specified
+#' @param data A dataframe which has a column that matches (at least partially)
+#'  colname
+#' @param method How should the value to be returned be selected? Current 
+#'  options include "most_common_value", where the most common input uncertainty
+#'  value will be returned and "only_value" where all input values must be the 
+#'  same in data; if they are, this value will be returned. Otherwise, an error
+#'  will be generated.
+#' @param colname Column name as a string in data which contains the input 
+#'  uncertainty. Note that partial matching and regular expressions can be used.
+#' @return A single value of the same type as \code{data[, colname]}
+#' @author Kathryn Doering
+#' @details Note that this function was created intially to return a value to
+#'  use as the input uncertainty, but it should be generalizable to pulling a 
+#'  value from a column in any data frame using the method specified.
+#'  @example 
+#'  dfr <- data.frame("year" = 1:5, 
+#'                    "value" = c(2,2,2,3,3), 
+#'                     "se_log" = 0.2)
+#'  get_input_value(data = dfr, method = "most_common_value", colname = "se_log")
+#'  get_input_value(data = dfr, method = "most_common_value", colname = "value")
+#'  get_input_value(data = dfr, method = "only_value", colname = "se_log")
+#'  # generates an error:
+#'  # get_input_value(data = dfr, method = "only_value", colname = "value")
+get_input_value <- function(data, 
+                               method = "most_common_value", 
+                               colname) {
+  #input checks
+  assertive.types::assert_is_data.frame(data)
+  assertive.properties::assert_has_colnames(data)
+  assertive.types::assert_is_a_string(method)
+  assertive.types::assert_is_a_string(colname)
+  method_values <- c("most_common_value", "only_value")
+  if(!method %in% method_values) {
+    stop("method possible values are: ", paste0(method_values, collapse = ", "), 
+         "; method was specified as ", method)
+  }
+  selected_col <- grep(colname, colnames(data))
+  selected_colname <- colnames(data)[selected_col]
+  if(length(selected_col) == 0) {
+    stop("column ", colname, " not found in data.")
+  }
+  if(length(selected_col) > 1) {
+    stop("The value specified for colname ", colname, " selected more than 1",
+         " column in data (columns matched: ", 
+         paste0(selected_colname, collapse = ", "),
+         "). Note that partial matching and regular expressions", 
+         " are used to find the column(s) that match with colname.")
+  }
+  # get the value
+
+  if(method == "most_common_value") {
+    ux <- unique(data[, selected_col])
+    val <- ux[which.max(tabulate(match(data[ ,selected_col], ux)))]
+  }
+  if(method == "only_value") {
+    val <- unique(data[, selected_col])
+    # check return value
+    if(length(val) > 1) {
+      stop("Multiple unique values were found in data with colname ", 
+           selected_colname, 
+           ". Because method is only_value, this function only works if all ", 
+           "values in the column are the same.")
+    }
+    if(length(val) == 0) {
+      stop("No value found in ", selected_colname, ".")
+    }
+  }
+  # sanity check for developers
+  assertive.properties::assert_is_of_length(val, 1)
+  val
+}

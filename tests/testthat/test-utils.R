@@ -98,3 +98,63 @@ test_that("create_scen_list works with NAs", {
 
 #TODO: Add checks for error messages.
 
+#get_input_value tests.
+dfr <- data.frame("year" = 1:5, 
+                 "value" = c(2,2,2,3,3), 
+                 "se_log" = 0.2)
+dfr2 <- dfr
+colnames(dfr2) <- NULL
+test_that("get_input_value generates errors for bad input", {
+  expect_error(get_input_value(data = dfr, 
+                               method = "m_common_value", 
+                               colname = "se_log"), 
+               "method was specified as m_common_value")
+  expect_error(get_input_value(data = dfr, 
+                               method = "most_common_value",
+                               colname = "bad_colname"), 
+               "bad_colname not found in data")
+  expect_error(get_input_value(data = c(1,2,3),
+                               method = "most_common_value",
+                               colname = "se_log"),
+               "data is not of class 'data.frame'")
+  expect_error(get_input_value(data = dfr2, 
+                               method = "most_common_value",
+                               colname = "se_log"), 
+               "The column names of data are NULL")
+  expect_error(get_input_value(data = dfr,
+                               method = 1, 
+                               colname = "se_log"), 
+               "method is not of class 'character'")
+  expect_error(get_input_value(data = dfr,
+                               method = "most_common_value",
+                               colname = 2),
+               "colname is not of class 'character'")
+  expect_error(get_input_value(data = dfr,
+                               method = c("most_common_value", "only_value"),
+                               colname = "se_log"),
+               "method has length 2, not 1")
+  expect_error(get_input_value(data = dfr,
+                               method = "most_common_value",
+                               colname = c("val", "se_log")), 
+               "colname has length 2, not 1")
+})
+
+test_that("get_input_value works as expected", {
+  val <- get_input_value(data = dfr,
+                         method = "most_common_value", 
+                         colname = "se_log")
+  expect_equal(val, 0.2)
+  val <- get_input_value(data = dfr,
+                         method = "most_common_value", 
+                         colname = "value")
+  expect_equal(val, 2)
+  val <- get_input_value(data = dfr,
+                         method = "only_value",
+                         colname = "se_log")
+  expect_equal(val, 0.2)
+  expect_error(get_input_value(data = dfr, 
+                               method = "only_value", 
+                               colname = "value"), 
+               "Multiple unique values were found in data with colname")
+})
+

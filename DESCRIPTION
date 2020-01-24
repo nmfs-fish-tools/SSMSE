@@ -24,6 +24,8 @@ Imports:
     stats,
     r4ss,
     assertive.types,
+    assertive.properties,
+    assertive.base,
     rlang
 Suggests: 
     testthat
