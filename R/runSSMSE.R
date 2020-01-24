@@ -10,8 +10,8 @@
 #'  below, except verbose. If a column is missing, its value is assumed to be 
 #'  null or NA, as appropriate. Note that all other inputs (except for verbose)
 #'  are ignored if scen_list is specified.
-#' @param scen_name_vec A vector containing names of the scenarios. The 
-#' directory containing all scenario model runs for 
+#' @param scen_name_vec A vector containing names of the scenarios. The each 
+#'  string will be a directory containing all the model runs for a scenario.s
 #' @param iter_list A vector of integers to refer each iteration of the scenario.
 #'  The length of this vector will be the number of iterations run for the 
 #'  scenario.
@@ -82,6 +82,7 @@ run_SSMSE <- function(scen_list = NULL,
                       impl_error_vec  = NULL,
                       dat_str_list = NULL,
                       verbose = FALSE) {
+  #Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   if(is.null(scen_list)) {
    scen_list <- create_scen_list(scen_name_vec,
@@ -125,8 +126,8 @@ run_SSMSE <- function(scen_list = NULL,
 #' 
 #' High level function to run 1 scenario (but potentially many iterations) for 
 #' a management strategy evaluation using Stock Synthesis as the Operating Model
-#' @param scen_name Name of the scenario. The directory containing all scenario
-#'  model runs for 
+#' @param scen_name Name of the scenario. The directory containing all the model 
+#'  runs the scenario will be stored within a folder of this name.
 #' @param iter A vector of integers to refer each iteration of the scenario.
 #'  The length of this vector will be the number of iterations run for the 
 #'  scenario.
@@ -192,6 +193,23 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                             impl_error  = NULL,
                             dat_str = NULL,
                             verbose = FALSE) {
+  #input checks
+  assertive.types::assert_is_a_string(scen_name)
+  assertive.properties::assert_is_atomic(iter)
+  assertive.types::assert_is_any_of(iter, classes = c("numeric", "integer"))
+  if(!is.null(OM_name)) assertive.types::assert_is_a_string(OM_name)
+  assertive.types::assert_is_a_bool(use_SS_boot)
+  if(!is.null(EM_name)) assertive.types::assert_is_a_string(EM_name)
+  if(!is.null(EM_dir)) assertive.types::assert_is_a_string(EM_dir)
+  assertive.types::assert_is_a_string(MS)
+  if(!is.null(out_dir_scen)) assertive.types::assert_is_a_string(out_dir_scen)
+  assertive.types::assert_is_any_of(nyrs, classes = c("numeric", "integer"))
+  assertive.properties::assert_is_of_length(nyrs, 1)
+  assertive.types::assert_is_any_of(nyrs_assess, classes = c("numeric", "integer"))
+  assertive.properties::assert_is_of_length(nyrs_assess, 1)
+  if(!is.null(dat_str)) assertive.types::assert_is_list(dat_str)
+  assertive.types::assert_is_a_bool(verbose)
+  
   # create the out_dir to store all files for all iter in the scenario.
   if(is.null(out_dir_scen)) {
     out_dir_iter <- scen_name
@@ -302,6 +320,18 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   if(!OM_name %in% pkg_mods) {
     stop("Currently, OM_name can only be one of the following: ", pkg_mods)
   }
+  assertive.types::assert_is_a_string(OM_name)
+  assertive.types::assert_is_a_bool(use_SS_boot)
+  if(!is.null(EM_name)) assertive.types::assert_is_a_string(EM_name)
+  if(!is.null(EM_dir)) assertive.types::assert_is_a_string(EM_dir)
+  assertive.types::assert_is_a_string(MS)
+  if(!is.null(out_dir)) assertive.types::assert_is_a_string(out_dir)
+  assertive.types::assert_is_any_of(nyrs, c("integer", "numeric"))
+  assertive.types::assert_is_any_of(nyrs_assess, c("integer", "numeric"))
+  assertive.types::assert_is_any_of(niter, c("integer", "numeric"))
+  if(!is.null(dat_str)) assertive.types::assert_is_list(dat_str)
+  assertive.types::assert_is_a_bool(verbose)
+  
   # get and create directories ----
   # get the directory to the models
   pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))

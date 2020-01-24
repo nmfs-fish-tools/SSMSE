@@ -13,7 +13,12 @@
 change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
   EM_dir <- normalizePath(EM_dir)
   # checks
+  assertive.types::assert_is_a_string(OM_datfile)
+  assertive.types::assert_is_a_string(EM_dir)
   check_dir(EM_dir)
+  assertive.types::assert_is_a_bool(do_checks)
+  assertive.types::assert_is_a_bool(verbose)
+  
   # get the name of the original datafile
   start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
   orig_dat <- SS_readdat(file.path(EM_dir, start$datfile), verbose = verbose)
