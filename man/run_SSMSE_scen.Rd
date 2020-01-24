@@ -21,8 +21,8 @@ run_SSMSE_scen(
 )
 }
 \arguments{
-\item{scen_name}{Name of the scenario. The directory containing all scenario
-model runs for}
+\item{scen_name}{Name of the scenario. The directory containing all the model 
+runs the scenario will be stored within a folder of this name.}
 
 \item{iter}{A vector of integers to refer each iteration of the scenario.
 The length of this vector will be the number of iterations run for the 

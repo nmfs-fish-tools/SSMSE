@@ -31,8 +31,8 @@ below, except verbose. If a column is missing, its value is assumed to be
 null or NA, as appropriate. Note that all other inputs (except for verbose)
 are ignored if scen_list is specified.}
 
-\item{scen_name_vec}{A vector containing names of the scenarios. The 
-directory containing all scenario model runs for}
+\item{scen_name_vec}{A vector containing names of the scenarios. The each 
+string will be a directory containing all the model runs for a scenario.s}
 
 \item{iter_list}{A vector of integers to refer each iteration of the scenario.
 The length of this vector will be the number of iterations run for the 

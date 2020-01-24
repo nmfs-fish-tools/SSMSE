@@ -14,15 +14,16 @@ create_OM(
 )
 }
 \arguments{
-\item{OM_dir}{The full path to the OM directory}
+\item{OM_dir}{The full path to the directory in which the OM will be created.}
 
-\item{SA_dir}{The full path to the EM directory}
+\item{SA_dir}{The full path to the directory that houses the stock assessment 
+model that will be used to create the OM.}
 
 \item{overwrite}{Overwrite existing files with matching names?}
 
-\item{add_dummy_dat}{Add dummy data to indices and comps for each year so 
-that expected values and sampling is obtained for years other than those 
-that already have data? Defaults to FALSE.}
+\item{add_dummy_dat}{Should dummy data be added to indices and comps for each
+year so that expected values and sampling is obtained for years other than
+those that already have data? Defaults to FALSE.}
 
 \item{writedat}{Should a new datafile be written? Only used if add_dummy_dat
 is \code{TRUE}.}
