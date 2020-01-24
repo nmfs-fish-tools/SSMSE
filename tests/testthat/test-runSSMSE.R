@@ -23,5 +23,4 @@ test_that("run_SSMSE_iter works", {
   )
   expect_true(file.exists(file.path(temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
-  browser()
 })
