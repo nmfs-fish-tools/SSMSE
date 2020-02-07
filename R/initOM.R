@@ -46,6 +46,14 @@ create_OM <- function(OM_dir,
     new_CPUE <- old_CPUE # initialize, because want all old values, plus some new ones
     CPUE_seas_flt <- unique(dat$CPUE[, c("seas", "index")])
     dat_yrs <- dat$styr:dat$endyr
+    # get a df of the se values to use.
+    se_log_val <- get_input_value(data = old_CPUE, 
+                                  method = "most_common_value", 
+                                  colname = "se_log", 
+                                  group = "index")
+    message("Input uncertainty for CPUE OM currently can only have a single 
+              value per fleet.. All CPUE data added to the operating model is
+              assigned the most common value of se_log for each fleet.")
     for(i in 1:nrow(CPUE_seas_flt)) {
       #get currently  used values
       tmp_seas <- CPUE_seas_flt[i, "seas"]
@@ -56,19 +64,17 @@ create_OM <- function(OM_dir,
       tmp_miss_yrs <- dat_yrs[!dat_yrs %in% tmp_CPUE$year]
       # get the standard error from the old CPUE. For now, just use the 
       # most common method (hard coded)
+      #tmp_se_log_val should be a single value
+      tmp_se_log_val <- se_log_val[se_log_val$index == tmp_flt, "se_log"]
+      assertive.properties::assert_is_atomic(tmp_se_log_val)
+      assertive.properties::assert_is_of_length(tmp_se_log_val, 1)
       #TODO: make se_log more general by allowing more options for "method: (
       # may need to read in a user value))
-      se_log_val <- get_input_value(data = old_CPUE, 
-                                    method = "most_common_value", 
-                                    colname = "se_log")
-      message("Input uncertainty for CPUE OM currently can only have a single 
-              value. All CPUE data added to the operating model is assigned the
-              most common value of se_log, which is ", se_log_val)
       tmp_df <- data.frame(year  = tmp_miss_yrs,
                      seas  = tmp_seas,
                      index = -tmp_flt, 
                      obs   = 1,
-                     se_log = se_log_val,
+                     se_log = tmp_se_log_val,
                      stringsAsFactors = FALSE)
       # add these to the CPUE
       new_CPUE <- rbind(new_CPUE, tmp_df)
@@ -81,6 +87,13 @@ create_OM <- function(OM_dir,
       new_lencomp <- old_lencomp
       meta_cols <- c("Seas", "FltSvy", "Gender", "Part")
       lcomp_combo <- unique(dat$lencomp[, meta_cols])
+      len_Nsamp_val <- get_input_value(data = old_lencomp, 
+                                       method = "most_common_value", 
+                                       colname = "Nsamp", 
+                                       group = "FltSvy")
+      message("Input uncertainty for lencomp OM currently can only have a single 
+              value for each fleet. All lencomp data added to the operating model is assigned the
+              most common value of Nsamp for each fleet.")
       for(i in seq_len(nrow(lcomp_combo))) {
         #get currently  used values (write a lapply function to make more concise)
         tmp_metacols <- vapply(meta_cols, 
@@ -96,12 +109,10 @@ create_OM <- function(OM_dir,
         tmp_miss_yrs_lencomp <- dat_yrs[!dat_yrs %in% tmp_lencomp$Yr]
         # get the Nsamp
         #TODO: add more options for getting sample size.
-        len_Nsamp_val <- get_input_value(data = old_lencomp, 
-                                      method = "most_common_value", 
-                                      colname = "Nsamp")
-        message("Input uncertainty for lencomp OM currently can only have a single 
-              value. All lencomp data added to the operating model is assigned the
-              most common value of Nsamp, which is ", len_Nsamp_val)
+        tmp_len_Nsamp_val <- len_Nsamp_val[
+          len_Nsamp_val$FltSvy == tmp_metacols["FltSvy"], "Nsamp"]
+        assertive.properties::assert_is_atomic(tmp_len_Nsamp_val )
+        assertive.properties::assert_is_of_length(tmp_len_Nsamp_val, 1)
         # used suppressWarning because creates an unwanted warning that can be 
         # safely ignored
         suppressWarnings(tmp_df_lencomp <- data.frame(Yr     = tmp_miss_yrs_lencomp,
@@ -109,7 +120,7 @@ create_OM <- function(OM_dir,
                                      FltSvy = -tmp_metacols["FltSvy"], 
                                      Gender = tmp_metacols["Gender"],
                                      Part   = tmp_metacols["Part"],
-                                     Nsamp = len_Nsamp_val # may need to make this more robust
+                                     Nsamp = tmp_len_Nsamp_val
                                      ))
         tmp_df_dat <- matrix(1,
                            nrow = nrow(tmp_df_lencomp),
@@ -129,6 +140,15 @@ create_OM <- function(OM_dir,
     meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo", 
                    "Lbin_hi")
     agecomp_combo <- unique(dat$agecomp[, meta_cols_agecomp])
+    # get the Nsamp
+    #TODO: add more options for getting sample size.
+    age_Nsamp_val <- get_input_value(data = old_agecomp, 
+                                     method = "most_common_value", 
+                                     colname = "Nsamp", 
+                                     group = "FltSvy")
+    message("Input uncertainty for agecomp OM currently can only have a single 
+              value per fleet. All lencomp data added to the operating model is assigned the
+              most common value of Nsamp for each fleet.")
     for(i in 1:nrow(agecomp_combo)) {
       #get currently  used values (write a lapply function to make more concise)
       tmp_metacols <- vapply(meta_cols_agecomp, 
@@ -147,14 +167,11 @@ create_OM <- function(OM_dir,
                         ]
       # find which years need to be added
       tmp_miss_yrs_agecomp <- dat_yrs[!dat_yrs %in% tmp_agecomp$Yr]
-      # get the Nsamp
-      #TODO: add more options for getting sample size.
-      age_Nsamp_val <- get_input_value(data = old_agecomp, 
-                                       method = "most_common_value", 
-                                       colname = "Nsamp")
-      message("Input uncertainty for agecomp OM currently can only have a single 
-              value. All lencomp data added to the operating model is assigned the
-              most common value of Nsamp, which is ", age_Nsamp_val)
+      tmp_age_Nsamp_val <- age_Nsamp_val[
+        age_Nsamp_val$FltSvy == tmp_metacols["FltSvy"], "Nsamp"]
+      assertive.properties::assert_is_atomic(tmp_age_Nsamp_val)
+      assertive.properties::assert_is_of_length(tmp_age_Nsamp_val, 1)
+
       # used suppressWarning because creates an unwanted warning that can be 
       # safely ignored
       suppressWarnings(tmp_df_agecomp <- data.frame(Yr      = tmp_miss_yrs_agecomp,
@@ -165,7 +182,7 @@ create_OM <- function(OM_dir,
                                    Ageerr  = tmp_metacols["Ageerr"],
                                    Lbin_lo = tmp_metacols["Lbin_lo"],
                                    Lbin_hi = tmp_metacols["Lbin_hi"],
-                                   Nsamp   = age_Nsamp_val
+                                   Nsamp   = tmp_age_Nsamp_val
       ))
       tmp_df_dat <- matrix(1,
                             nrow = nrow(tmp_df_agecomp),

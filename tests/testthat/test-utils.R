@@ -113,6 +113,16 @@ test_that("get_input_value generates errors for bad input", {
                                method = "most_common_value",
                                colname = "bad_colname"), 
                "bad_colname not found in data")
+  expect_error(get_input_value(data = dfr, 
+                               method = "most_common_value",
+                               colname = "se_log", 
+                               group = "bad_groupname"), 
+               "column bad_groupname not found")
+  expect_error(get_input_value(data = dfr, 
+                               method = "only_value",
+                               colname = "se_log", 
+                               group = "bad_groupname"), 
+               "column bad_groupname not found")
   expect_error(get_input_value(data = c(1,2,3),
                                method = "most_common_value",
                                colname = "se_log"),
@@ -130,6 +140,11 @@ test_that("get_input_value generates errors for bad input", {
                                colname = 2),
                "colname is not of class 'character'")
   expect_error(get_input_value(data = dfr,
+                               method = "most_common_value",
+                               colname = "se_log", 
+                               group = 3),
+               "group is not of class 'character'")
+  expect_error(get_input_value(data = dfr,
                                method = c("most_common_value", "only_value"),
                                colname = "se_log"),
                "method has length 2, not 1")
@@ -137,6 +152,17 @@ test_that("get_input_value generates errors for bad input", {
                                method = "most_common_value",
                                colname = c("val", "se_log")), 
                "colname has length 2, not 1")
+  expect_error(get_input_value(data = dfr,
+                               method = "most_common_value",
+                               group = c("se_log", "value"),
+                               colname = "val"), 
+               "group has length 2, not 1")
+  expect_error(get_input_value(data = dfr,
+                               method = "most_common_value",
+                               group = "value",
+                               colname = "value"), 
+               "group and colname cannot be the same")
+  
 })
 
 test_that("get_input_value works as expected", {
@@ -152,9 +178,40 @@ test_that("get_input_value works as expected", {
                          method = "only_value",
                          colname = "se_log")
   expect_equal(val, 0.2)
+  # use group
+  val <- get_input_value(data = dfr,
+                         method = "only_value",
+                         colname = "se_log", 
+                         group = "value")
+  expect_true(is.data.frame(val))
+  expect_true(all(val$value %in% c(2, 3)))
+  expect_true(unique(val$se_log) == 0.2)
+  val <- get_input_value(data = dfr,
+                         method = "most_common_value",
+                         colname = "se_log", 
+                         group = "value")
+  expect_true(is.data.frame(val))
+  expect_true(all(val$value %in% c(2, 3)))
+  expect_true(unique(val$se_log) == 0.2)
+  #switch the cols used
+  val <- get_input_value(data = dfr,
+                         method = "most_common_value",
+                         colname = "value", 
+                         group = "se_log")
+  expect_true(is.data.frame(val))
+  expect_true(nrow(val) == 1)
+  expect_true(val$value == 2)
+  expect_true(val$se_log == 0.2)
+  
   expect_error(get_input_value(data = dfr, 
                                method = "only_value", 
                                colname = "value"), 
-               "Multiple unique values were found in data with colname")
+               "Multiple unique values were found in data")
+  dfr$new_cat <- c("G1", "G2", "G1", "G1","G1")
+  expect_error(get_input_value(data = dfr, 
+                               method = "only_value", 
+                               colname = "value", 
+                               group = "new_cat"),
+               "Multiple unique values were found in data")
 })
 

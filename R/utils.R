@@ -174,9 +174,12 @@ create_scen_list <- function(scen_name_vec,
 #'  value will be returned and "only_value" where all input values must be the 
 #'  same in data; if they are, this value will be returned. Otherwise, an error
 #'  will be generated.
-#' @param colname Column name as a string in data which contains the input 
-#'  uncertainty. Note that partial matching and regular expressions can be used.
-#' @return A single value of the same type as \code{data[, colname]}
+#' @param colname Column name as a string in \code{data}. Note that partial
+#'  matching and regular expressions can be used.
+#' @param group Column name as a string in \code{data} used to group the data 
+#'  before calculating the input value to use. Defaults to NULL.
+#' @return A value of the same type as \code{data[, colname]} if \code{group}
+#'  is NULL, or a data.frame if \code{group} is specified.
 #' @author Kathryn Doering
 #' @details Note that this function was created intially to return a value to
 #'  use as the input uncertainty, but it should be generalizable to pulling a 
@@ -185,19 +188,22 @@ create_scen_list <- function(scen_name_vec,
 #'  dfr <- data.frame("year" = 1:5, 
 #'                    "value" = c(2,2,2,3,3), 
 #'                     "se_log" = 0.2)
-#'  get_input_value(data = dfr, method = "most_common_value", colname = "se_log")
+#'  get_input_value(data = dfr, method = "most_common_value", colname = "se_log", 
+#'                  group = "value")
 #'  get_input_value(data = dfr, method = "most_common_value", colname = "value")
 #'  get_input_value(data = dfr, method = "only_value", colname = "se_log")
 #'  # generates an error:
 #'  # get_input_value(data = dfr, method = "only_value", colname = "value")
 get_input_value <- function(data, 
                                method = "most_common_value", 
-                               colname) {
+                               colname, 
+                               group = NULL) {
   #input checks
   assertive.types::assert_is_data.frame(data)
   assertive.properties::assert_has_colnames(data)
   assertive.types::assert_is_a_string(method)
   assertive.types::assert_is_a_string(colname)
+  if(!is.null(group)) assertive.types::assert_is_a_string(group)
   method_values <- c("most_common_value", "only_value")
   if(!method %in% method_values) {
     stop("method possible values are: ", paste0(method_values, collapse = ", "), 
@@ -205,6 +211,7 @@ get_input_value <- function(data,
   }
   selected_col <- grep(colname, colnames(data))
   selected_colname <- colnames(data)[selected_col]
+
   if(length(selected_col) == 0) {
     stop("column ", colname, " not found in data.")
   }
@@ -215,26 +222,88 @@ get_input_value <- function(data,
          "). Note that partial matching and regular expressions", 
          " are used to find the column(s) that match with colname.")
   }
+  if(!is.null(group)) {
+    group_orig <- group
+    group_col <- grep(group, colnames(data))
+    group <- colnames(data)[group_col]
+    if(length(group) == 0) {
+      stop("column ", group_orig, " not found in data.")
+    }
+    if(length(group) > 1) {
+      stop("The value specified for colname ", group_orig, " selected more than 1",
+           " column in data (columns matched: ", 
+           paste0(group, collapse = ", "),
+           "). Note that partial matching and regular expressions", 
+           " are used to find the column(s) that match with colname.")
+    }
+    if(group == selected_colname) {
+      stop("group and colname cannot be the same. Both selected column", 
+           group)
+    }
+  }
   # get the value
-
   if(method == "most_common_value") {
-    ux <- unique(data[, selected_col])
-    val <- ux[which.max(tabulate(match(data[ ,selected_col], ux)))]
+    if(is.null(group)) {
+      ux <- unique(data[, selected_col])
+      val <- ux[which.max(tabulate(match(data[ ,selected_col], ux)))]
+      assertive.properties::assert_is_of_length(val, 1)
+    } else {
+      val <- stats::aggregate(data[, selected_colname], 
+                       by = list("group" = data[, group]), 
+                       # find the most common value (mode)
+                       FUN = function(x) {
+                         unique(x)[which.max(tabulate(match(x, unique(x))))]
+                       }, drop = FALSE
+                       )
+      assertive.types::assert_is_data.frame(val) #sanity check
+      colnames(val) <- c(group, selected_colname)
+    }
   }
   if(method == "only_value") {
-    val <- unique(data[, selected_col])
-    # check return value
-    if(length(val) > 1) {
-      stop("Multiple unique values were found in data with colname ", 
-           selected_colname, 
-           ". Because method is only_value, this function only works if all ", 
-           "values in the column are the same.")
-    }
-    if(length(val) == 0) {
-      stop("No value found in ", selected_colname, ".")
+    if(is.null(group)) {
+      val <- unique(data[, selected_col])
+      # check return value
+      if(length(val) > 1) {
+        stop("Multiple unique values were found in data with colname ", 
+             selected_colname, 
+             ". Because method is only_value, this function only works if all ", 
+             "values in the column are the same.")
+      }
+      if(length(val) == 0) {
+        stop("No value found in ", selected_colname, ".")
+      }
+      #sanity check for developers
+      assertive.properties::assert_is_of_length(val, 1)
+    } else {
+      n_vals <- stats::aggregate(data[,selected_colname], 
+                              by = list("group" = data[, group]), 
+                              # find the most common value (mode)
+                              FUN = function(x) {
+                                length(unique(x))
+                              }, drop = FALSE
+      )
+      if(any(unlist(n_vals[,"x"]) > 1)) {
+        stop("Multiple unique values were found in data with colname ", 
+             selected_colname, 
+             "after grouping by ", group, ". Because method is only_value, ",
+             "this function only works if all values in the column within the ",  
+             "same grouping are the same.")
+      }
+      #TODO: need check if any are length 0??? or check outside function?
+      # get the value
+      val <- stats::aggregate(data[,selected_colname], 
+       by = list("group" = data[, group]), 
+       # find the most common value (mode)
+       FUN = function(x) {
+         return <- unique(x)
+         if(length(return) > 1) {
+           stop("Problem calculating.")
+         }
+         return
+       }, drop = FALSE)
+      assertive.types::assert_is_data.frame(val) #sanity check
+      colnames(val) <- c(group, selected_colname)
     }
   }
-  # sanity check for developers
-  assertive.properties::assert_is_of_length(val, 1)
   val
 }
