@@ -87,7 +87,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                                   verbose = verbose)
     start$datfile <- "init_dat.ss"
     SS_writestarter(start, file.path(EM_dir), verbose = verbose,
-                    overwrite = TRUE)
+                    overwrite = TRUE, warn = verbose)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
     change_dat(OM_datfile = "init_dat.ss",

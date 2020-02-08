@@ -31,7 +31,8 @@ change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
   SS_writedat(new_EM_dat, file.path(EM_dir, "init_dat.ss"), verbose = verbose, 
               overwrite = TRUE)
   start$datfile <- "init_dat.ss"
-  SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE)
+  SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE,
+                  warn = verbose)
   invisible(OM_datfile) # b/c function written for side effects.
 }
 
@@ -140,7 +141,7 @@ run_EM <- function(EM_dir,
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
     start$init_values_src <- 1
     SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = verbose,
-                    warn = FALSE)
+                    warn = verbose)
   }
   if(change_fcast == TRUE) {
     # make sure enough yrs can be forecasted.

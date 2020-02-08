@@ -236,7 +236,8 @@ run_OM <- function(OM_dir,
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
                                 verbose = verbose)
   start$N_bootstraps <- max_section
-  r4ss::SS_writestarter(start, dir = OM_dir, verbose = verbose, overwrite = TRUE)
+  r4ss::SS_writestarter(start, dir = OM_dir, verbose = verbose, overwrite = TRUE,
+                        warn = verbose)
   }
   # run SS and get the data set
   run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess")
