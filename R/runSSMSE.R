@@ -269,7 +269,10 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found 
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
-#'  for the number of years to extend the model out.
+#'  for the number of years to extend the model out. Note that the data should
+#'  be specified using the list component names and column names as in would be
+#'  used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples 
+#'  give an example of what this structure should be.
 #' @template verbose
 #' @importFrom SSutils copy_SS_inputs
 #' @export
@@ -297,12 +300,16 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'                  nyrs_assess = 3,
 #'                  dat_str = list(
 #'                    catch = data.frame(year = 101:106, seas = 1, fleet = 1),
-#'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
+#'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2),
+#'                    lencomp = data.frame(Yr = c(102, 105), Seas = 1 , FltSvy = 1, 
+#'                                         Gender = 0, Part = 0),
+#'                    agecomp = data.frame(Yr = c(102, 105), Seas = 1 , FltSvy = 2,
+#'                                         Gender = 0, Part = 0, Ageerr = 1,
+#'                                         Lbin_lo = -1, Lbin_hi = -1)
 #'                  )
 #'      )
 #'      unlink(temp_path, recursive = TRUE)
 #'  }
-
 run_SSMSE_iter <- function(OM_name     = "cod", 
                            use_SS_boot = TRUE, 
                            EM_name     = NULL,
