@@ -21,6 +21,11 @@ cache: packages
 
 services:
   - xvfb
+  
+script: 
+  - |
+    R CMD build .
+    travis_wait 20 R CMD check SSMSE*tar.gz
 
 notifications:
   email:
