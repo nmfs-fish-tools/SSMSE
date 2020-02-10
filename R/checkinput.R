@@ -42,7 +42,7 @@ check_dir <- function(dir) {
   if(!is.null(errors)) {
     stop("The file(s): ", paste(errors, collapse = ", "), " is/are missing ", 
         "from the directory ", dir, ", which suggests that it is not a valid ", 
-        "SS OM directory. Please change to a directory containing a valid SS ",
+        "SS directory. Please change to a directory containing a valid SS ",
         "model.")
   }
   invisible(dir)

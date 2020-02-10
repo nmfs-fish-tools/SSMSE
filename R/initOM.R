@@ -27,6 +27,14 @@ create_OM <- function(OM_dir,
   
   # copy over SA model to OM.
   if(verbose) message("Copying over model in ", SA_dir, " to ", OM_dir, ".")
+  #make sure the .ss_new files exist
+  if(!all(c("control.ss_new", "data.ss_new", "starter.ss_new", 
+            "forecast.ss_new") %in% list.files(SA_dir))) {
+    #TODO: in the future, could add code to do this for the user and get rid of 
+    # this stop statement.
+    stop(".ss_new files not found in the original OM directory ", 
+         SA_dir, ". Please run the model to make the .ss_new files available.")
+  }
   SSutils::copy_SS_inputs(dir.old = SA_dir, 
                  dir.new = OM_dir,
                  overwrite = overwrite,

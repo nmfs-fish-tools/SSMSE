@@ -61,6 +61,8 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
         if(length(orig_EM_dir) == 0) {
           stop("Currently, EM_name can only be one of the following: ", pkg_mods)
         }
+      } else {
+        orig_EM_dir <- EM_dir
       }
       if(!is.null(EM_dir)) check_dir(EM_dir) # make sure contains a valid model
     }
@@ -71,6 +73,8 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
     # create folder 
     if(!is.null(EM_name)) {
       EM_dir <- file.path(out_dir, paste0(EM_name, "_EM"))
+    } else {
+      EM_dir <- file.path(out_dir, paste0(basename(orig_EM_dir), "_EM"))
     }
     if(init_loop) {
       copy_SS_inputs(dir.old = orig_EM_dir, dir.new = EM_dir, overwrite = TRUE)
