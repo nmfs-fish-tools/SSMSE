@@ -10,8 +10,6 @@ extdat_path <- system.file("extdata", package = "SSMSE")
 
 test_that("run_SSMSE_iter works", {
   skip_on_cran()
-  skip_on_travis()
-  skip_on_appveyor()
   catch_add_yrs <- 101:106
   add_yrs <- c(102,105)
   result <- run_SSMSE_iter(OM_name = "cod",
