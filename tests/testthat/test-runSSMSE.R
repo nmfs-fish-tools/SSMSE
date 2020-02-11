@@ -8,7 +8,7 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
 
-test_that("run_SSMSE_iter works", {
+test_that("run_SSMSE_iter runs with an EM", {
   skip_on_travis()
   skip_on_cran()
   catch_add_yrs <- 101:106
@@ -42,4 +42,19 @@ test_that("run_SSMSE_iter works", {
   expect_true(all(add_yrs %in% unique(added_lencomp$Yr)))
   added_agecomp <- dat$agecomp[dat$agecomp$Yr %in% add_yrs, ]
   expect_true(all(add_yrs %in% unique(added_agecomp$Yr)))
+})
+
+test_that("run_SSMSE_iter runs with no EM", {
+  skip_on_cran()
+  new_temp_path <- file.path(temp_path, "no_EM")
+  dir.create(new_temp_path)
+  result <- run_SSMSE_iter(OM_name = "cod",
+                           MS = "no_catch",
+                           out_dir = new_temp_path,
+                           nyrs = 6,
+                           nyrs_assess = 3
+                           )
+  expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
+  expect_true(result)
+# add more specific tests
 })
