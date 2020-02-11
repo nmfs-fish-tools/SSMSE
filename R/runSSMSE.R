@@ -376,7 +376,7 @@ run_SSMSE_iter <- function(OM_name     = "cod",
   new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir, 
                            out_dir = out_dir, OM_dat = OM_dat, 
                            verbose = verbose, nyrs_assess = nyrs_assess)
-  message("Finished getting new catch (years ", OM_dat$endyr, " to ", 
+  message("Finished getting new catch (years ", (OM_dat$endyr+1), " to ", 
           (OM_dat$endyr + nyrs_assess),") to feed into OM for iteration ", 
           niter, ".")
   # Next iterations of MSE procedure ----

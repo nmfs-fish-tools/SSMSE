@@ -77,7 +77,8 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
       EM_dir <- file.path(out_dir, paste0(basename(orig_EM_dir), "_EM"))
     }
     if(init_loop) {
-      copy_SS_inputs(dir.old = orig_EM_dir, dir.new = EM_dir, overwrite = TRUE)
+      copy_SS_inputs(dir.old = orig_EM_dir, dir.new = EM_dir, overwrite = TRUE,
+                     verbose = verbose)
     }
     check_dir(EM_dir)
     if(init_loop) {
