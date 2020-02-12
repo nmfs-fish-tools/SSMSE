@@ -26,6 +26,7 @@ to the working directory.}
 
 \item{OM_name}{Name of a valid Stock Synthesis stock assessment model from 
 which to create the OM. Currently, valid inputs are: \code{"cod"} or NULL, 
+
 if using a custom model with path specified in \code{OM_in_dir}.}
 
 \item{OM_in_dir}{Relative or absolute path to the operating model, if using a 

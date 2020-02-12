@@ -14,7 +14,6 @@
 #'  is \code{TRUE}.
 #' @template verbose
 #' @return A new datafile as read in for r4ss, but with dummy data added.
-#' @importFrom SSutils copy_SS_inputs 
 #' @importFrom r4ss SS_readdat SS_writedat SS_readstarter SS_writestarter
 create_OM <- function(OM_out_dir,
                       overwrite     = FALSE,

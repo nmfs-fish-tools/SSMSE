@@ -21,7 +21,6 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
 Imports:
-    SSutils,
     stats,
     utils,
     r4ss,
@@ -32,5 +31,4 @@ Imports:
 Suggests: 
     testthat
 Remotes:
-    r4ss/SSutils,
     r4ss/r4ss@development
