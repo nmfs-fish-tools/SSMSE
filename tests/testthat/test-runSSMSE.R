@@ -58,3 +58,35 @@ test_that("run_SSMSE_iter runs with no EM", {
   expect_true(result)
 # add more specific tests
 })
+
+OM_path_cod <- file.path(extdat_path, "models","cod")
+EM_path_cod <- file.path(extdat_path, "models","cod")
+test_that("cod works when treated as a custom model", {
+  skip_on_cran()
+  skip_on_travis()
+  skip_on_appveyor()
+  new_temp_path <- file.path(temp_path, "custom_cod")
+  dir.create(new_temp_path)
+  catch_add_yrs <- 101:106
+  add_yrs <- c(102,105)
+  result <- run_SSMSE_iter(OM_name = NULL,
+                           OM_in_dir = OM_path_cod,
+                           MS = "EM",
+                           out_dir = temp_path,
+                           EM_name = NULL,
+                           EM_dir = EM_path_cod,
+                           nyrs = 6,
+                           nyrs_assess = 3,
+                           dat_str = list(
+                             catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
+                             CPUE = data.frame(year = add_yrs, seas = 7, index = 2),
+                             lencomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 1, 
+                                                  Gender = 0, Part = 0),
+                             agecomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 2,
+                                                  Gender = 0, Part = 0, Ageerr = 1,
+                                                  Lbin_lo = -1, Lbin_hi = -1)
+                           )
+  )
+  expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
+  expect_true(result)
+})
