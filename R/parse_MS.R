@@ -30,6 +30,7 @@
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the 
 #'  datatypes within EM_datfile. Ignored if init_loop is TRUE.
+#' @author Kathryn Doering
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 #' @importFrom SSutils copy_SS_inputs
 parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE, 

@@ -55,3 +55,6 @@ strategy outlined within the SS forecasting module.
 \description{
 Runs the estimation model and performs checks if desired.
 }
+\author{
+Kathryn Doering
+}

@@ -24,3 +24,6 @@ Change dataset from OM into format for EM
 #TODO: Add example
 }
 }
+\author{
+Kathryn Doering
+}

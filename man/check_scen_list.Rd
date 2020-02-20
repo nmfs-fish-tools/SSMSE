@@ -14,3 +14,6 @@ check_scen_list(list, verbose = FALSE)
 \description{
 Check the structure that is input to \code{\link{run_SSMSE}}.
 }
+\author{
+Kathryn Doering
+}

@@ -16,3 +16,6 @@ correct names, correct column names (as in r4ss), and that all values in the
 dataframes are integer or numeric. This does not check for if numeric or 
 interger values make sense given the model used.
 }
+\author{
+Kathryn Doering
+}

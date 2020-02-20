@@ -46,6 +46,7 @@
 #'  for the number of years to extend the model out.
 #' @template verbose
 #' @export
+#' @author Kathryn Doering
 #' @examples
 #'   \dontrun{
 #'   my_dir <- file.path(tempdir(), "ex-run_SSMSE")
@@ -162,6 +163,7 @@ run_SSMSE <- function(scen_list = NULL,
 #'  for the number of years to extend the model out.
 #' @template verbose
 #' @export
+#' @author Kathryn Doering
 #' @examples
 #' \dontrun{
 #'   # Create a temporary folder for the output and set the working directory:

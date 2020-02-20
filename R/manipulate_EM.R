@@ -6,6 +6,7 @@
 #' @param EM_dir Absolute or relative path to the Estimation model directory.
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
 #' @template verbose
+#' @author Kathryn Doering
 #' @importFrom r4ss SS_readstarter SS_readdat SS_writedat SS_writestarter 
 #' @examples \dontrun{
 #' #TODO: Add example
@@ -44,6 +45,7 @@ change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
 #' @param EM_dat An SS data file read in by as a list read in using r4ss from 
 #'  the estimation model
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
+#' @author Kathryn Doering
 #' @return A data list in the same format that can be read/written by r4ss that
 #'  has index. lcomps, and age comps from OM_dat, but with the same structure as 
 #'  EM_dat.
@@ -126,6 +128,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
 #'  a fatal error will occur). Default is "most_common_value"
 #' @template verbose
 #' @export
+#' @author Kathryn Doering
 #' @importFrom r4ss SS_readforecast SS_writeforecast SS_readstarter SS_writestarter SS_read_summary
 #' @return The future catch in a dataframe, based on the EM run and the harvest
 #' strategy outlined within the SS forecasting module.
@@ -223,6 +226,7 @@ run_EM <- function(EM_dir,
 #' from OM_dat appended
 #' @importFrom r4ss SS_readdat SS_writedat
 #' @importFrom stats na.omit
+#' @author Kathryn Doering
 add_new_dat <- function(OM_dat, 
                         EM_datfile,
                         dat_str = NULL,

@@ -4,6 +4,7 @@
 #' 
 #' Add in the catch values for the next years, extend the OM forward for the 
 #' appropriate number of years.
+#' @author Kathryn Doering
 #' @param catch A dataframe of catch values and its associated information to
 #'  add to the OM. The column names are the same as in an SS data file (e.g., 
 #'  year,	season, fleet,	catch,	catch_se).
@@ -180,6 +181,7 @@ extend_OM <- function(catch,
 #'  function will get the datfile name from the starter.ss file in \code{OM_dir}.
 #' @param catch_units What units is the catch in? "bio" for biomass or "num" for
 #'   numbers? Defaults to "bio".
+#' @author Kathryn Doering
 #' @importFrom r4ss SS_read_summary SS_readstarter SS_readdat
 check_future_catch <- function(catch, OM_dir, catch_units = "bio", 
                                datfile = NULL) {

@@ -217,7 +217,6 @@ create_OM <- function(OM_dir,
 #' 
 #' This function is used to initialize the OM and get either expected values 
 #' or bootstrap.
-#' @author Kathryn Doering
 #' @param OM_dir The full path to the OM directory
 #' @param boot Return the bootstrap dataset? If TRUE, function returns the 
 #'   number bootstrapped dataset specified in \code{nboot}. If FALSE, it returns
@@ -228,6 +227,7 @@ create_OM <- function(OM_dir,
 #'   SS_readdat is equivalent to specifying nboot = 1.
 #' @param init_run Is this the initial iteration of the OM? Defaults to FALSE.
 #' @template verbose
+#' @author Kathryn Doering
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 run_OM <- function(OM_dir, 
                         boot = TRUE,

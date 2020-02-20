@@ -49,6 +49,7 @@
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
 #' @export
+#' @author Kathryn Doering
 #' @examples
 #' scen_list <- create_scen_list(
 #'                scen_name_vec = c("scen 1", "scen_2"),

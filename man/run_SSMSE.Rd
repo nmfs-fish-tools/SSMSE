@@ -106,3 +106,6 @@ Synthesis as the Operating model(s)
   unlink(my_dir, recursive = TRUE)
  }
 }
+\author{
+Kathryn Doering
+}
