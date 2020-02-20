@@ -37,36 +37,34 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                      out_dir, OM_dat, verbose = FALSE, nyrs_assess, dat_yrs,
                      dat_str) {
   # input checks ----
-  if(init_loop) {
-    valid_MS <- c("EM", "no_catch", "last_yr_catch")
-    if (!MS %in% valid_MS) {
-      stop("MS was input as ", MS, ", which is not valid. Valid options: ",
-           valid_MS)
+  valid_MS <- c("EM", "no_catch", "last_yr_catch")
+  if (!MS %in% valid_MS) {
+    stop("MS was input as ", MS, ", which is not valid. Valid options: ",
+         valid_MS)
+  }
+  if(MS == "EM") {
+    if(is.null(EM_name) & is.null(EM_dir)){
+      stop("Management Strategy (MS) is EM (estimation model, but both EM_name", 
+           " and EM_dir are null. Please specify either EM_name or EM_dir, or ",
+           "change the management strategy.")
     }
-    if(MS == "EM") {
-      if(is.null(EM_name) & is.null(EM_dir)){
-        stop("Management Strategy (MS) is EM (estimation model, but both EM_name", 
-             " and EM_dir are null. Please specify either EM_name or EM_dir, or ",
-             "change the management strategy.")
-      }
-      if(!is.null(EM_name) & !is.null(EM_dir)) {
-        stop("Management Strategy (MS) is EM (estimation model, but both EM_name", 
-             " and EM_dir are specified. Please specify either EM_name or EM_dir", 
-             "or change the management strategy.")
-      }
-      if(!is.null(EM_name)){
-        pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
-        pkg_mods <- list.dirs(system.file("extdata", "models", package = "SSMSE"), full.names = FALSE)
-        pkg_mods <- pkg_mods[pkg_mods != ""]
-        orig_EM_dir <- pkg_dirs[grep(EM_name, pkg_dirs, fixed = TRUE)]
-        if(length(orig_EM_dir) == 0) {
-          stop("Currently, EM_name can only be one of the following: ", pkg_mods)
-        }
-      } else {
-        orig_EM_dir <- EM_dir
-      }
-      if(!is.null(EM_dir)) check_dir(EM_dir) # make sure contains a valid model
+    if(!is.null(EM_name) & !is.null(EM_dir)) {
+      stop("Management Strategy (MS) is EM (estimation model, but both EM_name", 
+           " and EM_dir are specified. Please specify either EM_name or EM_dir", 
+           "or change the management strategy.")
     }
+    if(!is.null(EM_name)){
+      pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
+      pkg_mods <- list.dirs(system.file("extdata", "models", package = "SSMSE"), full.names = FALSE)
+      pkg_mods <- pkg_mods[pkg_mods != ""]
+      orig_EM_dir <- pkg_dirs[grep(EM_name, pkg_dirs, fixed = TRUE)]
+      if(length(orig_EM_dir) == 0) {
+        stop("Currently, EM_name can only be one of the following: ", pkg_mods)
+      }
+    } else {
+      orig_EM_dir <- EM_dir
+    }
+    if(!is.null(EM_dir)) check_dir(EM_dir) # make sure contains a valid model
   }
   # parsing management strategies ----
   out_dir <- normalizePath(out_dir)

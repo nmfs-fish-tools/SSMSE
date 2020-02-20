@@ -41,6 +41,10 @@ create_OM <- function(OM_dir,
                  use_ss_new = TRUE, # will rename the ss new files, also.
                  copy_par = TRUE,
                  verbose = verbose)
+  # simplify the forecasting file
+  file.copy(from = system.file("extdata", "forecast_simple_template.ss",
+                               package = "SSMSE"),
+            to = file.path(OM_dir, "forecast.ss"), overwrite = overwrite)
   start <- SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = verbose)
   dat <- SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose, 
                     section = 1)
@@ -208,6 +212,7 @@ create_OM <- function(OM_dir,
                   verbose = verbose)
     }
   }
+
   # validate using model as an OM? may want to make a seperate function that can
   # validate if the model can be used as an OM or not.
   invisible(dat)
