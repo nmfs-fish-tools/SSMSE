@@ -96,3 +96,6 @@ scen_list <- create_scen_list(
                 )
                 
 }
+\author{
+Kathryn Doering
+}

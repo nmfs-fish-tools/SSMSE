@@ -94,3 +94,6 @@ a management strategy evaluation using Stock Synthesis as the Operating Model
   unlink(temp_path, recursive = TRUE)
 }
 }
+\author{
+Kathryn Doering
+}

@@ -27,8 +27,8 @@ check_catch_df <- function(df) {
 #' 
 #' Check that the directory contains starter and forecast SS files.
 #' @param dir Input to check. Should be a directory name that should contain an
-#'  SS model that can be used
-#'  as an OM.
+#'  SS model that can be used as an OM.
+#'  @author Kathryn Doering
 check_dir <- function(dir) {
   # chack that the dir contains expected SS model files
   all_files <- list.files(dir)
@@ -42,7 +42,7 @@ check_dir <- function(dir) {
   if(!is.null(errors)) {
     stop("The file(s): ", paste(errors, collapse = ", "), " is/are missing ", 
         "from the directory ", dir, ", which suggests that it is not a valid ", 
-        "SS OM directory. Please change to a directory containing a valid SS ",
+        "SS directory. Please change to a directory containing a valid SS ",
         "model.")
   }
   invisible(dir)
@@ -53,6 +53,7 @@ check_dir <- function(dir) {
 #'  model. Note that it should span the same years as EM_dat.
 #' @param EM_dat A data set read in using r4ss::SS_readdata from an estimation 
 #'  model. Note that it should span the same years as EM_dat
+#' @author Kathryn Doering
 check_OM_dat <- function(OM_dat, EM_dat) {
   # check start and end years match
   if(OM_dat$styr != EM_dat$styr | OM_dat$endyr != EM_dat$endyr) {
@@ -68,6 +69,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
   #' @param list_item A component in both EM_dat and OM_dat to check values for.
   #' This should be a single string value.
   #' @param colnames The column names of data to append together.
+  #' @author Kathryn Doering
   #' @noRd
   check_avail_dat <- function(EM_dat, OM_dat, 
                               list_item = "CPUE", 
@@ -134,6 +136,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
 #' interger values make sense given the model used.
 #' @param dat_str The list to check. Should be a list including which years and
 #'  fleets should be added from the OM into the EM for different types of data.
+#' @author Kathryn Doering
 check_dat_str <- function(dat_str) {
   # list components should have same names as in r4ss
   valid_names <- list(catch   = c("year", "seas", "fleet"),
@@ -193,6 +196,7 @@ check_dat_str <- function(dat_str) {
 #' Error if object is not an r4ss object 
 #' @param obj_name Object name that is not an r4ss object to print in the error
 #' @param type Type that obj_name was expected to be, but is not, 
+#' @author Kathryn Doering
 r4ss_obj_err <- function(obj_name = "object ", type = "list") {
   stop(obj_name, " was found to not be an r4ss ", type, ". Please read in ", 
        obj_name, " using r4ss read functions.")
@@ -201,6 +205,7 @@ r4ss_obj_err <- function(obj_name = "object ", type = "list") {
 #' Check structure of the object scen_list
 #' 
 #' Check the structure that is input to \code{\link{run_SSMSE}}.
+#' @author Kathryn Doering
 #' @param list A list to check
 #' @template verbose
 check_scen_list <- function(list, verbose = FALSE) {

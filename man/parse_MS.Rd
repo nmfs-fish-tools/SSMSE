@@ -60,3 +60,6 @@ datatypes within EM_datfile. Ignored if init_loop is TRUE.}
 This function matches each management strategy with its correct method. And
 checks for errors.
 }
+\author{
+Kathryn Doering
+}

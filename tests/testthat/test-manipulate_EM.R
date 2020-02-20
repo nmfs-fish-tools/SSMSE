@@ -47,7 +47,8 @@ test_that("get_EM_dat works", {
 test_that("run_EM works", {
   skip_on_cran()
   df <- run_EM(EM_dir = file.path(temp_path, "cod"),  change_fcast = FALSE)
-  fore <- r4ss::SS_readforecast(file.path(temp_path, "cod", "forecast.ss"))
+  fore <- r4ss::SS_readforecast(file.path(temp_path, "cod", "forecast.ss"), 
+                                verbose = FALSE)
   expect_equal(nrow(df), fore$Nforecastyrs)
 
   df2 <- run_EM(EM_dir = file.path(temp_path, "cod"),

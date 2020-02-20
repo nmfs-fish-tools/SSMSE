@@ -44,3 +44,6 @@ A new dat list object (format as created by r4ss::SS_readdat) that
 Add in the catch values for the next years, extend the OM forward for the 
 appropriate number of years.
 }
+\author{
+Kathryn Doering
+}

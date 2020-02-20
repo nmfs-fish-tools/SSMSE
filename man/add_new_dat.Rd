@@ -42,3 +42,6 @@ from OM_dat appended
 \description{
 This should be used for the feedback loops when an EM is used.
 }
+\author{
+Kathryn Doering
+}

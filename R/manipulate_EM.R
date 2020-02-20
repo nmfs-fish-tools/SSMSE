@@ -6,6 +6,7 @@
 #' @param EM_dir Absolute or relative path to the Estimation model directory.
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
 #' @template verbose
+#' @author Kathryn Doering
 #' @importFrom r4ss SS_readstarter SS_readdat SS_writedat SS_writestarter 
 #' @examples \dontrun{
 #' #TODO: Add example
@@ -31,7 +32,8 @@ change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
   SS_writedat(new_EM_dat, file.path(EM_dir, "init_dat.ss"), verbose = verbose, 
               overwrite = TRUE)
   start$datfile <- "init_dat.ss"
-  SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE)
+  SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE,
+                  warn = verbose)
   invisible(OM_datfile) # b/c function written for side effects.
 }
 
@@ -43,6 +45,7 @@ change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
 #' @param EM_dat An SS data file read in by as a list read in using r4ss from 
 #'  the estimation model
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
+#' @author Kathryn Doering
 #' @return A data list in the same format that can be read/written by r4ss that
 #'  has index. lcomps, and age comps from OM_dat, but with the same structure as 
 #'  EM_dat.
@@ -116,10 +119,16 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
 #' @param change_fcast Should number of years be changed in forecast? Defaults
 #'  to TRUE.
 #' @param seas Season for catch to be output. Defaults to 1.
-#' @param catch_se Catch standard error for catch to be output. Defaults to 
-#'  0.01. 
+#' @param catch_se Catch standard error for catch to be output. Either a single
+#'  numeric value (e.g., 0.1), a vector the same length as \code{nyrs_proj}, or
+#'  a string specifying how to get catch_se from the data file (options are: 
+#'  "most_common_value" which uses the most common value in the data as 
+#'  \code{catch_se} or "only_value" which will use the only value provided in 
+#'  the data as \code{catch_se}; if there are multiple values for standard error, 
+#'  a fatal error will occur). Default is "most_common_value"
 #' @template verbose
 #' @export
+#' @author Kathryn Doering
 #' @importFrom r4ss SS_readforecast SS_writeforecast SS_readstarter SS_writestarter SS_read_summary
 #' @return The future catch in a dataframe, based on the EM run and the harvest
 #' strategy outlined within the SS forecasting module.
@@ -130,17 +139,19 @@ run_EM <- function(EM_dir,
                    set_use_par = FALSE,
                    change_fcast = FALSE,
                    seas = 1,
-                   catch_se = 0.01,
+                   catch_se = "most_common_value",
                    verbose = FALSE) {
   EM_dir <- normalizePath(EM_dir)
   # checks
   check_dir(EM_dir)
+  # below is not a perfect check that input is right for catch_se, but helpful.
+  assertive.types::assert_is_any_of(catch_se, c("numeric", "integer", "character"))
   # set up to run the EM
   if(set_use_par == TRUE) {
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
     start$init_values_src <- 1
     SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = verbose,
-                    warn = FALSE)
+                    warn = verbose)
   }
   if(change_fcast == TRUE) {
     # make sure enough yrs can be forecasted.
@@ -176,6 +187,14 @@ run_EM <- function(EM_dir,
   yrs <- as.integer(unlist(lapply(yrs, function(x) x[2])))
   # For now, assume in order and want to use all values. May want to add check?
   #TODO: modify for use with multiple fleets, areas, etc.
+  if(class(catch_se) == "character") {
+    start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
+    dat <- SS_readdat(file.path(EM_dir, start$datfile), verbose = verbose)
+    catch_se <- get_input_value(data = dat$catch, 
+                    method = catch_se, 
+                    colname = "catch_se", 
+                    group = NULL) #would need to add a group if using multiple fleets.
+  }
   catch <- data.frame(
              year = yrs,
              seas = seas,
@@ -207,6 +226,7 @@ run_EM <- function(EM_dir,
 #' from OM_dat appended
 #' @importFrom r4ss SS_readdat SS_writedat
 #' @importFrom stats na.omit
+#' @author Kathryn Doering
 add_new_dat <- function(OM_dat, 
                         EM_datfile,
                         dat_str = NULL,

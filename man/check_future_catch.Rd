@@ -25,3 +25,6 @@ function will get the datfile name from the starter.ss file in \code{OM_dir}.}
 Note that it could still be possible to take out too much catch from the 
 population, so this may not catch all instances of too much catch
 }
+\author{
+Kathryn Doering
+}

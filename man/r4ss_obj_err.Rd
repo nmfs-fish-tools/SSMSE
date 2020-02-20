@@ -14,3 +14,6 @@ r4ss_obj_err(obj_name = "object ", type = "list")
 \description{
 Error if object is not an r4ss object
 }
+\author{
+Kathryn Doering
+}
