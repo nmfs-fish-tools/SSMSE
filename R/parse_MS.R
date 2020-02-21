@@ -94,7 +94,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                     overwrite = TRUE, warn = verbose)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
-    change_dat(OM_datfile = "init_dat.ss",
+    new_EM_dat <- change_dat(OM_datfile = "init_dat.ss",
                 EM_dir = EM_dir,
                 do_checks = TRUE,
                 verbose = verbose)
@@ -114,12 +114,35 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                                  new_datfile_name = "init_dat.ss",
                                  verbose = verbose)
     }
+    # manipulate the forecasting file.
+    # make sure enough yrs can be forecasted.
+    fcast <- SS_readforecast(file.path(EM_dir, "forecast.ss"),
+                             readAll = TRUE,
+                             verbose = verbose)
+    # check that it can be used in the EM. fleets shoul
+    check_EM_forecast(fcast,
+      n_flts_catch = length(which(new_EM_dat[["fleetinfo"]][, "type"] %in%
+                                    c(1,2))))
+    if(init_loop) {
+    fcast <- change_yrs_fcast(fcast, 
+                              make_yrs_rel = TRUE, 
+                              nyrs_fore = nyrs_assess, 
+                              mod_styr = new_EM_dat[["styr"]], 
+                              mod_endyr = new_EM_dat[["endyr"]])
+    } else {
+      fcast <- change_yrs_fcast(fcast, 
+                       make_yrs_rel = FALSE,
+                       nyrs_increment = nyrs_assess,
+                       mod_styr = new_EM_dat[["styr"]],
+                       mod_endyr = new_EM_dat[["endyr"]])
+    }                     
+    SS_writeforecast(fcast, dir = EM_dir, writeAll = TRUE, overwrite = TRUE,
+                     verbose = verbose)
     # given all checks are good, run the EM
     # check convergence (figure out way to error if need convergence)
     # get the future catch using the management strategy used in the SS model.
     new_catch_df <- run_EM(EM_dir = EM_dir, verbose = verbose,
-                           check_converged = TRUE, nyrs_proj = nyrs_assess, 
-                           change_fcast = TRUE)
+                           check_converged = TRUE)
   }
   if(MS == "last_yr_catch") {
     #TODO: extend this approach in the case of multiple fishery fleets.

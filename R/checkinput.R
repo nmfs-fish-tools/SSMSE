@@ -217,3 +217,38 @@ check_scen_list <- function(list, verbose = FALSE) {
   assertive.types::assert_is_list(list)
   invisible(list)
 }
+
+#' Check structure of forecast is suitable to use in the EM
+#' @param fore A forecast list read in using r4ss::SS_readforecast
+#' @param n_flts_catch The number of fleets with catch. If NULL, this function
+#' will skip a check requiring this input.
+#' @author Kathryn Doering
+#' @return Function mainly used for side effects, but returns TRUE invisibly if 
+#'  no errors created.
+check_EM_forecast <- function(fore, n_flts_catch = NULL) {
+  msg <- NULL
+  # check benchmark on
+  if(fore[["benchmarks"]] == 0) {
+    msg <- c(msg, "Benchmarks set to 0, but need to be turned on.")
+  }
+  # check forecasting on
+  if(fore[["Forecast"]] <= 0) {
+    msg <- c(msg, "Forecast set to -1 or 0, but needs to be turned on. ")
+  }
+  # check allocation defined if the fleets with catch > 1
+  if(!is.null(n_flts_catch)) {
+    if(fore[["N_allocation_groups"]] == 0 & n_flts_catch > 1) {
+      msg <- c(msg, "Fleets with catch > 1, so allocation must be defined.")
+    }
+  }
+  # check rebuilder off (in the future, the option to use rebuilder could be 
+  # added?)
+  if(fore[["Do_West_Coast_gfish_rebuilder_output"]] == 1) {
+    msg <- c(msg, "Rebuilder turned on; must be turned off to use model with SSMSE.")
+  }
+  if(!is.null(msg)) {
+    stop("EM forecast file has issues and needs changes:", 
+         paste(msg, collapse = " "))
+  }
+  invisible(TRUE)
+}

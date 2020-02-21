@@ -72,7 +72,7 @@ test_that("cod works when treated as a custom model", {
   result <- run_SSMSE_iter(OM_name = NULL,
                            OM_in_dir = OM_path_cod,
                            MS = "EM",
-                           out_dir = temp_path,
+                           out_dir = new_temp_path,
                            EM_name = NULL,
                            EM_dir = EM_path_cod,
                            nyrs = 6,

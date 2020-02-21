@@ -8,6 +8,7 @@
 #' @template verbose
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readstarter SS_readdat SS_writedat SS_writestarter 
+#' @return the new EM data file, invisibly.
 #' @examples \dontrun{
 #' #TODO: Add example
 #' }
@@ -34,7 +35,7 @@ change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
   start$datfile <- "init_dat.ss"
   SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE,
                   warn = verbose)
-  invisible(OM_datfile) # b/c function written for side effects.
+  invisible(new_EM_dat) # b/c function written for side effects.
 }
 
 #' Change the OM data to match the format of the EM data
@@ -111,13 +112,9 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
 #'  be generated.
 #' @param check_converged Perform checks to see if the model converged? Defaults
 #'  to TRUE.
-#' @param nyrs_proj The number of years of catch to be returned. Only used if
-#'  change_fcast = TRUE.
 #' @param set_use_par Should input values be read from the .par file? If TRUE,
 #' will change setting in the starter file; otherwise, will use the setting
 #' already in the starter file, which may or may not read from the .par file.
-#' @param change_fcast Should number of years be changed in forecast? Defaults
-#'  to TRUE.
 #' @param seas Season for catch to be output. Defaults to 1.
 #' @param catch_se Catch standard error for catch to be output. Either a single
 #'  numeric value (e.g., 0.1), a vector the same length as \code{nyrs_proj}, or
@@ -135,9 +132,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
 run_EM <- function(EM_dir, 
                    hess = FALSE, 
                    check_converged = TRUE, 
-                   nyrs_proj,
                    set_use_par = FALSE,
-                   change_fcast = FALSE,
                    seas = 1,
                    catch_se = "most_common_value",
                    verbose = FALSE) {
@@ -153,15 +148,7 @@ run_EM <- function(EM_dir,
     SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = verbose,
                     warn = verbose)
   }
-  if(change_fcast == TRUE) {
-    # make sure enough yrs can be forecasted.
-    fcast <- SS_readforecast(file.path(EM_dir, "forecast.ss"),
-                                    readAll = TRUE,
-                                    verbose = verbose)
-    fcast$Nforecastyrs <- nyrs_proj
-    SS_writeforecast(fcast, dir = EM_dir, writeAll = TRUE, overwrite = TRUE,
-                     verbose = verbose)
-  }
+
   if (hess == TRUE) {
     options <- ""
   } else {
@@ -181,6 +168,10 @@ run_EM <- function(EM_dir,
   # get projected catch values
   sum <- SS_read_summary(file.path(EM_dir, "ss_summary.sso"))
   # get the catch and year values.
+  #TODO: use FORECAST:_With_F_to_match_adjusted_catch in Forecast-report.sso 
+  # instead. Or use CATCH_AT_AGE table from report file?
+  # instead of all Forecatch, we need forecasted catch by fleet (with or without)
+  # implementation error). Need to get the forecasting file right!
   all_fore_catch <- sum$derived_quants[
     grep("^ForeCatch_\\d+$", rownames(sum$derived_quants)), ]
   yrs <- strsplit(rownames(all_fore_catch), "_", fixed = TRUE) 
@@ -293,3 +284,95 @@ add_new_dat <- function(OM_dat,
    new_EM_dat
 }
 
+#' Change the years in the forecast file
+#' 
+#' This is both to increment years forward and/or to change absolute years to
+#' relative years.
+#' @param fore A forecasting file read into R using r4ss::SS_readforecast()
+#' @param make_yrs_rel Should the absolute years in the forecast file be changed
+#'  to relative years? Defaults to TRUE.
+#' @param nyrs_increment The number of years to increment forecasting period years. 
+#'   If NULL (the default value), will not be incremented.
+#' @param nyrs_fore The number of years of forecasting to do. If NULL, do not
+#'  change the number of forecasting years already specified in \code{fore}
+#' @param mod_styr The first year of the model
+#' @param mod_endyr The last year of the model \code{fore} assumes when read in.
+#'  Note that the assumed model year will be different for the output if
+#'  nyrs_increment is not NULL.
+#' @author Kathryn Doering
+#' @importFrom  assertive.base assert_is_identical_to_true
+#' @return A forecasting file as an R list object
+change_yrs_fcast <- function(fore,
+                             make_yrs_rel = TRUE,
+                             nyrs_increment = NULL,
+                             nyrs_fore = NULL,
+                             mod_styr,
+                             mod_endyr) {
+  if(make_yrs_rel == TRUE) {
+    # x is the year 
+    # styr is the model start year
+    # endyr is the model end year
+    make_yrs_rel <- function(x, styr, endyr) {
+      if(x > 0) { # means these are absolute years and not relative.
+        if(x == styr) {
+          x <- -999
+        } else if(x == endyr) {
+          x <- 0
+        }else if(x > styr & x < endyr) {
+          x <- x - endyr #make it relative to endyr 
+        } else {
+          stop("Year in fcast file out of range. Please change to be within ",
+               "start and end yrs.")
+        }
+      }
+      x
+    }
+    #change benchmark years
+    new_bmark_yrs <- lapply(fore[["Bmark_years"]], 
+                        make_yrs_rel,
+                        styr = mod_styr, 
+                        endyr = mod_endyr)
+    new_bmark_yrs <- unlist(new_bmark_yrs)
+    names(new_bmark_yrs) <- names(fore[["Bmark_years"]])
+    fore[["Bmark_years"]] <- new_bmark_yrs
+    # change forecast years
+    new_fcast_yrs <- lapply(fore[["Fcast_years"]], 
+                            make_yrs_rel,
+                            styr = mod_styr, 
+                            endyr = mod_endyr)
+    new_fcast_yrs <- unlist(new_fcast_yrs)
+    names(new_fcast_yrs) <- names(fore[["Fcast_years"]])
+    fore[["Fcast_years"]] <- new_fcast_yrs
+  }
+  if(!is.null(nyrs_increment)) {
+    # first year for caps and allocations
+    fore[["FirstYear_for_caps_and_allocations"]] <- 
+      fore[["FirstYear_for_caps_and_allocations"]] + nyrs_increment
+    assert_is_identical_to_true(
+      fore[["FirstYear_for_caps_and_allocations"]] > mod_endyr)
+    # deal with allocation
+    if(fore[["N_allocation_groups"]] > 0) {
+      tmp_allocation <- fore[["allocation_among_groups"]]
+      if(any(tmp_allocation$Year < mod_endyr)) {
+        if(length(tmp_allocation$Year) == 1) { #increment forward if only one assignment
+          fore$allocation_among_groups$Year <- 
+            fore$allocation_among_groups$Year + nyrs_increment
+        } else {
+          #TODO: develop smarter ways to deal with Time varying allocation
+          stop("Time-varying allocation in the forecasting file cannot yet be", 
+               " used in SSMSE. Please request development of this feature.")
+        }
+      }
+    }
+  }
+  if(!is.null(nyrs_fore)) {
+    fore[["Nforecastyrs"]] <- nyrs_fore
+  }
+  # get rid of Forecatch, if any. Add a warning to the user about this. 
+  # may beed to treat this differently in the futured
+  if(!is.null(fore[["ForeCatch"]])) {
+    warning("Removing ForeCatch from the EM forecasting file.")
+    fore[["ForeCatch"]] <- NULL
+  }
+  fore
+}

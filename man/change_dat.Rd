@@ -16,6 +16,9 @@ datafile to use.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
+\value{
+the new EM data file, invisibly.
+}
 \description{
 Change dataset from OM into format for EM
 }

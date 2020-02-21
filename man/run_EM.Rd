@@ -8,9 +8,7 @@ run_EM(
   EM_dir,
   hess = FALSE,
   check_converged = TRUE,
-  nyrs_proj,
   set_use_par = FALSE,
-  change_fcast = FALSE,
   seas = 1,
   catch_se = "most_common_value",
   verbose = FALSE
@@ -26,15 +24,9 @@ be generated.}
 \item{check_converged}{Perform checks to see if the model converged? Defaults
 to TRUE.}
 
-\item{nyrs_proj}{The number of years of catch to be returned. Only used if
-change_fcast = TRUE.}
-
 \item{set_use_par}{Should input values be read from the .par file? If TRUE,
 will change setting in the starter file; otherwise, will use the setting
 already in the starter file, which may or may not read from the .par file.}
-
-\item{change_fcast}{Should number of years be changed in forecast? Defaults
-to TRUE.}
 
 \item{seas}{Season for catch to be output. Defaults to 1.}
 
