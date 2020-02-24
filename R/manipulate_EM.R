@@ -55,7 +55,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   #TODO: add in code to copy over mean size and mean size at age obs.
   # add in index
   if(do_checks) {
-  check_OM_dat(OM_dat, EM_dat)
+    check_OM_dat(OM_dat, EM_dat)
   }
   dat <- list(OM_dat = OM_dat, EM_dat = EM_dat)
   #' create a function that creates a combined column to the list_item of interest
@@ -74,22 +74,22 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
     tmp$combo <- combo
     tmp
   }
-  CPUEs <- lapply(dat, function(x){
+  CPUEs <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "CPUE", c("year", "seas", "index"))
- }) 
+  }) 
   # match 1 way: match each EM obs with an OM obs. extract only these OM obs.
-   matches <- which(CPUEs[[1]][, "combo"] %in% CPUEs[[2]][, "combo"])
-   # extract only the rows of interest and get rid of the "combo" column
-   new_dat$CPUE <- CPUEs[[1]][matches, -ncol(CPUEs[[1]])]
+  matches <- which(CPUEs[[1]][, "combo"] %in% CPUEs[[2]][, "combo"])
+  # extract only the rows of interest and get rid of the "combo" column
+  new_dat$CPUE <- CPUEs[[1]][matches, -ncol(CPUEs[[1]])]
   # add in lcomps
-   if(OM_dat$use_lencomp == 1) {
-     lcomps <- lapply(dat, function(x) {
-       tmp <- combine_cols(x, "lencomp",
-                           c("Yr", "Seas", "FltSvy", "Gender", "Part"))
-     })
-     matches_l <- which(lcomps[[1]][, "combo"] %in% lcomps[[2]][,"combo"])
-     new_dat$lencomp <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
-   }
+  if(OM_dat$use_lencomp == 1) {
+    lcomps <- lapply(dat, function(x) {
+    tmp <- combine_cols(x, "lencomp",
+                        c("Yr", "Seas", "FltSvy", "Gender", "Part"))
+    })
+    matches_l <- which(lcomps[[1]][, "combo"] %in% lcomps[[2]][,"combo"])
+    new_dat$lencomp <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
+  }
   # add in age comps
   acomps <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "agecomp", 
@@ -238,7 +238,6 @@ add_new_dat <- function(OM_dat,
   EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = verbose)
   new_EM_dat <- EM_dat
   new_EM_dat$endyr <- OM_dat$endyr # want to be the same as the OM
-  
   # add the data from OM_dat into EM_dat
   if(is.null(dat_str)) {
     stop("Option to determine sampling from EM_datfile not yet developed. ",

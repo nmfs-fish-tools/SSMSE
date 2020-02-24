@@ -43,7 +43,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
          valid_MS)
   }
   if(MS == "EM") {
-    if(is.null(EM_name) & is.null(EM_dir)){
+    if(is.null(EM_name) & is.null(EM_dir)) {
       stop("Management Strategy (MS) is EM (estimation model, but both EM_name", 
            " and EM_dir are null. Please specify either EM_name or EM_dir, or ",
            "change the management strategy.")
@@ -53,7 +53,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
            " and EM_dir are specified. Please specify either EM_name or EM_dir", 
            "or change the management strategy.")
     }
-    if(!is.null(EM_name)){
+    if(!is.null(EM_name)) {
       pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
       pkg_mods <- list.dirs(system.file("extdata", "models", package = "SSMSE"), full.names = FALSE)
       pkg_mods <- pkg_mods[pkg_mods != ""]
@@ -68,6 +68,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
   }
   # parsing management strategies ----
   out_dir <- normalizePath(out_dir)
+  # EM ----
   if(MS == "EM") {
     # create folder 
     if(!is.null(EM_name)) {
@@ -144,6 +145,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
     new_catch_df <- run_EM(EM_dir = EM_dir, verbose = verbose,
                            check_converged = TRUE)
   }
+  # last_yr_catch ----
   if(MS == "last_yr_catch") {
     #TODO: extend this approach in the case of multiple fishery fleets.
     # get last year catch
@@ -157,6 +159,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                                catch_se = OM_dat$catch$catch_se[nrow(OM_dat$catch)])
     
   }
+  # no_catch ----
   if(MS == "no_catch") {
     new_catch_df <- data.frame(year = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess), 
                                # assume always useing the same fleet and season for now
@@ -166,7 +169,7 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                                catch_se = OM_dat$catch$catch_se[nrow(OM_dat$catch)])
     
   }
-# check output before returning
-check_catch_df(new_catch_df)
-new_catch_df
+  # check output before returning
+  check_catch_df(new_catch_df)
+  new_catch_df
 }
