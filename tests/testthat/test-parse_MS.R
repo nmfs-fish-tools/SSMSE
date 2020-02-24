@@ -16,6 +16,30 @@ dir.create(out_dir)
 
 OM_dat <- r4ss::SS_readdat(file.path(cod_OM_path, "ss3.dat"), verbose = FALSE)
 
+test_that("get_no_EM_catch_df works", {
+  # This is an function referenced within the parse)MS function, so only
+  # created some simple tests.
+  # mock additional fleets of catch data
+  catch <- OM_dat$catch
+  new_catch <- data.frame(year = 100, 
+                          seas = 1, 
+                          fleet = c(2,3), 
+                          catch = c(200, 300), 
+                          catch_se = c(0.02, 0.03))
+  catch <- rbind(catch, new_catch)
+  lyr_catch_df <- get_no_EM_catch_df(catch = catch, yrs = 101:105,
+                                  MS = "last_yr_catch")
+  expect_true(all(lyr_catch_df$catch != 0))
+  expect_true(length(unique(lyr_catch_df$fleet)) == length(unique(catch$fleet)))
+  expect_true(length(unique(lyr_catch_df$fleet)) == 3)
+  no_catch_df <- get_no_EM_catch_df(catch = catch, yrs = 101:105,
+                                 MS = "no_catch")
+  expect_true(all(no_catch_df$catch == 0))
+  expect_true(length(unique(no_catch_df$fleet)) == length(unique(catch$fleet)))
+  expect_error(get_no_EM_catch_df(catch = catch, yrs = 101:105,
+                               MS = "bad_MS_input"))
+})
+
 test_that("parse_MS works for no estimation model methods", {
   # no catch managemetn strategy
   catch_df_1 <- parse_MS(MS = "no_catch",

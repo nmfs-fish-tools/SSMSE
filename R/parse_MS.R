@@ -146,30 +146,59 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                            check_converged = TRUE)
   }
   # last_yr_catch ----
-  if(MS == "last_yr_catch") {
-    #TODO: extend this approach in the case of multiple fishery fleets.
-    # get last year catch
-    new_catch <- rep(OM_dat$catch$catch[nrow(OM_dat$catch)], 
-                     length.out = nyrs_assess)
-    new_catch_df <- data.frame(year = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess), 
-                               # assume always useing the same fleet and season for now
-                               seas = OM_dat$catch$seas[nrow(OM_dat$catch)],
-                               fleet = OM_dat$catch$fleet[nrow(OM_dat$catch)],
-                               catch = new_catch,
-                               catch_se = OM_dat$catch$catch_se[nrow(OM_dat$catch)])
-    
-  }
   # no_catch ----
-  if(MS == "no_catch") {
-    new_catch_df <- data.frame(year = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess), 
-                               # assume always useing the same fleet and season for now
-                               seas = OM_dat$catch$seas[nrow(OM_dat$catch)],
-                               fleet = OM_dat$catch$fleet[nrow(OM_dat$catch)],
-                               catch = 0,
-                               catch_se = OM_dat$catch$catch_se[nrow(OM_dat$catch)])
-    
+  if(MS %in% c("last_yr_catch", "no_catch")) {
+    new_catch_df <- get_no_EM_catch_df(OM_dat$catch,
+                      yrs = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess),
+                      MS = MS)
   }
   # check output before returning
   check_catch_df(new_catch_df)
   new_catch_df
+}
+
+
+#' Get the data frame of catch for the next iterations when not using an
+#' estimation model.
+#'
+#'@param catch Catch dataset from the OM, as read in using the catch
+#' dataframe (a list component) created using r4ss::SS_readdat
+#'@param yrs A vector of years for each year
+#'@param MS Can be either "no_catch" or "last_yr_catch"
+#'@return A dataframe of future catch.
+get_no_EM_catch_df <- function(catch, yrs, MS = "last_yr_catch") {
+  # input checks
+  if(! MS %in% c("last_yr_catch","no_catch")) {
+    stop("MS specified as '", MS, "', but must be either 'last_yr_catch' or ", 
+         "'no_catch'")
+  }
+  assertive.types::assert_is_data.frame(catch)
+  assertive.properties::assert_is_atomic(yrs)
+  # get the catch values by MS.
+  l_yr <- max(catch$year)
+  catch_by_fleet <- catch[catch$year == l_yr, c("fleet", "seas", "catch")]
+  if(MS == "no_catch") catch_by_fleet$catch <- 0
+  # find combinations of catch needed seas and fleet
+  flt_combo <- unique(catch[,c("seas","fleet")])
+  se <- get_input_value(catch, method = "most_common_value", colname = "catch_se", 
+                  group = "fleet")
+  tmp_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
+  pos <- 1
+  for(y in yrs) {
+    for(flt in seq_len(nrow(flt_combo))) {
+      #get the catch value
+      tmp_catch <- catch_by_fleet[catch_by_fleet$fleet == flt_combo$fleet[flt] &
+                                  catch_by_fleet$seas == flt_combo$seas[flt],
+                                  "catch"]
+      #get the catch_se
+      tmp_catch_se <- se[se$fleet == flt_combo$fleet[flt], "catch_se"]
+      tmp_df_list[[pos]] <- data.frame(year = y,
+                                       seas = flt_combo$seas[flt], 
+                                       fleet = flt_combo$fleet[flt], 
+                                       catch = tmp_catch, 
+                                       catch_se = tmp_catch_se)
+      pos <- pos + 1
+    }
+  }
+  df <- do.call("rbind", tmp_df_list)
 }
