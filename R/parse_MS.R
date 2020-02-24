@@ -81,21 +81,22 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                      verbose = verbose)
     }
     check_dir(EM_dir)
+    new_datfile_name <- "init_dat.ss"
     if(init_loop) {
     # copy over raw data file from the OM
     SS_writedat(OM_dat, 
-                      file.path(EM_dir, "init_dat.ss"), 
+                      file.path(EM_dir, new_datfile_name), 
                       overwrite = TRUE, 
                       verbose = verbose)
     # change the name of data file.
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), 
                                   verbose = verbose)
-    start$datfile <- "init_dat.ss"
+    start$datfile <- new_datfile_name
     SS_writestarter(start, file.path(EM_dir), verbose = verbose,
                     overwrite = TRUE, warn = verbose)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
-    new_EM_dat <- change_dat(OM_datfile = "init_dat.ss",
+    new_EM_dat <- change_dat(OM_datfile = new_datfile_name,
                 EM_dir = EM_dir,
                 do_checks = TRUE,
                 verbose = verbose)
@@ -108,11 +109,11 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
         dat_str_sub <- NULL
       }
       new_EM_dat <- add_new_dat(OM_dat = OM_dat,
-                                 EM_datfile = "init_dat.ss",
+                                 EM_datfile = new_datfile_name,
                                  dat_str = dat_str_sub,
                                  EM_dir = EM_dir,
                                  do_checks = TRUE,
-                                 new_datfile_name = "init_dat.ss",
+                                 new_datfile_name = new_datfile_name,
                                  verbose = verbose)
     }
     # manipulate the forecasting file.
@@ -142,8 +143,8 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
     # given all checks are good, run the EM
     # check convergence (figure out way to error if need convergence)
     # get the future catch using the management strategy used in the SS model.
-    new_catch_df <- run_EM(EM_dir = EM_dir, verbose = verbose,
-                           check_converged = TRUE)
+    run_EM(EM_dir = EM_dir, verbose = verbose, check_converged = TRUE)
+    new_catch_df <- get_EM_catch_df(EM_dir = EM_dir, dat = new_EM_dat)
   }
   # last_yr_catch ----
   # no_catch ----
@@ -157,6 +158,68 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
   new_catch_df
 }
 
+#' Get the EM catch data frame
+#' 
+#' Get the data frame of catch for the next iterations when using a Stock
+#' Synthesis Estimation model
+#' @param EM_dir Path to the EM files
+#' @param dat A SS datfile read into R using \code{r4ss::SS_readdat()}
+#' @return A data frame of future catch
+get_EM_catch_df <- function(EM_dir, dat) {
+  # get projected catch values
+  fore_rpt <- readLines(file.path(EM_dir, "Forecast-report.sso"))
+  start <- grep("FORECAST:_With_F_to_match_adjusted_catch", fore_rpt, fixed = TRUE)+1
+  #TODO: find a smarter way to select the end.Have not yet invested much time in
+  # this, because may need to change the quantity selected.
+  # assume either a comment or line containing the word FORECAST is immediately
+  # after the table
+  #TODO add some better checks to make sure this function didn't fail (or warns
+  # when it does. Have 
+  # currently not added b/c may need to restructure to read a different part of
+  # the model output.
+  end <- grep("FORECAST", fore_rpt)
+  end2 <- grep("#", fore_rpt)
+  end <- end[(end > start)][1]
+  end2 <- end2[(end2 > start)][1]
+  real_end <- min(c(end, end2))-1
+  future_catch <- fore_rpt[start:real_end]
+  # make into a data frame.
+  hdr <- strsplit(future_catch[1], split = " ", fixed = TRUE)[[1]]
+  hdr <- hdr[-grep("^$", hdr)]
+  catch_dat <- strsplit(future_catch[-1], split = " ", fixed = TRUE)
+  catch_dat <- lapply(catch_dat, function(x) x[x != ""])
+  catch_df <- do.call("rbind", catch_dat)
+  colnames(catch_df) <- hdr
+  fcast_catch_df <- utils::type.convert(as.data.frame(catch_df), as.is = TRUE)
+  # get the fleets and the units on catch 
+  units <- dat[["fleetinfo"]]
+  units$survey_number <- seq_len(nrow(units))
+  flt_units <- units[units$type %in% c(1,2), c("survey_number", "units")] 
+  # for multi area model, need to add area
+  # may also need to consider if the catch multiplier is used..
+  # match catch with the units
+  unit_key <- data.frame(unit_name = c("B", "N"), units = 1:2) 
+  flt_units <- merge(flt_units, unit_key, all.x = TRUE, all.y = FALSE)
+  # get the se
+  se <- get_input_value(dat$catch, method = "most_common_value", 
+                        colname = "catch_se", group = "fleet")
+  df_list <- vector(mode = "list", length = nrow(flt_units))
+  for(fl in seq_len(nrow(flt_units))) {
+    # find which row to get catch from
+    tmp_col_lab <- paste0("sel(", flt_units$unit_name[fl], "):_", 
+                         flt_units$survey_number[fl])
+    #find the se that matches for the fleet
+    tmp_catch_se <- se[se$fleet == flt_units$survey_number[fl], "catch_se"]
+    warning("SSMSE function get_EM_catch_df assumes no discard currently. ", 
+            "Additional development is necessary to handle discards.")
+    df_list[[fl]] <- data.frame(year     = fcast_catch_df$year,
+                                seas     = fcast_catch_df$season, 
+                                fleet    = flt_units$survey_number[fl], 
+                                catch    = fcast_catch_df[, tmp_col_lab],
+                                catch_se = tmp_catch_se)
+  }
+  df <- do.call("rbind", df_list)
+}
 
 #' Get the data frame of catch for the next iterations when not using an
 #' estimation model.
