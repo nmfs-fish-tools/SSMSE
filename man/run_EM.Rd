@@ -9,8 +9,6 @@ run_EM(
   hess = FALSE,
   check_converged = TRUE,
   set_use_par = FALSE,
-  seas = 1,
-  catch_se = "most_common_value",
   verbose = FALSE
 )
 }
@@ -28,21 +26,7 @@ to TRUE.}
 will change setting in the starter file; otherwise, will use the setting
 already in the starter file, which may or may not read from the .par file.}
 
-\item{seas}{Season for catch to be output. Defaults to 1.}
-
-\item{catch_se}{Catch standard error for catch to be output. Either a single
-numeric value (e.g., 0.1), a vector the same length as \code{nyrs_proj}, or
-a string specifying how to get catch_se from the data file (options are: 
-"most_common_value" which uses the most common value in the data as 
-\code{catch_se} or "only_value" which will use the only value provided in 
-the data as \code{catch_se}; if there are multiple values for standard error, 
-a fatal error will occur). Default is "most_common_value"}
-
 \item{verbose}{Want verbose output? Defaults to FALSE.}
-}
-\value{
-The future catch in a dataframe, based on the EM run and the harvest
-strategy outlined within the SS forecasting module.
 }
 \description{
 Runs the estimation model and performs checks if desired.

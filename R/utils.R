@@ -185,7 +185,7 @@ create_scen_list <- function(scen_name_vec,
 #' @details Note that this function was created intially to return a value to
 #'  use as the input uncertainty, but it should be generalizable to pulling a 
 #'  value from a column in any data frame using the method specified.
-#'  @example 
+#' @examples
 #'  dfr <- data.frame("year" = 1:5, 
 #'                    "value" = c(2,2,2,3,3), 
 #'                     "se_log" = 0.2)
