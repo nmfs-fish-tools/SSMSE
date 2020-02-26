@@ -16,5 +16,5 @@ A data frame of future catch
 }
 \description{
 Get the data frame of catch for the next iterations when using a Stock
-Synthesis Estimation model
+Synthesis Estimation model from the Report.sso file.
 }
