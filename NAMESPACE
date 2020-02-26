@@ -2,6 +2,7 @@
 
 export(create_scen_list)
 export(get_bin)
+export(get_input_value)
 export(run_EM)
 export(run_SSMSE)
 export(run_SSMSE_iter)

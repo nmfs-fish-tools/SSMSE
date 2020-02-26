@@ -46,17 +46,15 @@ test_that("get_EM_dat works", {
 
 test_that("run_EM works", {
   skip_on_cran()
-  df <- run_EM(EM_dir = file.path(temp_path, "cod"))
-  fore <- r4ss::SS_readforecast(file.path(temp_path, "cod", "forecast.ss"),
-                                verbose = FALSE)
-  expect_equal(nrow(df), fore$Nforecastyrs)
-
+  if(file.exists(file.path(temp_path, "cod", "control.ss_new"))) {
+    file.remove(file.path(temp_path, "cod", "control.ss_new"))
+  }
   df3 <- run_EM(EM_dir = file.path(temp_path, "cod"),
                 set_use_par = TRUE)
-  expect_equivalent(nrow(df3), fore$Nforecastyrs)
   start <- r4ss::SS_readstarter(file.path(temp_path, "cod", "starter.ss"),
                                 verbose = FALSE)
   expect_equivalent(start$init_values_src, 1)
+  expect_true(file.exists(file.path(temp_path, "cod", "control.ss_new")))
 })
 
 test_that("run_EM exits on error when it should", {
