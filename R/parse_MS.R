@@ -161,40 +161,40 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
 #' Get the EM catch data frame
 #' 
 #' Get the data frame of catch for the next iterations when using a Stock
-#' Synthesis Estimation model
+#' Synthesis Estimation model from the Report.sso file.
 #' @param EM_dir Path to the EM files
 #' @param dat A SS datfile read into R using \code{r4ss::SS_readdat()}
 #' @return A data frame of future catch
 get_EM_catch_df <- function(EM_dir, dat) {
-  # get projected catch values
-  fore_rpt <- readLines(file.path(EM_dir, "Forecast-report.sso"))
-  start <- grep("FORECAST:_With_F_to_match_adjusted_catch", fore_rpt, fixed = TRUE)+1
-  #TODO: find a smarter way to select the end.Have not yet invested much time in
-  # this, because may need to change the quantity selected.
-  # assume either a comment or line containing the word FORECAST is immediately
-  # after the table
-  #TODO add some better checks to make sure this function didn't fail (or warns
-  # when it does. Have 
-  # currently not added b/c may need to restructure to read a different part of
-  # the model output.
-  end <- grep("FORECAST", fore_rpt)
-  end2 <- grep("#", fore_rpt)
-  end <- end[(end > start)][1]
-  end2 <- end2[(end2 > start)][1]
-  real_end <- min(c(end, end2))-1
-  future_catch <- fore_rpt[start:real_end]
+  rpt <- readLines(file.path(EM_dir, "Report.sso"))
+  start <- grep("TIME_SERIES", rpt)
+  start <- start[length(start)]+1
+  end <- grep("SPR_series", rpt)
+  end <- end[length(end)]-1
+  # sanity checks to catch false assumptions about number of times the 
+  # expressions occur
+  assertive.properties::assert_is_of_length(start, 1)
+  assertive.properties::assert_is_of_length(end, 1)
   # make into a data frame.
+  future_catch <- rpt[start:end]
   hdr <- strsplit(future_catch[1], split = " ", fixed = TRUE)[[1]]
   hdr <- hdr[-grep("^$", hdr)]
   catch_dat <- strsplit(future_catch[-1], split = " ", fixed = TRUE)
   catch_dat <- lapply(catch_dat, function(x) x[x != ""])
   catch_df <- do.call("rbind", catch_dat)
   colnames(catch_df) <- hdr
-  fcast_catch_df <- utils::type.convert(as.data.frame(catch_df), as.is = TRUE)
+  catch_df <- utils::type.convert(as.data.frame(catch_df), as.is = TRUE)
+  fcast_catch_df <- catch_df[catch_df$Era == "FORE", ]
   # get the fleets and the units on catch 
   units <- dat[["fleetinfo"]]
   units$survey_number <- seq_len(nrow(units))
   flt_units <- units[units$type %in% c(1,2), c("survey_number", "units")] 
+  # check and warn if there is discarding
+  if(dat[["N_discard_fleets"]] > 0) {
+    warning("SSMSE function get_EM_catch_df assumes no discard currently. ", 
+            "Additional development is necessary to handle discards.")
+  }
+  
   # for multi area model, need to add area
   # may also need to consider if the catch multiplier is used..
   # match catch with the units
@@ -205,15 +205,14 @@ get_EM_catch_df <- function(EM_dir, dat) {
                         colname = "catch_se", group = "fleet")
   df_list <- vector(mode = "list", length = nrow(flt_units))
   for(fl in seq_len(nrow(flt_units))) {
-    # find which row to get catch from
-    tmp_col_lab <- paste0("sel(", flt_units$unit_name[fl], "):_", 
+    # find which row to get catch from. Right now, assume selected = retained,
+    # i.e., no discards.
+    tmp_col_lab <- paste0("retain(", flt_units$unit_name[fl], "):_", 
                          flt_units$survey_number[fl])
     #find the se that matches for the fleet
     tmp_catch_se <- se[se$fleet == flt_units$survey_number[fl], "catch_se"]
-    warning("SSMSE function get_EM_catch_df assumes no discard currently. ", 
-            "Additional development is necessary to handle discards.")
-    df_list[[fl]] <- data.frame(year     = fcast_catch_df$year,
-                                seas     = fcast_catch_df$season, 
+    df_list[[fl]] <- data.frame(year     = fcast_catch_df$Yr,
+                                seas     = fcast_catch_df$Seas, 
                                 fleet    = flt_units$survey_number[fl], 
                                 catch    = fcast_catch_df[, tmp_col_lab],
                                 catch_se = tmp_catch_se)

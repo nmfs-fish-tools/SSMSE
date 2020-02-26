@@ -20,8 +20,7 @@ test_that("get_EM_catch_df works", {
   # This is an function referenced within the parse)MS function, so only
   # created a simple test.
   catch_df <- get_EM_catch_df(cod_OM_path, dat = OM_dat)
-  expect_equal(1,1) #dummy expectation for now.
-  expect_s3_class(catch_df, class = "data.frame")
+  expect_true(is.data.frame(catch_df))
   expect_true(all(catch_df$year %in% 101:103))
   expect_true(all(colnames(catch_df) == colnames(OM_dat$catch)))
 })
