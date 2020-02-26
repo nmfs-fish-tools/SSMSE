@@ -8,6 +8,7 @@
 #' @template verbose
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readstarter SS_readdat SS_writedat SS_writestarter 
+#' @return the new EM data file, invisibly.
 #' @examples \dontrun{
 #' #TODO: Add example
 #' }
@@ -34,7 +35,7 @@ change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
   start$datfile <- "init_dat.ss"
   SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE,
                   warn = verbose)
-  invisible(OM_datfile) # b/c function written for side effects.
+  invisible(new_EM_dat) # b/c function written for side effects.
 }
 
 #' Change the OM data to match the format of the EM data
@@ -54,7 +55,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   #TODO: add in code to copy over mean size and mean size at age obs.
   # add in index
   if(do_checks) {
-  check_OM_dat(OM_dat, EM_dat)
+    check_OM_dat(OM_dat, EM_dat)
   }
   dat <- list(OM_dat = OM_dat, EM_dat = EM_dat)
   #' create a function that creates a combined column to the list_item of interest
@@ -73,22 +74,22 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
     tmp$combo <- combo
     tmp
   }
-  CPUEs <- lapply(dat, function(x){
+  CPUEs <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "CPUE", c("year", "seas", "index"))
- }) 
+  }) 
   # match 1 way: match each EM obs with an OM obs. extract only these OM obs.
-   matches <- which(CPUEs[[1]][, "combo"] %in% CPUEs[[2]][, "combo"])
-   # extract only the rows of interest and get rid of the "combo" column
-   new_dat$CPUE <- CPUEs[[1]][matches, -ncol(CPUEs[[1]])]
+  matches <- which(CPUEs[[1]][, "combo"] %in% CPUEs[[2]][, "combo"])
+  # extract only the rows of interest and get rid of the "combo" column
+  new_dat$CPUE <- CPUEs[[1]][matches, -ncol(CPUEs[[1]])]
   # add in lcomps
-   if(OM_dat$use_lencomp == 1) {
-     lcomps <- lapply(dat, function(x) {
-       tmp <- combine_cols(x, "lencomp",
-                           c("Yr", "Seas", "FltSvy", "Gender", "Part"))
-     })
-     matches_l <- which(lcomps[[1]][, "combo"] %in% lcomps[[2]][,"combo"])
-     new_dat$lencomp <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
-   }
+  if(OM_dat$use_lencomp == 1) {
+    lcomps <- lapply(dat, function(x) {
+    tmp <- combine_cols(x, "lencomp",
+                        c("Yr", "Seas", "FltSvy", "Gender", "Part"))
+    })
+    matches_l <- which(lcomps[[1]][, "combo"] %in% lcomps[[2]][,"combo"])
+    new_dat$lencomp <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
+  }
   # add in age comps
   acomps <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "agecomp", 
@@ -111,56 +112,27 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
 #'  be generated.
 #' @param check_converged Perform checks to see if the model converged? Defaults
 #'  to TRUE.
-#' @param nyrs_proj The number of years of catch to be returned. Only used if
-#'  change_fcast = TRUE.
 #' @param set_use_par Should input values be read from the .par file? If TRUE,
 #' will change setting in the starter file; otherwise, will use the setting
 #' already in the starter file, which may or may not read from the .par file.
-#' @param change_fcast Should number of years be changed in forecast? Defaults
-#'  to TRUE.
-#' @param seas Season for catch to be output. Defaults to 1.
-#' @param catch_se Catch standard error for catch to be output. Either a single
-#'  numeric value (e.g., 0.1), a vector the same length as \code{nyrs_proj}, or
-#'  a string specifying how to get catch_se from the data file (options are: 
-#'  "most_common_value" which uses the most common value in the data as 
-#'  \code{catch_se} or "only_value" which will use the only value provided in 
-#'  the data as \code{catch_se}; if there are multiple values for standard error, 
-#'  a fatal error will occur). Default is "most_common_value"
 #' @template verbose
 #' @export
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readforecast SS_writeforecast SS_readstarter SS_writestarter SS_read_summary
-#' @return The future catch in a dataframe, based on the EM run and the harvest
-#' strategy outlined within the SS forecasting module.
 run_EM <- function(EM_dir, 
                    hess = FALSE, 
                    check_converged = TRUE, 
-                   nyrs_proj,
                    set_use_par = FALSE,
-                   change_fcast = FALSE,
-                   seas = 1,
-                   catch_se = "most_common_value",
                    verbose = FALSE) {
   EM_dir <- normalizePath(EM_dir)
   # checks
   check_dir(EM_dir)
-  # below is not a perfect check that input is right for catch_se, but helpful.
-  assertive.types::assert_is_any_of(catch_se, c("numeric", "integer", "character"))
   # set up to run the EM
   if(set_use_par == TRUE) {
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
     start$init_values_src <- 1
     SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = verbose,
                     warn = verbose)
-  }
-  if(change_fcast == TRUE) {
-    # make sure enough yrs can be forecasted.
-    fcast <- SS_readforecast(file.path(EM_dir, "forecast.ss"),
-                                    readAll = TRUE,
-                                    verbose = verbose)
-    fcast$Nforecastyrs <- nyrs_proj
-    SS_writeforecast(fcast, dir = EM_dir, writeAll = TRUE, overwrite = TRUE,
-                     verbose = verbose)
   }
   if (hess == TRUE) {
     options <- ""
@@ -178,32 +150,6 @@ run_EM <- function(EM_dir,
               " convergence criterion set in the starter.ss file.")
     }
   }
-  # get projected catch values
-  sum <- SS_read_summary(file.path(EM_dir, "ss_summary.sso"))
-  # get the catch and year values.
-  all_fore_catch <- sum$derived_quants[
-    grep("^ForeCatch_\\d+$", rownames(sum$derived_quants)), ]
-  yrs <- strsplit(rownames(all_fore_catch), "_", fixed = TRUE) 
-  yrs <- as.integer(unlist(lapply(yrs, function(x) x[2])))
-  # For now, assume in order and want to use all values. May want to add check?
-  #TODO: modify for use with multiple fleets, areas, etc.
-  if(class(catch_se) == "character") {
-    start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
-    dat <- SS_readdat(file.path(EM_dir, start$datfile), verbose = verbose)
-    catch_se <- get_input_value(data = dat$catch, 
-                    method = catch_se, 
-                    colname = "catch_se", 
-                    group = NULL) #would need to add a group if using multiple fleets.
-  }
-  catch <- data.frame(
-             year = yrs,
-             seas = seas,
-             fleet = 1, 
-             catch = all_fore_catch[, "Value"],
-             catch_se = catch_se)
-  # check the df produced and return
-  check_catch_df(catch)
-  catch
 }
 
 #' Add new data to an existing EM dataset
@@ -247,7 +193,6 @@ add_new_dat <- function(OM_dat,
   EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = verbose)
   new_EM_dat <- EM_dat
   new_EM_dat$endyr <- OM_dat$endyr # want to be the same as the OM
-  
   # add the data from OM_dat into EM_dat
   if(is.null(dat_str)) {
     stop("Option to determine sampling from EM_datfile not yet developed. ",
@@ -293,3 +238,95 @@ add_new_dat <- function(OM_dat,
    new_EM_dat
 }
 
+#' Change the years in the forecast file
+#' 
+#' This is both to increment years forward and/or to change absolute years to
+#' relative years.
+#' @param fore A forecasting file read into R using r4ss::SS_readforecast()
+#' @param make_yrs_rel Should the absolute years in the forecast file be changed
+#'  to relative years? Defaults to TRUE.
+#' @param nyrs_increment The number of years to increment forecasting period years. 
+#'   If NULL (the default value), will not be incremented.
+#' @param nyrs_fore The number of years of forecasting to do. If NULL, do not
+#'  change the number of forecasting years already specified in \code{fore}
+#' @param mod_styr The first year of the model
+#' @param mod_endyr The last year of the model \code{fore} assumes when read in.
+#'  Note that the assumed model year will be different for the output if
+#'  nyrs_increment is not NULL.
+#' @author Kathryn Doering
+#' @importFrom  assertive.base assert_is_identical_to_true
+#' @return A forecasting file as an R list object
+change_yrs_fcast <- function(fore,
+                             make_yrs_rel = TRUE,
+                             nyrs_increment = NULL,
+                             nyrs_fore = NULL,
+                             mod_styr,
+                             mod_endyr) {
+  if(make_yrs_rel == TRUE) {
+    # x is the year 
+    # styr is the model start year
+    # endyr is the model end year
+    make_yrs_rel <- function(x, styr, endyr) {
+      if(x > 0) { # means these are absolute years and not relative.
+        if(x == styr) {
+          x <- -999
+        } else if(x == endyr) {
+          x <- 0
+        }else if(x > styr & x < endyr) {
+          x <- x - endyr #make it relative to endyr 
+        } else {
+          stop("Year in fcast file out of range. Please change to be within ",
+               "start and end yrs.")
+        }
+      }
+      x
+    }
+    #change benchmark years
+    new_bmark_yrs <- lapply(fore[["Bmark_years"]], 
+                        make_yrs_rel,
+                        styr = mod_styr, 
+                        endyr = mod_endyr)
+    new_bmark_yrs <- unlist(new_bmark_yrs)
+    names(new_bmark_yrs) <- names(fore[["Bmark_years"]])
+    fore[["Bmark_years"]] <- new_bmark_yrs
+    # change forecast years
+    new_fcast_yrs <- lapply(fore[["Fcast_years"]], 
+                            make_yrs_rel,
+                            styr = mod_styr, 
+                            endyr = mod_endyr)
+    new_fcast_yrs <- unlist(new_fcast_yrs)
+    names(new_fcast_yrs) <- names(fore[["Fcast_years"]])
+    fore[["Fcast_years"]] <- new_fcast_yrs
+  }
+  if(!is.null(nyrs_increment)) {
+    # first year for caps and allocations
+    fore[["FirstYear_for_caps_and_allocations"]] <- 
+      fore[["FirstYear_for_caps_and_allocations"]] + nyrs_increment
+    assert_is_identical_to_true(
+      fore[["FirstYear_for_caps_and_allocations"]] > mod_endyr)
+    # deal with allocation
+    if(fore[["N_allocation_groups"]] > 0) {
+      tmp_allocation <- fore[["allocation_among_groups"]]
+      if(any(tmp_allocation$Year < mod_endyr)) {
+        if(length(tmp_allocation$Year) == 1) { #increment forward if only one assignment
+          fore$allocation_among_groups$Year <- 
+            fore$allocation_among_groups$Year + nyrs_increment
+        } else {
+          #TODO: develop smarter ways to deal with Time varying allocation
+          stop("Time-varying allocation in the forecasting file cannot yet be", 
+               " used in SSMSE. Please request development of this feature.")
+        }
+      }
+    }
+  }
+  if(!is.null(nyrs_fore)) {
+    fore[["Nforecastyrs"]] <- nyrs_fore
+  }
+  # get rid of Forecatch, if any. Add a warning to the user about this. 
+  # may beed to treat this differently in the futured
+  if(!is.null(fore[["ForeCatch"]])) {
+    warning("Removing ForeCatch from the EM forecasting file.")
+    fore[["ForeCatch"]] <- NULL
+  }
+  fore
+}

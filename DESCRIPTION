@@ -13,6 +13,7 @@ Description: SSMSE is an R package for performing Management Strategy Evaluation
     SS models to be used as the basis for an OM. These OMs are used in the MSE 
     framework provided by SSMSE to evaluate the implications of management 
     actions on a population given uncertainty.
+Depends: R (>= 3.5.0)
 License: What license is it under?
 URL: https://github.com/nmfs-fish-tools/SSMSE
 BugReports: https://github.com/nmfs-fish-tools/SSMSE/issues
@@ -22,6 +23,7 @@ RoxygenNote: 7.0.2
 Imports:
     SSutils,
     stats,
+    utils,
     r4ss,
     assertive.types,
     assertive.properties,

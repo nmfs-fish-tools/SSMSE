@@ -411,10 +411,6 @@ run_SSMSE_iter <- function(OM_name     = "cod",
     # Only want data for the new years: (yr+nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
-    # TODO: make parsing the management stategy to get the new catch dataframe
-    # a separate function - need separate function from already created? Or 
-    # build on the exiting one?
-    #parse_MS_future(dat_str = dat_str)
     new_catch_df <- parse_MS(MS = MS, EM_name = EM_name, EM_dir = EM_dir, 
                              out_dir = out_dir, OM_dat = new_OM_dat, 
                              init_loop = FALSE, verbose = verbose,
