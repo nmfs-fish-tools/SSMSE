@@ -6,19 +6,12 @@
 #' This function matches each management strategy with its correct method. And
 #' checks for errors.
 #' @template MS
-#' @param EM_name Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
-#'   Synthesis stock assessment model to use as an EM. If the value of EM_name 
-#'   is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
-#'   in the path specified in EM_dir. valid inputs for EM_name are: \code{"cod"}
-#'   or \code{NULL}.
-#' @param EM_dir Relative or absolute path to the estimation model, if using a 
+#' @param EM_out_dir Relative or absolute path to the estimation model, if using a 
 #'   model outside of the SSMSE package. Note that this value should be NULL if
 #'   \code{MS} has a value other than \code{"EM"}.
 #' @param init_loop Logical. If this is the first initialization loop of the 
 #'   MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 #'   be FALSE.
-#' @param out_dir The directory to which to write output. IF NULL, will default
-#'   to the working directory.
 #' @param OM_dat An valid SS data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template verbose
@@ -32,9 +25,9 @@
 #'  datatypes within EM_datfile. Ignored if init_loop is TRUE.
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
-#' @importFrom SSutils copy_SS_inputs
-parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE, 
-                     out_dir, OM_dat, verbose = FALSE, nyrs_assess, dat_yrs,
+
+parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE, 
+                     OM_dat, verbose = FALSE, nyrs_assess, dat_yrs,
                      dat_str) {
   # input checks ----
   valid_MS <- c("EM", "no_catch", "last_yr_catch")
@@ -42,62 +35,28 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
     stop("MS was input as ", MS, ", which is not valid. Valid options: ",
          valid_MS)
   }
-  if(MS == "EM") {
-    if(is.null(EM_name) & is.null(EM_dir)) {
-      stop("Management Strategy (MS) is EM (estimation model, but both EM_name", 
-           " and EM_dir are null. Please specify either EM_name or EM_dir, or ",
-           "change the management strategy.")
-    }
-    if(!is.null(EM_name) & !is.null(EM_dir)) {
-      stop("Management Strategy (MS) is EM (estimation model, but both EM_name", 
-           " and EM_dir are specified. Please specify either EM_name or EM_dir", 
-           "or change the management strategy.")
-    }
-    if(!is.null(EM_name)) {
-      pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
-      pkg_mods <- list.dirs(system.file("extdata", "models", package = "SSMSE"), full.names = FALSE)
-      pkg_mods <- pkg_mods[pkg_mods != ""]
-      orig_EM_dir <- pkg_dirs[grep(EM_name, pkg_dirs, fixed = TRUE)]
-      if(length(orig_EM_dir) == 0) {
-        stop("Currently, EM_name can only be one of the following: ", pkg_mods)
-      }
-    } else {
-      orig_EM_dir <- EM_dir
-    }
-    if(!is.null(EM_dir)) check_dir(EM_dir) # make sure contains a valid model
-  }
+  if(!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
   # parsing management strategies ----
-  out_dir <- normalizePath(out_dir)
   # EM ----
   if(MS == "EM") {
-    # create folder 
-    if(!is.null(EM_name)) {
-      EM_dir <- file.path(out_dir, paste0(EM_name, "_EM"))
-    } else {
-      EM_dir <- file.path(out_dir, paste0(basename(orig_EM_dir), "_EM"))
-    }
-    if(init_loop) {
-      copy_SS_inputs(dir.old = orig_EM_dir, dir.new = EM_dir, overwrite = TRUE,
-                     verbose = verbose)
-    }
-    check_dir(EM_dir)
+    check_dir(EM_out_dir)
     new_datfile_name <- "init_dat.ss"
     if(init_loop) {
     # copy over raw data file from the OM
     SS_writedat(OM_dat, 
-                      file.path(EM_dir, new_datfile_name), 
+                      file.path(EM_out_dir, new_datfile_name), 
                       overwrite = TRUE, 
                       verbose = verbose)
     # change the name of data file.
-    start <- SS_readstarter(file.path(EM_dir, "starter.ss"), 
+    start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"), 
                                   verbose = verbose)
     start$datfile <- new_datfile_name
-    SS_writestarter(start, file.path(EM_dir), verbose = verbose,
+    SS_writestarter(start, file.path(EM_out_dir), verbose = verbose,
                     overwrite = TRUE, warn = verbose)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
     new_EM_dat <- change_dat(OM_datfile = new_datfile_name,
-                EM_dir = EM_dir,
+                EM_dir = EM_out_dir,
                 do_checks = TRUE,
                 verbose = verbose)
     } else {
@@ -111,14 +70,14 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
       new_EM_dat <- add_new_dat(OM_dat = OM_dat,
                                  EM_datfile = new_datfile_name,
                                  dat_str = dat_str_sub,
-                                 EM_dir = EM_dir,
+                                 EM_dir = EM_out_dir,
                                  do_checks = TRUE,
                                  new_datfile_name = new_datfile_name,
                                  verbose = verbose)
     }
     # manipulate the forecasting file.
     # make sure enough yrs can be forecasted.
-    fcast <- SS_readforecast(file.path(EM_dir, "forecast.ss"),
+    fcast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"),
                              readAll = TRUE,
                              verbose = verbose)
     # check that it can be used in the EM. fleets shoul
@@ -138,13 +97,13 @@ parse_MS <- function(MS, EM_name = NULL, EM_dir = NULL, init_loop = TRUE,
                        mod_styr = new_EM_dat[["styr"]],
                        mod_endyr = new_EM_dat[["endyr"]])
     }                     
-    SS_writeforecast(fcast, dir = EM_dir, writeAll = TRUE, overwrite = TRUE,
+    SS_writeforecast(fcast, dir = EM_out_dir, writeAll = TRUE, overwrite = TRUE,
                      verbose = verbose)
     # given all checks are good, run the EM
     # check convergence (figure out way to error if need convergence)
     # get the future catch using the management strategy used in the SS model.
-    run_EM(EM_dir = EM_dir, verbose = verbose, check_converged = TRUE)
-    new_catch_df <- get_EM_catch_df(EM_dir = EM_dir, dat = new_EM_dat)
+    run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
+    new_catch_df <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
   }
   # last_yr_catch ----
   # no_catch ----

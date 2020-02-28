@@ -1,13 +1,11 @@
 # Functions associated with initialization of the OM.
 
-#' Create the OM from a stock assessment model
+#' Create the OM by adding dummy data
 #' 
-#' This function copies over the stock assessment model and manipulates it as
-#' needed so that it can be used as an operating model.
+#' This function manipulates the OM as needed so that it can be used as an
+#'  operating model.
 #' @author Kathryn Doering
-#' @param OM_dir The full path to the directory in which the OM will be created.
-#' @param SA_dir The full path to the directory that houses the stock assessment 
-#'  model that will be used to create the OM.
+#' @param OM_out_dir The full path to the directory in which the OM is run.
 #' @param overwrite Overwrite existing files with matching names?
 #' @param add_dummy_dat Should dummy data be added to indices and comps for each
 #'  year so that expected values and sampling is obtained for years other than
@@ -18,35 +16,14 @@
 #' @return A new datafile as read in for r4ss, but with dummy data added.
 #' @importFrom SSutils copy_SS_inputs 
 #' @importFrom r4ss SS_readdat SS_writedat SS_readstarter SS_writestarter
-create_OM <- function(OM_dir, 
-                      SA_dir,
+create_OM <- function(OM_out_dir,
                       overwrite     = FALSE,
                       add_dummy_dat = FALSE,
                       writedat = TRUE,
                       verbose       = FALSE) {
   
-  # copy over SA model to OM.
-  if(verbose) message("Copying over model in ", SA_dir, " to ", OM_dir, ".")
-  #make sure the .ss_new files exist
-  if(!all(c("control.ss_new", "data.ss_new", "starter.ss_new", 
-            "forecast.ss_new") %in% list.files(SA_dir))) {
-    #TODO: in the future, could add code to do this for the user and get rid of 
-    # this stop statement.
-    stop(".ss_new files not found in the original OM directory ", 
-         SA_dir, ". Please run the model to make the .ss_new files available.")
-  }
-  SSutils::copy_SS_inputs(dir.old = SA_dir, 
-                 dir.new = OM_dir,
-                 overwrite = overwrite,
-                 use_ss_new = TRUE, # will rename the ss new files, also.
-                 copy_par = TRUE,
-                 verbose = verbose)
-  # simplify the forecasting file
-  file.copy(from = system.file("extdata", "forecast_simple_template.ss",
-                               package = "SSMSE"),
-            to = file.path(OM_dir, "forecast.ss"), overwrite = overwrite)
-  start <- SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = verbose)
-  dat <- SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose, 
+  start <- SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = verbose)
+  dat <- SS_readdat(file.path(OM_out_dir, start$datfile), verbose = verbose, 
                     section = 1)
   if(add_dummy_dat) {
     # TODO: develop code to do this for other types of data (mean length at age)
@@ -208,7 +185,7 @@ create_OM <- function(OM_dir,
     #overwrite the old lines
     dat$agecomp <- new_agecomp
     if(writedat) {
-      SS_writedat(dat, file.path(OM_dir, start$datfile), overwrite = overwrite, 
+      SS_writedat(dat, file.path(OM_out_dir, start$datfile), overwrite = overwrite, 
                   verbose = verbose)
     }
   }

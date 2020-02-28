@@ -1,17 +1,20 @@
 # test utility functions for the packages. Construct objects, move files, etc.
 out_dir <- file.path(tempdir(), "test_utils")
+dir.create(out_dir)
+on.exit(unlink(out_dir, recursive = TRUE), add = TRUE)
 
 test_that("create_scen_list works as expected", {
   # create some simple list that we want them to look like
   scen_list <- list(scen_1 = 
                        list(
+                         out_dir_scen = out_dir,
                          iter = 1:2,
                          OM_name = "cod",
-                         use_SS_boot = TRUE,
+                         OM_in_dir = NULL,
                          EM_name = "cod",
-                         EM_dir = NULL,
+                         EM_in_dir = NULL,
                          MS = "EM",
-                         out_dir_scen = out_dir,
+                         use_SS_boot = TRUE,
                          nyrs = 6,
                          nyrs_assess = 3, 
                          impl_error = NULL,
@@ -19,26 +22,28 @@ test_that("create_scen_list works as expected", {
                        ),
                       scen_2 = 
                         list(
+                          out_dir_scen = out_dir,
                           iter = 1:2,
                           OM_name = "cod",
-                          use_SS_boot = TRUE,
+                          OM_in_dir = NULL,
                           EM_name = "cod",
-                          EM_dir = NULL,
+                          EM_in_dir = NULL,
                           MS = "EM",
-                          out_dir_scen = out_dir,
+                          use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2, 
                           impl_error = NULL,
                           dat_str = NULL
                         )
                        )
-
+  
  scen_list_out <-  create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
                                     iter_list = list(1:2),
                                     OM_name_vec = "cod", 
+                                    OM_in_dir_vec = NULL,
                                     use_SS_boot_vec = TRUE,
                                     EM_name_vec = "cod",
-                                    EM_dir_vec = NULL,
+                                    EM_in_dir_vec = NULL,
                                     MS_vec = "EM",
                                     out_dir_scen_vec = out_dir,
                                     nyrs_vec = c(6,3),
@@ -53,13 +58,14 @@ test_that("create_scen_list works as expected", {
 test_that("create_scen_list works with NAs", {
   scen_list <- list(scen_1 = 
                         list(
+                          out_dir_scen = out_dir,
                           iter = 1:2,
                           OM_name = "cod",
-                          use_SS_boot = TRUE,
+                          OM_in_dir = NULL,
                           EM_name = "cod",
-                          EM_dir = NULL,
+                          EM_in_dir = NULL,
                           MS = "EM",
-                          out_dir_scen = out_dir,
+                          use_SS_boot = TRUE,
                           nyrs = 6,
                           nyrs_assess = 3, 
                           impl_error = NULL,
@@ -67,13 +73,14 @@ test_that("create_scen_list works with NAs", {
                         ),
                       scen_2 = 
                         list(
+                          out_dir_scen = out_dir,
                           iter = 1:2,
                           OM_name = "cod",
-                          use_SS_boot = TRUE,
+                          OM_in_dir = NULL,
                           EM_name = NULL,
-                          EM_dir = NULL,
+                          EM_in_dir = NULL,
                           MS = "no_catch",
-                          out_dir_scen = out_dir,
+                          use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2, 
                           impl_error = NULL,
@@ -83,9 +90,10 @@ test_that("create_scen_list works with NAs", {
   scen_list_out <-  create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
                                      iter_list = list(1:2),
                                      OM_name_vec = "cod", 
+                                     OM_in_dir_vec = NULL,
                                      use_SS_boot_vec = TRUE,
                                      EM_name_vec = c("cod", NA),
-                                     EM_dir_vec = NULL,
+                                     EM_in_dir_vec = NULL,
                                      MS_vec = c("EM", "no_catch"),
                                      out_dir_scen_vec = out_dir,
                                      nyrs_vec = c(6,3),
@@ -215,3 +223,133 @@ test_that("get_input_value works as expected", {
                "Multiple unique values were found in data")
 })
 
+test_that("create_out_dirs works as expected with no EM", {
+  created_mod_1 <- create_out_dirs(out_dir = out_dir, 
+                     niter = 1,
+                     OM_name = "cod",
+                     OM_in_dir = NULL)
+  created_dir_name_1 <- file.path(out_dir, "1", "cod_OM")
+  expect_true(dir.exists(created_dir_name_1))
+  expect_true(created_mod_1[["OM_out_dir"]] == created_dir_name_1)
+  expect_true(created_mod_1[["OM_in_dir"]] == 
+                system.file("extdata", "models", "cod", package = "SSMSE"))
+  # read cod in as if it is a custom model, not part of package.
+  cod_OM_dir <- system.file("extdata", "models", "cod", package = "SSMSE")
+  created_mod_2 <- create_out_dirs(out_dir = out_dir, 
+                     niter = 2,
+                     OM_name = NULL,
+                     OM_in_dir = cod_OM_dir)
+  created_dir_name_2 <- file.path(out_dir, "2", "cod_OM")
+  expect_true(dir.exists(created_dir_name_2))
+  expect_true(created_mod_2[["OM_out_dir"]] == created_dir_name_2)
+  expect_true(created_mod_2[["OM_in_dir"]] == cod_OM_dir)
+
+  created_mod_3 <- create_out_dirs(out_dir = out_dir, 
+                                 niter = 3,
+                                 OM_name = "custom_cod",
+                                 OM_in_dir = cod_OM_dir)
+  created_dir_name_3 <- file.path(out_dir, "3", "custom_cod_OM")
+  expect_true(dir.exists(created_dir_name_3))
+  expect_true(created_mod_3[["OM_out_dir"]] == created_dir_name_3)
+  expect_true(created_mod_3[["OM_in_dir"]] == cod_OM_dir)
+  # expect warning b/c iteration exists
+  expect_warning(mod_3_repeat <- create_out_dirs(out_dir = out_dir, 
+                                 niter = 3,
+                                 OM_name = "custom_cod",
+                                 OM_in_dir = cod_OM_dir))
+  expect_true(is.null(mod_3_repeat))
+  
+  # expect error because "bad_mod_name" is not a built in model.
+  expect_error(create_out_dirs(out_dir = out_dir, 
+                             niter = 4,
+                             OM_name = "bad_mod_name",
+                             OM_in_dir = NULL), 
+               "OM_name bad_mod_name matched 0 models in SSMSE")
+  # expect error because no path or name given for OM
+  expect_error(create_out_dirs(out_dir = out_dir, 
+                               niter = 5,
+                               OM_name = NULL,
+                               OM_in_dir = NULL), 
+               "OM_name and OM_in_dir are both NULL")
+})
+unlink(file.path(out_dir, "5"), recursive = TRUE)
+
+ test_that("create_out_dirs works as expected with an EM", {
+  # EM from package data
+  created_mod_1 <- create_out_dirs(out_dir = out_dir,
+                                   niter = 5,
+                                   OM_name = "cod",
+                                   OM_in_dir = NULL,
+                                   MS = "EM",
+                                   EM_name = "cod",
+                                   EM_in_dir = NULL)
+  created_dir_name_1 <- file.path(out_dir, "5", "cod_EM")
+  expect_true(dir.exists(created_dir_name_1))
+  expect_true(created_mod_1[["EM_out_dir"]] == created_dir_name_1)
+  expect_true(created_mod_1[["EM_in_dir"]] ==
+                system.file("extdata", "models", "cod", package = "SSMSE"))
+  # EM named, mock as custom
+  cod_EM_in_dir <- system.file("extdata", "models", "cod", package = "SSMSE")
+  created_mod_2 <- create_out_dirs(out_dir = out_dir, 
+                                   niter = 6,
+                                   OM_name = "cod",
+                                   OM_in_dir = NULL, 
+                                   MS = "EM", 
+                                   EM_name = "custom_cod", 
+                                   EM_in_dir = cod_EM_in_dir)
+  created_dir_name_2 <- file.path(out_dir, "6", "custom_cod_EM")
+  expect_true(dir.exists(created_dir_name_2))
+  expect_true(created_mod_2[["EM_out_dir"]] == created_dir_name_2)
+  expect_true(created_mod_2[["EM_in_dir"]] == 
+                cod_EM_in_dir)
+  # EM not named, mock as custom
+  cod_EM_in_dir <- system.file("extdata", "models", "cod", package = "SSMSE")
+  created_mod_3 <- create_out_dirs(out_dir = out_dir, 
+                                   niter = 7,
+                                   OM_name = "cod",
+                                   OM_in_dir = NULL, 
+                                   MS = "EM", 
+                                   EM_name = NULL, 
+                                   EM_in_dir = cod_EM_in_dir)
+  created_dir_name_3 <- file.path(out_dir, "7", "cod_EM")
+  expect_true(dir.exists(created_dir_name_3))
+  expect_true(created_mod_3[["EM_out_dir"]] == created_dir_name_3)
+  expect_true(created_mod_3[["EM_in_dir"]] == cod_EM_in_dir)
+  # EM not named, no path given for EM (expect error)
+  expect_error(create_out_dirs(out_dir = out_dir, 
+                               niter = 8,
+                               OM_name = "cod",
+                               OM_in_dir = NULL, 
+                               MS = "EM", 
+                               EM_name = NULL, 
+                               EM_in_dir = NULL), 
+      "Management Strategy (MS) is EM (estimation model), but both EM_name and EM_in_dir are null", 
+      fixed = TRUE)
+})
+ 
+ 
+ test_that("copy_model_files works", {
+   new_out_dir <- file.path(out_dir, "copy_model_files")
+   OM_out_dir <- file.path(new_out_dir, "OM")
+   EM_out_dir <- file.path(new_out_dir, "EM")
+   dir.create(new_out_dir)
+   dir.create(OM_out_dir)
+   dir.create(EM_out_dir)
+   cod_in_dir <- system.file("extdata", "models", "cod", package = "SSMSE")
+   
+   success <- copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir)
+   expect_equivalent(success, c(TRUE, TRUE))
+   #expect_error b/c model files still exist
+   expect_error(copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir), 
+                "Problem copying SS OM .ss_new files", fixed = TRUE)
+   unlink(OM_out_dir, recursive = TRUE)
+   dir.create(OM_out_dir)
+   success <- copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
+                    MS = "EM", EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir)
+   expect_equivalent(success, c(TRUE, TRUE))
+   unlink(OM_out_dir, recursive = TRUE)
+   dir.create(OM_out_dir)
+   expect_error(copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
+                    MS = "EM", EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir), 
+                "Problem copying SS EM files", fixed = TRUE)
+ })

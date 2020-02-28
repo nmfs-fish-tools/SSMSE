@@ -9,10 +9,11 @@ on.exit(setwd(wd), add = TRUE)
 on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
+file.copy(file.path(extdat_path, "models", "cod"), 
+          temp_path, recursive = TRUE)
 
 test_that("create_OM can add in dummy data", {
-  new_dat <- create_OM(OM_dir = "cod",
-                       SA_dir = file.path(extdat_path, "models", "cod"),
+  new_dat <- create_OM(OM_out_dir = file.path(temp_path, "cod"),
                        overwrite = TRUE,
                        add_dummy_dat = TRUE,
                        verbose = FALSE)

@@ -2,11 +2,10 @@
 % Please edit documentation in R/initOM.R
 \name{create_OM}
 \alias{create_OM}
-\title{Create the OM from a stock assessment model}
+\title{Create the OM by adding dummy data}
 \usage{
 create_OM(
-  OM_dir,
-  SA_dir,
+  OM_out_dir,
   overwrite = FALSE,
   add_dummy_dat = FALSE,
   writedat = TRUE,
@@ -14,10 +13,7 @@ create_OM(
 )
 }
 \arguments{
-\item{OM_dir}{The full path to the directory in which the OM will be created.}
-
-\item{SA_dir}{The full path to the directory that houses the stock assessment 
-model that will be used to create the OM.}
+\item{OM_out_dir}{The full path to the directory in which the OM is run.}
 
 \item{overwrite}{Overwrite existing files with matching names?}
 
@@ -34,8 +30,8 @@ is \code{TRUE}.}
 A new datafile as read in for r4ss, but with dummy data added.
 }
 \description{
-This function copies over the stock assessment model and manipulates it as
-needed so that it can be used as an operating model.
+This function manipulates the OM as needed so that it can be used as an
+ operating model.
 }
 \author{
 Kathryn Doering

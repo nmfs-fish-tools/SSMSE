@@ -74,7 +74,7 @@ test_that("cod works when treated as a custom model", {
                            MS = "EM",
                            out_dir = new_temp_path,
                            EM_name = NULL,
-                           EM_dir = EM_path_cod,
+                           EM_in_dir = EM_path_cod,
                            nyrs = 6,
                            nyrs_assess = 3,
                            dat_str = list(

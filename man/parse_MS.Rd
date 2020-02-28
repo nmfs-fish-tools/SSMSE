@@ -6,10 +6,8 @@
 \usage{
 parse_MS(
   MS,
-  EM_name = NULL,
-  EM_dir = NULL,
+  EM_out_dir = NULL,
   init_loop = TRUE,
-  out_dir,
   OM_dat,
   verbose = FALSE,
   nyrs_assess,
@@ -23,22 +21,13 @@ are:  \code{"last_yr_catch"} which uses the previous year's catch;
 \code{"no_catch"} which uses 0 catch; and \code{"EM"} which uses the
 management strategy in the estimation model.}
 
-\item{EM_name}{Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
-Synthesis stock assessment model to use as an EM. If the value of EM_name 
-is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
-in the path specified in EM_dir. valid inputs for EM_name are: \code{"cod"}
-or \code{NULL}.}
-
-\item{EM_dir}{Relative or absolute path to the estimation model, if using a 
+\item{EM_out_dir}{Relative or absolute path to the estimation model, if using a 
 model outside of the SSMSE package. Note that this value should be NULL if
 \code{MS} has a value other than \code{"EM"}.}
 
 \item{init_loop}{Logical. If this is the first initialization loop of the 
 MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 be FALSE.}
-
-\item{out_dir}{The directory to which to write output. IF NULL, will default
-to the working directory.}
 
 \item{OM_dat}{An valid SS data file read in using r4ss. In particular,
 this should be sampled data.}
