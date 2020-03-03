@@ -357,7 +357,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   OM_out_dir <- out_loc[["OM_out_dir"]]
   OM_in_dir <- out_loc[["OM_in_dir"]]
   EM_in_dir <- out_loc[["EM_in_dir"]]
-  EM_out_dir <- out_loc[["EM_out_dir"]] 
+  EM_out_dir <- out_loc[["EM_out_dir"]]
   copy_model_files(OM_in_dir, OM_out_dir, MS, EM_in_dir, EM_out_dir)
   
   # MSE first iteration ----
@@ -381,7 +381,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   # get catch/discard using the chosen management strategy ----
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
-  new_catch_df <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
+  new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
                            OM_dat = OM_dat, verbose = verbose,
                            nyrs_assess = nyrs_assess)
   message("Finished getting new catch (years ", (OM_dat$endyr+1), " to ", 
@@ -397,12 +397,14 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   for (yr in assess_yrs) {
     # checks, esp. to make sure future catch is not larger than the population
     # biomass (or size, depending on units)
-    check_future_catch(catch = new_catch_df,
+    # TODO: improve this function and include future discards (if any)?
+    check_future_catch(catch = new_catch_list[["catch"]],
                        OM_dir = OM_out_dir,
                        catch_units = "bio")
     #add new years of catch to the OM and add dummy values where necessary.
-    extend_OM(catch = new_catch_df,
-              OM_dir = OM_out_dir, 
+    extend_OM(catch = new_catch_list[["catch"]],
+              discards = new_catch_list[["discards"]],
+              OM_dir = OM_out_dir,
               dummy_dat_scheme = "all", 
               nyrs_extend = nyrs_assess,
               verbose = verbose)
@@ -417,7 +419,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
     # Only want data for the new years: (yr+nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
-    new_catch_df <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, 
+    new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, 
                              OM_dat = new_OM_dat, 
                              init_loop = FALSE, verbose = verbose,
                              nyrs_assess = nyrs_assess, 

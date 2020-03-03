@@ -6,6 +6,7 @@
 \usage{
 extend_OM(
   catch,
+  discards,
   OM_dir,
   dummy_dat_scheme = NULL,
   nyrs_extend = 3,
@@ -18,6 +19,9 @@ extend_OM(
  add to the OM. The column names are the same as in an SS data file (e.g., 
  year,    season, fleet,    catch,    catch_se).
 length of the number of years (only works when catch is for 1 fleet)}
+
+\item{discards}{A dataframe of discard values an dassociated information to 
+add to the OM. The column names are as in an SS datafile.}
 
 \item{OM_dir}{The full path to the OM directory.}
 

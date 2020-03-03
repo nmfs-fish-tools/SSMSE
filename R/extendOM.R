@@ -9,6 +9,8 @@
 #'  add to the OM. The column names are the same as in an SS data file (e.g., 
 #'  year,	season, fleet,	catch,	catch_se).
 #' length of the number of years (only works when catch is for 1 fleet)
+#' @param discards A dataframe of discard values an dassociated information to 
+#'  add to the OM. The column names are as in an SS datafile.
 #' @param OM_dir The full path to the OM directory.
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
@@ -25,6 +27,7 @@
 #'  has been extended forward  as if read in by r4ss function SS_readdat
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 extend_OM <- function(catch,
+                      discards,
                       OM_dir, 
                       dummy_dat_scheme = NULL,
                       nyrs_extend = 3,
@@ -48,6 +51,7 @@ extend_OM <- function(catch,
   }
   dat$endyr <- dat$endyr + nyrs_extend
   dat$catch <- rbind(dat$catch, catch)
+  dat$discard_data <- rbind(dat$discard_data, discards)
   # add in dummy data: just do for indices, comps for now. Always do this in
   # case the EM needs this input (should be okay to remove if not needed?)
   if(!is.null(dummy_dat_scheme)) {
@@ -185,6 +189,7 @@ extend_OM <- function(catch,
 #' @importFrom r4ss SS_read_summary SS_readstarter SS_readdat
 check_future_catch <- function(catch, OM_dir, catch_units = "bio", 
                                datfile = NULL) {
+  #TODO: add checks for discards???
   #input checks
   check_catch_df(catch)
   check_dir(OM_dir)

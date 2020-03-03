@@ -17,16 +17,16 @@ cod_EM_path <- file.path(temp_path, "cod_EM", "cod")
 
 OM_dat <- r4ss::SS_readdat(file.path(cod_OM_path, "ss3.dat"), verbose = FALSE)
 
-test_that("get_EM_catch_df works", {
+test_that("get_EM_catch_df works with no discards", {
   # This is an function referenced within the parse)MS function, so only
   # created a simple test.
-  catch_df <- get_EM_catch_df(cod_OM_path, dat = OM_dat)
-  expect_true(is.data.frame(catch_df))
-  expect_true(all(catch_df$year %in% 101:103))
-  expect_true(all(colnames(catch_df) == colnames(OM_dat$catch)))
+  catch_list <- get_EM_catch_df(cod_OM_path, dat = OM_dat)
+  expect_true(is.data.frame(catch_list[["catch"]]))
+  expect_true(all(catch_list$catch$year %in% 101:103))
+  expect_true(all(colnames(catch_list[["catch"]]) == colnames(OM_dat$catch)))
 })
 
-test_that("get_no_EM_catch_df works", {
+test_that("get_no_EM_catch_df works with no discards", {
   # This is an function referenced within the parse)MS function, so only
   # created some simple tests.
   # mock additional fleets of catch data
@@ -39,27 +39,33 @@ test_that("get_no_EM_catch_df works", {
   catch <- rbind(catch, new_catch)
   lyr_catch_df <- get_no_EM_catch_df(catch = catch, yrs = 101:105,
                                   MS = "last_yr_catch")
+  lyr_catch_df <- lyr_catch_df[["catch"]]
   expect_true(all(lyr_catch_df$catch != 0))
   expect_true(length(unique(lyr_catch_df$fleet)) == length(unique(catch$fleet)))
   expect_true(length(unique(lyr_catch_df$fleet)) == 3)
   no_catch_df <- get_no_EM_catch_df(catch = catch, yrs = 101:105,
                                  MS = "no_catch")
+  no_catch_df <- no_catch_df[["catch"]]
   expect_true(all(no_catch_df$catch == 0))
   expect_true(length(unique(no_catch_df$fleet)) == length(unique(catch$fleet)))
   expect_error(get_no_EM_catch_df(catch = catch, yrs = 101:105,
                                MS = "bad_MS_input"))
 })
 
+#TODO: add tests for using discards.
+
 test_that("parse_MS works for no estimation model methods", {
   # no catch managemetn strategy
-  catch_df_1 <- parse_MS(MS = "no_catch",
+  catch_list_1 <- parse_MS(MS = "no_catch",
                     OM_dat = OM_dat,
                     nyrs_assess = 3)
+  catch_df_1 <- catch_list_1[["catch"]]
   expect_equivalent(catch_df_1$catch, rep(0, times = 3))
   # last year management strategy
-  catch_df_2 <- parse_MS(MS = "last_yr_catch",
+  catch_list_2 <- parse_MS(MS = "last_yr_catch",
                     OM_dat = OM_dat,
                     nyrs_assess = 3)
+  catch_df_2 <- catch_list_2[["catch"]]
   lyr_catch <- OM_dat$catch$catch[nrow(OM_dat$catch)]
   expect_true(all(catch_df_2$catch == lyr_catch))
 })
@@ -67,10 +73,11 @@ test_that("parse_MS works for no estimation model methods", {
 test_that("parse_MS works as currently expected for estimation model methods", {
   skip_on_cran()
   # use cod as the EM
-  catch_df_3 <- parse_MS(MS = "EM",
+  catch_list <- parse_MS(MS = "EM",
                          EM_out_dir = cod_EM_path,
                          OM_dat = OM_dat,
                          nyrs_assess = 3)
+  catch_df_3 <- catch_list[["catch"]]
   expect_true(nrow(catch_df_3) == 3)
   expect_true(ncol(catch_df_3) == 5)
   expect_equivalent(colnames(catch_df_3),

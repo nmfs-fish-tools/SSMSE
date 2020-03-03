@@ -103,18 +103,25 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     # check convergence (figure out way to error if need convergence)
     # get the future catch using the management strategy used in the SS model.
     run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
-    new_catch_df <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
+    new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
   }
   # last_yr_catch ----
   # no_catch ----
   if(MS %in% c("last_yr_catch", "no_catch")) {
-    new_catch_df <- get_no_EM_catch_df(OM_dat$catch,
+    if(OM_dat[["N_discard_fleets"]] > 0) {
+      warning("The management strategy used ", MS, " assumes no discards, ", 
+              "although there are discards included in the OM. Please use ", 
+              "MS = 'EM' if you want to include discards in your management ", 
+              "strategy.")
+    }
+    new_catch_list <- get_no_EM_catch_df(OM_dat$catch,
                       yrs = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess),
                       MS = MS)
   }
   # check output before returning
-  check_catch_df(new_catch_df)
-  new_catch_df
+  check_catch_df(new_catch_list[["catch"]])
+  # TODO add check for discard?
+  new_catch_list
 }
 
 #' Get the EM catch data frame
@@ -148,12 +155,6 @@ get_EM_catch_df <- function(EM_dir, dat) {
   units <- dat[["fleetinfo"]]
   units$survey_number <- seq_len(nrow(units))
   flt_units <- units[units$type %in% c(1,2), c("survey_number", "units")] 
-  # check and warn if there is discarding
-  if(dat[["N_discard_fleets"]] > 0) {
-    warning("SSMSE function get_EM_catch_df assumes no discard currently. ", 
-            "Additional development is necessary to handle discards.")
-  }
-  
   # for multi area model, need to add area
   # may also need to consider if the catch multiplier is used..
   # match catch with the units
@@ -176,7 +177,54 @@ get_EM_catch_df <- function(EM_dir, dat) {
                                 catch    = fcast_catch_df[, tmp_col_lab],
                                 catch_se = tmp_catch_se)
   }
-  df <- do.call("rbind", df_list)
+  catch_df <- do.call("rbind", df_list)
+  # get discard, if necessary
+  if(dat[["N_discard_fleets"]] > 0) {
+    # discard units: 1, biomass/number according to set in catch
+    # 2, value are fraction (biomass/numbers ) of total catch discarded
+    # 3, values are in numbers(thousands)
+    se_dis <- get_input_value(dat$discard_data, method = "most_common_value", 
+                          colname = "Std_in", group = "Flt")
+    dis_df_list <- vector(mode = "list", 
+                          length = nrow(dat[["discard_fleet_info"]]))
+    for (i in seq_along(dat[["discard_fleet_info"]][, "Fleet"])) {
+      tmp_flt <- dat[["discard_fleet_info"]][i, "Fleet"]
+      # tmp_units_code can be 1, 2, or 3.
+      tmp_units_code <- dat[["discard_fleet_info"]][i, "units"]
+      # get the discard units
+      tmp_discard_units <- ifelse(dat[["fleetinfo"]][tmp_flt, "units"] == 1, "B" , "N")
+      if(tmp_units_code == 3) tmp_discard_units <- "N"
+      tmp_cols <- paste0(c("retain(", "sel("), tmp_discard_units, "):_", 
+                         tmp_flt)
+      tmp_discard_amount <- fcast_catch_df[,tmp_cols[2]] -
+                            fcast_catch_df[,tmp_cols[1]]
+      if(tmp_units_code == 2) { # get discard as a fractional value.
+        tmp_discard_amount <- tmp_discard_amount/fcast_catch_df[,tmp_cols[2]]
+      }
+      if(sum(tmp_discard_amount) == 0) {
+        dis_df_list[[i]] <- NULL
+      } else {
+        # check that an se was created for that fleet (a sanity check)
+        if(length(se_dis[se_dis$Flt == tmp_flt, "Std_in"]) == 0) {
+          stop("A standard error value for fleet ", tmp_flt, "could not be ",
+               "determined because there was no discard data for that fleet in ",
+               "the data file input to the EM. Please add discarding data for ",
+               "the fleet to the OM data file or contact the developers for ",
+               "assistance with this problem.")
+        }
+        dis_df_list[[i]] <- data.frame( Yr = fcast_catch_df$Yr ,
+                              Seas = fcast_catch_df$Seas,
+                              Flt = tmp_flt,
+                              Discard = tmp_discard_amount,
+                              Std_in = se_dis[se_dis$Flt == tmp_flt, "Std_in"] )
+      }
+    }
+    dis_df <- do.call("rbind", dis_df_list)
+  } else {
+    dis_df <- NULL
+  }
+  new_dat_list <- list(catch = catch_df,
+                       discards = dis_df)
 }
 
 #' Get the data frame of catch for the next iterations when not using an
@@ -222,4 +270,6 @@ get_no_EM_catch_df <- function(catch, yrs, MS = "last_yr_catch") {
     }
   }
   df <- do.call("rbind", tmp_df_list)
+  return_list <- list(catch = df,
+                      discards = NULL)# assume no discards if using simple MS.
 }

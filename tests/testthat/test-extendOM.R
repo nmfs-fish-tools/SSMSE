@@ -26,6 +26,7 @@ new_yrs <- new_catch$year
 test_that("extend_OM works with simple case", {
   # simple case: 1 fleet and season needs CPUE, lencomp, agecomp added
   return_dat <- extend_OM(catch = new_catch, 
+                            discards = NULL,
                             OM_dir = file.path(temp_path, "cod"),
                             dummy_dat_scheme = "all",
                             nyrs = 3,
@@ -79,6 +80,7 @@ test_that("extend_OM works with more complicated cases", {
                     overwrite = TRUE, verbose = FALSE)
   # run function
   return_dat <- extend_OM(catch = new_catch, 
+                          discards = NULL,
                           OM_dir = file.path(temp_path, "cod"),
                           dummy_dat_scheme = "all",
                           nyrs = 3,
