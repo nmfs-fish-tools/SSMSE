@@ -62,30 +62,6 @@ check_OM_dat <- function(OM_dat, EM_dat) {
          ", while EM_dat has styr = ", EM_dat$styr, " and endyr = ",
          EM_dat$endyr)
   }
-  #'  check all index years/fleets in EM available in OM. (but not vice versa)
-  #'  a general function that can be used
-  #' @param EM_dat An SS data file read in using r4ss for an EM
-  #' @param OM_dat An SS data file read in using r4ss for an OM
-  #' @param list_item A component in both EM_dat and OM_dat to check values for.
-  #' This should be a single string value.
-  #' @param colnames The column names of data to append together.
-  #' @author Kathryn Doering
-  #' @noRd
-  check_avail_dat <- function(EM_dat, OM_dat, 
-                              list_item = "CPUE", 
-                              colnames = c("year", "seas", "index")) {
-    EM_item <- EM_dat[[list_item]]
-    OM_item <- OM_dat[[list_item]]
-    combo_EM <- combo_OM <-  NULL
-    for(n in colnames) {
-      combo_EM <- c(paste0(combo_EM, EM_item[, n], "_"))
-      combo_OM <- c(paste0(combo_OM, OM_item[, n], "_"))
-    }
-    if(any(!(combo_EM %in% combo_OM))) {
-      stop("The OM_dat does not include all values of ",
-           paste0(colnames, collapse = ", "), " needed for ", list_item, ".")
-    }
-  }
   check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "CPUE", 
                   colnames = c("year", "seas", "index"))
   # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
@@ -126,6 +102,30 @@ check_OM_dat <- function(OM_dat, EM_dat) {
   check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "agecomp", 
                   colnames = c("Yr", "Seas", "FltSvy"))
   invisible(OM_dat)
+}
+
+#'  check all index years/fleets in EM available in OM. (but not vice versa)
+#'  a general function that can be used
+#' @param EM_dat An SS data file read in using r4ss for an EM
+#' @param OM_dat An SS data file read in using r4ss for an OM
+#' @param list_item A component in both EM_dat and OM_dat to check values for.
+#' This should be a single string value.
+#' @param colnames The column names of data to append together.
+#' @author Kathryn Doering
+check_avail_dat <- function(EM_dat, OM_dat, 
+                            list_item = "CPUE", 
+                            colnames = c("year", "seas", "index")) {
+  EM_item <- EM_dat[[list_item]]
+  OM_item <- OM_dat[[list_item]]
+  combo_EM <- combo_OM <-  NULL
+  for(n in colnames) {
+    combo_EM <- c(paste0(combo_EM, EM_item[, n], "_"))
+    combo_OM <- c(paste0(combo_OM, OM_item[, n], "_"))
+  }
+  if(any(!(combo_EM %in% combo_OM))) {
+    stop("The OM_dat does not include all values of ",
+         paste0(colnames, collapse = ", "), " needed for ", list_item, ".")
+  }
 }
 
 #' Check dat_str_list

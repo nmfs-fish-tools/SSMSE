@@ -58,22 +58,6 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
     check_OM_dat(OM_dat, EM_dat)
   }
   dat <- list(OM_dat = OM_dat, EM_dat = EM_dat)
-  #' create a function that creates a combined column to the list_item of interest
-  #'
-  #' @param dat_list An SS data file as a list read in using r4ss
-  #' @param list_item List item in dat_list to extract and return a modified
-  #'  version of this value
-  #' @param colnames Column names in list_item
-  #' @noRd
-  combine_cols <- function(dat_list, list_item, colnames) {
-    tmp <- dat_list[[list_item]]
-    combo <- NULL
-    for(n in colnames) {
-      combo <- paste0(combo, tmp[, n], "_")
-    }
-    tmp$combo <- combo
-    tmp
-  }
   CPUEs <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "CPUE", c("year", "seas", "index"))
   }) 
