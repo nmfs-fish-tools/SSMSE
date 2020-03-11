@@ -360,6 +360,12 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   EM_out_dir <- out_loc[["EM_out_dir"]]
   copy_model_files(OM_in_dir, OM_out_dir, MS, EM_in_dir, EM_out_dir)
   
+  # clean model files ----
+  # want to do this as soon as possible to "fail fast"
+  # for now, this just gets rid of -year value observations, but could do
+  # other things.
+  clean_init_mod_files(OM_out_dir = OM_out_dir, EM_out_dir = EM_out_dir, 
+                       overwrite = TRUE)
   # MSE first iteration ----
   # turn the stock assessment model into an OM
   #Note that this function really does not need to be called if add_dummy_dat == FALSE.

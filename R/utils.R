@@ -169,6 +169,65 @@ create_scen_list <- function(scen_name_vec,
   scen_list
 }
 
+#' clean the initial model files
+#' 
+#' @param OM_out_dir The directory containing the OM direcatory
+#' @param EM_out_dir The directory containing the EM directory
+#' @param overwrite Should the data files be overwiritten?
+#' @importFrom r4ss SS_readstarter SS_readdat SS_writedat
+clean_init_mod_files <- function(OM_out_dir, EM_out_dir,  
+                                 overwrite = FALSE) {
+  # read in files
+  OM_start <- SS_readstarter(file.path(OM_out_dir, "starter.ss"), 
+                             verbose = F)
+  OM_dat <- SS_readdat(file.path(OM_out_dir, OM_start$datfile), verbose = FALSE)
+  EM_start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"), 
+                             verbose = F)
+  EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start$datfile), verbose = FALSE)
+  # model start and end yr should be the same for both
+  styr <- OM_dat$styr
+  endyr <- OM_dat$endyr
+  # things to check for:
+  # remove any year observations not in the range of the model yrs
+  clean_dat <- lapply(list(OM_dat = OM_dat, EM_dat = EM_dat), 
+    function(dat, styr, endyr) {
+      list_names <- c("CPUE", "lencomp", "agecomp", "meanbodywt", 
+                      "MeanSize_at_Age_obs")
+      new_dfs <- lapply(list_names, 
+       function(list_name, dat, styr, endyr) {
+         df <- dat[[list_name]]
+         if(!is.null(df)){
+         # find the year col name
+           yr_name <- grep("^[yY]e?a?[r]$", colnames(df), value = TRUE)
+           if(length(yr_name) != 1) {
+             stop("Problem in clean_init_mod_files function: looking for year col", 
+                  " in the data file matched multiple values. Please contact the ",
+                  "developers for assistance.")
+             }
+             # subset to only values in model range
+             df_new <- df[(df[, yr_name] >= styr & df[, yr_name] <= endyr), ]
+          } else {
+           df_new <- df
+          }
+          # return the new dataframe
+          df_new
+        }, dat = dat, styr = styr, endyr = endyr)
+        for(i in seq_along(list_names)) {
+          dat[[list_names[i]]] <- new_dfs[[i]]
+        }
+        dat
+     }, styr = styr, endyr = endyr)
+  if(overwrite) {
+    SS_writedat(datlist = clean_dat$OM_dat, 
+                outfile = file.path(OM_out_dir, OM_start$datfile), 
+                overwrite = TRUE)
+    SS_writedat(datlist = clean_dat$EM_dat, 
+                outfile = file.path(EM_out_dir, EM_start$datfile), 
+                overwrite = TRUE)
+  }
+  clean_dat
+}
+
 #' return a value from a data frame
 #'
 #' Return a single value from a column of a dataframe using the method specified
