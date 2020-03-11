@@ -4,11 +4,14 @@
 \alias{change_dat}
 \title{Change dataset from OM into format for EM}
 \usage{
-change_dat(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE)
+change_dat(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE)
 }
 \arguments{
-\item{OM_datfile}{Relative or absolute path with filename to the
-datafile to use.}
+\item{OM_datfile}{Filename of the datfile produced by the OM within the 
+EM_dir.}
+
+\item{EM_datfile}{Filename of the datfile from the original EM within the 
+EM_dir.}
 
 \item{EM_dir}{Absolute or relative path to the Estimation model directory.}
 
@@ -17,7 +20,8 @@ datafile to use.}
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \value{
-the new EM data file, invisibly.
+the new EM data file. Side effect is saving over the OM_dat file in
+  EM_dir.
 }
 \description{
 Change dataset from OM into format for EM

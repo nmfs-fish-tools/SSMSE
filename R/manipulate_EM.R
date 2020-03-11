@@ -1,18 +1,22 @@
 # functions to manipulate the estimation model.
 
 #' Change dataset from OM into format for EM
-#' @param OM_datfile Relative or absolute path with filename to the
-#' datafile to use.
+#' @param OM_datfile Filename of the datfile produced by the OM within the 
+#'  EM_dir.
+#' @param EM_datfile Filename of the datfile from the original EM within the 
+#'  EM_dir.
 #' @param EM_dir Absolute or relative path to the Estimation model directory.
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
 #' @template verbose
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readstarter SS_readdat SS_writedat SS_writestarter 
-#' @return the new EM data file, invisibly.
+#' @return the new EM data file. Side effect is saving over the OM_dat file in
+#'   EM_dir.
 #' @examples \dontrun{
 #' #TODO: Add example
 #' }
-change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
+change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE, 
+                       verbose = FALSE) {
   EM_dir <- normalizePath(EM_dir)
   # checks
   assertive.types::assert_is_a_string(OM_datfile)
@@ -21,21 +25,17 @@ change_dat <- function(OM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE) {
   assertive.types::assert_is_a_bool(do_checks)
   assertive.types::assert_is_a_bool(verbose)
   
-  # get the name of the original datafile
-  start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
-  orig_dat <- SS_readdat(file.path(EM_dir, start$datfile), verbose = verbose)
+  # read in the dat files
+  EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = verbose)
   OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = verbose)
-  # remove extra years of data in the OM data file, maybe something in ss3sim?
-  new_EM_dat <- get_EM_dat(OM_dat = OM_dat, EM_dat = orig_dat, 
+  # remove extra years of data in the OM data file.
+  new_EM_dat <- get_EM_dat(OM_dat = OM_dat, EM_dat = EM_dat, 
                            do_checks = do_checks)
   
   # write out the modified files that can be used in future EM run
-  SS_writedat(new_EM_dat, file.path(EM_dir, "init_dat.ss"), verbose = verbose, 
+  SS_writedat(new_EM_dat, file.path(EM_dir, OM_datfile), verbose = verbose, 
               overwrite = TRUE)
-  start$datfile <- "init_dat.ss"
-  SS_writestarter(start, dir = EM_dir, verbose = verbose, overwrite = TRUE,
-                  warn = verbose)
-  invisible(new_EM_dat) # b/c function written for side effects.
+  new_EM_dat
 }
 
 #' Change the OM data to match the format of the EM data
@@ -81,6 +81,9 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   })
   matches_a <- which(acomps[[1]][, "combo"] %in% acomps[[2]][,"combo"])
   new_dat$agecomp <- acomps[[1]][matches_a, -ncol(acomps[[1]])]
+  # TODO: check this for other types of data, esp. mean size at age, k
+  # and mean size.
+  
   #return
   new_dat
 }

@@ -42,7 +42,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     check_dir(EM_out_dir)
     new_datfile_name <- "init_dat.ss"
     if(init_loop) {
-    # copy over raw data file from the OM
+    # copy over raw data file from the OM to EM folder
     SS_writedat(OM_dat, 
                       file.path(EM_out_dir, new_datfile_name), 
                       overwrite = TRUE, 
@@ -50,15 +50,17 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     # change the name of data file.
     start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"), 
                                   verbose = verbose)
+    orig_datfile_name <- start$datfile # save the original data file name.
     start$datfile <- new_datfile_name
     SS_writestarter(start, file.path(EM_out_dir), verbose = verbose,
                     overwrite = TRUE, warn = verbose)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
     new_EM_dat <- change_dat(OM_datfile = new_datfile_name,
-                EM_dir = EM_out_dir,
-                do_checks = TRUE,
-                verbose = verbose)
+                             EM_datfile = orig_datfile_name,
+                             EM_dir = EM_out_dir,
+                             do_checks = TRUE,
+                             verbose = verbose)
     } else {
       if(!is.null(dat_str)) {
         dat_str_sub <- lapply(dat_str,
