@@ -26,14 +26,14 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
   assertive.types::assert_is_a_bool(verbose)
   
   # read in the dat files
-  EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = verbose)
-  OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = verbose)
+  EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = FALSE)
+  OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = FALSE)
   # remove extra years of data in the OM data file.
   new_EM_dat <- get_EM_dat(OM_dat = OM_dat, EM_dat = EM_dat, 
                            do_checks = do_checks)
   
   # write out the modified files that can be used in future EM run
-  SS_writedat(new_EM_dat, file.path(EM_dir, OM_datfile), verbose = verbose, 
+  SS_writedat(new_EM_dat, file.path(EM_dir, OM_datfile), verbose = FALSE, 
               overwrite = TRUE)
   new_EM_dat
 }
@@ -116,17 +116,17 @@ run_EM <- function(EM_dir,
   check_dir(EM_dir)
   # set up to run the EM
   if(set_use_par == TRUE) {
-    start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = verbose)
+    start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = FALSE)
     start$init_values_src <- 1
-    SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = verbose,
-                    warn = verbose)
+    SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = FALSE,
+                    warn = FALSE)
   }
   if (hess == TRUE) {
     options <- ""
   } else {
    options  <- "-nohess"
   }
-  run_ss_model(EM_dir, options)
+  run_ss_model(EM_dir, options, verbose = verbose)
   if(check_converged == TRUE) {
     # TODO: add additional checks for convergence, and if additional model runs
     # should be done. perhaps user defined?
@@ -177,7 +177,7 @@ add_new_dat <- function(OM_dat,
     if(!is.null(dat_str)) check_dat_str(dat_str)
   }
   # Read in EM_datfile
-  EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = verbose)
+  EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = FALSE)
   new_EM_dat <- EM_dat
   new_EM_dat$endyr <- OM_dat$endyr # want to be the same as the OM
   # add the data from OM_dat into EM_dat
@@ -219,7 +219,7 @@ add_new_dat <- function(OM_dat,
       SS_writedat(new_EM_dat, 
                   file.path(EM_dir, new_datfile_name),
                   overwrite = TRUE,
-                  verbose = verbose)
+                  verbose = FALSE)
     }
   }
    new_EM_dat

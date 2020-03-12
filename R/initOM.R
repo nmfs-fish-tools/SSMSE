@@ -22,8 +22,8 @@ create_OM <- function(OM_out_dir,
                       writedat = TRUE,
                       verbose       = FALSE) {
   
-  start <- SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = verbose)
-  dat <- SS_readdat(file.path(OM_out_dir, start$datfile), verbose = verbose, 
+  start <- SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = FALSE)
+  dat <- SS_readdat(file.path(OM_out_dir, start$datfile), verbose = FALSE, 
                     section = 1)
   if(add_dummy_dat) {
     # TODO: develop code to do this for other types of data (mean length at age)
@@ -40,9 +40,11 @@ create_OM <- function(OM_out_dir,
                                   method = "most_common_value", 
                                   colname = "se_log", 
                                   group = "index")
-    message("Input uncertainty for CPUE OM currently can only have a single 
-              value per fleet.. All CPUE data added to the operating model is
-              assigned the most common value of se_log for each fleet.")
+    if(verbose) {
+      message("Input uncertainty for CPUE OM currently can only have a single ", 
+              "value per fleet. All CPUE data added to the operating model is ",
+               "assigned the most common value of se_log for each fleet.")
+    }
     for(i in 1:nrow(CPUE_seas_flt)) {
       #get currently  used values
       tmp_seas <- CPUE_seas_flt[i, "seas"]
@@ -80,9 +82,12 @@ create_OM <- function(OM_out_dir,
                                        method = "most_common_value", 
                                        colname = "Nsamp", 
                                        group = "FltSvy")
-      message("Input uncertainty for lencomp OM currently can only have a single 
-              value for each fleet. All lencomp data added to the operating model is assigned the
-              most common value of Nsamp for each fleet.")
+      if(verbose) {
+        message("Input uncertainty for lencomp OM currently can only have a ",
+                "single value for each fleet. All lencomp data added to the ",
+                "operating model is assigned the most common value of Nsamp ",
+                "for each fleet.")
+      }
       for(i in seq_len(nrow(lcomp_combo))) {
         #get currently  used values (write a lapply function to make more concise)
         tmp_metacols <- vapply(meta_cols, 
@@ -135,9 +140,12 @@ create_OM <- function(OM_out_dir,
                                      method = "most_common_value", 
                                      colname = "Nsamp", 
                                      group = "FltSvy")
-    message("Input uncertainty for agecomp OM currently can only have a single 
-              value per fleet. All lencomp data added to the operating model is assigned the
-              most common value of Nsamp for each fleet.")
+    if(verbose) {
+      message("Input uncertainty for agecomp OM currently can only have a ",
+              "single value per fleet. All lencomp data added to the operating",
+              " model is assigned the most common value of Nsamp for each ", 
+              "fleet.")
+    }
     for(i in 1:nrow(agecomp_combo)) {
       #get currently  used values (write a lapply function to make more concise)
       tmp_metacols <- vapply(meta_cols_agecomp, 
@@ -186,7 +194,7 @@ create_OM <- function(OM_out_dir,
     dat$agecomp <- new_agecomp
     if(writedat) {
       SS_writedat(dat, file.path(OM_out_dir, start$datfile), overwrite = overwrite, 
-                  verbose = verbose)
+                  verbose = FALSE)
     }
   }
 
@@ -224,17 +232,17 @@ run_OM <- function(OM_dir,
   }
   if(init_run == TRUE) {
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
-                                verbose = verbose)
+                                verbose = FALSE)
   start$N_bootstraps <- max_section
-  r4ss::SS_writestarter(start, dir = OM_dir, verbose = verbose, overwrite = TRUE,
-                        warn = verbose)
+  r4ss::SS_writestarter(start, dir = OM_dir, verbose = FALSE, overwrite = TRUE,
+                        warn = FALSE)
   }
   # run SS and get the data set
-  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess")
+  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
 
   dat <- r4ss::SS_readdat(file.path(OM_dir,"data.ss_new"), 
                           section = max_section, 
-                          verbose = verbose)
+                          verbose = FALSE)
   # If using bootstrap, do not want to use bootstrapped catch. Instead, replace
   # with the expected catch values.
   # TODO: may want to add check if using F method 1 or 3 that the expected vals
@@ -243,7 +251,7 @@ run_OM <- function(OM_dir,
     if(verbose) message("Adding expected catch to the bootstrapped dataset.")
     exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"), 
                                  section = 2, 
-                                 verbose = verbose)
+                                 verbose = FALSE)
     dat$catch <- exp_vals$catch
   }
   return(dat)

@@ -39,9 +39,9 @@ extend_OM <- function(catch,
   #TODO: add function to check dummy_dat_scheme (if has more detailed input)
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
-                                verbose = verbose)
+                                verbose = FALSE)
   # extend the number of yrs in the model and add in catch
-  dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile), verbose = verbose,
+  dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile), verbose = FALSE,
                           section = 1)
   if(max(catch$year) > (dat$endyr + nyrs_extend)) {
     stop("The maximum year input for catch is ", max(catch$year),", but the ",
@@ -67,9 +67,12 @@ extend_OM <- function(catch,
                                     method = "most_common_value", 
                                     colname = "se_log", 
                                     group = "index")
-      message("Input uncertainty for extending OM CPUE currently can only have a single 
-              value. All CPUE data added to the operating model is assigned the
-              most common value of se_log, which is ", se_log_val)
+      if(verbose) {
+        message("Input uncertainty for extending OM CPUE currently can only ",
+                "have a single value for each fleet. All CPUE data added to ",
+                "the operating model is assigned the most common value of ",
+                "se_log for each fleet.")
+      }
       for (i in 1:nrow(CPUE_combo)) { # loop through combinations and add
         tmp_se_log_val <- se_log_val[se_log_val$index == CPUE_combo$index[i], 
                                      "se_log"]
@@ -94,10 +97,12 @@ extend_OM <- function(catch,
                                       method = "most_common_value", 
                                       colname = "Nsamp", 
                                       group = "FltSvy")
-        message("Input uncertainty for extending OM lencomp currently can only
-                 have a single value for each fleet . All lencomp data added to
-                 the operating model is assigned the most common value of 
-                 Nsamp for each fleet.")
+        if(verbose) {
+          message("Input uncertainty for extending OM lencomp currently can ",
+                   "only have a single value for each fleet. All lencomp data ",
+                   "added to the operating model is assigned the most common ",
+                   "value of Nsamp for each fleet.")
+        }
         for(i in 1:nrow(lencomp_combo)) {
           tmp_len_Nsamp_val <- len_Nsamp_val[len_Nsamp_val$"FltSvy" == lencomp_combo[i, "FltSvy"], 
                                              "Nsamp"]
@@ -130,10 +135,12 @@ extend_OM <- function(catch,
                                        method = "most_common_value", 
                                        colname = "Nsamp", 
                                        group = "FltSvy")
-      message("Input uncertainty for extending OM agecomp currently can only
-                 have a single value for each fleet. All agecomp data added to 
-                 the operating model is assigned the most common value of Nsamp
-                 for each fleet.")
+      if(verbose) {
+        message("Input uncertainty for extending OM agecomp currently can only",
+                " have a single value for each fleet. All agecomp data added ",
+                "to the operating model is assigned the most common value of ",
+                "Nsamp for each fleet.")
+      }
       for(i in 1:nrow(agecomp_combo)) {
         tmp_age_Nsamp_val <- age_Nsamp_val[
         age_Nsamp_val$FltSvy == agecomp_combo[i, "FltSvy"], "Nsamp"]
@@ -166,7 +173,7 @@ extend_OM <- function(catch,
     r4ss::SS_writedat(dat, 
                       outfile = file.path(OM_dir, start$datfile),
                       overwrite = TRUE,
-                      verbose = verbose)
+                      verbose = FALSE)
   }
     invisible(dat)
 }

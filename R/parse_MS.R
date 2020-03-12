@@ -29,6 +29,9 @@
 parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE, 
                      OM_dat, verbose = FALSE, nyrs_assess, dat_yrs,
                      dat_str) {
+  if(verbose) {
+    message("Parsing the management strategy.")
+  }
   # input checks ----
   valid_MS <- c("EM", "no_catch", "last_yr_catch")
   if (!MS %in% valid_MS) {
@@ -46,14 +49,14 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     SS_writedat(OM_dat, 
                       file.path(EM_out_dir, new_datfile_name), 
                       overwrite = TRUE, 
-                      verbose = verbose)
+                      verbose = FALSE)
     # change the name of data file.
     start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"), 
-                                  verbose = verbose)
+                                  verbose = FALSE)
     orig_datfile_name <- start$datfile # save the original data file name.
     start$datfile <- new_datfile_name
-    SS_writestarter(start, file.path(EM_out_dir), verbose = verbose,
-                    overwrite = TRUE, warn = verbose)
+    SS_writestarter(start, file.path(EM_out_dir), verbose = FALSE,
+                    overwrite = TRUE, warn = FALSE)
     # make sure the data file has the correct formatting (use existing data 
     #file in the EM directory to make sure)??
     new_EM_dat <- change_dat(OM_datfile = new_datfile_name,
@@ -81,7 +84,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     # make sure enough yrs can be forecasted.
     fcast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"),
                              readAll = TRUE,
-                             verbose = verbose)
+                             verbose = FALSE)
     # check that it can be used in the EM. fleets shoul
     check_EM_forecast(fcast,
       n_flts_catch = length(which(new_EM_dat[["fleetinfo"]][, "type"] %in%
@@ -100,7 +103,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
                        mod_endyr = new_EM_dat[["endyr"]])
     }                     
     SS_writeforecast(fcast, dir = EM_out_dir, writeAll = TRUE, overwrite = TRUE,
-                     verbose = verbose)
+                     verbose = FALSE)
     # given all checks are good, run the EM
     # check convergence (figure out way to error if need convergence)
     # get the future catch using the management strategy used in the SS model.

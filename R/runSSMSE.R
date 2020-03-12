@@ -346,6 +346,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   if(!is.null(dat_str)) assertive.types::assert_is_list(dat_str)
   assertive.types::assert_is_a_bool(verbose)
   
+  message("Starting iteration ", niter, ".")
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs
@@ -372,7 +373,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   #TODO allow user to decide through this wrapper function to use add dummy data or not.
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
             verbose = verbose, writedat = TRUE)
-  message("Finished initialization of OM for iteration ", niter, ".")
+
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
     OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1, 
@@ -384,15 +385,17 @@ run_SSMSE_iter <- function(out_dir     = NULL,
     # TODO: add sampling functions then run a future sampling function that would
     # make it into a dataset.
   }
+  message("Finished running and sampling OM for the historical period for ", 
+          "iteration ", niter, ".")
   # get catch/discard using the chosen management strategy ----
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
                            OM_dat = OM_dat, verbose = verbose,
                            nyrs_assess = nyrs_assess)
-  message("Finished getting new catch (years ", (OM_dat$endyr+1), " to ", 
-          (OM_dat$endyr + nyrs_assess),") to feed into OM for iteration ", 
-          niter, ".")
+  message("Finished getting catch (years ", 
+          (OM_dat$endyr+1), " to ", (OM_dat$endyr + nyrs_assess),
+          ") to feed into OM for iteration ", niter, ".")
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
@@ -408,6 +411,10 @@ run_SSMSE_iter <- function(out_dir     = NULL,
                        OM_dir = OM_out_dir,
                        catch_units = "bio")
     #add new years of catch to the OM and add dummy values where necessary.
+    if(verbose) {
+      message("Extending, running, and sampling from the OM though year ", yr,
+              ".")
+    }
     extend_OM(catch = new_catch_list[["catch"]],
               discards = new_catch_list[["discards"]],
               OM_dir = OM_out_dir,
@@ -422,6 +429,8 @@ run_SSMSE_iter <- function(out_dir     = NULL,
       stop("Currently, only sampling can be done using the bootstrapping ", 
            "capabilities within SS")
     }
+    message("Finished running and sampling OM through year ", new_OM_dat$endyr, 
+            ".")
     # Only want data for the new years: (yr+nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
@@ -431,7 +440,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
                              nyrs_assess = nyrs_assess, 
                              dat_yrs = (yr + 1):(yr + nyrs_assess),
                              dat_str = dat_str)
-  message("Finished getting new catch (years ", (yr + 1), " to ", 
+  message("Finished getting catch (years ", (yr + 1), " to ", 
           (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
   }
   message("Finished iteration ", niter, ".")

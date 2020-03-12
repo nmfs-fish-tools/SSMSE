@@ -180,11 +180,12 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
                                  overwrite = FALSE) {
   # read in files
   OM_start <- SS_readstarter(file.path(OM_out_dir, "starter.ss"), 
-                             verbose = F)
-  OM_dat <- SS_readdat(file.path(OM_out_dir, OM_start$datfile), verbose = FALSE)
+                             verbose = FALSE)
+  OM_dat <- SS_readdat(file.path(OM_out_dir, OM_start$datfile), verbose = FALSE, 
+                       section = 1)
   if(!is.null(EM_out_dir)) {
   EM_start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"), 
-                             verbose = F)
+                             verbose = FALSE)
   EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start$datfile), verbose = FALSE)
   } else {
     EM_dat <- NULL
@@ -230,10 +231,12 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
   if(overwrite) {
     SS_writedat(datlist = clean_dat$OM_dat, 
                 outfile = file.path(OM_out_dir, OM_start$datfile), 
+                verbose = FALSE,
                 overwrite = TRUE)
     if(!is.null(EM_dat)) {
     SS_writedat(datlist = clean_dat$EM_dat, 
-                outfile = file.path(EM_out_dir, EM_start$datfile), 
+                outfile = file.path(EM_out_dir, EM_start$datfile),
+                verbose = FALSE,
                 overwrite = TRUE)
     }
   }
@@ -504,7 +507,7 @@ copy_model_files <- function(OM_in_dir,
                  overwrite = FALSE,
                  use_ss_new = TRUE, # will rename the ss new files, also.
                  copy_par = TRUE,
-                 verbose = verbose)
+                 verbose = FALSE)
   if(success_OM == FALSE) {
     stop("Problem copying SS OM .ss_new files from ", OM_in_dir, " to ", 
          OM_out_dir, ".")
@@ -519,7 +522,7 @@ copy_model_files <- function(OM_in_dir,
     success_EM <- copy_SS_inputs(dir.old = EM_in_dir, 
                    dir.new = EM_out_dir,
                    overwrite = FALSE,
-                   verbose = verbose)
+                   verbose = FALSE)
   } else {
     success_EM <- TRUE # because don't need to copy over
   }
