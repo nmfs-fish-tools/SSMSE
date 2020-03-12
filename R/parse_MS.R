@@ -173,6 +173,14 @@ get_EM_catch_df <- function(EM_dir, dat) {
                          flt_units$survey_number[fl])
     #find the se that matches for the fleet
     tmp_catch_se <- se[se$fleet == flt_units$survey_number[fl], "catch_se"]
+    if(length(tmp_catch_se) == 0) {
+      if(all(fcast_catch_df[, tmp_col_lab] == 0)) {
+        tmp_catch_se <- 0.1 #assign an arbitrary value, b/c no catch
+      } else {
+        stop("Problem finding catch se to add to future catch df for fleet ", 
+             flt_units$survey_number[fl], ".")
+      }
+    }
     df_list[[fl]] <- data.frame(year     = fcast_catch_df$Yr,
                                 seas     = fcast_catch_df$Seas, 
                                 fleet    = flt_units$survey_number[fl], 
