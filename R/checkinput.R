@@ -62,6 +62,8 @@ check_OM_dat <- function(OM_dat, EM_dat) {
          ", while EM_dat has styr = ", EM_dat$styr, " and endyr = ",
          EM_dat$endyr)
   }
+  check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "catch", 
+                  colnames = c("year", "seas", "fleet"))
   check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "CPUE", 
                   colnames = c("year", "seas", "index"))
   # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
