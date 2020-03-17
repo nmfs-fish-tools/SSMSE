@@ -169,11 +169,20 @@ get_EM_catch_df <- function(EM_dir, dat) {
   se <- get_input_value(dat$catch, method = "most_common_value", 
                         colname = "catch_se", group = "fleet")
   df_list <- vector(mode = "list", length = nrow(flt_units))
+  bio_df_list <- vector(mode = "list", length = nrow(flt_units))
+  F_df_list <- vector(mode = "list", length = nrow(flt_units))
   for(fl in seq_len(nrow(flt_units))) {
-    # find which row to get catch from. Right now, assume selected = retained,
+    # find which row to get fleet unit catch from. Right now, assume selected = retained,
     # i.e., no discards.
     tmp_col_lab <- paste0("retain(", flt_units$unit_name[fl], "):_", 
                          flt_units$survey_number[fl])
+    #Get the retained biomass for all fleets regardless of units to allow checking with population Biomass
+    tmp_col_lab_bio <- paste0("retain(B):_", 
+                          flt_units$survey_number[fl])
+    #Get the fleet appical F's to allow identification of unrealistically high fishing effort which may be a
+    #better check for MSE than just single year catch larger than the population.
+    tmp_col_lab_F <- paste0("F:_", 
+                          flt_units$survey_number[fl])
     #find the se that matches for the fleet
     tmp_catch_se <- se[se$fleet == flt_units$survey_number[fl], "catch_se"]
     if(length(tmp_catch_se) == 0) {
@@ -189,8 +198,21 @@ get_EM_catch_df <- function(EM_dir, dat) {
                                 fleet    = flt_units$survey_number[fl], 
                                 catch    = fcast_catch_df[, tmp_col_lab],
                                 catch_se = tmp_catch_se)
+    
+    bio_df_list[[fl]] <- data.frame(year     = fcast_catch_df$Yr,
+                                seas     = fcast_catch_df$Seas, 
+                                fleet    = flt_units$survey_number[fl], 
+                                catch    = fcast_catch_df[, tmp_col_lab_bio])
+    
+    F_df_list[[fl]] <- data.frame(year     = fcast_catch_df$Yr,
+                                seas     = fcast_catch_df$Seas, 
+                                fleet    = flt_units$survey_number[fl], 
+                                catch    = fcast_catch_df[, tmp_col_lab_F])
   }
   catch_df <- do.call("rbind", df_list)
+  catch_bio_df <- do.call("rbind", bio_df_list)
+  catch_F_df <- do.call("rbind", F_df_list)
+  
   # get discard, if necessary
   if(dat[["N_discard_fleets"]] > 0) {
     # discard units: 1, biomass/number according to set in catch
@@ -237,7 +259,9 @@ get_EM_catch_df <- function(EM_dir, dat) {
     dis_df <- NULL
   }
   new_dat_list <- list(catch = catch_df,
-                       discards = dis_df)
+                       discards = dis_df,
+                       catch_bio = catch_bio_df,
+                       catch_F = catch_F_df)
 }
 
 #' Get the data frame of catch for the next iterations when not using an
@@ -265,6 +289,7 @@ get_no_EM_catch_df <- function(catch, yrs, MS = "last_yr_catch") {
   se <- get_input_value(catch, method = "most_common_value", colname = "catch_se", 
                   group = "fleet")
   tmp_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
+  tmp_bio_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
   pos <- 1
   for(y in yrs) {
     for(flt in seq_len(nrow(flt_combo))) {
