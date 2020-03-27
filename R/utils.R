@@ -486,7 +486,6 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
 #' @param EM_out_dir The EM output directory. Only needed if MS = "EM".
 #' @template verbose
 #' @return TRUE, if copying is successful
-#' @importFrom SSutils copy_SS_inputs
 #' 
 copy_model_files <- function(OM_in_dir, 
                              OM_out_dir, 
