@@ -174,6 +174,7 @@ create_scen_list <- function(scen_name_vec,
 #' @param OM_out_dir The directory containing the OM direcatory
 #' @param EM_out_dir The directory containing the EM directory. If an EM will
 #'  not be used, can be set to NULL
+#' @param MS The management strategy
 #' @param overwrite Should the data files be overwiritten?
 #' @importFrom r4ss SS_readstarter SS_readdat SS_writedat
 clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM", 
