@@ -287,7 +287,6 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples 
 #'  give an example of what this structure should be.
 #' @template verbose
-#' @importFrom SSutils copy_SS_inputs
 #' @export
 #' @author Kathryn Doering
 #' @examples 

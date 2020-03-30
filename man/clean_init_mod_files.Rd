@@ -4,12 +4,18 @@
 \alias{clean_init_mod_files}
 \title{clean the initial model files}
 \usage{
-clean_init_mod_files(OM_out_dir, EM_out_dir, overwrite = FALSE)
+clean_init_mod_files(
+  OM_out_dir,
+  EM_out_dir = NULL,
+  MS = "EM",
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{OM_out_dir}{The directory containing the OM direcatory}
 
-\item{EM_out_dir}{The directory containing the EM directory}
+\item{EM_out_dir}{The directory containing the EM directory. If an EM will
+not be used, can be set to NULL}
 
 \item{overwrite}{Should the data files be overwiritten?}
 }
