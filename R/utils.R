@@ -70,18 +70,17 @@
 #'                 )
 #'                 
 create_scen_list <- function(scen_name_vec,
-                             out_dir_scen_vec,
-                             iter_list, 
-                             OM_name_vec,
-                             OM_in_dir_vec,
-                             EM_name_vec,
-                             EM_in_dir_vec,
-                             MS_vec,
-                             use_SS_boot_vec,
-                             nyrs_vec,
-                             nyrs_assess_vec,
-                             impl_error_vec,
-                             dat_str_list) {
+                             out_dir_scen_vec=NULL,
+                             iter_list=NULL, 
+                             OM_name_vec=NULL,
+                             OM_in_dir_vec=NULL,
+                             EM_name_vec=NULL,
+                             EM_in_dir_vec=NULL,
+                             MS_vec=NULL,
+                             use_SS_boot_vec=NULL,
+                             nyrs_vec=NULL,
+                             nyrs_assess_vec=NULL,
+                             dat_str_list=NULL) {
   #note that input checking 
   scen_name_vec <- as.character(scen_name_vec)
   # construct list. Note that it may not be usable at this stage, but there
@@ -476,6 +475,48 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
                      EM_in_dir = EM_in_dir, EM_out_dir = EM_out_dir)
 }
 
+#' create the OM directory
+#' 
+#' Create an OM directory within the out_dir specified (named by the value of
+#' niter)
+#' @param out_dir  The directory to which to write output. IF NULL, will default
+#'  to the working directory.
+#' @param niter The number iteration
+#' @param OM_name Name of OM model.
+#' @param OM_in_dir Relative or absolute path to the operating model. NULL if 
+#'  using SSMSE package model.
+#' @param MS The management strategy. If "EM", will create the EM folders.
+#'  Otherwise, can be any name, defaulting to "not_EM".
+#' @param EM_name Name of the EM model. NULL if MS != "EM" (default value)
+#' @param EM_in_dir Relative or absolute path to the estimation model. NULL if 
+#'  using SSMSE package model or MS != "EM" (default value)
+#' @return A list with 2 named components each of length 1 characters. The
+#'  components are: OM_dir, where OM will be run, and OM_in_dir, where the model
+#'  files will be copied from.
+locate_in_dirs <- function(OM_name, OM_in_dir) {
+  # checks
+  if(!is.null(OM_name)) assertive.types::assert_is_a_string(OM_name)
+  if(is.null(OM_name) & is.null(OM_in_dir)) {
+    stop("OM_name and OM_in_dir are both NULL. Please specify an OM_name, ",
+         "OM_in_dir, or both.")
+  }
+  # specify the OM_in_dir if only specified OM by name.
+  pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
+  pkg_dirs <- pkg_dirs[-grep("models$", pkg_dirs)] # git rid of model directory.
+  
+  if(!is.null(OM_name) & is.null(OM_in_dir)) {
+    OM_in_dir <- pkg_dirs[grep(OM_name, pkg_dirs)]
+    if(length(OM_in_dir) != 1) {
+      stop("OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
+           "SSMSE external package data, but should match 1. Please ", 
+           "change OM_name to match (or partially match unambiguously) with 1 ", 
+           "model in the models folder of the SSMSE external package data. ", 
+           "Model options are: ", paste0(basename(pkg_dirs), collapse = ", "))
+    }
+  }
+  OM_mod_loc <- list(OM_in_dir = OM_in_dir)
+}
+
 #' Copy OM and EM model files
 #' 
 #' Copy OM and EM model files from input to output location.
@@ -496,8 +537,8 @@ copy_model_files <- function(OM_in_dir,
                              verbose = FALSE) {
  # checks
   if(!all(c("control.ss_new", "data.ss_new", "starter.ss_new", 
-            "forecast.ss_new") %in% list.files(OM_in_dir))) {
-    stop(".ss_new files not found in the original OM directory ", 
+            "forecast.ss_new","ss.par") %in% list.files(OM_in_dir))) {
+    stop(".ss_new files or par file not found in the original OM directory ", 
          OM_in_dir, ". Please run the model to make the .ss_new files available.")
   }
   # copy over OM ----

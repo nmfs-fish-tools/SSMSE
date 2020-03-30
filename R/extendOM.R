@@ -4,7 +4,7 @@
 #' 
 #' Add in the catch values for the next years, extend the OM forward for the 
 #' appropriate number of years.
-#' @author Kathryn Doering
+#' @author Kathryn Doering & Nathan Vaughan
 #' @param catch A dataframe of catch values and its associated information to
 #'  add to the OM. The column names are the same as in an SS data file (e.g., 
 #'  year,	season, fleet,	catch,	catch_se).
@@ -30,12 +30,15 @@ extend_OM <- function(catch,
                       discards,
                       OM_dir, 
                       dummy_dat_scheme = NULL,
-                      nyrs_extend = 3,
-                      write_dat = TRUE,
-                      verbose = FALSE) {
+                      nyrs_extend      = 3,
+                      write_dat        = TRUE,
+                      rec_devs         = NULL,
+                      impl_error        = NULL,
+                      verbose          = FALSE) {
   #input checks
   check_catch_df(catch)
   check_dir(OM_dir)
+  
   #TODO: add function to check dummy_dat_scheme (if has more detailed input)
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
@@ -43,15 +46,90 @@ extend_OM <- function(catch,
   # extend the number of yrs in the model and add in catch
   dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile), verbose = FALSE,
                           section = 1)
+  # read in control file
+  ctl <- r4ss::SS_readctl(file=file.path(OM_dir, start$ctlfile),version='3.30',use_datlist=TRUE,datlist=dat)
+  # read in parameter file
+  parlist <- r4ss::SS_readpar_3.30(file.path(OM_dir, "ss.par"),dat,ctl,FALSE)
+  # read in forecast file
+  forelist <- r4ss::SS_readforecast(file=file.path(OM_dir, "forecast.ss"), Nfleets=dat$Nfleets, Nareas=dat$N_areas, nseas=dat$nseas, readAll=TRUE, verbose=FALSE)
+  
   if(max(catch$year) > (dat$endyr + nyrs_extend)) {
     stop("The maximum year input for catch is ", max(catch$year),", but the ",
          " nyrs_extend used in function extend_OM only extends the model to the year ", 
          (dat$endyr+nyrs_extend), ". Please either remove years of catch data or ",
          "the end year of the model longer.")
   }
-  dat$endyr <- dat$endyr + nyrs_extend
+  
+  #first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
+  #Apply implementation error to the catches before it is added to the OM
+  forelist$Nforecastyrs<-nyrs_extend+1
+  forelist$ForeCatch<-catch[,1:4]
+  forelist$ForeCatch[,4]<-forelist$ForeCatch[,4]*impl_error
+  #parlist$recdev_forecast[,1]<-(dat$endyr + nyrs_extend+1):(dat$endyr + 2*nyrs_extend)
+  temp_recdev<-matrix(NA,nrow=forelist$Nforecastyrs,ncol=2)
+  temp_recdev[,1]<-(dat$endyr+1):(dat$endyr+forelist$Nforecastyrs)
+  temp_recdev[,2]<-c(rec_devs,-sum(rec_devs))
+  temp_impl_error<-temp_recdev
+  temp_impl_error[,2]<-rep(0,forelist$Nforecastyrs)
+  parlist$recdev_forecast<-temp_recdev
+  parlist$Fcast_impl_error<-temp_impl_error
+  colnames(parlist$recdev_forecast)<-c("year","recdev")
+  colnames(parlist$Fcast_impl_error)<-c("year","impl_error")
+  
+  
+  r4ss::SS_writeforecast(mylist=forelist,dir=OM_dir,writeAll = TRUE,overwrite = TRUE)
+  r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_dir, "ss.par"),overwrite = TRUE)
+  
+  #Run SS with the new catch set as forecast targets. This will use SS to 
+  #calculate the F required in the OM to achieve these catches.
+  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
+  
+  #Load the SS results 
+  outlist <- r4ss::SS_output(OM_dir)
+  #Extract the achieved F and Catch for the projection period
+  temp_F<-outlist$timeseries
+  base_F<-temp_F[temp_F$Area==1,]
+  agg_F<-aggregate(temp_F[,-3],list(Yr=temp_F[,2],Seas=temp_F[,4]),sum)
+  temp_F<-cbind(base_F[,c(2,3,4)],agg_F[,-c(1,2,3,4,5,6,7,8,9,10,11,12)])
+  rm(base_F,agg_F)
+  units_catch<-dat$units_of_catch
+  units_catch<-ifelse(units_catch==1,3,6)
+  temp_F<-temp_F[,c(1,2,3,(((1:dat$Nfleet))*8+3),(((1:dat$Nfleet)-1)*8+3+units_catch[1:dat$Nfleet]))]
+  
+  temp_df<-NULL
+  for(i in 1:dat$Nfleet){
+    temp_fleet<-cbind(temp_F[,c(1:3)],rep(i,length(temp_F[,1])),temp_F[,(i+3)],temp_F[,(i+3+dat$Nfleet)])
+    temp_df<-rbind(temp_df,temp_fleet)
+  }
+  temp_df<-temp_df[order(temp_df[,1],temp_df[,3],temp_df[,4]),]
+  names(temp_df)<-c("year","Era","seas","fleet","F","Catch_retained")
+  
+  #Check that SS created projections with the intended catches before updating model
+  catch_diff<-temp_df[is.element(temp_df[,1],catch[,1]),6]-catch[,4]
+  if(max(abs(catch_diff)/abs(catch[,4]))>0.0001){
+    stop("Catch projections - ",temp_df[is.element(temp_df[,1],catch[,1]),6]," - don't match those expected - ",catch[,4])
+  }
+  
+  # extend the number of yrs in the model and add in catch
+  
+  
   dat$catch <- rbind(dat$catch, catch)
   dat$discard_data <- rbind(dat$discard_data, discards)
+  if(!is.null(parlist$recdev1)){
+    parlist$recdev1<-rbind(parlist$recdev1,parlist$recdev_forecast[1:nyrs_extend,])
+  }else if(!is.null(parlist$recdev2)){
+    parlist$recdev2<-rbind(parlist$recdev2,parlist$recdev_forecast[1:nyrs_extend,])
+  }
+  parlist$Fcast_impl_error<-parlist$Fcast_impl_error[length(parlist$Fcast_impl_error[,1]),,drop=FALSE]
+  parlist$recdev_forecast<-parlist$Fcast_impl_error
+  parlist$F_rate<-rbind(parlist$F_rate,temp_df[is.element(temp_df[,1],((dat$endyr+1):(dat$endyr + nyrs_extend))),c(1,3,4,5)])
+  dat$endyr <- dat$endyr + nyrs_extend
+  forelist$Nforecastyrs<-1
+  forelist$ForeCatch<-NULL
+  ctl$MainRdevYrLast<-dat$endyr
+  r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_dir, start$ctlfile),overwrite = TRUE)
+  r4ss::SS_writeforecast(mylist=forelist,dir=OM_dir,writeAll = TRUE,overwrite = TRUE)
+  r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_dir, "ss.par"),overwrite = TRUE)
   # add in dummy data: just do for indices, comps for now. Always do this in
   # case the EM needs this input (should be okay to remove if not needed?)
   if(!is.null(dummy_dat_scheme)) {

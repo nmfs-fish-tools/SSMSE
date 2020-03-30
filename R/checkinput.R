@@ -8,17 +8,18 @@
 #' @param df The catch dataframe to test
 #' @author Kathryn Doering
 check_catch_df <- function(df) {
+  
   catch_colnames <- c("year", "seas", "fleet", "catch", "catch_se")
   input_colnames <- colnames(df)
   if(length(catch_colnames)!= length(input_colnames)) {
     stop("The catch data frame does not have the correct number of column ",
          "names. The column names should be: ", 
-         paste0(catch_colnames, collapse = ", " ), ".")
+         paste0(catch_colnames, collapse = ", " ), ". However, they are: ", paste0(input_colnames, collapse = ", " ), ".")
   }
   if(any(catch_colnames != input_colnames)) {
     stop("The catch data frame does not have the correct column names in the ",
          "correct order. The column names should be: ", 
-         paste0(catch_colnames, collapse = ", " ), ".")
+         paste0(catch_colnames, collapse = ", " ), ". However, they are: ", paste0(input_colnames, collapse = ", " ), ".")
   }
   invisible(df)
 }

@@ -4,26 +4,107 @@
 #' 
 #' This function manipulates the OM as needed so that it can be used as an
 #'  operating model.
-#' @author Kathryn Doering
+#' @author Kathryn Doering & Nathan Vaughan
 #' @param OM_out_dir The full path to the directory in which the OM is run.
 #' @param overwrite Overwrite existing files with matching names?
 #' @param add_dummy_dat Should dummy data be added to indices and comps for each
 #'  year so that expected values and sampling is obtained for years other than
 #'  those that already have data? Defaults to FALSE.
+#' @param nyrs_assess The number of years to assess over. Used to help structure the 
+#' OM projection file.
 #' @param writedat Should a new datafile be written? Only used if add_dummy_dat
 #'  is \code{TRUE}.
+#' @param rec_devs Vector of recruitment deviations for simulation.
 #' @template verbose
 #' @return A new datafile as read in for r4ss, but with dummy data added.
 #' @importFrom r4ss SS_readdat SS_writedat SS_readstarter SS_writestarter
 create_OM <- function(OM_out_dir,
                       overwrite     = FALSE,
                       add_dummy_dat = FALSE,
-                      writedat = TRUE,
-                      verbose       = FALSE) {
+                      writedat      = TRUE,
+                      verbose       = FALSE,
+                      nyrs_assess   = NULL,
+                      rec_devs      = NULL) {
   
-  start <- SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = FALSE)
-  dat <- SS_readdat(file.path(OM_out_dir, start$datfile), verbose = FALSE, 
-                    section = 1)
+  #OM_out_dir<-"C:/Users/Nathan/Documents/NOAA/Red grouper/SEDAR61_BaseV/Projections/F30SPR"
+  start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = FALSE)
+  start$init_values_src <- 1
+  start$detailed_age_structure <- 1
+  start$last_estimation_phase <- 0
+  start$depl_basis <- 0
+  start$depl_denom_frac <- 1
+  start$SPR_basis <- 0
+  start$F_report_units <- 0
+  start$F_report_basis <- 0
+  start$F_age_range <- NULL
+  r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE, overwrite = TRUE,
+                        warn = FALSE)
+  
+  run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
+  
+  dat <- r4ss::SS_readdat(file=file.path(OM_out_dir, start$datfile), verbose = TRUE, echoall = TRUE, 
+                    section = 1, version=3.3)
+  
+  forelist <- r4ss::SS_readforecast(file=file.path(OM_out_dir, "forecast.ss"), Nfleets=dat$Nfleet, Nareas=dat$N_areas, nseas=dat$nseas, readAll=TRUE, verbose=FALSE)
+  currentNforecast <- forelist$Nforecastyrs
+  forelist$Nforecastyrs <- nyrs_assess+1
+  forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
+  forelist$InputBasis <- 3
+  
+  ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start$ctlfile), verbose = FALSE, use_datlist = TRUE,
+                    datlist = dat)
+  
+  outlist <- r4ss::SS_output(OM_out_dir)
+  
+  parlist <- r4ss::SS_readpar_3.30(file.path(OM_out_dir, "ss.par"),dat,ctl,FALSE)
+  
+  temp_F<-outlist$timeseries
+  base_F<-temp_F[temp_F$Area==1,]
+  agg_F<-aggregate(temp_F[,-3],list(Yr=temp_F[,2],Seas=temp_F[,4]),sum)
+  temp_F<-cbind(base_F[,c(2,3,4)],agg_F[,-c(1,2,3,4,5,6,7,8,9,10,11,12)])
+  rm(base_F,agg_F)
+  units_catch<-dat$units_of_catch
+  units_catch<-ifelse(units_catch==1,3,6)
+  temp_F<-temp_F[,c(1,2,3,(((1:dat$Nfleet))*8+3),(((1:dat$Nfleet)-1)*8+3+units_catch[1:dat$Nfleet]))]
+  
+  temp_df<-NULL
+  for(i in 1:dat$Nfleet){
+    temp_fleet<-cbind(temp_F[,c(1:3)],rep(i,length(temp_F[,1])),temp_F[,(i+3)],temp_F[,(i+3+dat$Nfleet)])
+    temp_df<-rbind(temp_df,temp_fleet)
+  }
+  temp_df<-temp_df[order(temp_df[,1],temp_df[,3],temp_df[,4]),]
+  names(temp_df)<-c("year","Era","seas","fleet","F","Catch_retained")
+  
+  if(length(temp_df[temp_df$Era=="TIME" & temp_df$Catch_retained!=0,1])>0){
+    parlist$F_rate<-temp_df[temp_df$Era=="TIME" & temp_df$Catch_retained!=0,c(1,3,4,5)]
+  }
+  if(length(temp_df[temp_df$Era=="INIT" & temp_df$Catch_retained!=0,5])>0){
+    parlist$init_F<-temp_df[temp_df$Era=="INIT" & temp_df$Catch_retained!=0,5]
+  }
+  temp_recdev<-matrix(NA,nrow=forelist$Nforecastyrs,ncol=2)
+  temp_recdev[,1]<-(dat$endyr+1):(dat$endyr+forelist$Nforecastyrs)
+  temp_recdev[,2]<-rec_devs[1:forelist$Nforecastyrs]
+  temp_impl_error<-temp_recdev
+  temp_impl_error[,2]<-rep(0,forelist$Nforecastyrs)
+  parlist$recdev_forecast<-temp_recdev
+  parlist$Fcast_impl_error<-temp_impl_error
+  colnames(parlist$recdev_forecast)<-c("year","recdev")
+  colnames(parlist$Fcast_impl_error)<-c("year","impl_error")
+  
+  ctl$F_Method <- 2
+  ctl$F_iter <- NULL
+  ctl$F_setup <- c(0.05,1,0)
+  ctl$F_setup2 <-NULL
+  
+  temp_fore<-temp_df[temp_df$Era=="FORE",c(1,3,4,6)]
+  row.names(temp_fore)<-NULL
+  names(temp_fore)<-c("Year","Seas","Fleet","Catch or F")
+  forelist$ForeCatch<-temp_fore[is.element(temp_fore$Year,(dat$endyr+1):(dat$endyr+nyrs_assess+1)),]
+  
+  r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_out_dir, start$ctlfile),overwrite = TRUE)
+  r4ss::SS_writeforecast(mylist=forelist,dir=OM_out_dir,writeAll = TRUE,overwrite = TRUE)
+  r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_out_dir, "ss.par"),overwrite = TRUE)
+  
   if(add_dummy_dat) {
     # TODO: develop code to do this for other types of data (mean length at age)
     # get minimum and maximum years for the model (in dat)
@@ -167,7 +248,7 @@ create_OM <- function(OM_out_dir,
         age_Nsamp_val$FltSvy == tmp_metacols["FltSvy"], "Nsamp"]
       assertive.properties::assert_is_atomic(tmp_age_Nsamp_val)
       assertive.properties::assert_is_of_length(tmp_age_Nsamp_val, 1)
-
+      
       # used suppressWarning because creates an unwanted warning that can be 
       # safely ignored
       suppressWarnings(tmp_df_agecomp <- data.frame(Yr      = tmp_miss_yrs_agecomp,
@@ -196,7 +277,7 @@ create_OM <- function(OM_out_dir,
                   verbose = FALSE)
     }
   }
-
+  
   # validate using model as an OM? may want to make a seperate function that can
   # validate if the model can be used as an OM or not.
   invisible(dat)

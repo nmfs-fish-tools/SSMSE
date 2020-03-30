@@ -40,15 +40,40 @@
 #'  (NOTE: This could be made more flexible by instead reading in a vector of
 #'  assessment years, so users could specify irregular numbers of yrs between
 #'  assessments.)
-#' @param impl_error_vec Future parameter to specify implementation error.
+#' @param scope Assign the scope of random deviations for rec devs and implementation error.
+#' single integer value input where 1=values are identical across all scenarios and iterations 
+#' (if rec_dev_pattern=user input a vector of length nyrs_vec), 2 (default)=values are random 
+#' across iterations but the same iterations are used across scenarios 
+#' (if rec_dev_pattern=user input a matrix with ncols=nyrs_vec and nrows=number of iterations), 
+#' 3=values are random across all iterations and scenarios (if rec_dev_pattern=user input 
+#' a matrix with ncols=nyrs_vec and nrows=(number of iterations)*(number of scenarios)).  
+#' @param rec_dev_pattern Parameter to specify future rec devs. Input options include:
+#' 1) "none" to set all future devs to zero (default). 2) "rand" automatically assign normally 
+#' distributed random recruitment deviations. Input a vector of two values to rec_dev_pars 
+#' to specify the max number of years over which the sum of rec_devs can diverge from 
+#' zero and a scalar multiplyer of standard deviation relative to the historic OM. if 
+#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "user" applys a user input vector or 
+#' matrix of recruitement deviations of length equal nyrs input the vector/matrix to rec_dev-pars. 
+#' @param rec_dev_pars Input the required parameters as specified by rec_dev_pattern choice.
+#' @param impl_error_pattern Parameter to specify future implementation error. Input options include:
+#' 1) "none" to set all future catches equal to expected (default). 2) "rand" automatically assign 
+#' achieved catch relative to expected catch as log normally distributed. Input 
+#' a vector of ((nseas x nfleet x 2)+ 1) values to impl_error_pars to specify the max number 
+#' of years over which the achieved mean catch can diverge from the mean specified, the mean 
+#' (default 1 such that achieved=expected), and the standard devation. If impl_error__pars=NULL defaults to 
+#' c(nyrs_assess, rep(1,(nfleetxnseas)), rep(0,(nfleetxnseas))). 3) "user" applys a user input vector 
+#' or matrix of implementation errors of length/columns equal to nyrs x nseas x Nfleets 
+#' and rows based on assigned scope. Input the vector/matrix to impl_error_pars. 
+#' @param impl_error_pars Input the required parameters as specified by impl_error_pattern choice.
 #' @param dat_str_list A optional list of lists including which years, seasons,
 #'  and fleets should be  added from the OM into the EM for different types of 
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
+#' 
 #' @template verbose
 #' @export
-#' @author Kathryn Doering
+#' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #'   \dontrun{
 #'   my_dir <- file.path(tempdir(), "ex-run_SSMSE")
@@ -71,23 +96,205 @@
 #'                           dat_str_list = my_dat_str_list)
 #'   unlink(my_dir, recursive = TRUE)
 #'  }
-run_SSMSE <- function(scen_list        = NULL,
-                      scen_name_vec    = c("scen_1", "scen_2"),
-                      out_dir_scen_vec = NULL,
-                      iter_list        = list(1:2, 3:4),
-                      OM_name_vec      = "cod", 
-                      OM_in_dir_vec    = NULL,
-                      EM_name_vec      = c(NA, "cod"),
-                      EM_in_dir_vec    = NULL,
-                      MS_vec           = c("no_catch", "EM"),
-                      use_SS_boot_vec  = TRUE,
-                      nyrs_vec         = 6, 
-                      nyrs_assess_vec  = 3,
-                      impl_error_vec   = NULL,
-                      dat_str_list     = NULL,
-                      verbose          = FALSE) {
+run_SSMSE <- function(scen_list           = NULL,
+                      scen_name_vec       = c("scen_1", "scen_2"),
+                      out_dir_scen_vec    = NULL,
+                      iter_list           = list(1:2, 1:2),
+                      OM_name_vec         = "cod", 
+                      OM_in_dir_vec       = NULL,
+                      EM_name_vec         = c(NA, "cod"),
+                      EM_in_dir_vec       = NULL,
+                      MS_vec              = c("no_catch", "EM"),
+                      use_SS_boot_vec     = TRUE,
+                      nyrs_vec            = 6, 
+                      nyrs_assess_vec     = 3,
+                      scope               = 2,
+                      rec_dev_pattern     = "none",
+                      rec_dev_pars        = NULL,
+                      impl_error_pattern  = "none",
+                      impl_error_pars     = NULL,
+                      dat_str_list        = NULL,
+                      verbose             = FALSE) {
   #Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
+  #Get directory of base OM files
+  OM_dir <- locate_in_dirs(OM_name_vec, OM_in_dir_vec)
+  #Read in starter file
+  start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), 
+                                verbose = FALSE)
+  #Read in data file
+  dat <- r4ss::SS_readdat(file.path(OM_dir,start$datfile), 
+                          section = 1, 
+                          verbose = FALSE)
+  #Read in control file
+  ctl <- r4ss::SS_readctl(file=file.path(OM_dir, start$ctlfile),version='3.30',use_datlist=TRUE,datlist=dat)
+  #Read in parameter file
+  parlist <- r4ss::SS_readpar_3.30(file.path(OM_dir, "ss.par"),dat,ctl,FALSE)
+  rec_dev_comb<-rbind(parlist$recdev1,parlist$recdev2)
+  rec_stddev<-sd(rec_dev_comb[,2])
+  
+  if(is.null(rec_dev_pars)){
+    rec_dev_pars<-c(nyrs_assess_vec,1) 
+  }
+  
+  if(rec_dev_pattern=="none"){
+    rec_dev_list<-list()
+    for(i in 1:length(scen_name_vec)){
+      rec_dev_list[[i]]<-list()
+      for(j in 1:length(iter_list[[i]])){
+        rec_dev_list[[i]][[j]]<-rep(0,nyrs_vec)
+      }
+    }
+  }else if(rec_dev_pattern=="rand"){
+    breaks<-unique(c(seq(0,nyrs_vec,rec_dev_pars[1]),nyrs_vec))
+    rec_dev_list<-list()
+    if(scope==1){
+      rec_dev_seq<-rnorm(nyrs_vec)
+      for(k in 1:(length(breaks)-1)){
+        temp_rec_dev<-rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
+        temp_rec_dev<-temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
+        temp_rec_dev<-temp_rec_dev/sd(temp_rec_dev)
+        rec_dev_seq[(breaks[k]+1):(breaks[k+1])]<-temp_rec_dev*rec_stddev
+      } 
+    }
+    for(i in 1:length(scen_name_vec)){
+      rec_dev_list[[i]]<-list()
+      if(scope==2){
+        rec_dev_seq<-rnorm(nyrs_vec)
+        for(k in 1:(length(breaks)-1)){
+          temp_rec_dev<-rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
+          temp_rec_dev<-temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
+          temp_rec_dev<-temp_rec_dev/sd(temp_rec_dev)
+          rec_dev_seq[(breaks[k]+1):(breaks[k+1])]<-temp_rec_dev*rec_stddev
+        } 
+      }
+      for(j in 1:length(iter_list[[i]])){
+        if(scope==3){
+          rec_dev_seq<-rnorm(nyrs_vec)
+          for(k in 1:(length(breaks)-1)){
+            temp_rec_dev<-rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
+            temp_rec_dev<-temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
+            temp_rec_dev<-temp_rec_dev/sd(temp_rec_dev)
+            rec_dev_seq[(breaks[k]+1):(breaks[k+1])]<-temp_rec_dev*rec_stddev
+          } 
+        }
+        rec_dev_list[[i]][[j]]<-rec_dev_seq
+      }
+    }
+  }else if(rec_dev_pattern=="vector"){
+    rec_dev_list<-list()
+    row=1
+    if(scope==1){
+      rec_dev_seq<-rec_dev_pars
+    }
+    for(i in 1:length(scen_name_vec)){
+      rec_dev_list[[i]]<-list()
+      if(scope==2){
+        rec_dev_seq<-rec_dev_pars[i,]
+      }
+      for(j in 1:length(iter_list[[i]])){
+        if(scope==3){
+          rec_dev_seq<-rec_dev_pars[row,]
+          row<-row+1
+        }
+        rec_dev_list[[i]][[j]]<-rec_dev_seq
+      }
+    }
+  }
+  
+  if(is.null(impl_error_pars)){
+    impl_error_pars<-c(nyrs_assess_vec,0,0) 
+  }
+  
+  get_obs_var<-function(target_mean,inp_var){
+    obs_var<-exp(2*(log(target_mean)-0.5*inp_var)+inp_var)*(exp(inp_var)-1)
+    return(obs_var)
+  }
+  
+  fit_inp_var<-function(inp_var,target_mean,targ_var){
+    achieved_var<-get_obs_var(target_mean,inp_var)
+    diff<-abs(achieved_var-targ_var)
+  }
+  
+  get_inp_mean<-function(target_mean,inp_var){
+    inp_mean<-log(target_mean)-0.5*inp_var
+  }
+  
+  if(impl_error_pattern=="none"){
+    impl_error<-list()
+    for(i in 1:length(scen_name_vec)){
+      impl_error[[i]]<-list()
+      for(j in 1:length(iter_list[[i]])){
+        impl_error[[i]][[j]]<-rep(1,nyrs_vec*dat$nseas*dat$Nfleet)
+      }
+    }
+  }else if(impl_error_pattern=="rand"){
+    impl_error<-list()
+    estimated_inp_var<-optimize(f=fit_inp_var,interval=c(0,10*(impl_error_pars[3])^2),target_mean=(impl_error_pars[2]),targ_var=(impl_error_pars[3])^2)
+    estimated_inp_var<-estimated_inp_var$minimum
+    estimated_inp_mean<-get_inp_mean((impl_error_pars[2]),estimated_inp_var)
+    estimated_inp_stdev<-sqrt(estimated_inp_var)
+    breaks<-unique(c(seq(0,(nyrs_vec*dat$nseas*dat$Nfleet),(impl_error_pars[1]*dat$nseas*dat$Nfleet)),(nyrs_vec*dat$nseas*dat$Nfleet)))
+    if(scope==1){
+      impl_error_seq<-rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,estimated_inp_mean,estimated_inp_stdev)
+      for(k in 1:(length(breaks)-1)){
+        temp_impl_error<-impl_error_seq[(breaks[k]+1):(breaks[k+1])]
+        temp_impl_error<-impl_error_pars[2]*temp_impl_error/(sum(temp_impl_error)/length(temp_impl_error))
+        impl_error_seq[(breaks[k]+1):(breaks[k+1])]<-temp_impl_error
+      } 
+    }
+    for(i in 1:length(scen_name_vec)){
+      impl_errors[[i]]<-list()
+      if(scope==2){
+        impl_error_seq<-rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,estimated_inp_mean,estimated_inp_stdev)
+        for(k in 1:(length(breaks)-1)){
+          temp_impl_error<-impl_error_seq[(breaks[k]+1):(breaks[k+1])]
+          temp_impl_error<-impl_error_pars[2]*temp_impl_error/(sum(temp_impl_error)/length(temp_impl_error))
+          impl_error_seq[(breaks[k]+1):(breaks[k+1])]<-temp_impl_error
+        } 
+      }
+      for(j in 1:length(iter_list[[i]])){
+        if(scope==3){
+          impl_error_seq<-rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,estimated_inp_mean,estimated_inp_stdev)
+          for(k in 1:(length(breaks)-1)){
+            temp_impl_error<-impl_error_seq[(breaks[k]+1):(breaks[k+1])]
+            temp_impl_error<-impl_error_pars[2]*temp_impl_error/(sum(temp_impl_error)/length(temp_impl_error))
+            impl_error_seq[(breaks[k]+1):(breaks[k+1])]<-temp_impl_error
+          } 
+        }
+        impl_error[[i]][[j]]<-impl_error_seq
+      }
+    }
+  }else if(impl_error_pattern=="vector"){
+    impl_error<-list()
+    row=1
+    if(scope==1){
+      impl_error_seq<-impl_error_pars
+      if(length(impl_error_seq)!=(nyrs_vec*dat$nseas*dat$Nfleet)){
+        stop("Wrong number of implementation pars. You input ",length(impl_error_seq)," when it should have been ",(nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
+      }
+    }
+    for(i in 1:length(scen_name_vec)){
+      impl_error[[i]]<-list()
+      if(scope==2){
+        impl_error_seq<-impl_error_pars[i,]
+        if(length(impl_error_seq)!=(nyrs_vec*dat$nseas*dat$Nfleet)){
+          stop("Wrong number of implementation pars. You input ",length(impl_error_seq)," when it should have been ",(nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
+        }
+      }
+      for(j in 1:length(iter_list[[i]])){
+        if(scope==3){
+          impl_error_seq<-impl_error_pars[row,]
+          if(length(impl_error_seq)!=(nyrs_vec*dat$nseas*dat$Nfleet)){
+            stop("Wrong number of implementation pars. You input ",length(impl_error_seq)," when it should have been ",(nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
+          }
+          row<-row+1
+        }
+        impl_error[[i]][[j]]<-impl_error_seq
+      }
+    }
+  }
+  
   if(is.null(scen_list)) {
    scen_list <- create_scen_list(scen_name_vec,
                                  out_dir_scen_vec,
@@ -100,7 +307,6 @@ run_SSMSE <- function(scen_list        = NULL,
                                  use_SS_boot_vec,
                                  nyrs_vec,
                                  nyrs_assess_vec,
-                                 impl_error_vec,
                                  dat_str_list) 
   }
   # check list and change if need to duplicate values. 
@@ -109,20 +315,21 @@ run_SSMSE <- function(scen_list        = NULL,
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
     #run for each scenario
-    run_SSMSE_scen(scen_name    = names(scen_list)[i],
-                   out_dir_scen = tmp_scen[["out_dir_scen"]],
-                   iter         = tmp_scen[["iter"]],
-                   OM_name      = tmp_scen[["OM_name"]],
-                   OM_in_dir    = tmp_scen[["OM_in_dir"]],
-                   EM_name      = tmp_scen[["EM_name"]],
-                   EM_in_dir    = tmp_scen[["EM_in_dir"]],
-                   MS           = tmp_scen[["MS"]],
-                   use_SS_boot  = tmp_scen[["use_SS_boot"]], 
-                   nyrs         = tmp_scen[["nyrs"]], 
-                   nyrs_assess  = tmp_scen[["nyrs_assess"]],
-                   impl_error   = tmp_scen[["imp_error"]],
-                   dat_str      = tmp_scen[["dat_str"]],
-                   verbose = verbose)
+    run_SSMSE_scen(scen_name     = names(scen_list)[i],
+                   out_dir_scen  = tmp_scen[["out_dir_scen"]],
+                   iter          = tmp_scen[["iter"]],
+                   OM_name       = tmp_scen[["OM_name"]],
+                   OM_in_dir     = tmp_scen[["OM_in_dir"]],
+                   EM_name       = tmp_scen[["EM_name"]],
+                   EM_in_dir     = tmp_scen[["EM_in_dir"]],
+                   MS            = tmp_scen[["MS"]],
+                   use_SS_boot   = tmp_scen[["use_SS_boot"]], 
+                   nyrs          = tmp_scen[["nyrs"]], 
+                   nyrs_assess   = tmp_scen[["nyrs_assess"]],
+                   rec_devs_scen = rec_dev_list[[i]],
+                   impl_error    = impl_error[[i]],
+                   dat_str       = tmp_scen[["dat_str"]],
+                   verbose       = verbose)
   }
   message("Completed all SSMSE scenarios")
   invisible(scen_list)
@@ -162,7 +369,10 @@ run_SSMSE <- function(scen_list        = NULL,
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param impl_error Future parameter to specify implementation error.
+#' @param rec_devs_scen List containing a recruitment deviation vector for each 
+#'   iteration.
+#' @param impl_error List containing an implementation error vector for each 
+#'   iteration.
 #' @param dat_str A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found 
@@ -170,7 +380,7 @@ run_SSMSE <- function(scen_list        = NULL,
 #'  for the number of years to extend the model out.
 #' @template verbose
 #' @export
-#' @author Kathryn Doering
+#' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
 #'   # Create a temporary folder for the output and set the working directory:
@@ -189,20 +399,21 @@ run_SSMSE <- function(scen_list        = NULL,
 #'   unlink(temp_path, recursive = TRUE)
 #'}
                 
-run_SSMSE_scen <- function(scen_name = "scen_1",
+run_SSMSE_scen <- function(scen_name    = "scen_1",
                            out_dir_scen = NULL,
-                           iter = 1:2,
-                           OM_name     = "cod", 
-                           OM_in_dir = NULL, 
-                           EM_name     = NULL,
-                           EM_in_dir      = NULL,
-                           MS          = "no_catch",
-                           use_SS_boot = TRUE, 
-                           nyrs        = 100, 
-                           nyrs_assess = 3,
-                           impl_error  = NULL,
-                           dat_str = NULL,
-                           verbose = FALSE) {
+                           iter         = 1:2,
+                           OM_name      = "cod", 
+                           OM_in_dir    = NULL, 
+                           EM_name      = NULL,
+                           EM_in_dir    = NULL,
+                           MS           = "no_catch",
+                           use_SS_boot  = TRUE, 
+                           nyrs         = 100, 
+                           nyrs_assess  = 3,
+                           rec_devs_scen     = NULL,
+                           impl_error   = NULL,
+                           dat_str      = NULL,
+                           verbose      = FALSE) {
   #input checks
   assertive.types::assert_is_a_string(scen_name)
   assertive.properties::assert_is_atomic(iter)
@@ -228,19 +439,20 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   }
   dir.create(out_dir_iter)
   for(i in iter) { #TODO: make work in parallel.
-    run_SSMSE_iter(out_dir     = out_dir_iter,
-                   OM_name     = OM_name,
-                   OM_in_dir   = OM_in_dir, 
-                   EM_name     = EM_name,
-                   EM_in_dir   = EM_in_dir,
-                   MS          = MS,
-                   use_SS_boot = use_SS_boot,
-                   nyrs        = nyrs,
-                   nyrs_assess = nyrs_assess,
-                   impl_error  = impl_error,
-                   niter       = i,
-                   dat_str     = dat_str,
-                   verbose     = verbose)
+    run_SSMSE_iter(out_dir      = out_dir_iter,
+                   OM_name      = OM_name,
+                   OM_in_dir    = OM_in_dir, 
+                   EM_name      = EM_name,
+                   EM_in_dir    = EM_in_dir,
+                   MS           = MS,
+                   use_SS_boot  = use_SS_boot,
+                   nyrs         = nyrs,
+                   nyrs_assess  = nyrs_assess,
+                   rec_dev_iter = rec_devs_scen[[i]],
+                   impl_error   = impl_error[[i]],
+                   niter        = i,
+                   dat_str      = dat_str,
+                   verbose      = verbose)
   }
   message("Completed all iterations for scenario ", scen_name)
   invisible(scen_name)
@@ -276,7 +488,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param impl_error Future parameter to specify implementation error.
+#' @param rec_dev_iter A recruitment deviation vector for the iteration.
+#' @param impl_error An implementation error vector for the iteration.
 #' @param niter The iteration number
 #' @param dat_str A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
@@ -288,7 +501,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  give an example of what this structure should be.
 #' @template verbose
 #' @export
-#' @author Kathryn Doering
+#' @author Kathryn Doering & Nathan Vaughan
 #' @examples 
 #' \dontrun{
 #'   # Create a temporary folder for the output
@@ -331,10 +544,11 @@ run_SSMSE_iter <- function(out_dir     = NULL,
                            use_SS_boot = TRUE,
                            nyrs        = 100, 
                            nyrs_assess = 3,
+                           rec_dev_iter    = NULL,
                            impl_error  = NULL,
-                           niter = 1, 
-                           dat_str = NULL,
-                           verbose = FALSE) {
+                           niter       = 1, 
+                           dat_str     = NULL,
+                           verbose     = FALSE) {
   # input checks ----
   # checks for out_dir, OM_name, OM_in_dir, EM_name, EM_in_dir done in create_out_dirs
   assertive.types::assert_is_a_bool(use_SS_boot)
@@ -369,9 +583,11 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   # MSE first iteration ----
   # turn the stock assessment model into an OM
   #Note that this function really does not need to be called if add_dummy_dat == FALSE.
+  #Update Note: This function is now needed in order to make changes such as run from 
+  #the par file and potentially change F method to 2 to unify results.
   #TODO allow user to decide through this wrapper function to use add dummy data or not.
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
-            verbose = verbose, writedat = TRUE)
+            verbose = verbose, writedat = TRUE,nyrs_assess = nyrs_assess, rec_devs = rec_dev_iter)
 
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
@@ -389,8 +605,10 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   # get catch/discard using the chosen management strategy ----
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
+  
+  
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
-                           OM_dat = OM_dat, verbose = verbose,
+                           OM_dat = OM_dat, OM_dir = OM_out_dir, verbose = verbose,
                            nyrs_assess = nyrs_assess)
   message("Finished getting catch (years ", 
           (OM_dat$endyr+1), " to ", (OM_dat$endyr + nyrs_assess),
@@ -414,11 +632,17 @@ run_SSMSE_iter <- function(out_dir     = NULL,
       message("Extending, running, and sampling from the OM though year ", yr,
               ".")
     }
+    rec_devs_chunk<-rec_dev_iter[1:nyrs_assess]
+    rec_dev_iter<-rec_dev_iter[-(1:nyrs_assess)]
+    impl_error_chunk<-impl_error[1:(nyrs_assess*OM_dat$nseas*OM_dat$Nfleet)]
+    impl_error<-impl_error[-(1:(nyrs_assess*OM_dat$nseas*OM_dat$Nfleet))]
     extend_OM(catch = new_catch_list[["catch"]],
               discards = new_catch_list[["discards"]],
               OM_dir = OM_out_dir,
               dummy_dat_scheme = "all", 
               nyrs_extend = nyrs_assess,
+              rec_devs = rec_devs_chunk,
+              impl_error = impl_error_chunk,
               verbose = verbose)
     # rerun OM (without estimation), get samples (or expected values)
     if(use_SS_boot == TRUE) {
@@ -433,12 +657,14 @@ run_SSMSE_iter <- function(out_dir     = NULL,
     # Only want data for the new years: (yr+nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
-    new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, 
-                             OM_dat = new_OM_dat, 
-                             init_loop = FALSE, verbose = verbose,
-                             nyrs_assess = nyrs_assess, 
-                             dat_yrs = (yr + 1):(yr + nyrs_assess),
-                             dat_str = dat_str)
+    new_catch_list <- parse_MS(MS          = MS, 
+                               EM_out_dir  = EM_out_dir, 
+                               OM_dat      = new_OM_dat, 
+                               init_loop   = FALSE, verbose = verbose,
+                               nyrs_assess = nyrs_assess, 
+                               OM_dir      = OM_out_dir,
+                               dat_yrs     = (yr + 1):(yr + nyrs_assess),
+                               dat_str     = dat_str)
   message("Finished getting catch (years ", (yr + 1), " to ", 
           (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
   }
