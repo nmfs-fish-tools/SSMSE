@@ -283,7 +283,7 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
                                    MS = "EM",
                                    EM_name = "cod",
                                    EM_in_dir = NULL)
-  created_dir_name_1 <- file.path(out_dir, "5", "cod_EM")
+  created_dir_name_1 <- file.path(out_dir, "5", "cod_EM_init")
   expect_true(dir.exists(created_dir_name_1))
   expect_true(created_mod_1[["EM_out_dir"]] == created_dir_name_1)
   expect_true(created_mod_1[["EM_in_dir"]] ==
@@ -297,11 +297,10 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
                                    MS = "EM", 
                                    EM_name = "custom_cod", 
                                    EM_in_dir = cod_EM_in_dir)
-  created_dir_name_2 <- file.path(out_dir, "6", "custom_cod_EM")
+  created_dir_name_2 <- file.path(out_dir, "6", "custom_cod_EM_init")
   expect_true(dir.exists(created_dir_name_2))
   expect_true(created_mod_2[["EM_out_dir"]] == created_dir_name_2)
-  expect_true(created_mod_2[["EM_in_dir"]] == 
-                cod_EM_in_dir)
+  expect_true(created_mod_2[["EM_in_dir"]] == cod_EM_in_dir)
   # EM not named, mock as custom
   cod_EM_in_dir <- system.file("extdata", "models", "cod", package = "SSMSE")
   created_mod_3 <- create_out_dirs(out_dir = out_dir, 
@@ -311,7 +310,7 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
                                    MS = "EM", 
                                    EM_name = NULL, 
                                    EM_in_dir = cod_EM_in_dir)
-  created_dir_name_3 <- file.path(out_dir, "7", "cod_EM")
+  created_dir_name_3 <- file.path(out_dir, "7", "cod_EM_init")
   expect_true(dir.exists(created_dir_name_3))
   expect_true(created_mod_3[["EM_out_dir"]] == created_dir_name_3)
   expect_true(created_mod_3[["EM_in_dir"]] == cod_EM_in_dir)
@@ -339,18 +338,25 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
    
    success <- copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir)
    expect_equivalent(success, c(TRUE, TRUE))
+
    #expect_error b/c model files still exist
    expect_error(copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir), 
                 "Problem copying SS OM .ss_new files", fixed = TRUE)
    unlink(OM_out_dir, recursive = TRUE)
    dir.create(OM_out_dir)
    success <- copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
-                    MS = "EM", EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir)
+                    EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir)
+   expect_equivalent(success, c(TRUE, TRUE))
+   # copy over only the EM files to a new folder.
+   new_EM_folder <- file.path(new_out_dir, "EM_2000")
+   dir.create(new_EM_folder)
+   success_2 <- copy_model_files(EM_in_dir = EM_out_dir, 
+                                 EM_out_dir = new_EM_folder)
    expect_equivalent(success, c(TRUE, TRUE))
    unlink(OM_out_dir, recursive = TRUE)
    dir.create(OM_out_dir)
    expect_error(copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
-                    MS = "EM", EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir), 
+                    EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir), 
                 "Problem copying SS EM files", fixed = TRUE)
  })
  

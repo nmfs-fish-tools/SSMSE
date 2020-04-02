@@ -586,8 +586,9 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs
-  out_loc <- create_out_dirs(out_dir, niter, OM_name, OM_in_dir, MS,
-                                EM_name, EM_in_dir)
+  out_loc <- create_out_dirs(out_dir = out_dir, niter = niter, OM_name = OM_name,
+                             OM_in_dir = OM_in_dir, MS = MS,
+                                EM_name = EM_name, EM_in_dir = EM_in_dir)
   if(is.null(out_loc)) { #out loc returns false if the iteration was already run.
     return(FALSE)
   }
@@ -595,8 +596,11 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   OM_in_dir <- out_loc[["OM_in_dir"]]
   EM_in_dir <- out_loc[["EM_in_dir"]]
   EM_out_dir <- out_loc[["EM_out_dir"]]
-  copy_model_files(OM_in_dir, OM_out_dir, MS, EM_in_dir, EM_out_dir)
-  
+  if(!is.null(EM_out_dir)) {
+    EM_out_dir_basename <- strsplit(EM_out_dir, "_init$")[[1]][1]
+  }
+  copy_model_files(OM_in_dir = OM_in_dir, OM_out_dir = OM_out_dir, 
+                   EM_in_dir = EM_in_dir, EM_out_dir= EM_out_dir)
   # clean model files ----
   # want to do this as soon as possible to "fail fast"
   # for now, this just gets rid of -year value observations, but could do
@@ -679,6 +683,15 @@ run_SSMSE_iter <- function(out_dir     = NULL,
     }
     message("Finished running and sampling OM through year ", new_OM_dat$endyr, 
             ".")
+
+    # if using an EM, want to save results to a new folder
+    if(!is.null(EM_out_dir)) {
+      new_EM_out_dir <- paste0(EM_out_dir_basename,"_", yr)
+      dir.create(new_EM_out_dir)
+      success <- copy_model_files(EM_in_dir = EM_out_dir, 
+                                  EM_out_dir = new_EM_out_dir)
+      EM_out_dir <- new_EM_out_dir
+    }
     # Only want data for the new years: (yr+nyrs_assess):yr
     # create the new dataset to input into the EM
     # loop EM and get management quantities.
