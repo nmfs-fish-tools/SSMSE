@@ -14,6 +14,7 @@ run_SSMSE_iter(
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
+  rec_dev_iter = NULL,
   impl_error = NULL,
   niter = 1,
   dat_str = NULL,
@@ -58,7 +59,11 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{impl_error}{Future parameter to specify implementation error.}
+\item{rec_dev_iter}{A recruitment deviation vector for the iteration.
+Dimensions are nyrs_assess\*number of fleets \* number of seasons}
+
+\item{impl_error}{An implementation error vector for the iteration.
+Dimensions are nyrs_assess\*number of fleets \* number of seasons}
 
 \item{niter}{The iteration number}
 
@@ -112,5 +117,5 @@ strategy evaluation using Stock Synthesis as the Operating model.
  }
 }
 \author{
-Kathryn Doering
+Kathryn Doering & Nathan Vaughan
 }

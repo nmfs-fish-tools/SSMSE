@@ -22,8 +22,8 @@
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
-#' @param rec_devs
-#' @param impl_error
+#' @param rec_devs The recruitment deviations
+#' @param impl_error The implementation error
 #' @template verbose
 #' @return A new dat list object (format as created by r4ss::SS_readdat) that
 #'  has been extended forward  as if read in by r4ss function SS_readdat

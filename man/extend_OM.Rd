@@ -11,6 +11,8 @@ extend_OM(
   dummy_dat_scheme = NULL,
   nyrs_extend = 3,
   write_dat = TRUE,
+  rec_devs = NULL,
+  impl_error = NULL,
   verbose = FALSE
 )
 }
@@ -38,6 +40,10 @@ to an arbitrary value of 3.}
 
 \item{write_dat}{Should the datafile be overwritten? Defaults to TRUE.}
 
+\item{rec_devs}{The recruitment deviations}
+
+\item{impl_error}{The implementation error}
+
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \value{
@@ -49,5 +55,5 @@ Add in the catch values for the next years, extend the OM forward for the
 appropriate number of years.
 }
 \author{
-Kathryn Doering
+Kathryn Doering & Nathan Vaughan
 }

@@ -9,7 +9,9 @@ create_OM(
   overwrite = FALSE,
   add_dummy_dat = FALSE,
   writedat = TRUE,
-  verbose = FALSE
+  verbose = FALSE,
+  nyrs_assess = NULL,
+  rec_devs = NULL
 )
 }
 \arguments{
@@ -25,6 +27,11 @@ those that already have data? Defaults to FALSE.}
 is \code{TRUE}.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
+
+\item{nyrs_assess}{The number of years to assess over. Used to help structure the 
+OM projection file.}
+
+\item{rec_devs}{Vector of recruitment deviations for simulation.}
 }
 \value{
 A new datafile as read in for r4ss, but with dummy data added.
@@ -34,5 +41,5 @@ This function manipulates the OM as needed so that it can be used as an
  operating model.
 }
 \author{
-Kathryn Doering
+Kathryn Doering & Nathan Vaughan
 }

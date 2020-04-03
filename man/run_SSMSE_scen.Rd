@@ -16,6 +16,7 @@ run_SSMSE_scen(
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
+  rec_devs_scen = NULL,
   impl_error = NULL,
   dat_str = NULL,
   verbose = FALSE
@@ -66,7 +67,11 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{impl_error}{Future parameter to specify implementation error.}
+\item{rec_devs_scen}{List containing a recruitment deviation vector for each 
+iteration.}
+
+\item{impl_error}{List containing an implementation error vector for each 
+iteration.}
 
 \item{dat_str}{A optional list including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.
@@ -99,5 +104,5 @@ a management strategy evaluation using Stock Synthesis as the Operating Model
 }
 }
 \author{
-Kathryn Doering
+Kathryn Doering & Nathan Vaughan
 }

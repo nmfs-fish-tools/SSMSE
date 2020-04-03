@@ -17,6 +17,8 @@ clean_init_mod_files(
 \item{EM_out_dir}{The directory containing the EM directory. If an EM will
 not be used, can be set to NULL}
 
+\item{MS}{The management strategy}
+
 \item{overwrite}{Should the data files be overwiritten?}
 }
 \description{

@@ -6,18 +6,17 @@
 \usage{
 create_scen_list(
   scen_name_vec,
-  out_dir_scen_vec,
-  iter_list,
-  OM_name_vec,
-  OM_in_dir_vec,
-  EM_name_vec,
-  EM_in_dir_vec,
-  MS_vec,
-  use_SS_boot_vec,
-  nyrs_vec,
-  nyrs_assess_vec,
-  impl_error_vec,
-  dat_str_list
+  out_dir_scen_vec = NULL,
+  iter_list = NULL,
+  OM_name_vec = NULL,
+  OM_in_dir_vec = NULL,
+  EM_name_vec = NULL,
+  EM_in_dir_vec = NULL,
+  MS_vec = NULL,
+  use_SS_boot_vec = NULL,
+  nyrs_vec = NULL,
+  nyrs_assess_vec = NULL,
+  dat_str_list = NULL
 )
 }
 \arguments{
@@ -68,13 +67,13 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{impl_error_vec}{Future parameter to specify implementation error.}
-
 \item{dat_str_list}{A optional list of lists including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found 
 for each of the datatypes within the EM datafiles. Include this strucutre
 for the number of years to extend the model out.}
+
+\item{impl_error_vec}{Future parameter to specify implementation error.}
 }
 \description{
 Function to create parameter \code{scen_list} in 

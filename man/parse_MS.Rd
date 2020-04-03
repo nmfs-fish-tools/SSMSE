@@ -9,6 +9,7 @@ parse_MS(
   EM_out_dir = NULL,
   init_loop = TRUE,
   OM_dat,
+  OM_dir = NULL,
   verbose = FALSE,
   nyrs_assess,
   dat_yrs,
@@ -50,5 +51,5 @@ This function matches each management strategy with its correct method. And
 checks for errors.
 }
 \author{
-Kathryn Doering
+Kathryn Doering & Nathan Vaughan
 }
