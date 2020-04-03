@@ -134,166 +134,184 @@ run_SSMSE <- function(scen_list           = NULL,
   parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_dir, "ss.par"),
                                    datsource = dat, ctlsource = ctl, 
                                    verbose = FALSE)
-  rec_dev_comb<-rbind(parlist$recdev1,parlist$recdev2)
-  rec_stddev<-sd(rec_dev_comb[,2])
-  if(is.null(rec_dev_pars)){
-    rec_dev_pars<-c(nyrs_assess_vec,1) 
+  rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
+  rec_stddev <- sd(rec_dev_comb[,2])
+  if(is.null(rec_dev_pars)) {
+    rec_dev_pars <- c(nyrs_assess_vec,1) 
   }
   
-  if(rec_dev_pattern=="none"){
-    rec_dev_list<-list()
-    for(i in 1:length(scen_name_vec)){
-      rec_dev_list[[i]]<-list()
-      for(j in 1:length(iter_list[[i]])){
+  if(rec_dev_pattern == "none") {
+    rec_dev_list <- list()
+    for(i in 1:length(scen_name_vec)) {
+      rec_dev_list[[i]] <- list()
+      for(j in 1:length(iter_list[[i]])) {
         rec_dev_list[[i]][[j]]<-rep(0,nyrs_vec)
       }
     }
-  }else if(rec_dev_pattern=="rand"){
-    breaks<-unique(c(seq(0,nyrs_vec,rec_dev_pars[1]),nyrs_vec))
-    rec_dev_list<-list()
-    if(scope==1){
-      rec_dev_seq<-rnorm(nyrs_vec)
-      for(k in 1:(length(breaks)-1)){
-        temp_rec_dev<-rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
-        temp_rec_dev<-temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
-        temp_rec_dev<-temp_rec_dev/sd(temp_rec_dev)
-        rec_dev_seq[(breaks[k]+1):(breaks[k+1])]<-temp_rec_dev*rec_stddev
+  }else if(rec_dev_pattern == "rand") {
+    breaks <- unique(c(seq(0, nyrs_vec, rec_dev_pars[1]), nyrs_vec))
+    rec_dev_list <- list()
+    if(scope == 1) {
+      rec_dev_seq <- rnorm(nyrs_vec)
+      for(k in 1:(length(breaks)-1)) {
+        temp_rec_dev <- rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
+        temp_rec_dev <- temp_rec_dev - (sum(temp_rec_dev)/length(temp_rec_dev))
+        temp_rec_dev <- temp_rec_dev/sd(temp_rec_dev)
+        rec_dev_seq[(breaks[k]+1):(breaks[k+1])] <- temp_rec_dev*rec_stddev
       } 
     }
-    for(i in 1:length(scen_name_vec)){
-      rec_dev_list[[i]]<-list()
-      if(scope==2){
-        rec_dev_seq<-rnorm(nyrs_vec)
-        for(k in 1:(length(breaks)-1)){
-          temp_rec_dev<-rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
-          temp_rec_dev<-temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
-          temp_rec_dev<-temp_rec_dev/sd(temp_rec_dev)
-          rec_dev_seq[(breaks[k]+1):(breaks[k+1])]<-temp_rec_dev*rec_stddev
+    for(i in 1:length(scen_name_vec)) {
+      rec_dev_list[[i]] <- list()
+      if(scope == 2) {
+        rec_dev_seq <- rnorm(nyrs_vec)
+        for(k in 1:(length(breaks)-1)) {
+          temp_rec_dev <- rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
+          temp_rec_dev <- temp_rec_dev - 
+            (sum(temp_rec_dev)/length(temp_rec_dev))
+          temp_rec_dev <- temp_rec_dev/sd(temp_rec_dev)
+          rec_dev_seq[(breaks[k]+1):(breaks[k+1])] <- temp_rec_dev*rec_stddev
         } 
       }
-      for(j in 1:length(iter_list[[i]])){
-        if(scope==3){
-          rec_dev_seq<-rnorm(nyrs_vec)
-          for(k in 1:(length(breaks)-1)){
-            temp_rec_dev<-rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
-            temp_rec_dev<-temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
-            temp_rec_dev<-temp_rec_dev/sd(temp_rec_dev)
-            rec_dev_seq[(breaks[k]+1):(breaks[k+1])]<-temp_rec_dev*rec_stddev
+      for(j in 1:length(iter_list[[i]])) {
+        if(scope==3) {
+          rec_dev_seq <- rnorm(nyrs_vec)
+          for(k in 1:(length(breaks)-1)) {
+            temp_rec_dev <- rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
+            temp_rec_dev <- temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
+            temp_rec_dev <- temp_rec_dev/sd(temp_rec_dev)
+            rec_dev_seq[(breaks[k]+1):(breaks[k+1])] <- temp_rec_dev*rec_stddev
           } 
         }
-        rec_dev_list[[i]][[j]]<-rec_dev_seq
+        rec_dev_list[[i]][[j]] <- rec_dev_seq
       }
     }
-  }else if(rec_dev_pattern=="vector"){
-    rec_dev_list<-list()
-    row=1
-    if(scope==1){
-      rec_dev_seq<-rec_dev_pars
+  }else if(rec_dev_pattern == "vector") {
+    rec_dev_list <- list()
+    row = 1
+    if(scope == 1) {
+      rec_dev_seq <- rec_dev_pars
     }
-    for(i in 1:length(scen_name_vec)){
-      rec_dev_list[[i]]<-list()
-      if(scope==2){
-        rec_dev_seq<-rec_dev_pars[i,]
+    for(i in 1:length(scen_name_vec)) {
+      rec_dev_list[[i]] <- list()
+      if(scope==2) {
+        rec_dev_seq <- rec_dev_pars[i,]
       }
-      for(j in 1:length(iter_list[[i]])){
-        if(scope==3){
-          rec_dev_seq<-rec_dev_pars[row,]
-          row<-row+1
+      for(j in 1:length(iter_list[[i]])) {
+        if(scope == 3) {
+          rec_dev_seq <- rec_dev_pars[row, ]
+          row <- row + 1
         }
-        rec_dev_list[[i]][[j]]<-rec_dev_seq
+        rec_dev_list[[i]][[j]] <- rec_dev_seq
       }
     }
   }
   
-  if(is.null(impl_error_pars)){
-    impl_error_pars<-c(nyrs_assess_vec,0,0) 
+  if(is.null(impl_error_pars)) {
+    impl_error_pars <- c(nyrs_assess_vec, 0, 0) 
   }
   
-  get_obs_var<-function(target_mean,inp_var){
+  get_obs_var <- function(target_mean, inp_var) {
     obs_var<-exp(2*(log(target_mean)-0.5*inp_var)+inp_var)*(exp(inp_var)-1)
     return(obs_var)
   }
   
-  fit_inp_var<-function(inp_var,target_mean,targ_var){
-    achieved_var<-get_obs_var(target_mean,inp_var)
-    diff<-abs(achieved_var-targ_var)
+  fit_inp_var <- function(inp_var, target_mean, targ_var) {
+    achieved_var <- get_obs_var(target_mean, inp_var)
+    diff <- abs(achieved_var - targ_var)
   }
   
-  get_inp_mean<-function(target_mean,inp_var){
-    inp_mean<-log(target_mean)-0.5*inp_var
+  get_inp_mean <- function(target_mean,inp_var) {
+    inp_mean <- log(target_mean) - 0.5 * inp_var
   }
   
-  if(impl_error_pattern=="none"){
-    impl_error<-list()
-    for(i in 1:length(scen_name_vec)){
-      impl_error[[i]]<-list()
-      for(j in 1:length(iter_list[[i]])){
-        impl_error[[i]][[j]]<-rep(1,nyrs_vec*dat$nseas*dat$Nfleet)
+  if(impl_error_pattern == "none") {
+    impl_error <- list()
+    for(i in 1:length(scen_name_vec)) {
+      impl_error[[i]] <- list()
+      for(j in 1:length(iter_list[[i]])) {
+        impl_error[[i]][[j]] <- rep(1, nyrs_vec*dat$nseas*dat$Nfleet)
       }
     }
-  }else if(impl_error_pattern=="rand"){
-    impl_error<-list()
-    estimated_inp_var<-optimize(f=fit_inp_var,interval=c(0,10*(impl_error_pars[3])^2),target_mean=(impl_error_pars[2]),targ_var=(impl_error_pars[3])^2)
-    estimated_inp_var<-estimated_inp_var$minimum
-    estimated_inp_mean<-get_inp_mean((impl_error_pars[2]),estimated_inp_var)
-    estimated_inp_stdev<-sqrt(estimated_inp_var)
-    breaks<-unique(c(seq(0,(nyrs_vec*dat$nseas*dat$Nfleet),(impl_error_pars[1]*dat$nseas*dat$Nfleet)),(nyrs_vec*dat$nseas*dat$Nfleet)))
-    if(scope==1){
-      impl_error_seq<-rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,estimated_inp_mean,estimated_inp_stdev)
-      for(k in 1:(length(breaks)-1)){
-        temp_impl_error<-impl_error_seq[(breaks[k]+1):(breaks[k+1])]
-        temp_impl_error<-impl_error_pars[2]*temp_impl_error/(sum(temp_impl_error)/length(temp_impl_error))
-        impl_error_seq[(breaks[k]+1):(breaks[k+1])]<-temp_impl_error
+  }else if(impl_error_pattern=="rand") {
+    impl_error <- list()
+    estimated_inp_var <- optimize(f = fit_inp_var,
+                                  interval = c(0,10*(impl_error_pars[3])^2),
+                                  target_mean = (impl_error_pars[2]),
+                                  targ_var = (impl_error_pars[3])^2)
+    estimated_inp_var <- estimated_inp_var$minimum
+    estimated_inp_mean <- get_inp_mean((impl_error_pars[2]), estimated_inp_var)
+    estimated_inp_stdev <- sqrt(estimated_inp_var)
+    breaks <- unique(c(seq(0,(nyrs_vec*dat$nseas*dat$Nfleet),
+                           (impl_error_pars[1]*dat$nseas*dat$Nfleet)),
+                       (nyrs_vec*dat$nseas*dat$Nfleet)))
+    if(scope == 1) {
+      impl_error_seq <- rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
+                               estimated_inp_mean,estimated_inp_stdev)
+      for(k in 1:(length(breaks)-1)) {
+        temp_impl_error <- impl_error_seq[(breaks[k]+1):(breaks[k+1])]
+        temp_impl_error <- impl_error_pars[2]*temp_impl_error/
+                           (sum(temp_impl_error)/length(temp_impl_error))
+        impl_error_seq[(breaks[k]+1):(breaks[k+1])] <- temp_impl_error
       } 
     }
-    for(i in 1:length(scen_name_vec)){
-      impl_errors[[i]]<-list()
-      if(scope==2){
-        impl_error_seq<-rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,estimated_inp_mean,estimated_inp_stdev)
-        for(k in 1:(length(breaks)-1)){
-          temp_impl_error<-impl_error_seq[(breaks[k]+1):(breaks[k+1])]
-          temp_impl_error<-impl_error_pars[2]*temp_impl_error/(sum(temp_impl_error)/length(temp_impl_error))
-          impl_error_seq[(breaks[k]+1):(breaks[k+1])]<-temp_impl_error
+    for(i in 1:length(scen_name_vec)) {
+      impl_errors[[i]] <- list()
+      if(scope == 2) {
+        impl_error_seq <- rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
+                                 estimated_inp_mean,estimated_inp_stdev)
+        for(k in 1:(length(breaks)-1)) {
+          temp_impl_error <- impl_error_seq[(breaks[k]+1):(breaks[k+1])]
+          temp_impl_error <- impl_error_pars[2]*temp_impl_error/
+            (sum(temp_impl_error)/length(temp_impl_error))
+          impl_error_seq[(breaks[k]+1):(breaks[k+1])] <- temp_impl_error
         } 
       }
-      for(j in 1:length(iter_list[[i]])){
-        if(scope==3){
-          impl_error_seq<-rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,estimated_inp_mean,estimated_inp_stdev)
-          for(k in 1:(length(breaks)-1)){
-            temp_impl_error<-impl_error_seq[(breaks[k]+1):(breaks[k+1])]
-            temp_impl_error<-impl_error_pars[2]*temp_impl_error/(sum(temp_impl_error)/length(temp_impl_error))
-            impl_error_seq[(breaks[k]+1):(breaks[k+1])]<-temp_impl_error
+      for(j in 1:length(iter_list[[i]])) {
+        if(scope == 3) {
+          impl_error_seq <- rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
+                                   estimated_inp_mean, estimated_inp_stdev)
+          for(k in 1:(length(breaks)-1)) {
+            temp_impl_error <- impl_error_seq[(breaks[k]+1):(breaks[k+1])]
+            temp_impl_error <- impl_error_pars[2]*temp_impl_error/
+              (sum(temp_impl_error)/length(temp_impl_error))
+            impl_error_seq[(breaks[k]+1):(breaks[k+1])] <- temp_impl_error
           } 
         }
-        impl_error[[i]][[j]]<-impl_error_seq
+        impl_error[[i]][[j]] <- impl_error_seq
       }
     }
-  }else if(impl_error_pattern=="vector"){
-    impl_error<-list()
-    row=1
-    if(scope==1){
-      impl_error_seq<-impl_error_pars
-      if(length(impl_error_seq)!=(nyrs_vec*dat$nseas*dat$Nfleet)){
-        stop("Wrong number of implementation pars. You input ",length(impl_error_seq)," when it should have been ",(nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
+  }else if(impl_error_pattern == "vector") {
+    impl_error <- list()
+    row <- 1
+    if(scope == 1) {
+      impl_error_seq <- impl_error_pars
+      if(length(impl_error_seq) != (nyrs_vec*dat$nseas*dat$Nfleet)) {
+        stop("Wrong number of implementation pars. You input ",
+             length(impl_error_seq)," when it should have been ",
+             (nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
       }
     }
-    for(i in 1:length(scen_name_vec)){
-      impl_error[[i]]<-list()
-      if(scope==2){
-        impl_error_seq<-impl_error_pars[i,]
-        if(length(impl_error_seq)!=(nyrs_vec*dat$nseas*dat$Nfleet)){
-          stop("Wrong number of implementation pars. You input ",length(impl_error_seq)," when it should have been ",(nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
+    for(i in 1:length(scen_name_vec)) {
+      impl_error[[i]] <- list()
+      if(scope == 2) {
+        impl_error_seq <- impl_error_pars[i,]
+        if(length(impl_error_seq) != (nyrs_vec*dat$nseas*dat$Nfleet)) {
+          stop("Wrong number of implementation pars. You input ",
+               length(impl_error_seq)," when it should have been ",
+               (nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
         }
       }
-      for(j in 1:length(iter_list[[i]])){
-        if(scope==3){
-          impl_error_seq<-impl_error_pars[row,]
-          if(length(impl_error_seq)!=(nyrs_vec*dat$nseas*dat$Nfleet)){
-            stop("Wrong number of implementation pars. You input ",length(impl_error_seq)," when it should have been ",(nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
+      for(j in 1:length(iter_list[[i]])) {
+        if(scope == 3) {
+          impl_error_seq <- impl_error_pars[row, ]
+          if(length(impl_error_seq) != (nyrs_vec*dat$nseas*dat$Nfleet)) {
+            stop("Wrong number of implementation pars. You input ",
+                 length(impl_error_seq)," when it should have been ",
+                 (nyrs_vec*dat$nseas*dat$Nfleet)," equal to nyrs*nseas*Nfleet")
           }
-          row<-row+1
+          row <- row + 1 
         }
-        impl_error[[i]][[j]]<-impl_error_seq
+        impl_error[[i]][[j]] <- impl_error_seq
       }
     }
   }
@@ -589,8 +607,10 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   #Update Note: This function is now needed in order to make changes such as run from 
   #the par file and potentially change F method to 2 to unify results.
   #TODO allow user to decide through this wrapper function to use add dummy data or not.
+
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
-            verbose = verbose, writedat = TRUE,nyrs_assess = nyrs_assess, rec_devs = rec_dev_iter)
+            verbose = verbose, writedat = TRUE, nyrs_assess = nyrs_assess, 
+            rec_devs = rec_dev_iter)
 
   # Complete the OM run so it can be use for expect values or bootstrap
   if(use_SS_boot == TRUE) {
@@ -611,8 +631,8 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   
   
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
-                           OM_dat = OM_dat, OM_dir = OM_out_dir, verbose = verbose,
-                           nyrs_assess = nyrs_assess)
+                           OM_dat = OM_dat, OM_dir = OM_out_dir,
+                           verbose = verbose, nyrs_assess = nyrs_assess)
   message("Finished getting catch (years ", 
           (OM_dat$endyr+1), " to ", (OM_dat$endyr + nyrs_assess),
           ") to feed into OM for iteration ", niter, ".")

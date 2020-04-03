@@ -70,17 +70,17 @@
 #'                 )
 #'                 
 create_scen_list <- function(scen_name_vec,
-                             out_dir_scen_vec=NULL,
-                             iter_list=NULL, 
-                             OM_name_vec=NULL,
-                             OM_in_dir_vec=NULL,
-                             EM_name_vec=NULL,
-                             EM_in_dir_vec=NULL,
-                             MS_vec=NULL,
-                             use_SS_boot_vec=NULL,
-                             nyrs_vec=NULL,
-                             nyrs_assess_vec=NULL,
-                             dat_str_list=NULL) {
+                             out_dir_scen_vec = NULL,
+                             iter_list = NULL, 
+                             OM_name_vec = NULL,
+                             OM_in_dir_vec = NULL,
+                             EM_name_vec = NULL,
+                             EM_in_dir_vec = NULL,
+                             MS_vec = NULL,
+                             use_SS_boot_vec = NULL,
+                             nyrs_vec = NULL,
+                             nyrs_assess_vec = NULL,
+                             dat_str_list = NULL) {
   #note that input checking 
   scen_name_vec <- as.character(scen_name_vec)
   # construct list. Note that it may not be usable at this stage, but there

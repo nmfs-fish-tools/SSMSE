@@ -25,10 +25,10 @@ create_OM <- function(OM_out_dir,
                       verbose       = FALSE,
                       nyrs_assess   = NULL,
                       rec_devs      = NULL) {
-  
-  #OM_out_dir<-"C:/Users/Nathan/Documents/NOAA/Red grouper/SEDAR61_BaseV/Projections/F30SPR"
-  start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = FALSE)
-  start$init_values_src <- 1
+  start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
+                                verbose = FALSE)
+  # modify starter to use as OM
+  start$init_values_src <- 1 # run from par
   start$detailed_age_structure <- 1
   start$last_estimation_phase <- 0
   start$depl_basis <- 0
@@ -37,38 +37,43 @@ create_OM <- function(OM_out_dir,
   start$F_report_units <- 0
   start$F_report_basis <- 0
   start$F_age_range <- NULL
-  r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE, overwrite = TRUE,
-                        warn = FALSE)
-  
+  r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE,
+                        overwrite = TRUE, warn = FALSE)
+  #KD: is this run just to make sure the output is run from the .par?
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
   
-  dat <- r4ss::SS_readdat(file=file.path(OM_out_dir, start$datfile), 
+  dat <- r4ss::SS_readdat(file = file.path(OM_out_dir, start$datfile), 
                           verbose = FALSE, section = 1)
-  forelist <- r4ss::SS_readforecast(file=file.path(OM_out_dir, "forecast.ss"),
-                                    readAll=TRUE, verbose = FALSE)
+  forelist <- r4ss::SS_readforecast(file = file.path(OM_out_dir, "forecast.ss"),
+                                    readAll = TRUE, verbose = FALSE)
   currentNforecast <- forelist$Nforecastyrs
-  forelist$Nforecastyrs <- nyrs_assess+1
+  #KD: should this be nyrs_assess? if lyear of model is 100 and nyrs assess is 3,
+  # then forcasting would be for 3 years, 101, 102,103. I think we only need the 
+  # OM to forecast this far then as well?
+  forelist$Nforecastyrs <- nyrs_assess + 1
   forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
   forelist$InputBasis <- 3
   
   ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start$ctlfile), verbose = FALSE, 
                           use_datlist = TRUE, datlist = dat)
-  
   outlist <- r4ss::SS_output(OM_out_dir, verbose = FALSE, printstats = FALSE)
-  
   parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_out_dir, "ss.par"),
                                    datsource = dat, ctlsource = ctl,
                                    verbose = FALSE)
   # use forecasting output to find F.
   temp_df <- get_F(timeseries = outlist$timeseries, 
-                  units_of_catch = dat$units_of_catch,
-                  Nfleet = dat$Nfleet)
+                   units_of_catch = dat$units_of_catch,
+                   Nfleet = dat$Nfleet)
   # modify the init_F and F_rate in parlist if there is retained catch.
-  if(length(temp_df[temp_df$Era=="TIME" & temp_df$Catch_retained!=0,1])>0){
-    parlist$F_rate<-temp_df[temp_df$Era=="TIME" & temp_df$Catch_retained!=0,c(1,3,4,5)]
+  if(length(temp_df[temp_df$Era == "TIME" & 
+                    temp_df$Catch_retained != 0,1]) > 0) {
+    parlist$F_rate <- temp_df[temp_df$Era == "TIME" & 
+                              temp_df$Catch_retained != 0, c(1, 3, 4, 5)]
   }
-  if(length(temp_df[temp_df$Era=="INIT" & temp_df$Catch_retained!=0,5])>0){
-    parlist$init_F<-temp_df[temp_df$Era=="INIT" & temp_df$Catch_retained!=0,5]
+  if(length(temp_df[temp_df$Era == "INIT" &
+                    temp_df$Catch_retained != 0, 5]) > 0) {
+    parlist$init_F <- temp_df[temp_df$Era == "INIT" &
+                              temp_df$Catch_retained != 0, 5]
   }
   # add recdevs to the parlist
   # TODO: check that these are implicated correctly
@@ -82,17 +87,18 @@ create_OM <- function(OM_out_dir,
   #ctl file changes needed for F.
   ctl$F_Method <- 2 # Want all OMs to use F_Method = 2.
   ctl$F_iter <- NULL
-  ctl$F_setup <- c(0.05,1,0)
+  ctl$F_setup <- c(0.05, 1, 0)
   ctl$F_setup2 <-NULL
   # forecast file changes needed
-  temp_fore<-temp_df[temp_df$Era=="FORE",c(1,3,4,6)]
-  row.names(temp_fore)<-NULL
-  names(temp_fore)<-c("Year","Seas","Fleet","Catch or F")
-  forelist$ForeCatch<-temp_fore[is.element(temp_fore$Year,(dat$endyr+1):(dat$endyr+nyrs_assess+1)),]
+  temp_fore <- temp_df[temp_df$Era == "FORE", c(1, 3, 4, 6)]
+  row.names(temp_fore) <- NULL
+  names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F")
+  forelist$ForeCatch <- temp_fore[
+    is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess + 1)), ]
   # write all files
-  r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_out_dir, start$ctlfile),
+  r4ss::SS_writectl(ctllist = ctl,outfile = file.path(OM_out_dir, start$ctlfile),
                     overwrite = TRUE, verbose = FALSE)
-  r4ss::SS_writeforecast(mylist=forelist, dir=OM_out_dir, writeAll = TRUE, 
+  r4ss::SS_writeforecast(mylist = forelist, dir = OM_out_dir, writeAll = TRUE, 
                          overwrite = TRUE, verbose = FALSE)
   r4ss::SS_writepar_3.30(parlist = parlist,
                          outfile = file.path(OM_out_dir, "ss.par"),
@@ -134,12 +140,12 @@ create_OM <- function(OM_out_dir,
       assertive.properties::assert_is_of_length(tmp_se_log_val, 1)
       #TODO: make se_log more general by allowing more options for "method: (
       # may need to read in a user value))
-      tmp_df <- data.frame(year  = tmp_miss_yrs,
-                     seas  = tmp_seas,
-                     index = -tmp_flt, 
-                     obs   = 1,
-                     se_log = tmp_se_log_val,
-                     stringsAsFactors = FALSE)
+      tmp_df <- data.frame(year = tmp_miss_yrs,
+                           seas = tmp_seas,
+                           index = -tmp_flt, 
+                           obs = 1,
+                           se_log = tmp_se_log_val,
+                           stringsAsFactors = FALSE)
       # add these to the CPUE
       new_CPUE <- rbind(new_CPUE, tmp_df)
     }
@@ -178,7 +184,7 @@ create_OM <- function(OM_out_dir,
         #TODO: add more options for getting sample size.
         tmp_len_Nsamp_val <- len_Nsamp_val[
           len_Nsamp_val$FltSvy == tmp_metacols["FltSvy"], "Nsamp"]
-        assertive.properties::assert_is_atomic(tmp_len_Nsamp_val )
+        assertive.properties::assert_is_atomic(tmp_len_Nsamp_val)
         assertive.properties::assert_is_of_length(tmp_len_Nsamp_val, 1)
         # used suppressWarning because creates an unwanted warning that can be 
         # safely ignored
@@ -204,8 +210,8 @@ create_OM <- function(OM_out_dir,
     #agecomp
     old_agecomp <- dat$agecomp
     new_agecomp <- old_agecomp
-    meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo", 
-                   "Lbin_hi")
+    meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr", 
+                           "Lbin_lo", "Lbin_hi")
     agecomp_combo <- unique(dat$agecomp[, meta_cols_agecomp])
     # get the Nsamp
     #TODO: add more options for getting sample size.
@@ -266,7 +272,8 @@ create_OM <- function(OM_out_dir,
     #overwrite the old lines
     dat$agecomp <- new_agecomp
     if(writedat) {
-      SS_writedat(dat, file.path(OM_out_dir, start$datfile), overwrite = overwrite, 
+      SS_writedat(dat, file.path(OM_out_dir, start$datfile), 
+                  overwrite = overwrite, 
                   verbose = FALSE)
     }
   }
@@ -339,6 +346,6 @@ run_OM <- function(OM_dir,
 #' @param dat_types Types of data to include
 # get the initial sampling values 
 get_init_samp_scheme <- function(dat, 
-                                 dat_types = c("CPUE","lencomp", "agecomp")) {
+                                 dat_types = c("CPUE", "lencomp", "agecomp")) {
   #TODO: write this. Can be used for EM and OM.
 }

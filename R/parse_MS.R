@@ -277,7 +277,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
 #'@return A dataframe of future catch.
 get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   # input checks
-  if(! MS %in% c("last_yr_catch","no_catch")) {
+  if(! MS %in% c("last_yr_catch", "no_catch")) {
     stop("MS specified as '", MS, "', but must be either 'last_yr_catch' or ", 
          "'no_catch'")
   }
@@ -289,30 +289,37 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   # get the catch values by MS.
   l_yr <- max(dat$catch$year)
   
-  catch<-dat$catch
-  temp_F<-outlist$timeseries
-  base_F<-temp_F[temp_F$Area==1,]
-  agg_F<-aggregate(temp_F[,-3],list(Yr=temp_F[,2],Seas=temp_F[,4]),sum)
-  temp_F<-cbind(base_F[,c(2,3,4)],agg_F[,-c(1,2,3,4,5,6,7,8,9,10,11,12)])
+  catch <- dat$catch
+  temp_F <- outlist$timeseries
+  base_F <- temp_F[temp_F$Area == 1, ]
+  agg_F <- aggregate(temp_F[, -3],
+                     list(Yr = temp_F[, 2], Seas = temp_F[, 4]), sum)
+  temp_F<-cbind(base_F[, c(2,3,4)], agg_F[, -c(1,2,3,4,5,6,7,8,9,10,11,12)])
   rm(base_F,agg_F)
-  units_catch<-dat$units_of_catch
-  units_catch<-ifelse(units_catch==1,3,6)
-  temp_F<-temp_F[,c(1,2,3,(((1:dat$Nfleet))*8+3),(((1:dat$Nfleet)-1)*8+3+units_catch[1:dat$Nfleet]),(((1:dat$Nfleet)-1)*8+6))]
-  
-  temp_df<-NULL
-  for(i in 1:dat$Nfleet){
-    temp_fleet<-cbind(temp_F[,c(1:3)],rep(i,length(temp_F[,1])),temp_F[,(i+3)],temp_F[,(i+3+dat$Nfleet)],temp_F[,(i+3+2*dat$Nfleet)])
-    temp_df<-rbind(temp_df,temp_fleet)
+  units_catch <- dat$units_of_catch
+  units_catch <- ifelse(units_catch==1,3,6)
+  temp_F <-
+    temp_F[, c(1,2,3,(((1:dat$Nfleet))*8+3),
+               (((1:dat$Nfleet)-1)*8+3 + units_catch[1:dat$Nfleet]), 
+               (((1:dat$Nfleet)-1)*8+6))]
+  temp_df <- NULL
+  for(i in 1:dat$Nfleet) {
+    temp_fleet <- cbind(temp_F[, c(1:3)], rep(i, length(temp_F[, 1])), 
+                        temp_F[,(i+3)],temp_F[,(i+3+dat$Nfleet)],
+                        temp_F[,(i+3+2*dat$Nfleet)])
+    temp_df <- rbind(temp_df, temp_fleet)
   }
-  temp_df<-temp_df[order(temp_df[,1],temp_df[,3],temp_df[,4]),]
-  names(temp_df)<-c("year","Era","seas","fleet","F","Catch_retained","Biomass_retained")
-  
-  catch_by_fleet <- temp_df[temp_df$year == l_yr, c("fleet", "seas", "Catch_retained")]
+  temp_df <- temp_df[order(temp_df[,1], temp_df[,3], temp_df[,4]),]
+  names(temp_df) <- c("year", "Era", "seas", "fleet", "F", "Catch_retained",
+                      "Biomass_retained")
+  catch_by_fleet <- temp_df[temp_df$year == l_yr, 
+                            c("fleet", "seas", "Catch_retained")]
   f_by_fleet <- temp_df[temp_df$year == l_yr, c("fleet", "seas", "F")]
-  catchbio_by_fleet <- temp_df[temp_df$year == l_yr, c("fleet", "seas", "Biomass_retained")]
-  names(catch_by_fleet)<-c("fleet", "seas", "catch")
-  names(f_by_fleet)<-c("fleet", "seas", "catch")
-  names(catchbio_by_fleet)<-c("fleet", "seas", "catch")
+  catchbio_by_fleet <- temp_df[temp_df$year == l_yr,
+                               c("fleet", "seas", "Biomass_retained")]
+  names(catch_by_fleet) <- c("fleet", "seas", "catch")
+  names(f_by_fleet) <- c("fleet", "seas", "catch")
+  names(catchbio_by_fleet) <- c("fleet", "seas", "catch")
 
   if(MS == "no_catch") {
     catch_by_fleet$Catch_retained <- 0
@@ -321,8 +328,8 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   }
   # find combinations of catch needed seas and fleet
   flt_combo <- unique(catch[,c("seas","fleet")])
-  se <- get_input_value(catch, method = "most_common_value", colname = "catch_se", 
-                  group = "fleet")
+  se <- get_input_value(catch, method = "most_common_value",
+                        colname = "catch_se", group = "fleet")
   tmp_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
   tmp_F_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
   tmp_bio_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
@@ -332,17 +339,18 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
       #get the catch_se
       tmp_catch_se <- se[se$fleet == flt_combo$fleet[flt], "catch_se"]
       #get the catch value
-      tmp_catch <- catch_by_fleet[catch_by_fleet$fleet == flt_combo$fleet[flt] &
-                                  catch_by_fleet$seas == flt_combo$seas[flt],
-                                  "catch"]
+      tmp_catch <- 
+        catch_by_fleet[catch_by_fleet$fleet == flt_combo$fleet[flt] &
+                       catch_by_fleet$seas == flt_combo$seas[flt], "catch"]
       #get the F value
       tmp_F <- f_by_fleet[f_by_fleet$fleet == flt_combo$fleet[flt] &
                                     f_by_fleet$seas == flt_combo$seas[flt],
                                   "catch"]
       #get the Biomass value
-      tmp_bio <- catchbio_by_fleet[catchbio_by_fleet$fleet == flt_combo$fleet[flt] &
-                                   catchbio_by_fleet$seas == flt_combo$seas[flt],
-                          "catch"]
+      tmp_bio <- 
+        catchbio_by_fleet[catchbio_by_fleet$fleet == flt_combo$fleet[flt] &
+                          catchbio_by_fleet$seas == flt_combo$seas[flt], 
+                         "catch"]
       #Add SE and catch to df
       tmp_df_list[[pos]] <- data.frame(year = y,
                                        seas = flt_combo$seas[flt], 
