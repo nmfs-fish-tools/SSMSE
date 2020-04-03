@@ -60,50 +60,37 @@ create_OM <- function(OM_out_dir,
   parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_out_dir, "ss.par"),
                                    datsource = dat, ctlsource = ctl,
                                    verbose = FALSE)
-  
-  temp_F<-outlist$timeseries
-  base_F<-temp_F[temp_F$Area==1,]
-  agg_F<-aggregate(temp_F[,-3],list(Yr=temp_F[,2],Seas=temp_F[,4]),sum)
-  temp_F<-cbind(base_F[,c(2,3,4)],agg_F[,-c(1,2,3,4,5,6,7,8,9,10,11,12)])
-  rm(base_F,agg_F)
-  units_catch<-dat$units_of_catch
-  units_catch<-ifelse(units_catch==1,3,6)
-  temp_F<-temp_F[,c(1,2,3,(((1:dat$Nfleet))*8+3),(((1:dat$Nfleet)-1)*8+3+units_catch[1:dat$Nfleet]))]
-  
-  temp_df<-NULL
-  for(i in 1:dat$Nfleet){
-    temp_fleet<-cbind(temp_F[,c(1:3)],rep(i,length(temp_F[,1])),temp_F[,(i+3)],temp_F[,(i+3+dat$Nfleet)])
-    temp_df<-rbind(temp_df,temp_fleet)
-  }
-  temp_df<-temp_df[order(temp_df[,1],temp_df[,3],temp_df[,4]),]
-  names(temp_df)<-c("year","Era","seas","fleet","F","Catch_retained")
-  
+  # use forecasting output to find F.
+  temp_df <- get_F(timeseries = outlist$timeseries, 
+                  units_of_catch = dat$units_of_catch,
+                  Nfleet = dat$Nfleet)
+  # modify the init_F and F_rate in parlist if there is retained catch.
   if(length(temp_df[temp_df$Era=="TIME" & temp_df$Catch_retained!=0,1])>0){
     parlist$F_rate<-temp_df[temp_df$Era=="TIME" & temp_df$Catch_retained!=0,c(1,3,4,5)]
   }
   if(length(temp_df[temp_df$Era=="INIT" & temp_df$Catch_retained!=0,5])>0){
     parlist$init_F<-temp_df[temp_df$Era=="INIT" & temp_df$Catch_retained!=0,5]
   }
-  temp_recdev<-matrix(NA,nrow=forelist$Nforecastyrs,ncol=2)
-  temp_recdev[,1]<-(dat$endyr+1):(dat$endyr+forelist$Nforecastyrs)
-  temp_recdev[,2]<-rec_devs[1:forelist$Nforecastyrs]
-  temp_impl_error<-temp_recdev
-  temp_impl_error[,2]<-rep(0,forelist$Nforecastyrs)
-  parlist$recdev_forecast<-temp_recdev
-  parlist$Fcast_impl_error<-temp_impl_error
-  colnames(parlist$recdev_forecast)<-c("year","recdev")
-  colnames(parlist$Fcast_impl_error)<-c("year","impl_error")
-  
-  ctl$F_Method <- 2
+  # add recdevs to the parlist
+  # TODO: check that these are implicated correctly
+  parlist$recdev_forecast <- 
+    get_rec_devs_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs),
+                        rec_devs = rec_devs)
+  # add implementation error to the parlist (for now, none is added)
+  parlist$Fcast_impl_error <-
+    get_impl_error_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs),
+                          impl_error = 0)
+  #ctl file changes needed for F.
+  ctl$F_Method <- 2 # Want all OMs to use F_Method = 2.
   ctl$F_iter <- NULL
   ctl$F_setup <- c(0.05,1,0)
   ctl$F_setup2 <-NULL
-  
+  # forecast file changes needed
   temp_fore<-temp_df[temp_df$Era=="FORE",c(1,3,4,6)]
   row.names(temp_fore)<-NULL
   names(temp_fore)<-c("Year","Seas","Fleet","Catch or F")
   forelist$ForeCatch<-temp_fore[is.element(temp_fore$Year,(dat$endyr+1):(dat$endyr+nyrs_assess+1)),]
-  
+  # write all files
   r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_out_dir, start$ctlfile),
                     overwrite = TRUE, verbose = FALSE)
   r4ss::SS_writeforecast(mylist=forelist, dir=OM_out_dir, writeAll = TRUE, 
