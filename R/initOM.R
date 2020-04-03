@@ -43,8 +43,7 @@ create_OM <- function(OM_out_dir,
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
   
   dat <- r4ss::SS_readdat(file=file.path(OM_out_dir, start$datfile), 
-                          verbose = FALSE, echoall = TRUE, 
-                    section = 1, version=3.3)
+                          verbose = FALSE, section = 1)
   forelist <- r4ss::SS_readforecast(file=file.path(OM_out_dir, "forecast.ss"),
                                     readAll=TRUE, verbose = FALSE)
   currentNforecast <- forelist$Nforecastyrs
