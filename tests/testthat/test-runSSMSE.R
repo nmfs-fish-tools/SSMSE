@@ -18,6 +18,8 @@ test_that("run_SSMSE_iter runs with an EM", {
                  out_dir = temp_path,
                  EM_name = "cod",
                  nyrs = 6,
+                 rec_dev_iter = rep(0, times = 3*2), # Nfleets times nyrs_assess
+                 impl_error = rep(1, times = 3*2), # Nfleets times nyrs_assess
                  nyrs_assess = 3,
                  dat_str = list(
                    catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
