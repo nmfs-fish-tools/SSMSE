@@ -510,7 +510,9 @@ run_SSMSE_scen <- function(scen_name    = "scen_1",
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
 #' @param rec_dev_iter A recruitment deviation vector for the iteration.
+#'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
 #' @param impl_error An implementation error vector for the iteration.
+#'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
 #' @param niter The iteration number
 #' @param dat_str A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.

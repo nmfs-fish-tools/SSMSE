@@ -12,8 +12,6 @@
 #' @param discards A dataframe of discard values an dassociated information to 
 #'  add to the OM. The column names are as in an SS datafile.
 #' @param OM_dir The full path to the OM directory.
-#' @param nyrs_extend An integer value of years to extend the model forward. Defaults
-#'  to an arbitrary value of 3.
 #' @param dummy_dat_scheme The sampling scheme for dummy data. Current options
 #'  are NULL, which means no new dummy data will be added CPUE, length comps, or
 #'  age comps, or \code{"all"}, which means that new years of data will be added 
@@ -21,7 +19,11 @@
 #'  combinations of fleet and season. For length comps and age comps, a dummy
 #'  value will also be added for each combination of other metadata values,
 #'  including (but not limited to ) sex, partition, and bin high and low values.
+#' @param nyrs_extend An integer value of years to extend the model forward. Defaults
+#'  to an arbitrary value of 3.
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
+#' @param rec_devs
+#' @param impl_error
 #' @template verbose
 #' @return A new dat list object (format as created by r4ss::SS_readdat) that
 #'  has been extended forward  as if read in by r4ss function SS_readdat
