@@ -14,7 +14,7 @@ cod_mod <- file.path(extdat_path, "models", "cod")
 file.copy(cod_mod, temp_path, recursive = TRUE)
 
 test_that("get_EM_dat works", {
-  EM_dat <- r4ss::SS_readdat(file.path(cod_mod, "ss3.dat"))
+  EM_dat <- r4ss::SS_readdat(file.path(cod_mod, "ss3.dat"), verbose = FALSE)
   OM_dat <- EM_dat #for simplicity, mock OM/EM dat.
   rm_ind <- c(1,2) #index of obs to move
   #manipulate EM_dat so that it has less observations than OM
@@ -76,7 +76,7 @@ test_that("add_new_dat works", {
     catch = c,
     CPUE  = CP)
   r4ss::SS_writedat(EM_dat, file.path(temp_path, "cod_EM_dat.ss"),
-                    overwrite = TRUE)
+                    overwrite = TRUE, verbose = FALSE)
   new_EM_dat <- add_new_dat(
                   OM_dat = OM_dat,
                   EM_datfile = "cod_EM_dat.ss",

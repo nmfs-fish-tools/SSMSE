@@ -42,21 +42,24 @@ create_OM <- function(OM_out_dir,
   
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
   
-  dat <- r4ss::SS_readdat(file=file.path(OM_out_dir, start$datfile), verbose = TRUE, echoall = TRUE, 
+  dat <- r4ss::SS_readdat(file=file.path(OM_out_dir, start$datfile), 
+                          verbose = FALSE, echoall = TRUE, 
                     section = 1, version=3.3)
-  
-  forelist <- r4ss::SS_readforecast(file=file.path(OM_out_dir, "forecast.ss"), Nfleets=dat$Nfleet, Nareas=dat$N_areas, nseas=dat$nseas, readAll=TRUE, verbose=FALSE)
+  forelist <- r4ss::SS_readforecast(file=file.path(OM_out_dir, "forecast.ss"),
+                                    readAll=TRUE, verbose = FALSE)
   currentNforecast <- forelist$Nforecastyrs
   forelist$Nforecastyrs <- nyrs_assess+1
   forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
   forelist$InputBasis <- 3
   
-  ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start$ctlfile), verbose = FALSE, use_datlist = TRUE,
-                    datlist = dat)
+  ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start$ctlfile), verbose = FALSE, 
+                          use_datlist = TRUE, datlist = dat)
   
-  outlist <- r4ss::SS_output(OM_out_dir)
+  outlist <- r4ss::SS_output(OM_out_dir, verbose = FALSE, printstats = FALSE)
   
-  parlist <- r4ss::SS_readpar_3.30(file.path(OM_out_dir, "ss.par"),dat,ctl,FALSE)
+  parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_out_dir, "ss.par"),
+                                   datsource = dat, ctlsource = ctl,
+                                   verbose = FALSE)
   
   temp_F<-outlist$timeseries
   base_F<-temp_F[temp_F$Area==1,]
@@ -101,9 +104,13 @@ create_OM <- function(OM_out_dir,
   names(temp_fore)<-c("Year","Seas","Fleet","Catch or F")
   forelist$ForeCatch<-temp_fore[is.element(temp_fore$Year,(dat$endyr+1):(dat$endyr+nyrs_assess+1)),]
   
-  r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_out_dir, start$ctlfile),overwrite = TRUE)
-  r4ss::SS_writeforecast(mylist=forelist,dir=OM_out_dir,writeAll = TRUE,overwrite = TRUE)
-  r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_out_dir, "ss.par"),overwrite = TRUE)
+  r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_out_dir, start$ctlfile),
+                    overwrite = TRUE, verbose = FALSE)
+  r4ss::SS_writeforecast(mylist=forelist, dir=OM_out_dir, writeAll = TRUE, 
+                         overwrite = TRUE, verbose = FALSE)
+  r4ss::SS_writepar_3.30(parlist = parlist,
+                         outfile = file.path(OM_out_dir, "ss.par"),
+                         overwrite = TRUE)
   
   if(add_dummy_dat) {
     # TODO: develop code to do this for other types of data (mean length at age)

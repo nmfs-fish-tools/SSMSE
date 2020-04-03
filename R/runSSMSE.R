@@ -127,12 +127,15 @@ run_SSMSE <- function(scen_list           = NULL,
                           section = 1, 
                           verbose = FALSE)
   #Read in control file
-  ctl <- r4ss::SS_readctl(file=file.path(OM_dir, start$ctlfile),version='3.30',use_datlist=TRUE,datlist=dat)
+  ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start$ctlfile),
+                          use_datlist = TRUE, datlist = dat, 
+                          verbose = FALSE)
   #Read in parameter file
-  parlist <- r4ss::SS_readpar_3.30(file.path(OM_dir, "ss.par"),dat,ctl,FALSE)
+  parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_dir, "ss.par"),
+                                   datsource = dat, ctlsource = ctl, 
+                                   verbose = FALSE)
   rec_dev_comb<-rbind(parlist$recdev1,parlist$recdev2)
   rec_stddev<-sd(rec_dev_comb[,2])
-  
   if(is.null(rec_dev_pars)){
     rec_dev_pars<-c(nyrs_assess_vec,1) 
   }

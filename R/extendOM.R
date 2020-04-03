@@ -47,11 +47,14 @@ extend_OM <- function(catch,
   dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile), verbose = FALSE,
                           section = 1)
   # read in control file
-  ctl <- r4ss::SS_readctl(file=file.path(OM_dir, start$ctlfile),version='3.30',use_datlist=TRUE,datlist=dat)
+  ctl <- r4ss::SS_readctl(file=file.path(OM_dir, start$ctlfile),version='3.30',use_datlist=TRUE,datlist=dat, verbose = FALSE)
   # read in parameter file
-  parlist <- r4ss::SS_readpar_3.30(file.path(OM_dir, "ss.par"),dat,ctl,FALSE)
+  parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_dir, "ss.par"), 
+                                   datsource = dat, ctlsource = ctl,
+                                   verbose = FALSE)
   # read in forecast file
-  forelist <- r4ss::SS_readforecast(file=file.path(OM_dir, "forecast.ss"), Nfleets=dat$Nfleets, Nareas=dat$N_areas, nseas=dat$nseas, readAll=TRUE, verbose=FALSE)
+  forelist <- r4ss::SS_readforecast(file=file.path(OM_dir, "forecast.ss"),
+                                    readAll = TRUE, verbose = FALSE)
   
   if(max(catch$year) > (dat$endyr + nyrs_extend)) {
     stop("The maximum year input for catch is ", max(catch$year),", but the ",
@@ -77,15 +80,17 @@ extend_OM <- function(catch,
   colnames(parlist$Fcast_impl_error)<-c("year","impl_error")
   
   
-  r4ss::SS_writeforecast(mylist=forelist,dir=OM_dir,writeAll = TRUE,overwrite = TRUE)
-  r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_dir, "ss.par"),overwrite = TRUE)
+  r4ss::SS_writeforecast(mylist=forelist,dir=OM_dir,writeAll = TRUE,
+                         overwrite = TRUE, verbose = FALSE)
+  r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_dir, "ss.par"),
+                         overwrite = TRUE, verbose = FALSE)
   
   #Run SS with the new catch set as forecast targets. This will use SS to 
   #calculate the F required in the OM to achieve these catches.
   run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
   
   #Load the SS results 
-  outlist <- r4ss::SS_output(OM_dir)
+  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE)
   #Extract the achieved F and Catch for the projection period
   temp_F<-outlist$timeseries
   base_F<-temp_F[temp_F$Area==1,]
@@ -127,8 +132,10 @@ extend_OM <- function(catch,
   forelist$Nforecastyrs<-1
   forelist$ForeCatch<-NULL
   ctl$MainRdevYrLast<-dat$endyr
-  r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_dir, start$ctlfile),overwrite = TRUE)
-  r4ss::SS_writeforecast(mylist=forelist,dir=OM_dir,writeAll = TRUE,overwrite = TRUE)
+  r4ss::SS_writectl(ctllist=ctl,outfile = file.path(OM_dir, start$ctlfile),
+                    overwrite = TRUE, verbose = FALSE)
+  r4ss::SS_writeforecast(mylist=forelist,dir=OM_dir,writeAll = TRUE,
+                         overwrite = TRUE, verbose = FALSE)
   r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_dir, "ss.par"),overwrite = TRUE)
   # add in dummy data: just do for indices, comps for now. Always do this in
   # case the EM needs this input (should be okay to remove if not needed?)

@@ -281,12 +281,11 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     stop("MS specified as '", MS, "', but must be either 'last_yr_catch' or ", 
          "'no_catch'")
   }
-  start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = FALSE)
-  dat <- r4ss::SS_readdat(file=file.path(OM_dir, start$datfile), verbose = TRUE, echoall = TRUE, 
-                          section = 1, version=3.3)
-  outlist <- r4ss::SS_output(OM_dir)
-  
   assertive.properties::assert_is_atomic(yrs)
+  start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = FALSE)
+  dat <- r4ss::SS_readdat(file = file.path(OM_dir, start$datfile),
+                          verbose = FALSE, section = 1)
+  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE)
   # get the catch values by MS.
   l_yr <- max(dat$catch$year)
   
