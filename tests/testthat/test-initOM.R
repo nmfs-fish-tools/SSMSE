@@ -1,4 +1,5 @@
 context("Test functions in R script initialize OM")
+#TODO: add tests that check for recdevs, Fs and implmentation error.
 
 # create a temporary location to avoid adding files to the repo.
 temp_path <- file.path(tempdir(), "test-initOM")
@@ -13,10 +14,13 @@ file.copy(file.path(extdat_path, "models", "cod"),
           temp_path, recursive = TRUE)
 
 test_that("create_OM can add in dummy data", {
+  skip_on_cran() # because runs ss.
   new_dat <- create_OM(OM_out_dir = file.path(temp_path, "cod"),
                        overwrite = TRUE,
                        add_dummy_dat = TRUE,
-                       verbose = FALSE)
+                       verbose = FALSE, 
+                       nyrs_assess = 3,
+                       rec_devs = rep(0, length = 6))
   dat_types <- c("CPUE", "lencomp", "agecomp")
   new_dat_yrs <- lapply(dat_types, function(type, datlist) {
                   unique_yrs <- unique(datlist[[type]][,1])
@@ -46,4 +50,6 @@ test_that("create_OM can add in dummy data", {
   expect_equal(new_dat$agecomp[, cols_agecomp], 
                unique(new_dat$agecomp[, cols_agecomp])
   )
+  # To test: add a browser statement here and run the SS model produced
+  # manually
 })
