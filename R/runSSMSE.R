@@ -605,11 +605,10 @@ run_SSMSE_iter <- function(out_dir     = NULL,
                        overwrite = TRUE)
   # MSE first iteration ----
   # turn the stock assessment model into an OM
-  #Note that this function really does not need to be called if add_dummy_dat == FALSE.
-  #Update Note: This function is now needed in order to make changes such as run from 
+  #This function is now needed in order to make changes such as run from 
   #the par file and potentially change F method to 2 to unify results.
-  #TODO allow user to decide through this wrapper function to use add dummy data or not.
-
+  #TODO allow user to decide through this wrapper function to use add dummy data 
+  # or not.
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
             verbose = verbose, writedat = TRUE, nyrs_assess = nyrs_assess, 
             rec_devs = rec_dev_iter)

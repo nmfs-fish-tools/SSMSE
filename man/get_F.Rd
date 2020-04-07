@@ -2,21 +2,16 @@
 % Please edit documentation in R/calc_F.R
 \name{get_F}
 \alias{get_F}
-\title{get the Fishing mortality from a forecasting model run}
+\title{Get the Fishing mortality from the timeseries Report.sso table}
 \usage{
-get_F(timeseries, units_of_catch, Nfleet)
+get_F(timeseries)
 }
 \arguments{
 \item{timeseries}{from SSoutput}
-
-\item{units_of_catch}{From datalist}
-
-\item{Nfleet}{number of fishing fleets (does not include surveys)}
 }
 \value{
-a data frame of Fs and tetained catch by units (numbers or biomass) 
- seems to have some issues, though
+a data frame with Fs by Area, Yr, Era, Seas, and Fleet (long format)
 }
 \description{
-get the Fishing mortality from a forecasting model run
+Get the Fishing mortality from the timeseries Report.sso table
 }
