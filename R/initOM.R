@@ -17,7 +17,7 @@
 #' @param rec_devs Vector of recruitment deviations for simulation.
 #' @template verbose
 #' @return A new datafile as read in for r4ss, but with dummy data added.
-#' @importFrom r4ss SS_readdat SS_writedat SS_readstarter SS_writestarter
+#' @import r4ss
 create_OM <- function(OM_out_dir,
                       overwrite     = FALSE,
                       add_dummy_dat = FALSE,
@@ -27,8 +27,8 @@ create_OM <- function(OM_out_dir,
                       rec_devs      = NULL) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
                                 verbose = FALSE)
-  # modify starter to use as OM
-  start$init_values_src <- 1 # run from par
+  # modify starter to use as OM ----
+  start$init_values_src <- 1
   start$detailed_age_structure <- 1
   start$last_estimation_phase <- 0
   start$depl_basis <- 0
@@ -39,62 +39,65 @@ create_OM <- function(OM_out_dir,
   start$F_age_range <- NULL
   r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE,
                         overwrite = TRUE, warn = FALSE)
-  #KD: is this run just to make sure the output is run from the .par?
+  # run model to get standardized output ----
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
-  
+  # read in files to use ----
   dat <- r4ss::SS_readdat(file = file.path(OM_out_dir, start$datfile), 
                           verbose = FALSE, section = 1)
   forelist <- r4ss::SS_readforecast(file = file.path(OM_out_dir, "forecast.ss"),
                                     readAll = TRUE, verbose = FALSE)
-  currentNforecast <- forelist$Nforecastyrs
-  #KD: should this be nyrs_assess? if lyear of model is 100 and nyrs assess is 3,
-  # then forcasting would be for 3 years, 101, 102,103. I think we only need the 
-  # OM to forecast this far then as well?
-  forelist$Nforecastyrs <- nyrs_assess + 1
-  forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
-  forelist$InputBasis <- 3
-  
   ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start$ctlfile), verbose = FALSE, 
                           use_datlist = TRUE, datlist = dat)
   outlist <- r4ss::SS_output(OM_out_dir, verbose = FALSE, printstats = FALSE)
   parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_out_dir, "ss.par"),
                                    datsource = dat, ctlsource = ctl,
                                    verbose = FALSE)
-  # use forecasting output to find F.
-  temp_df <- get_F(timeseries = outlist$timeseries, 
-                   units_of_catch = dat$units_of_catch,
-                   Nfleet = dat$Nfleet)
-  # modify the init_F and F_rate in parlist if there is retained catch.
-  if(length(temp_df[temp_df$Era == "TIME" & 
-                    temp_df$Catch_retained != 0,1]) > 0) {
-    parlist$F_rate <- temp_df[temp_df$Era == "TIME" & 
-                              temp_df$Catch_retained != 0, c(1, 3, 4, 5)]
-  }
-  if(length(temp_df[temp_df$Era == "INIT" &
-                    temp_df$Catch_retained != 0, 5]) > 0) {
-    parlist$init_F <- temp_df[temp_df$Era == "INIT" &
-                              temp_df$Catch_retained != 0, 5]
-  }
-  # add recdevs to the parlist
-  # TODO: check that these are implicated correctly
-  parlist$recdev_forecast <- 
-    get_rec_devs_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs),
-                        rec_devs = rec_devs)
-  # add implementation error to the parlist (for now, none is added)
-  parlist$Fcast_impl_error <-
-    get_impl_error_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs),
-                          impl_error = 0)
-  #ctl file changes needed for F.
-  ctl$F_Method <- 2 # Want all OMs to use F_Method = 2.
-  ctl$F_iter <- NULL
-  ctl$F_setup <- c(0.05, 1, 0)
-  ctl$F_setup2 <-NULL
-  # forecast file changes needed
-  temp_fore <- temp_df[temp_df$Era == "FORE", c(1, 3, 4, 6)]
+  # modify forecast file ----
+  currentNforecast <- forelist$Nforecastyrs
+  # Note that this forecasting is being set up for future runs of the OM. 1
+  # extra yr is added to deal with the fact that recdevs have a sum to 0
+  # constraint, so need an extra yr to deal with this.
+  forelist$Nforecastyrs <- nyrs_assess + 1
+  # I think this is set so it is out of the range of the forecast?
+  forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
+  forelist$InputBasis <- 3 # I think this is the retained catch option. Why?
+  # put together a Forecatch dataframe using retained catch
+  # unclear why this is necessary
+  ret_catch <- get_retained_catch(timeseries = outlist$timeseries, 
+                                       units_of_catch = dat$fleetinfo$units)
+  temp_fore <- ret_catch[ret_catch$Era == "FORE", 
+                         c("Yr", "Seas", "Fleet", "retained_catch")]
   row.names(temp_fore) <- NULL
   names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F")
+  #only put values in that are in the Fcas year range.
   forelist$ForeCatch <- temp_fore[
     is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess + 1)), ]
+  
+  # modify par file ----
+  # use report.sso time series table to find the F's to put into the parlist.
+  F_list <- get_F(timeseries = outlist$timeseries)
+  # modify the init_F and F_rate in parlist if used.
+  # note that F_list[["F_rate"]] and F_list[["F_init]] are NULL if they had 0 
+  # rows.
+  parlist[["F_rate"]] <- F_list[["F_rate"]] 
+  parlist[["F_init"]] <- F_list[["F_init"]]
+  # add recdevs to the parlist
+  parlist[["recdev_forecast"]] <- 
+    get_rec_devs_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs),
+                        rec_devs = rec_devs)
+  # want no implementation error for the forecast, so function adds in 0s.
+  parlist[["Fcast_impl_error"]] <-
+    get_impl_error_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs))
+  
+  # modify ctl file ----
+  ctl$F_Method <- 2 # Want all OMs to use F_Method = 2.
+  # need to specify some starting value Fs, although not used in OM
+  ctl$F_setup <- c(0.05, 1, 0)
+  # make sure list components used by other F methods are NULL:
+  ctl$F_iter <- NULL
+  ctl$F_setup2 <-NULL
+  
+
   # write all files
   r4ss::SS_writectl(ctllist = ctl,outfile = file.path(OM_out_dir, start$ctlfile),
                     overwrite = TRUE, verbose = FALSE)

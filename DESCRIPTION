@@ -27,6 +27,7 @@ Imports:
     assertive.types,
     assertive.properties,
     assertive.base,
+    tidyr,
     rlang
 Suggests: 
     testthat

@@ -1,5 +1,4 @@
 context("Test functions in R script initialize OM")
-#TODO: add tests that check for recdevs, Fs and implmentation error.
 
 # create a temporary location to avoid adding files to the repo.
 temp_path <- file.path(tempdir(), "test-initOM")
@@ -13,7 +12,7 @@ extdat_path <- system.file("extdata", package = "SSMSE")
 file.copy(file.path(extdat_path, "models", "cod"), 
           temp_path, recursive = TRUE)
 
-test_that("create_OM can add in dummy data", {
+test_that("create_OM can add in dummy data and modify model", {
   skip_on_cran() # because runs ss.
   new_dat <- create_OM(OM_out_dir = file.path(temp_path, "cod"),
                        overwrite = TRUE,
@@ -50,6 +49,11 @@ test_that("create_OM can add in dummy data", {
   expect_equal(new_dat$agecomp[, cols_agecomp], 
                unique(new_dat$agecomp[, cols_agecomp])
   )
-  # To test: add a browser statement here and run the SS model produced
-  # manually
+  # check that a valid model is produced by seeing if it can run.
+  start <- r4ss::SS_readstarter(file.path(temp_path, "cod", "starter.ss"))
+  expect_true(start$init_values_src == 1) #b/c should be running from.par.
+  file.remove(file.path(temp_path, "cod", "control.ss_new"))
+  run_ss_model(file.path(temp_path, "cod"), "-maxfn 0 -phase 50 -nohess",
+               verbose = FALSE)
+  expect_true(file.exists(file.path(temp_path, "cod", "control.ss_new")))
 })
