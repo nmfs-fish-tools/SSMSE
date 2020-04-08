@@ -10,21 +10,24 @@
 #' @param add_dummy_dat Should dummy data be added to indices and comps for each
 #'  year so that expected values and sampling is obtained for years other than
 #'  those that already have data? Defaults to FALSE.
-#' @param nyrs_assess The number of years to assess over. Used to help structure the 
-#' OM projection file.
+#' @param nyrs_assess The number of years between assessments. This is used to
+#'  structure the forecast file for use in the OM.
 #' @param writedat Should a new datafile be written? Only used if add_dummy_dat
 #'  is \code{TRUE}.
 #' @param rec_devs Vector of recruitment deviations for simulation.
+#' @param verify_OM Should the model be run without estimation and some basic
+#'  checks done to verify that the OM can run? Defaults to TRUE.
 #' @template verbose
 #' @return A new datafile as read in for r4ss, but with dummy data added.
 #' @import r4ss
 create_OM <- function(OM_out_dir,
-                      overwrite     = FALSE,
+                      overwrite     = TRUE,
                       add_dummy_dat = FALSE,
                       writedat      = TRUE,
                       verbose       = FALSE,
                       nyrs_assess   = NULL,
-                      rec_devs      = NULL) {
+                      rec_devs      = NULL, 
+                      verify_OM     = TRUE) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
                                 verbose = FALSE)
   # modify starter to use as OM ----
@@ -48,7 +51,8 @@ create_OM <- function(OM_out_dir,
                                     readAll = TRUE, verbose = FALSE)
   ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start$ctlfile), verbose = FALSE, 
                           use_datlist = TRUE, datlist = dat)
-  outlist <- r4ss::SS_output(OM_out_dir, verbose = FALSE, printstats = FALSE)
+  outlist <- r4ss::SS_output(OM_out_dir, verbose = FALSE, printstats = FALSE, 
+                             covar = FALSE)
   parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_out_dir, "ss.par"),
                                    datsource = dat, ctlsource = ctl,
                                    verbose = FALSE)
@@ -75,11 +79,11 @@ create_OM <- function(OM_out_dir,
   
   # modify par file ----
   # use report.sso time series table to find the F's to put into the parlist.
-  F_list <- get_F(timeseries = outlist$timeseries)
+  F_list <- get_F(timeseries = outlist$timeseries, fleetnames = dat$fleetnames)
   # modify the init_F and F_rate in parlist if used.
   # note that F_list[["F_rate"]] and F_list[["F_init]] are NULL if they had 0 
   # rows.
-  parlist[["F_rate"]] <- F_list[["F_rate"]] 
+  parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")] 
   parlist[["F_init"]] <- F_list[["F_init"]]
   # add recdevs to the parlist
   parlist[["recdev_forecast"]] <- 
@@ -280,9 +284,46 @@ create_OM <- function(OM_out_dir,
                   verbose = FALSE)
     }
   }
-  
-  # validate using model as an OM? may want to make a seperate function that can
-  # validate if the model can be used as an OM or not.
+  if(verify_OM) {
+    # check that model runs and produces a control.ss_new file
+    if(file.exists(file.path(OM_out_dir, "control.ss_new"))) {
+      file.remove(file.path(OM_out_dir, "control.ss_new"))
+    }
+    run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
+    if(!file.exists(file.path(OM_out_dir, "control.ss_new"))){
+      stop("The OM model created is not valid; it did not run and produce a\n",
+           "control.ss_new file. Please try running the OM model created\n", 
+           "with the create_OM function manually with SS to diagnose the\n",
+           "problem.")
+    }
+    # check the names of F parameters in the Parameters section of the report 
+    # file.
+    test_output <- r4ss::SS_output(OM_out_dir, forecast = FALSE, verbose = FALSE,
+                             warn = FALSE, covar = FALSE, readwt = FALSE,
+                             printstats = FALSE)
+    # check F's in the assumed order.
+    par_df <- test_output$parameters
+    F_init_pars <- par_df[grep("^InitF_", par_df$Label),]
+    if(NROW(F_init_pars) != length(F_list[["init_F"]])) {
+      stop("Wrong number of init_F parameters assumed by create_OM function.")
+    }
+    if(NROW(F_init_pars) > 0) {
+      if(!all(F_init_pars$Label == names(F_list[["init_F"]]))) {
+       stop("Names of init_F parameters assumed by create_OM function and in\n",
+            "the PARAMETERS table of Report.sso function do not match.")  
+      } 
+    }
+    F_rate_pars <- par_df[grep("^F_fleet_", par_df$Label),]
+    if(NROW(F_rate_pars) != NROW(F_list[["F_rate"]])) {
+      stop("Wrong number of F_rate parameters assumed by create_OM function.")
+    }
+    if(NROW(F_rate_pars) > 0) {
+      if(!all(F_rate_pars$Label == F_list$F_rate$name)) {
+        stop("Names of F_rate parameters assumed by create_OM function and in\n",
+             "the PARAMETERS table of Report.sso function do not match.")  
+      } 
+    }
+  }
   invisible(dat)
 }
 

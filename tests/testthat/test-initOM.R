@@ -19,7 +19,10 @@ test_that("create_OM can add in dummy data and modify model", {
                        add_dummy_dat = TRUE,
                        verbose = FALSE, 
                        nyrs_assess = 3,
-                       rec_devs = rep(0, length = 6))
+                       rec_devs = rep(0, length = 6), 
+                       verify_OM = TRUE) # use the runtime check also.
+  # note there are 2 NAs introduced by coercion warnings from SS_output that 
+  # are safe to ignore.
   dat_types <- c("CPUE", "lencomp", "agecomp")
   new_dat_yrs <- lapply(dat_types, function(type, datlist) {
                   unique_yrs <- unique(datlist[[type]][,1])

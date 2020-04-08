@@ -2,10 +2,12 @@
 
 #' Get the Fishing mortality from the timeseries Report.sso table
 #' 
-#' @param timeseries from SSoutput
+#' @param timeseries The timeseries table from SSoutput
+#' @param fleetnames A vector of fleet names, in the order they appear in the 
+#'  ss model.
 #' @importFrom tidyr gather separate
 #' @return a data frame with Fs by Yr, Era, Seas, and Fleet (long format)
-get_F <- function(timeseries) {
+get_F <- function(timeseries, fleetnames) {
   # find the F columns
   F_col_ind <- grep("^F:_\\d+$", colnames(timeseries))
   # Note that Area does not need to be included b/c fleets can only operate in
@@ -35,20 +37,31 @@ get_F <- function(timeseries) {
   } else {
     stop("Column names not in the correct order.")
   }
-  # Make sure that the df is ordered correctly; by year, season, fleet
-  F_rate <- F_rate[order(F_rate[,"year"], F_rate[,"seas"], F_rate[,"fleet"]), ]
+  # Make sure that the df is ordered correctly;
+  # verified F rate order by running a multiseason and multifleet model and
+  # looking at order of F_rate in the PARAMETERS section of the report file.
+  F_rate <- F_rate[order(F_rate[,"fleet"], F_rate[,"year"], F_rate[,"seas"]), ]
+  # add a name col that is the same as naming in the Report.sso
+  F_rate$name <- paste0("F_fleet_", F_rate$fleet, "_YR_", F_rate$year, "_s_", 
+                        F_rate$seas)
   if(nrow(F_rate) == 0) {
     F_rate <- NULL
   }
   # form init_F
-  init_F <- F_df[F_df$F > 0 & F_df$Era == "Init", c("Fleet", "F")]
-  #order by fleet
-  init_F <- init_F[order(init_F[,"Fleet"])]
+  # Report.sso PARAMETERS implies there can be 1 init F per fleet and season
+  # (if there is initial catch for that fleet and season)
+  init_F <- F_df[F_df$F > 0 & F_df$Era == "Init", c("Seas", "Fleet", "F")]
   if(nrow(init_F) == 0) {
     init_F <- NULL
   } else {
-    # feed back as a named vector sorted by fleet
-    init_F_names <- init_F$Fleet
+    # feed back as a named vector sorted by fleet, then season. Names are the
+    # same as in the PARAMETERS section of report.sso
+    init_F <- init_F[order(init_F[, "Fleet"], init_F[, "Seas"])]
+    fleetnames_df <- data.frame(Fleet = seq_along(fleetnames), 
+                                fleetname = fleetnames)
+    init_F <- merge(init_F, fleetnames_df)
+    init_F_names <- paste0("InitF_seas_", init_F$Seas, "_flt_", init_F$Fleet, 
+                           init_F$fleetname)
     init_F <- init_F[, "F", drop = TRUE]
     names(init_F) <- init_F_names
   }
