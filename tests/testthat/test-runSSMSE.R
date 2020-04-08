@@ -54,7 +54,9 @@ test_that("run_SSMSE_iter runs with no EM", {
                            MS = "no_catch",
                            out_dir = new_temp_path,
                            nyrs = 6,
-                           nyrs_assess = 3
+                           nyrs_assess = 3,
+                           rec_dev_iter = rep(0, times = 3*2), # Nfleets times nyrs_assess
+                           impl_error = rep(1, times = 3*2), # Nfleets times nyrs_assess
                            )
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
@@ -78,6 +80,8 @@ test_that("cod works when treated as a custom model", {
                            EM_name = NULL,
                            EM_in_dir = EM_path_cod,
                            nyrs = 6,
+                           rec_dev_iter = rep(0, times = 3*2), # Nfleets times nyrs_assess
+                           impl_error = rep(1, times = 3*2), # Nfleets times nyrs_assess
                            nyrs_assess = 3,
                            dat_str = list(
                              catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
