@@ -80,6 +80,7 @@ create_scen_list <- function(scen_name_vec,
                              use_SS_boot_vec = NULL,
                              nyrs_vec = NULL,
                              nyrs_assess_vec = NULL,
+                             impl_error_vec = NULL,
                              dat_str_list = NULL) {
   #note that input checking 
   scen_name_vec <- as.character(scen_name_vec)
