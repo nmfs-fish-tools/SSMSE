@@ -14,6 +14,7 @@
 #'   be FALSE.
 #' @param OM_dat An valid SS data file read in using r4ss. In particular,
 #'   this should be sampled data.
+#' @param OM_out_dir The full path to the directory in which the OM is run.
 #' @template verbose
 #' @param nyrs_assess The number of years between assessments. E.g., if an
 #'   assessment is conducted every 3 years, put 3 here. A single integer value.
@@ -27,7 +28,7 @@
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 
 parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE, 
-                     OM_dat, OM_dir = NULL, verbose = FALSE, nyrs_assess, dat_yrs,
+                     OM_dat, OM_out_dir = NULL, verbose = FALSE, nyrs_assess, dat_yrs,
                      dat_str) {
   if(verbose) {
     message("Parsing the management strategy.")
@@ -120,7 +121,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
               "MS = 'EM' if you want to include discards in your management ", 
               "strategy.")
     }
-    new_catch_list <- get_no_EM_catch_df(OM_dir,
+    new_catch_list <- get_no_EM_catch_df(OM_dir = OM_out_dir ,
                       yrs = (OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess),
                       MS = MS)
   }
@@ -270,8 +271,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
 #' Get the data frame of catch for the next iterations when not using an
 #' estimation model.
 #'
-#'@param catch Catch dataset from the OM, as read in using the catch
-#' dataframe (a list component) created using r4ss::SS_readdat
+#'@param OM_dir The OM directory.
 #'@param yrs A vector of years for each year
 #'@param MS Can be either "no_catch" or "last_yr_catch"
 #'@return A dataframe of future catch.
@@ -285,11 +285,14 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = FALSE)
   dat <- r4ss::SS_readdat(file = file.path(OM_dir, start$datfile),
                           verbose = FALSE, section = 1)
-  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE)
+  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE, 
+                             NoCompOK = TRUE, warn = FALSE, forecast = FALSE,
+                             covar = FALSE, readwt = FALSE)
   # get the catch values by MS.
   l_yr <- max(dat$catch$year)
   
   catch <- dat$catch
+  #TODO: use get_F function instead to get the needed values
   temp_F <- outlist$timeseries
   base_F <- temp_F[temp_F$Area == 1, ]
   agg_F <- aggregate(temp_F[, -3],
