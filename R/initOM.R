@@ -86,6 +86,7 @@ create_OM <- function(OM_out_dir,
   parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")] 
   parlist[["F_init"]] <- F_list[["F_init"]]
   # add recdevs to the parlist
+  # TODO: need to use sum_to_zero = TRUE?
   parlist[["recdev_forecast"]] <- 
     get_rec_devs_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs),
                         rec_devs = rec_devs)

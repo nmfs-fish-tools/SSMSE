@@ -6,7 +6,12 @@
 #' @param fleetnames A vector of fleet names, in the order they appear in the 
 #'  ss model.
 #' @importFrom tidyr gather separate
-#' @return a data frame with Fs by Yr, Era, Seas, and Fleet (long format)
+#' @return a list containing: F_df, a long dataframe with F by Yr, Era, Seas,
+#'  and fleet; F_rate, a data frame with F for the time frame of the model 
+#'  only by Yr, Seas, and Fleet, ordered as the ss.par file expects; init_F, 
+#'  a named vector of initial F values by Season and Fleet, ordered (and named)
+#'  as SS expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas, 
+#'  and fleet, ordered as SS would expect in F_rate.
 get_F <- function(timeseries, fleetnames) {
   # find the F columns
   F_col_ind <- grep("^F:_\\d+$", colnames(timeseries))
@@ -65,8 +70,33 @@ get_F <- function(timeseries, fleetnames) {
     init_F <- init_F[, "F", drop = TRUE]
     names(init_F) <- init_F_names
   }
+  # get the F_rate_fcast, if any, by finding only the values during the model period
+  # and that are greater than 0 (need to make sure there is retained catch?)
+  F_rate_fcast <- F_df[F_df$F > 0 & F_df$Era == "FORE", 
+                 setdiff(colnames(F_df), c("Era"))]
+  # the following should work, but this sanity check added to avoid assigning
+  # the wrong column names. May not work if order of df col changes.
+  if(all(colnames(F_rate_fcast) == c("Yr", "Seas", "Fleet", "F"))) {
+    colnames(F_rate_fcast) <- c("year", "seas", "fleet", "F")
+  } else {
+    stop("Column names not in the correct order.")
+  }
+  # Make sure that the df is ordered correctly;
+  # verified F rate order by running a multiseason and multifleet model and
+  # looking at order of F_rate in the PARAMETERS section of the report file.
+  F_rate_fcast <- F_rate_fcast[order(F_rate_fcast[,"fleet"], 
+                                     F_rate_fcast[,"year"],
+                                     F_rate_fcast[,"seas"]), ]
+  # add a name col that is the same as naming in the Report.sso
+  F_rate_fcast$name <- paste0("F_fleet_", F_rate_fcast$fleet, 
+                              "_YR_", F_rate_fcast$year, 
+                              "_s_", F_rate_fcast$seas)
+  if(nrow(F_rate_fcast) == 0) {
+    F_rate_fcast <- NULL
+  }
 
-  F_list <- list(F_df = F_df, F_rate = F_rate, init_F = init_F)
+  F_list <- list(F_df = F_df, F_rate = F_rate, init_F = init_F, 
+                 F_rate_fcast = F_rate_fcast)
 }
 
 #' Get retained catch from the timeseries Report.sso table

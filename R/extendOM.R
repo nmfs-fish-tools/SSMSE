@@ -37,6 +37,7 @@ extend_OM <- function(catch,
                       rec_devs         = NULL,
                       impl_error        = NULL,
                       verbose          = FALSE) {
+
   #input checks
   check_catch_df(catch)
   check_dir(OM_dir)
@@ -69,82 +70,95 @@ extend_OM <- function(catch,
   
   #first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
   #Apply implementation error to the catches before it is added to the OM
-  forelist$Nforecastyrs <- nyrs_extend + 1
-  forelist$ForeCatch <- catch[, 1:4]
-  forelist$ForeCatch[,4] <- forelist$ForeCatch[, 4] * impl_error
-  #parlist$recdev_forecast[,1]<-(dat$endyr + nyrs_extend+1):(dat$endyr + 2*nyrs_extend)
-  temp_recdev <- matrix(NA, nrow = forelist$Nforecastyrs, ncol = 2)
-  temp_recdev[, 1] <- (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs)
-  temp_recdev[, 2] <- c(rec_devs, -sum(rec_devs))
-  temp_impl_error <- temp_recdev
-  temp_impl_error[, 2] <- rep(0, forelist$Nforecastyrs)
-  parlist$recdev_forecast <- temp_recdev
-  parlist$Fcast_impl_error <- temp_impl_error
-  colnames(parlist$recdev_forecast) <- c("year","recdev")
-  colnames(parlist$Fcast_impl_error) <- c("year","impl_error")
+  # modify forecast file ----
+  forelist$Nforecastyrs <- nyrs_extend + 1 # should already have this value, but just in case.
+  forelist$ForeCatch <- catch[, c("year", "seas", "fleet", "catch")]
+  # note: may need to change the colnames.
+  #this is the true catch. TODO should impl_error be added or multiplied?
+  forelist$ForeCatch[,"catch"] <- forelist$ForeCatch[, "catch"] *
+    impl_error[seq_along(NROW(forelist$ForeCatch[, "catch"]))]
   
-  
+  # modify par file ----
+  parlist[["recdev_forecast"]] <- get_rec_devs_matrix(
+    yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs), 
+    rec_devs = rec_devs, 
+    sum_to_zero = TRUE)
+  #implementation error should always be 0 in the OM
+  parlist[["Fcast_impl_error"]] <-
+    get_impl_error_matrix(yrs = (dat$endyr+1):(dat$endyr+forelist$Nforecastyrs))
+
+  # write out the changed files ----
   r4ss::SS_writeforecast(mylist = forelist, dir = OM_dir, writeAll = TRUE,
                          overwrite = TRUE, verbose = FALSE)
-  r4ss::SS_writepar_3.30(parlist = parlist,outfile = file.path(OM_dir, "ss.par"),
+  r4ss::SS_writepar_3.30(parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
                          overwrite = TRUE, verbose = FALSE)
-  
   #Run SS with the new catch set as forecast targets. This will use SS to 
   #calculate the F required in the OM to achieve these catches.
   run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
-  
   #Load the SS results 
-  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE)
-  #Extract the achieved F and Catch for the projection period
-  temp_F <- outlist$timeseries
-  base_F <- temp_F[temp_F$Area==1, ]
-  agg_F <- aggregate(temp_F[,-3], list(Yr=temp_F[,2], Seas = temp_F[,4]), sum)
-  temp_F <- cbind(base_F[, c(2,3,4)], agg_F[, -c(1,2,3,4,5,6,7,8,9,10,11,12)])
-  rm(base_F, agg_F)
-  units_catch <- dat$units_of_catch
-  units_catch <- ifelse(units_catch == 1, 3, 6)
-  temp_F <- temp_F[, c(1,2,3,(((1:dat$Nfleet))*8+3),
-                       (((1:dat$Nfleet)-1)*8+3+units_catch[1:dat$Nfleet]))]
-  
-  temp_df <- NULL
-  for(i in 1:dat$Nfleet) {
-    temp_fleet <- cbind(temp_F[, c(1:3)], rep(i, length(temp_F[,1])), 
-                        temp_F[,(i+3)], temp_F[, (i+3+dat$Nfleet)])
-    temp_df <- rbind(temp_df, temp_fleet)
-  }
-  temp_df <- temp_df[order(temp_df[, 1], temp_df[, 3], temp_df[, 4]), ]
-  names(temp_df) <- c("year", "Era", "seas", "fleet", "F", "Catch_retained")
-  
+  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE, 
+                             covar = FALSE,warn = FALSE, readwt = FALSE)
+  # Extract the achieved F and Catch for the forecast period
+  F_list <- get_F(timeseries = outlist$timeseries, fleetnames = dat$fleetnames)
+  ret_catch <- get_retained_catch(timeseries = outlist$timeseries, 
+                                  units_of_catch = dat$fleetinfo$units)
   #Check that SS created projections with the intended catches before updating model
-  catch_diff <- temp_df[is.element(temp_df[, 1], catch[, 1]), 6] - catch[, 4]
-  if(max(abs(catch_diff)/abs(catch[,4])) > 0.0001) {
-    stop("Catch projections - ", 
-         temp_df[is.element(temp_df[,1], catch[, 1]), 6],
-         " - don't match those expected - ",catch[, 4])
+  #make sure retained catch is close to the same as the input catch. 
+  fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE" & 
+                                  # don't include extra yr needed for recdevs.
+                                  ret_catch$Yr != (dat$endyr + nyrs_extend + 1),
+                                  "retained_catch"]
+  catch_diff <- fcast_ret_catch - catch[, "catch"]
+  if(max(abs(catch_diff)/abs(catch[,"catch"])) > 0.0001) {
+    stop("Forecasted retained catch - ", 
+         paste0(fcast_ret_catch, collapse = ", "),
+         " - don't match those expected - ", 
+         paste0(catch[, "catch"], collapse = ", "))
+    # KD: can we offer any solutions on wher to go from here in this error msg?
+    # This check is helpful, though!
   }
   
-  # extend the number of yrs in the model and add in catch
-  dat$catch <- rbind(dat$catch, catch)
-  dat$discard_data <- rbind(dat$discard_data, discards)
-  if(!is.null(parlist$recdev1)) {
-    parlist$recdev1 <- rbind(parlist$recdev1, 
-                             parlist$recdev_forecast[1:nyrs_extend, ])
-  }else if(!is.null(parlist$recdev2)) {
-    parlist$recdev2 <- rbind(parlist$recdev2,
-                             parlist$recdev_forecast[1:nyrs_extend,])
-  }
-  parlist$Fcast_impl_error <- 
-    parlist$Fcast_impl_error[length(parlist$Fcast_impl_error[,1]), ,
-                             drop = FALSE]
-  parlist$recdev_forecast <- parlist$Fcast_impl_error
-  parlist$F_rate <- 
-    rbind(parlist$F_rate, 
-      temp_df[is.element(temp_df[,1],((dat$endyr+1):(dat$endyr + nyrs_extend))),
-              c(1,3,4,5)])
-  dat$endyr <- dat$endyr + nyrs_extend
+  # extend the number of yrs in the model and add in catch ----
+  # modify forecast file - do this to make the forecasting elements simpler for
+  # the second run of the OM.
   forelist$Nforecastyrs <- 1
   forelist$ForeCatch <- NULL
-  ctl$MainRdevYrLast <- dat$endyr
+  # change parfile
+  # recdevs
+  # recdev1 is created when using do_rec_devs method 1; recdev2 is created when
+  # using do_rec_devs method 2,3,or 4;
+  if(!is.null(parlist$recdev1)) {
+    parlist$recdev1 <- rbind(parlist$recdev1, 
+                             parlist$recdev_forecast[seq_along(nyrs_extend), ])
+  }else if(!is.null(parlist$recdev2)) {
+    parlist$recdev2 <- rbind(parlist$recdev2,
+                             parlist$recdev_forecast[seq_along(nyrs_extend),])
+  }
+  # implementation error
+  parlist$Fcast_impl_error <- get_impl_error_matrix(
+    yrs = (dat$endyrs+nyrs_extend+1))
+  # recdevs - check if this is right
+  parlist$recdev_forecast <- 
+    get_rec_devs_matrix(yrs  = (dat$endyrs+nyrs_extend+1),
+                        rec_devs = rec_devs, 
+                        sum_to_zero = FALSE)
+  # F values
+  parlist$F_rate <- 
+    rbind(parlist$F_rate, 
+          F_list[["F_rate_fcast"]][, 
+            setdiff(colnames(F_list[["F_rate_fcast"]]), "name")])
+  
+  # change data file
+  dat$catch <- rbind(dat$catch, catch)
+  if(dat$N_discard_fleets > 0) {
+    dat$discard_data <- rbind(dat$discard_data, discards)
+  }
+  dat$endyr <- dat$endyr + nyrs_extend
+
+  # modify ctl file
+  ctl$MainRdevYrLast <- dat$endyr # check that this is necessary for every model?
+  
+  # write out the changed files, except for dat.
   r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_dir, start$ctlfile),
                     overwrite = TRUE, verbose = FALSE)
   r4ss::SS_writeforecast(mylist = forelist, dir = OM_dir, writeAll = TRUE,
@@ -275,6 +289,8 @@ extend_OM <- function(catch,
                       verbose = FALSE)
   }
     invisible(dat)
+  # maybe should just move the final run of the OM here, since we can no longer
+  # isolate this function to prevent it from running SS?
 }
 
 #' Check future catch smaller than the last year's population size.
