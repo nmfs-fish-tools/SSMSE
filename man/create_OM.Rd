@@ -6,12 +6,13 @@
 \usage{
 create_OM(
   OM_out_dir,
-  overwrite = FALSE,
+  overwrite = TRUE,
   add_dummy_dat = FALSE,
   writedat = TRUE,
   verbose = FALSE,
   nyrs_assess = NULL,
-  rec_devs = NULL
+  rec_devs = NULL,
+  verify_OM = TRUE
 )
 }
 \arguments{
@@ -28,10 +29,13 @@ is \code{TRUE}.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
-\item{nyrs_assess}{The number of years to assess over. Used to help structure the 
-OM projection file.}
+\item{nyrs_assess}{The number of years between assessments. This is used to
+structure the forecast file for use in the OM.}
 
 \item{rec_devs}{Vector of recruitment deviations for simulation.}
+
+\item{verify_OM}{Should the model be run without estimation and some basic
+checks done to verify that the OM can run? Defaults to TRUE.}
 }
 \value{
 A new datafile as read in for r4ss, but with dummy data added.

@@ -4,12 +4,15 @@
 \alias{get_rec_devs_matrix}
 \title{Put recdevs into a matrix}
 \usage{
-get_rec_devs_matrix(yrs, rec_devs)
+get_rec_devs_matrix(yrs, rec_devs, sum_to_zero = FALSE)
 }
 \arguments{
 \item{yrs}{a vector of years}
 
 \item{rec_devs}{a vector of recdevs}
+
+\item{sum_to_zero}{Should the last rec_dev returned be a negative number to 
+ensure that ther recruitment deviations sum to zero? Defaults to FALSE.}
 }
 \value{
 A length(yrs) row, 2 column matrix containing the years in the first

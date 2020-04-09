@@ -8,12 +8,11 @@ estimation model.}
 get_no_EM_catch_df(OM_dir, yrs, MS = "last_yr_catch")
 }
 \arguments{
+\item{OM_dir}{The OM directory.}
+
 \item{yrs}{A vector of years for each year}
 
 \item{MS}{Can be either "no_catch" or "last_yr_catch"}
-
-\item{catch}{Catch dataset from the OM, as read in using the catch
-dataframe (a list component) created using r4ss::SS_readdat}
 }
 \value{
 A dataframe of future catch.

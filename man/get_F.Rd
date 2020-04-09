@@ -4,13 +4,21 @@
 \alias{get_F}
 \title{Get the Fishing mortality from the timeseries Report.sso table}
 \usage{
-get_F(timeseries)
+get_F(timeseries, fleetnames)
 }
 \arguments{
-\item{timeseries}{from SSoutput}
+\item{timeseries}{The timeseries table from SSoutput}
+
+\item{fleetnames}{A vector of fleet names, in the order they appear in the 
+ss model.}
 }
 \value{
-a data frame with Fs by Area, Yr, Era, Seas, and Fleet (long format)
+a list containing: F_df, a long dataframe with F by Yr, Era, Seas,
+ and fleet; F_rate, a data frame with F for the time frame of the model 
+ only by Yr, Seas, and Fleet, ordered as the ss.par file expects; init_F, 
+ a named vector of initial F values by Season and Fleet, ordered (and named)
+ as SS expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas, 
+ and fleet, ordered as SS would expect in F_rate.
 }
 \description{
 Get the Fishing mortality from the timeseries Report.sso table

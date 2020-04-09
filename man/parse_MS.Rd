@@ -9,7 +9,7 @@ parse_MS(
   EM_out_dir = NULL,
   init_loop = TRUE,
   OM_dat,
-  OM_dir = NULL,
+  OM_out_dir = NULL,
   verbose = FALSE,
   nyrs_assess,
   dat_yrs,
@@ -32,6 +32,8 @@ be FALSE.}
 
 \item{OM_dat}{An valid SS data file read in using r4ss. In particular,
 this should be sampled data.}
+
+\item{OM_out_dir}{The full path to the directory in which the OM is run.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 

@@ -2,19 +2,17 @@
 % Please edit documentation in R/impl_error.R
 \name{get_impl_error_matrix}
 \alias{get_impl_error_matrix}
-\title{Put implementation error into a matrix}
+\title{Put implementation error of 0 into a matrix}
 \usage{
-get_impl_error_matrix(yrs, impl_error)
+get_impl_error_matrix(yrs)
 }
 \arguments{
 \item{yrs}{a vector of years}
-
-\item{impl_error}{a vector of implementation error}
 }
 \value{
 A length(yrs) row, 2 column matrix containing the years in the first
 column and the implementation error values in the second.
 }
 \description{
-Put implementation error into a matrix
+Put implementation error of 0 into a matrix
 }
