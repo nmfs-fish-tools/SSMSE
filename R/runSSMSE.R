@@ -632,7 +632,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   
   
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
-                           OM_dat = OM_dat, OM_dir = OM_out_dir,
+                           OM_dat = OM_dat, OM_out_dir = OM_out_dir,
                            verbose = verbose, nyrs_assess = nyrs_assess)
   message("Finished getting catch (years ", 
           (OM_dat$endyr+1), " to ", (OM_dat$endyr + nyrs_assess),
@@ -686,7 +686,7 @@ run_SSMSE_iter <- function(out_dir     = NULL,
                                OM_dat      = new_OM_dat, 
                                init_loop   = FALSE, verbose = verbose,
                                nyrs_assess = nyrs_assess, 
-                               OM_dir      = OM_out_dir,
+                               OM_out_dir      = OM_out_dir,
                                dat_yrs     = (yr + 1):(yr + nyrs_assess),
                                dat_str     = dat_str)
   message("Finished getting catch (years ", (yr + 1), " to ", 
