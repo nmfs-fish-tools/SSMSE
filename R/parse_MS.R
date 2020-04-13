@@ -266,7 +266,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
 #' estimation model.
 #'
 #'@param OM_dir The OM directory.
-#'@param yrs A vector of years for each year
+#'@param yrs A vector of years
 #'@param MS Can be either "no_catch" or "last_yr_catch"
 #'@return A dataframe of future catch.
 get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
@@ -279,57 +279,29 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = FALSE)
   dat <- r4ss::SS_readdat(file = file.path(OM_dir, start$datfile),
                           verbose = FALSE, section = 1)
-  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE, 
-                             NoCompOK = TRUE, warn = FALSE, forecast = FALSE,
-                             covar = FALSE, readwt = FALSE)
+  fore <- r4ss::SS_readforecast(file = file.path(OM_dir, "forecast.ss"),
+                                verbose = FALSE, readAll = TRUE)
+  # read par file (using read lines for simplicity.)
+  par <- readLines(file.path(OM_dir, "ss.par"))
+  # use forecasting to find the values desired
+  # keep old forecasting
+  file.copy(file.path(OM_dir, "forecast.ss"), 
+            file.path(OM_dir, "forecast_OM.ss"), overwrite = TRUE)
+  file.copy(file.path(OM_dir, "ss.par"), file.path(OM_dir, "ss_OM.par"), 
+            overwrite = TRUE)
   # get the catch values by MS.
-  l_yr <- max(dat$catch$year)
-  
-  catch <- dat$catch
-  #TODO: use get_F function instead to get the needed values
-  temp_F <- outlist$timeseries
-  base_F <- temp_F[temp_F$Area == 1, ]
-  agg_F <- aggregate(temp_F[, -3],
-                     list(Yr = temp_F[, 2], Seas = temp_F[, 4]), sum)
-  temp_F<-cbind(base_F[, c(2,3,4)], agg_F[, -c(1,2,3,4,5,6,7,8,9,10,11,12)])
-  rm(base_F,agg_F)
-  units_catch <- dat$units_of_catch
-  units_catch <- ifelse(units_catch==1,3,6)
-  temp_F <-
-    temp_F[, c(1,2,3,(((1:dat$Nfleet))*8+3),
-               (((1:dat$Nfleet)-1)*8+3 + units_catch[1:dat$Nfleet]), 
-               (((1:dat$Nfleet)-1)*8+6))]
-  temp_df <- NULL
-  for(i in 1:dat$Nfleet) {
-    temp_fleet <- cbind(temp_F[, c(1:3)], rep(i, length(temp_F[, 1])), 
-                        temp_F[,(i+3)],temp_F[,(i+3+dat$Nfleet)],
-                        temp_F[,(i+3+2*dat$Nfleet)])
-    temp_df <- rbind(temp_df, temp_fleet)
-  }
-  temp_df <- temp_df[order(temp_df[,1], temp_df[,3], temp_df[,4]),]
-  names(temp_df) <- c("year", "Era", "seas", "fleet", "F", "Catch_retained",
-                      "Biomass_retained")
-  catch_by_fleet <- temp_df[temp_df$year == l_yr, 
-                            c("fleet", "seas", "Catch_retained")]
-  f_by_fleet <- temp_df[temp_df$year == l_yr, c("fleet", "seas", "F")]
-  catchbio_by_fleet <- temp_df[temp_df$year == l_yr,
-                               c("fleet", "seas", "Biomass_retained")]
-  names(catch_by_fleet) <- c("fleet", "seas", "catch")
-  names(f_by_fleet) <- c("fleet", "seas", "catch")
-  names(catchbio_by_fleet) <- c("fleet", "seas", "catch")
+  l_yr <- max(dat$catch$year) # get the last year in the catch data frame
+  catch <- dat$catch # get the catch df
+  catch_by_fleet <- catch[catch$year == l_yr, c("fleet", "seas", "catch")]
 
   if(MS == "no_catch") {
-    catch_by_fleet$Catch_retained <- 0
-    f_by_fleet$catch <- 0
-    catchbio_by_fleet$catch <- 0
+    catch_by_fleet$catch <- 0
   }
   # find combinations of catch needed seas and fleet
   flt_combo <- unique(catch[,c("seas","fleet")])
   se <- get_input_value(catch, method = "most_common_value",
                         colname = "catch_se", group = "fleet")
   tmp_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
-  tmp_F_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
-  tmp_bio_df_list <- vector(mode = "list", length = length(yrs)*nrow(flt_combo))
   pos <- 1
   for(y in yrs) {
     for(flt in seq_len(nrow(flt_combo))) {
@@ -339,42 +311,64 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
       tmp_catch <- 
         catch_by_fleet[catch_by_fleet$fleet == flt_combo$fleet[flt] &
                        catch_by_fleet$seas == flt_combo$seas[flt], "catch"]
-      #get the F value
-      tmp_F <- f_by_fleet[f_by_fleet$fleet == flt_combo$fleet[flt] &
-                                    f_by_fleet$seas == flt_combo$seas[flt],
-                                  "catch"]
-      #get the Biomass value
-      tmp_bio <- 
-        catchbio_by_fleet[catchbio_by_fleet$fleet == flt_combo$fleet[flt] &
-                          catchbio_by_fleet$seas == flt_combo$seas[flt], 
-                         "catch"]
       #Add SE and catch to df
       tmp_df_list[[pos]] <- data.frame(year = y,
                                        seas = flt_combo$seas[flt], 
                                        fleet = flt_combo$fleet[flt], 
                                        catch = tmp_catch, 
                                        catch_se = tmp_catch_se)
-      #Add SE and F to df
-      tmp_F_df_list[[pos]] <- data.frame(year = y,
-                                       seas = flt_combo$seas[flt], 
-                                       fleet = flt_combo$fleet[flt], 
-                                       catch = tmp_F, 
-                                       catch_se = tmp_catch_se)
-      #Add SE and catch biomass to df
-      tmp_bio_df_list[[pos]] <- data.frame(year = y,
-                                       seas = flt_combo$seas[flt], 
-                                       fleet = flt_combo$fleet[flt], 
-                                       catch = tmp_bio, 
-                                       catch_se = tmp_catch_se)
       pos <- pos + 1
     }
   }
   df_catch <- do.call("rbind", tmp_df_list)
-  df_f <- do.call("rbind", tmp_F_df_list)
-  df_bio <- do.call("rbind", tmp_bio_df_list)
-  
+  if(MS == "last_yr_catch") {
+  # Now, use this to get catch in biomass and catch by F. Need to rerun SS OM
+  # with no estimation. modify forecast ----
+  # put in the forecasting catch and make sure using the correct number of years
+  fore$ForeCatch <- df_catch[, c("year","seas","fleet","catch")]
+  colnames(fore$ForeCatch) <- c("Year", "Seas", "Fleet", "Catch or F")
+  fore$Nforecastyrs <-  max(fore$ForeCatch$Year) - dat$endyr
+  r4ss::SS_writeforecast(fore, dir = OM_dir, writeAll = TRUE, overwrite = TRUE, 
+                         verbose = FALSE)
+  # # modify par file ----
+  #TODO: figure out what values should go here; probably not 0.
+  Fcast_rec_line <- grep("^# Fcast_recruitments:$", par)+1
+  par[Fcast_rec_line] <- paste0(rep(0, fore$Nforecastyrs), collapse = " ")
+  Fcast_impl_err_line <- grep('^# Fcast_impl_error:$', par)+1
+  par[Fcast_impl_err_line] <- paste0(rep(0, fore$Nforecastyrs), collapse = " ")
+  writeLines(par, file.path(OM_dir, "ss.par"))
+  #Run SS with the new catch set as forecast targets. This will use SS to 
+  #calculate the F required in the OM to achieve these catches.
+  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = FALSE)
+  #Load the SS results 
+  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE, 
+                             covar = FALSE, warn = FALSE, readwt = FALSE)
+  # get F.
+  F_vals <- get_F(outlist$timeseries, fleetnames = dat$fleetnames)
+  catch_F <- F_vals[["F_rate_fcast"]][ ,
+                                       c("year", "seas", "fleet", "F")]
+  colnames(catch_F) <- c("year", "seas", "fleet", "catch")
+  # get catch in biomass.
+  catch_bio <- get_retained_catch(outlist$timeseries, 
+                                  # use units_of_catch = 1 for all fleets,
+                                  # b/c want biomass in all cases.
+                                  units_of_catch = rep(1, times = NROW(dat$fleetinfo)))
+  catch_bio <- catch_bio[catch_bio$Era == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
+  colnames(catch_bio) <- c("year", "seas", "fleet", "catch")
+  } else {
+    # all should be 0. note for now there is no catch_se column.
+    catch_bio <- df_catch[,c("year", "seas", "fleet", "catch")]
+    catch_F <- catch_bio
+  }
+  # TODO: evaluate if this is the correct way to do it and if it is appropriate to 
+  # add the standard error here?
+  # undo changes to forecasting/report files. don't run model, but may need to?
+  file.copy(file.path(OM_dir, "forecast_OM.ss"), 
+            file.path(OM_dir, "forecast.ss"), overwrite = TRUE)
+  file.copy(file.path(OM_dir, "ss_OM.par"), file.path(OM_dir, "ss.par"), 
+            overwrite = TRUE)
   return_list <- list(catch = df_catch,
-                      catch_bio = df_bio,
-                      catch_F = df_f,
+                      catch_bio = catch_bio,
+                      catch_F = catch_F,
                       discards = NULL)# assume no discards if using simple MS.
 }

@@ -41,29 +41,34 @@ test_that("get_no_EM_catch_df works with no discards", {
   # created some simple tests.
   # mock additional fleets of catch data
   catch <- OM_dat$catch
-  new_catch <- data.frame(year = 100,
-                          seas = 1,
-                          fleet = c(2,3),
-                          catch = c(200, 300),
-                          catch_se = c(0.02, 0.03))
-  catch <- rbind(catch, new_catch)
-  lyr_catch_df <- get_no_EM_catch_df(OM_dir = cod_OM_path, yrs = 101:105,
+  lyr_catch_list <- get_no_EM_catch_df(OM_dir = cod_OM_path, yrs = 101:105,
                                   MS = "last_yr_catch")
-  lyr_catch_df <- lyr_catch_df[["catch"]]
+  lyr_catch_df <- lyr_catch_list[["catch"]]
   expect_true(all(lyr_catch_df$catch != 0))
   expect_true(length(unique(lyr_catch_df$fleet)) == length(unique(catch$fleet)))
-  expect_true(length(unique(lyr_catch_df$fleet)) == 3)
-  no_catch_df <- get_no_EM_catch_df(catch = catch, yrs = 101:105,
+
+  no_catch_list <- get_no_EM_catch_df(OM_dir = cod_OM_path, yrs = 101:105,
                                  MS = "no_catch")
-  no_catch_df <- no_catch_df[["catch"]]
-  expect_true(all(no_catch_df$catch == 0))
+  no_catch_list[["discards"]] <- NULL # get rid of discards list component
+  lapply(no_catch_list, function(x) expect_true(all(x$catch == 0)))
+  no_catch_df <- no_catch_list[["catch"]]
   expect_true(length(unique(no_catch_df$fleet)) == length(unique(catch$fleet)))
-  expect_error(get_no_EM_catch_df(catch = catch, yrs = 101:105,
+  expect_error(get_no_EM_catch_df(OM_dir = cod_OM_path, yrs = 101:105,
                                MS = "bad_MS_input"))
 })
 
 #TODO: add tests for using discards.
+# copy cod to the temp_path
+unlink(file.path(temp_path, "cod_OM"), recursive = TRUE)
+unlink(file.path(temp_path, "cod_EM"), recursive = TRUE)
+dir.create(file.path(temp_path, "cod_OM"))
+dir.create(file.path(temp_path, "cod_EM"))
+file.copy(cod_OM_mod, file.path(temp_path, "cod_OM"), recursive = TRUE)
+file.copy(cod_mod, file.path(temp_path, "cod_EM"), recursive = TRUE)
+cod_OM_path <- file.path(temp_path, "cod_OM", "cod_initOM_for_tests")
+cod_EM_path <- file.path(temp_path, "cod_EM", "cod")
 
+OM_dat <- r4ss::SS_readdat(file.path(cod_OM_path, "data.ss"), verbose = FALSE)
 test_that("parse_MS works for no estimation model methods", {
   # no catch managemetn strategy
   catch_list_1 <- parse_MS(MS = "no_catch",
