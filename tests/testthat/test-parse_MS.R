@@ -37,6 +37,7 @@ test_that("get_EM_catch_df works with no discards", {
 
 
 test_that("get_no_EM_catch_df works with no discards", {
+  skip_on_cran() # because has to run SS
   # This is an function referenced within the parse)MS function, so only
   # created some simple tests.
   # mock additional fleets of catch data
@@ -70,6 +71,7 @@ cod_EM_path <- file.path(temp_path, "cod_EM", "cod")
 
 OM_dat <- r4ss::SS_readdat(file.path(cod_OM_path, "data.ss"), verbose = FALSE)
 test_that("parse_MS works for no estimation model methods", {
+  skip_on_cran()
   # no catch managemetn strategy
   catch_list_1 <- parse_MS(MS = "no_catch",
                     OM_dat = OM_dat,
