@@ -109,13 +109,23 @@ extend_OM <- function(catch,
                                   ret_catch$Yr != (dat$endyr + nyrs_extend + 1),
                                   "retained_catch"]
   catch_diff <- fcast_ret_catch - catch[, "catch"]
-  if(max(abs(catch_diff)/abs(catch[,"catch"])) > 0.0001) {
-    stop("Forecasted retained catch - ", 
-         paste0(fcast_ret_catch, collapse = ", "),
-         " - don't match those expected - ", 
-         paste0(catch[, "catch"], collapse = ", "))
-    # KD: can we offer any solutions on wher to go from here in this error msg?
-    # This check is helpful, though!
+  if(all(catch[, "catch"] != 0)) {
+    if(max(abs(catch_diff)/abs(catch[,"catch"])) > 0.0001) {
+      stop("Forecasted retained catch - ", 
+           paste0(fcast_ret_catch, collapse = ", "),
+           " - don't match those expected - ", 
+           paste0(catch[, "catch"], collapse = ", "))
+      # KD: can we offer any solutions on wher to go from here in this error msg?
+      # This check is helpful, though!
+    }
+  } else { # a second check when there is 0 catch.This is fairly arbitrary and
+    # perhaps should be more stringent.
+   if(max(abs(catch_diff)) > 0.1) {
+     stop("Forecasted retained catch - ", 
+          paste0(fcast_ret_catch, collapse = ", "),
+          " - don't match those expected - ", 
+          paste0(catch[, "catch"], collapse = ", "))
+   }
   }
   
   # extend the number of yrs in the model and add in catch ----
