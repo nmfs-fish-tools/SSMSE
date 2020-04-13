@@ -647,10 +647,11 @@ run_SSMSE_iter <- function(out_dir     = NULL,
   for (yr in assess_yrs) {
     # checks, esp. to make sure future catch is not larger than the population
     # biomass (or size, depending on units)
-    # TODO: improve this function and include future discards (if any)?
-    check_future_catch(catch = new_catch_list[["catch_bio"]],
-                       OM_dir = OM_out_dir,
-                       catch_units = "bio")
+    # TODO: improve this function below; we need better checks for all the 
+    # new_catch_list components
+    # check_future_catch(catch = new_catch_list[["catch_bio"]],
+    #                    OM_dir = OM_out_dir,
+    #                    catch_units = "bio")
     #add new years of catch to the OM and add dummy values where necessary.
     if(verbose) {
       message("Extending, running, and sampling from the OM though year ", yr,
