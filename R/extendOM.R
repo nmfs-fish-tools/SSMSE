@@ -139,23 +139,23 @@ extend_OM <- function(catch,
   # using do_rec_devs method 2,3,or 4;
   if(!is.null(parlist$recdev1)) {
     parlist$recdev1 <- rbind(parlist$recdev1, 
-                             parlist$recdev_forecast[seq_along(nyrs_extend), ])
+                             parlist$recdev_forecast[seq_len(nyrs_extend), ])
   }else if(!is.null(parlist$recdev2)) {
     parlist$recdev2 <- rbind(parlist$recdev2,
-                             parlist$recdev_forecast[seq_along(nyrs_extend),])
+                             parlist$recdev_forecast[seq_len(nyrs_extend),])
   }
   # implementation error
   parlist$Fcast_impl_error <- get_impl_error_matrix(
-    yrs = (dat$endyrs+nyrs_extend+1))
+    yrs = (dat$endyr+nyrs_extend+1))
   # recdevs - check if this is right
   parlist$recdev_forecast <- 
-    get_rec_devs_matrix(yrs  = (dat$endyrs+nyrs_extend+1),
+    get_rec_devs_matrix(yrs  = (dat$endyr+nyrs_extend+1),
                         rec_devs = rec_devs, 
                         sum_to_zero = FALSE)
   # F values
   parlist$F_rate <- 
     rbind(parlist$F_rate, 
-          F_list[["F_rate_fcast"]][, 
+          F_list[["F_rate_fcast"]][seq_len(nyrs_extend), 
             setdiff(colnames(F_list[["F_rate_fcast"]]), "name")])
   
   # change data file
