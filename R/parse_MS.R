@@ -44,6 +44,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
   # EM ----
   if(MS == "EM") {
     check_dir(EM_out_dir)
+    #TODO: change this name to make it less ambiguous
     new_datfile_name <- "init_dat.ss"
     if(init_loop) {
     # copy over raw data file from the OM to EM folder
@@ -91,25 +92,18 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     check_EM_forecast(fcast,
       n_flts_catch = length(which(new_EM_dat[["fleetinfo"]][, "type"] %in%
                                     c(1,2))))
-    if(init_loop) {
     fcast <- change_yrs_fcast(fcast, 
-                              make_yrs_rel = TRUE, 
+                              make_yrs_rel = (init_loop == TRUE), 
                               nyrs_fore = nyrs_assess, 
                               mod_styr = new_EM_dat[["styr"]], 
                               mod_endyr = new_EM_dat[["endyr"]])
-    } else {
-      fcast <- change_yrs_fcast(fcast, 
-                       make_yrs_rel = FALSE,
-                       nyrs_increment = nyrs_assess,
-                       mod_styr = new_EM_dat[["styr"]],
-                       mod_endyr = new_EM_dat[["endyr"]])
-    }                     
     SS_writeforecast(fcast, dir = EM_out_dir, writeAll = TRUE, overwrite = TRUE,
                      verbose = FALSE)
     # given all checks are good, run the EM
     # check convergence (figure out way to error if need convergence)
     # get the future catch using the management strategy used in the SS model.
     run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
+    # get the forecasted catch.
     new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
   }
   # last_yr_catch ----
