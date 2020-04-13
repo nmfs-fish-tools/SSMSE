@@ -26,6 +26,13 @@ test_that("get_EM_catch_df works with no discards", {
   expect_true(is.data.frame(catch_list[["catch"]]))
   expect_true(all(catch_list$catch$year %in% 101:103))
   expect_true(all(colnames(catch_list[["catch"]]) == colnames(OM_dat$catch)))
+  expect_true(is.null(catch_list[["discards"]]))
+  expect_equivalent(catch_list[["catch"]], catch_list[["catch_bio"]])
+  expect_true(all(catch_list$catch_F$year %in% 101:103))
+  # note: the following check would need to change if the report file does
+  # F forecast could change if this model is rerun.
+  expect_true(all(round(catch_list$catch_F$catch, digits = 3) == 
+                  round(0.0496832, digits = 3)))
 })
 
 
