@@ -1,12 +1,29 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# This runs old, current, and dev release of r on linux, but only current
+# release of r on osx. This decision was because the packages that travis tried
+# to download while testing out the osx build with dev version of r were not
+# available at the url. The erroring of this build had nothing to do with the 
+# SSMSE R package.
 
-language: R
+language: r
+jobs:
+  include:
+  - r: release
+    os: linux
+  - r: devel
+    os: linux
+  - r: release
+    os: osx
 sudo: required
 cache: packages
-dist: xenial
 
 services:
   - xvfb
+  
+script: 
+  - |
+    R CMD build .
+    travis_wait 40 R CMD check SSMSE*tar.gz
 
 notifications:
   email:
@@ -15,5 +32,9 @@ notifications:
 
 r_packages:
   - devtools
+  - covr
 
 warnings_are_errors: false
+
+after_success:
+  - Rscript -e 'library(covr); codecov()'

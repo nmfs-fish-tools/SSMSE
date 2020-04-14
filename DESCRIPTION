@@ -1,0 +1,35 @@
+Package: SSMSE
+Type: Package
+Title: Management Strategy Evaluation (MSE) using Stock Synthesis (SS)
+Version: 0.1.0
+Authors@R: c(
+    person("Kathryn", "Doering", email = "kathryn.doering@noaa.gov",
+      role = c("aut", "cre")),
+    person("Nathan", "Vaughan", email = "nathan.vaughan@noaa.gov", 
+      role = c("aut")))
+Description: SSMSE is an R package for performing Management Strategy Evaluation
+    (MSE) using Stock Synthesis (SS). SS is used as the Operating Model (OM) 
+    and, if the user desires, the Estimation model (EM). SSMSE allows existing 
+    SS models to be used as the basis for an OM. These OMs are used in the MSE 
+    framework provided by SSMSE to evaluate the implications of management 
+    actions on a population given uncertainty.
+Depends: R (>= 3.5.0)
+License: What license is it under?
+URL: https://github.com/nmfs-fish-tools/SSMSE
+BugReports: https://github.com/nmfs-fish-tools/SSMSE/issues
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
+Imports:
+    stats,
+    utils,
+    r4ss,
+    assertive.types,
+    assertive.properties,
+    assertive.base,
+    tidyr,
+    rlang
+Suggests: 
+    testthat
+Remotes:
+    r4ss/r4ss@development
