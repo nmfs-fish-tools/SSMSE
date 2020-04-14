@@ -24,7 +24,7 @@ test_that("run_SSMSE_iter runs with an EM", {
                  dat_str = list(
                    catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
                    CPUE = data.frame(year = add_yrs, seas = 7, index = 2),
-                   lencomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 1, 
+                   lencomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 1,
                                         Gender = 0, Part = 0),
                    agecomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 2,
                                         Gender = 0, Part = 0, Ageerr = 1,
@@ -86,7 +86,7 @@ test_that("cod works when treated as a custom model", {
                            dat_str = list(
                              catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
                              CPUE = data.frame(year = add_yrs, seas = 7, index = 2),
-                             lencomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 1, 
+                             lencomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 1,
                                                   Gender = 0, Part = 0),
                              agecomp = data.frame(Yr = add_yrs, Seas = 1 , FltSvy = 2,
                                                   Gender = 0, Part = 0, Ageerr = 1,

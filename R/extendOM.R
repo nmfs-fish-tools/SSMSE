@@ -153,10 +153,11 @@ extend_OM <- function(catch,
                         rec_devs = rec_devs, 
                         sum_to_zero = FALSE)
   # F values
-  parlist$F_rate <- 
-    rbind(parlist$F_rate, 
-          F_list[["F_rate_fcast"]][seq_len(nyrs_extend), 
-            setdiff(colnames(F_list[["F_rate_fcast"]]), "name")])
+  add_F_rate <- F_list[["F_rate_fcast"]][, 
+                    setdiff(colnames(F_list[["F_rate_fcast"]]), "name")]
+  add_F_rate <- add_F_rate[add_F_rate$year %in% 
+                             (dat$endyr+1):(dat$endyr+nyrs_extend), ]
+  parlist$F_rate <- rbind(parlist$F_rate, add_F_rate)
   
   # change data file
   dat$catch <- rbind(dat$catch, catch)
