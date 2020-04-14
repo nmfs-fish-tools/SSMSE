@@ -10,7 +10,7 @@ get_no_EM_catch_df(OM_dir, yrs, MS = "last_yr_catch")
 \arguments{
 \item{OM_dir}{The OM directory.}
 
-\item{yrs}{A vector of years for each year}
+\item{yrs}{A vector of years}
 
 \item{MS}{Can be either "no_catch" or "last_yr_catch"}
 }

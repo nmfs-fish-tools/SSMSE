@@ -135,7 +135,7 @@ run_SSMSE <- function(scen_list           = NULL,
                                    datsource = dat, ctlsource = ctl, 
                                    verbose = FALSE)
   rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
-  rec_stddev <- sd(rec_dev_comb[,2])
+  rec_stddev <- stats::sd(rec_dev_comb[,2])
   if(is.null(rec_dev_pars)) {
     rec_dev_pars <- c(nyrs_assess_vec,1) 
   }
@@ -152,33 +152,33 @@ run_SSMSE <- function(scen_list           = NULL,
     breaks <- unique(c(seq(0, nyrs_vec, rec_dev_pars[1]), nyrs_vec))
     rec_dev_list <- list()
     if(scope == 1) {
-      rec_dev_seq <- rnorm(nyrs_vec)
+      rec_dev_seq <- stats::rnorm(nyrs_vec)
       for(k in 1:(length(breaks)-1)) {
         temp_rec_dev <- rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
         temp_rec_dev <- temp_rec_dev - (sum(temp_rec_dev)/length(temp_rec_dev))
-        temp_rec_dev <- temp_rec_dev/sd(temp_rec_dev)
+        temp_rec_dev <- temp_rec_dev/stats::sd(temp_rec_dev)
         rec_dev_seq[(breaks[k]+1):(breaks[k+1])] <- temp_rec_dev*rec_stddev
       } 
     }
     for(i in 1:length(scen_name_vec)) {
       rec_dev_list[[i]] <- list()
       if(scope == 2) {
-        rec_dev_seq <- rnorm(nyrs_vec)
+        rec_dev_seq <- stats::rnorm(nyrs_vec)
         for(k in 1:(length(breaks)-1)) {
           temp_rec_dev <- rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
           temp_rec_dev <- temp_rec_dev - 
             (sum(temp_rec_dev)/length(temp_rec_dev))
-          temp_rec_dev <- temp_rec_dev/sd(temp_rec_dev)
+          temp_rec_dev <- temp_rec_dev/stats::sd(temp_rec_dev)
           rec_dev_seq[(breaks[k]+1):(breaks[k+1])] <- temp_rec_dev*rec_stddev
         } 
       }
       for(j in 1:length(iter_list[[i]])) {
         if(scope==3) {
-          rec_dev_seq <- rnorm(nyrs_vec)
+          rec_dev_seq <- stats::rnorm(nyrs_vec)
           for(k in 1:(length(breaks)-1)) {
             temp_rec_dev <- rec_dev_seq[(breaks[k]+1):(breaks[k+1])]
             temp_rec_dev <- temp_rec_dev-(sum(temp_rec_dev)/length(temp_rec_dev))
-            temp_rec_dev <- temp_rec_dev/sd(temp_rec_dev)
+            temp_rec_dev <- temp_rec_dev/stats::sd(temp_rec_dev)
             rec_dev_seq[(breaks[k]+1):(breaks[k+1])] <- temp_rec_dev*rec_stddev
           } 
         }
@@ -234,7 +234,7 @@ run_SSMSE <- function(scen_list           = NULL,
     }
   }else if(impl_error_pattern=="rand") {
     impl_error <- list()
-    estimated_inp_var <- optimize(f = fit_inp_var,
+    estimated_inp_var <- stats::optimize(f = fit_inp_var,
                                   interval = c(0,10*(impl_error_pars[3])^2),
                                   target_mean = (impl_error_pars[2]),
                                   targ_var = (impl_error_pars[3])^2)
@@ -245,7 +245,7 @@ run_SSMSE <- function(scen_list           = NULL,
                            (impl_error_pars[1]*dat$nseas*dat$Nfleet)),
                        (nyrs_vec*dat$nseas*dat$Nfleet)))
     if(scope == 1) {
-      impl_error_seq <- rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
+      impl_error_seq <- stats::rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
                                estimated_inp_mean,estimated_inp_stdev)
       for(k in 1:(length(breaks)-1)) {
         temp_impl_error <- impl_error_seq[(breaks[k]+1):(breaks[k+1])]
@@ -257,7 +257,7 @@ run_SSMSE <- function(scen_list           = NULL,
     for(i in 1:length(scen_name_vec)) {
       impl_errors[[i]] <- list()
       if(scope == 2) {
-        impl_error_seq <- rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
+        impl_error_seq <- stats::rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
                                  estimated_inp_mean,estimated_inp_stdev)
         for(k in 1:(length(breaks)-1)) {
           temp_impl_error <- impl_error_seq[(breaks[k]+1):(breaks[k+1])]
@@ -268,7 +268,7 @@ run_SSMSE <- function(scen_list           = NULL,
       }
       for(j in 1:length(iter_list[[i]])) {
         if(scope == 3) {
-          impl_error_seq <- rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
+          impl_error_seq <- stats::rlnorm(nyrs_vec*dat$nseas*dat$Nfleet,
                                    estimated_inp_mean, estimated_inp_stdev)
           for(k in 1:(length(breaks)-1)) {
             temp_impl_error <- impl_error_seq[(breaks[k]+1):(breaks[k+1])]

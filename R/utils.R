@@ -476,24 +476,12 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
                      EM_in_dir = EM_in_dir, EM_out_dir = EM_out_dir)
 }
 
-#' create the OM directory
+#' Locate the OM model files
 #' 
-#' Create an OM directory within the out_dir specified (named by the value of
-#' niter)
-#' @param out_dir  The directory to which to write output. IF NULL, will default
-#'  to the working directory.
-#' @param niter The number iteration
 #' @param OM_name Name of OM model.
 #' @param OM_in_dir Relative or absolute path to the operating model. NULL if 
 #'  using SSMSE package model.
-#' @param MS The management strategy. If "EM", will create the EM folders.
-#'  Otherwise, can be any name, defaulting to "not_EM".
-#' @param EM_name Name of the EM model. NULL if MS != "EM" (default value)
-#' @param EM_in_dir Relative or absolute path to the estimation model. NULL if 
-#'  using SSMSE package model or MS != "EM" (default value)
-#' @return A list with 2 named components each of length 1 characters. The
-#'  components are: OM_dir, where OM will be run, and OM_in_dir, where the model
-#'  files will be copied from.
+#' @return A list with on comonent, OM_in_dir, which contains the model location
 locate_in_dirs <- function(OM_name, OM_in_dir) {
   # checks
   if(!is.null(OM_name)) assertive.types::assert_is_a_string(OM_name)
