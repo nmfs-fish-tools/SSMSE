@@ -55,13 +55,13 @@ get_F <- function(timeseries, fleetnames) {
   # form init_F
   # Report.sso PARAMETERS implies there can be 1 init F per fleet and season
   # (if there is initial catch for that fleet and season)
-  init_F <- F_df[F_df$F > 0 & F_df$Era == "Init", c("Seas", "Fleet", "F")]
+  init_F <- F_df[F_df$F > 0 & F_df$Era == "INIT", c("Seas", "Fleet", "F")]
   if(nrow(init_F) == 0) {
     init_F <- NULL
   } else {
     # feed back as a named vector sorted by fleet, then season. Names are the
     # same as in the PARAMETERS section of report.sso
-    init_F <- init_F[order(init_F[, "Fleet"], init_F[, "Seas"])]
+    init_F <- init_F[order(init_F[, "Fleet"], init_F[, "Seas"]), ]
     fleetnames_df <- data.frame(Fleet = seq_along(fleetnames), 
                                 fleetname = fleetnames)
     init_F <- merge(init_F, fleetnames_df)

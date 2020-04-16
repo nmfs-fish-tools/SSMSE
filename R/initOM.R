@@ -84,7 +84,7 @@ create_OM <- function(OM_out_dir,
   # note that F_list[["F_rate"]] and F_list[["F_init]] are NULL if they had 0 
   # rows.
   parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")] 
-  parlist[["F_init"]] <- F_list[["F_init"]]
+  parlist[["init_F"]] <- F_list[["init_F"]]
   # add recdevs to the parlist
   # TODO: need to use sum_to_zero = TRUE?
   parlist[["recdev_forecast"]] <- 
@@ -304,12 +304,12 @@ create_OM <- function(OM_out_dir,
                              printstats = FALSE)
     # check F's in the assumed order.
     par_df <- test_output$parameters
-    F_init_pars <- par_df[grep("^InitF_", par_df$Label),]
-    if(NROW(F_init_pars) != length(F_list[["init_F"]])) {
+    init_F_pars <- par_df[grep("^InitF_", par_df$Label),]
+    if(NROW(init_F_pars) != length(F_list[["init_F"]])) {
       stop("Wrong number of init_F parameters assumed by create_OM function.")
     }
-    if(NROW(F_init_pars) > 0) {
-      if(!all(F_init_pars$Label == names(F_list[["init_F"]]))) {
+    if(NROW(init_F_pars) > 0) {
+      if(!all(init_F_pars$Label == names(F_list[["init_F"]]))) {
        stop("Names of init_F parameters assumed by create_OM function and in\n",
             "the PARAMETERS table of Report.sso function do not match.")  
       } 
