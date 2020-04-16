@@ -10,8 +10,11 @@
 #' column and the rec_devs values in the second.
 get_rec_devs_matrix <- function(yrs, rec_devs, sum_to_zero = FALSE) {
   # TODO: add check that yrs and rec_devs are same length?
-  if(length(rec_devs) < length(yrs)) {
+  if(sum_to_zero == FALSE & length(rec_devs) < length(yrs)) {
     stop("length  of rec_devs is less than length of yrs.")
+  } else if (sum_to_zero & length(rec_devs) < (length(yrs)-1)) {
+    stop("rec_devs is not long enough. With sum_to_zero = TRUE, it should be at",
+         " least length(yrs) - 1 ")
   }
   temp_recdev<-matrix(NA, length(yrs), ncol = 2)
   temp_recdev[,1]<- yrs
