@@ -2,14 +2,16 @@
 
 # (SSMSE) Management Strategy Evaluation for Stock Synthesis (SS)
 
+master:
+[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE?branch=master&svg=true)](https://ci.appveyor.com/project/nmfs-fish-tools/SSMSE)
+[![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
+
 development:
 [![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=development)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE?branch=development&svg=true)](https://ci.appveyor.com/project/nmfs-fish-tools/SSMSE)
 [![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/development/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
- 
-master:
-[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE?branch=master&svg=true)](https://ci.appveyor.com/project/nmfs-fish-tools/SSMSE)
+
 
 **************
 
@@ -34,12 +36,12 @@ https://nmfs-fish-tools.github.io/SSMSE/
 Installing the SSMSE R package
 ---------
 
-Note that the SSMSE is a work in progress and not yet a minimum viable product. The development branch is where active development is occuring and large, non-back-compatible changes may occur.
+Note that the SSMSE is a work in progress and not yet a minimum viable product.
 
-To install the development version of SSMSE from github and load it:
+To install SSMSE from github and load it:
 ``` r
 library("devtools") # note that library("remotes") can also be used. Both can access `install_github`. 
-install_github("nmfs-fish-tools/SSMSE@development")
+install_github("nmfs-fish-tools/SSMSE")
 library(SSMSE)
 ```
 You can read the help files with
@@ -64,6 +66,8 @@ run_SSMSE_iter(OM_name = "cod",
                MS = "EM",
                out_dir = temp_path,
                EM_name = "cod",
+               rec_dev_iter = rep(0, 6),
+               impl_error = rep(1, 6*2),
                nyrs = 6,
                nyrs_assess = 3,
                dat_str = list(
