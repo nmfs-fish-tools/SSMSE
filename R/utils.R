@@ -542,10 +542,10 @@ copy_model_files <- function(OM_in_dir,
     stop("Problem copying SS OM .ss_new files from ", OM_in_dir, " to ", 
          OM_out_dir, ".")
   }
-  # simplify the forecasting file
-  file.copy(from = system.file("extdata", "forecast_simple_template.ss",
-                               package = "SSMSE"),
-            to = file.path(OM_out_dir, "forecast.ss"), overwrite = TRUE)
+  # # simplify the forecasting file
+  # file.copy(from = system.file("extdata", "forecast_simple_template.ss",
+  #                              package = "SSMSE"),
+  #           to = file.path(OM_out_dir, "forecast.ss"), overwrite = TRUE)
   #copy over EM ----
   if(MS == "EM") {
     if(verbose) message("Copying over input model files in ", EM_in_dir, " to ", EM_out_dir, ".")
