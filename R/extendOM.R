@@ -99,9 +99,10 @@ extend_OM <- function(catch,
   outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE, 
                              covar = FALSE,warn = FALSE, readwt = FALSE)
   # Extract the achieved F and Catch for the forecast period
-  F_list <- get_F(timeseries = outlist$timeseries, fleetnames = dat$fleetnames)
+  F_list <- get_F(timeseries = outlist$timeseries,
+    fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1,2), "fleetname"])
   ret_catch <- get_retained_catch(timeseries = outlist$timeseries, 
-                                  units_of_catch = dat$fleetinfo$units)
+    units_of_catch = dat$fleetinfo[dat$fleetinfo$type %in% c(1,2), "units"])
   #Check that SS created projections with the intended catches before updating model
   #make sure retained catch is close to the same as the input catch. 
   fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE" & 

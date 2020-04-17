@@ -67,8 +67,9 @@ create_OM <- function(OM_out_dir,
   forelist$InputBasis <- 3 # I think this is the retained catch option. Why?
   # put together a Forecatch dataframe using retained catch
   # unclear why this is necessary
+  forelist$Flimitfraction <- 1 # TODO: review setting.
   ret_catch <- get_retained_catch(timeseries = outlist$timeseries, 
-                                       units_of_catch = dat$fleetinfo$units)
+        units_of_catch = dat$fleetinfo[dat$fleetinfo$type %in% c(1,2), "units"])
   temp_fore <- ret_catch[ret_catch$Era == "FORE", 
                          c("Yr", "Seas", "Fleet", "retained_catch")]
   row.names(temp_fore) <- NULL
@@ -79,7 +80,8 @@ create_OM <- function(OM_out_dir,
   
   # modify par file ----
   # use report.sso time series table to find the F's to put into the parlist.
-  F_list <- get_F(timeseries = outlist$timeseries, fleetnames = dat$fleetnames)
+  F_list <- get_F(timeseries = outlist$timeseries,
+    fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1,2), "fleetname"])
   # modify the init_F and F_rate in parlist if used.
   # note that F_list[["F_rate"]] and F_list[["F_init]] are NULL if they had 0 
   # rows.

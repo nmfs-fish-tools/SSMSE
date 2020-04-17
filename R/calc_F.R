@@ -13,9 +13,13 @@
 #'  as SS expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas, 
 #'  and fleet, ordered as SS would expect in F_rate.
 get_F <- function(timeseries, fleetnames) {
+  assertive.types::assert_is_data.frame(timeseries)
   # find the F columns
   F_col_ind <- grep("^F:_\\d+$", colnames(timeseries))
   # Note that Area does not need to be included b/c fleets can only operate in
+  # add check that fleet name is the correct length
+  nfleets <- length(F_col_ind)
+  assertive.properties::assert_is_of_length(fleetnames, nfleets)
   # 1 area
   other_col_ind <- which(colnames(timeseries) %in% c("Yr", "Era", "Seas"))
   # Note: pivot_longer is a newer alternative, but it is not yet stable, so 
@@ -81,18 +85,20 @@ get_F <- function(timeseries, fleetnames) {
   } else {
     stop("Column names not in the correct order.")
   }
-  # Make sure that the df is ordered correctly;
-  # verified F rate order by running a multiseason and multifleet model and
-  # looking at order of F_rate in the PARAMETERS section of the report file.
-  F_rate_fcast <- F_rate_fcast[order(F_rate_fcast[,"fleet"], 
-                                     F_rate_fcast[,"year"],
-                                     F_rate_fcast[,"seas"]), ]
-  # add a name col that is the same as naming in the Report.sso
-  F_rate_fcast$name <- paste0("F_fleet_", F_rate_fcast$fleet, 
-                              "_YR_", F_rate_fcast$year, 
-                              "_s_", F_rate_fcast$seas)
+
   if(nrow(F_rate_fcast) == 0) {
     F_rate_fcast <- NULL
+  } else {
+    # Make sure that the df is ordered correctly;
+    # verified F rate order by running a multiseason and multifleet model and
+    # looking at order of F_rate in the PARAMETERS section of the report file.
+    F_rate_fcast <- F_rate_fcast[order(F_rate_fcast[,"fleet"], 
+                                       F_rate_fcast[,"year"],
+                                       F_rate_fcast[,"seas"]), ]
+    # add a name col that is the same as naming in the Report.sso
+    F_rate_fcast$name <- paste0("F_fleet_", F_rate_fcast$fleet, 
+                                "_YR_", F_rate_fcast$year, 
+                                "_s_", F_rate_fcast$seas)
   }
 
   F_list <- list(F_df = F_df, F_rate = F_rate, init_F = init_F, 
@@ -104,15 +110,21 @@ get_F <- function(timeseries, fleetnames) {
 #' @param timeseries from SSoutput
 #' @param units_of_catch From datalist
 #' @importFrom tidyr gather separate
-#' @return a data frame with retained catch by Area, Yr, Era, Seas, Fleet, and 
+#' @return a data frame with retained catch by Yr, Era, Seas, Fleet, and 
 #'  units (long format)
 get_retained_catch <- function(timeseries, units_of_catch) {
+  #input checks
+  assertive.types::assert_is_data.frame(timeseries)
+  nfleets <- length(grep("^F:_\\d+$", colnames(timeseries)))
+  assertive.properties::assert_is_of_length(units_of_catch, nfleets)
+  # calc retained catch
   units_catch_string <- ifelse(units_of_catch == 1, "B", "N")
   retain_catch_colnames <- paste0("retain(", units_catch_string, "):_",
                                   seq_along(units_catch_string))
   # some may not be included in output if no catch.
   retain_catch_colnames <- retain_catch_colnames[
                             retain_catch_colnames %in% colnames(timeseries)]
+
   # switch from wide to long format.
   retain_catch_df <- timeseries[, c("Yr", "Era", "Seas", retain_catch_colnames)]
   retain_catch_df <- tidyr::gather(retain_catch_df, 
