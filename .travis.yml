@@ -1,5 +1,5 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-# This runs old, current, and dev release of r on linux, but only current
+# This runs current, and dev release of r on linux, but only current
 # release of r on osx. This decision was because the packages that travis tried
 # to download while testing out the osx build with dev version of r were not
 # available at the url. The erroring of this build had nothing to do with the 
@@ -27,8 +27,11 @@ script:
 
 notifications:
   email:
+    recipients:
+      - kathryn.doering@noaa.gov
+      - nathan.vaughan@noaa.gov
     on_success: change
-    on_failure: change
+    on_failure: always
 
 r_packages:
   - devtools
