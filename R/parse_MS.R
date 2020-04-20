@@ -344,7 +344,8 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE, 
                              covar = FALSE, warn = FALSE, readwt = FALSE)
   # get F.
-  F_vals <- get_F(outlist$timeseries, fleetnames = dat$fleetnames)
+  F_vals <- get_F(outlist$timeseries,
+    fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1,2), "fleetname"])
   catch_F <- F_vals[["F_rate_fcast"]][ ,
                                        c("year", "seas", "fleet", "F")]
   colnames(catch_F) <- c("year", "seas", "fleet", "catch")
@@ -352,7 +353,9 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   catch_bio <- get_retained_catch(outlist$timeseries, 
                                   # use units_of_catch = 1 for all fleets,
                                   # b/c want biomass in all cases.
-                                  units_of_catch = rep(1, times = NROW(dat$fleetinfo)))
+                                  units_of_catch = rep(1, 
+      times = NROW(dat$fleetinfo[dat$fleetinfo$type %in% c(1,2), ])))
+  dat$fleetinfo[dat$fleetinfo$type %in% c(1,2), "units"]
   catch_bio <- catch_bio[catch_bio$Era == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
   colnames(catch_bio) <- c("year", "seas", "fleet", "catch")
   } else {
