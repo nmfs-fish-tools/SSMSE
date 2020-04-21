@@ -50,16 +50,16 @@ An SSMSE toy example
 
 This comes from the documentation examples for function `run_SSMSE_iter`. See `?SSMSE::run_SSMSE_iter` to view this and an additional example.
 
-This code runs 1 iteration of an MSE feedback loop. The code specifies the operating model (OM) as "cod", which is an example model included in the external data for the SSMSE package. Because this is a toy example and not a true MSE, the cod model is also used as the estimation model(EM) to get future catch. The MSE loop runs for 6 years, with a stock assessment occuring every 3 years. The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100, 103, and 106. Note that the assessment run in year 106 will generate future catch for years 107, 108, and 109, but these are not feed back into the operating model because the MSE loop is specified to only run through year 106). The argument `dat_str` specifies the data structure to add to the estimation model. In this case, we add catch every year from fleet to the estimation model and an index of abundance (CPUE) in years 102 and 105 for fleet 2. Because they are not specified, no length or age composition data is added.
+This code runs 1 iteration of an MSE feedback loop. The code specifies the operating model (OM) as "cod", which is an example model included in the external data for the SSMSE package. Because this is a toy example and not a true MSE, the cod model is also used as the estimation model(EM) to get future catch. The MSE loop runs for 6 years, with a stock assessment occuring every 3 years. The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100, 103, and 106. Note that the assessment run in year 106 will generate future catch for years 107, 108, and 109, but these are not feed back into the operating model because the MSE loop is specified to only run through year 106). The argument `dat_str` specifies the data structure to add to the estimation model. In this case, we add catch every year from fleet to the estimation model and an index of abundance (CPUE) in years 102 and 105 for fleet 2. Because they are not specified, no length or age composition data is added. Note that no implementation error is assumed for forecasted catch and recruitment dviations into the future are all assmed to be 0.
 
 ```r
-# Create a temporary folder for the output
-temp_path <- file.path(tempdir(), "run_SSMSE_iter-ex")
-dir.create(temp_path)
+# Create a folder for the output in the working directory.
+run_SSMSE_dir <- file.path("run_SSMSE_iter-ex")
+dir.create(run_SSMSE_dir)
 # run 1 iteration and 1 scenario of SSMSE using an EM.
 run_SSMSE_iter(OM_name = "cod",
                MS = "EM",
-               out_dir = temp_path,
+               out_dir = run_SSMSE_dir,
                EM_name = "cod",
                rec_dev_iter = rep(0, 6),
                impl_error = rep(1, 6*2),
@@ -71,6 +71,6 @@ run_SSMSE_iter(OM_name = "cod",
                )
 )
 # if you want to delete the files:
-#unlink(temp_path, recursive = TRUE)
+#unlink(run_SSMSE_dir, recursive = TRUE)
 
 ```
