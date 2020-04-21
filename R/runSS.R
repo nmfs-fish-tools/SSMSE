@@ -33,6 +33,10 @@
 #' @param check_run Should it be checked that the model ran by deleting the 
 #'  data.ss_new file if one exists and then checking if one was created?
 #'  Defaults to TRUE.
+#' @param debug_par_run If set to TRUE, and the run fails, a new folder called
+#'  error_check will be created, and the model will be run from control start 
+#'  values instead of ss.par. The 2 par files are then compared to help debug
+#'  the issue with the model run. Defaults to FALSE.
 #' @template verbose 
 #' @param ... Anything else to pass to \code{\link[base]{system}}.
 #' @author Sean C. Anderson, Kathryn Doering
@@ -43,6 +47,7 @@ run_ss_model <- function(dir,
                          admb_pause = 0.05, 
                          show.output.on.console = FALSE,
                          check_run = TRUE,
+                         debug_par_run = FALSE,
                          verbose = FALSE,
                          ...) {
   #TODO: create Input checking: check form of admb options
@@ -70,12 +75,18 @@ run_ss_model <- function(dir,
            invisible = TRUE, ignore.stdout = ignore.stdout,
            show.output.on.console = show.output.on.console, ...)
   }
-  if(check_run == TRUE){ 
+  if(check_run == TRUE) { 
     if(!file.exists(ss_new_path)) {
-      stop("data.ss_new was not created during the model run, which suggests ",
-           "SS did not run correctly")
+      if(debug_par_run) {
+        test_no_par(orig_mod_dir = dir, 
+                    new_mod_dir = file.path(dirname(dir), "OM_error_check"))
+        #note that this will exit on error.
+      } else {
+        stop("data.ss_new was not created during the model run, which suggests ",
+             "SS did not run correctly")
+      }
     } else {
-      if (verbose) "data.ss_new created druing model run."
+      if (verbose) "data.ss_new created during model run."
     }
   }
   Sys.sleep(admb_pause)

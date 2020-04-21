@@ -94,7 +94,8 @@ extend_OM <- function(catch,
                          overwrite = TRUE, verbose = FALSE)
   #Run SS with the new catch set as forecast targets. This will use SS to 
   #calculate the F required in the OM to achieve these catches.
-  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
+  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose,
+               debug_par_run = TRUE)
   #Load the SS results 
   outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE, 
                              covar = FALSE,warn = FALSE, readwt = FALSE)
