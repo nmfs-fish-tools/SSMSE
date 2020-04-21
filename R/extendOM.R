@@ -74,7 +74,9 @@ extend_OM <- function(catch,
   forelist$Nforecastyrs <- nyrs_extend + 1 # should already have this value, but just in case.
   forelist$ForeCatch <- catch[, c("year", "seas", "fleet", "catch")]
   # note: may need to change the colnames.
-  #this is the true catch. TODO should impl_error be added or multiplied?
+  # this is the true catch. TODO should impl_error be added or multiplied?
+  # NV: Yes as written this should be multiplied as impl_error defaults to 1. 
+  # We could always change the default to 0 and change to addition if people prefered.
   forelist$ForeCatch[,"catch"] <- forelist$ForeCatch[, "catch"] *
     impl_error[seq_along(NROW(forelist$ForeCatch[, "catch"]))]
   
@@ -115,9 +117,19 @@ extend_OM <- function(catch,
       stop("Forecasted retained catch - ", 
            paste0(fcast_ret_catch, collapse = ", "),
            " - don't match those expected - ", 
-           paste0(catch[, "catch"], collapse = ", "))
-      # KD: can we offer any solutions on wher to go from here in this error msg?
-      # This check is helpful, though!
+           paste0(catch[, "catch"], collapse = ", "),"
+           : NOTE: This can often occure in scenarios where
+           the stock has collapsed at some point and SS has
+           unintentionally projected with an unrealistic value.")
+      # KD: can we offer any solutions on where to go from here in this error msg?
+      # This check is helpful, though! 
+      # NV: My best guess is this will only trip is SS messes up after the catches
+      # crash the stock. In those cases projections can do all sorts of weird things
+      # like put in negative F's and create super stock recoveries. I think we should
+      # have some sort of default max F that overrides the catch the user could modify.
+      # something like apical F can't exceed 2 times the historic maximum or something
+      # under the assumption that in the real world their are effort capacity limits. 
+      
     }
   } else { # a second check when there is 0 catch.This is fairly arbitrary and
     # perhaps should be more stringent.

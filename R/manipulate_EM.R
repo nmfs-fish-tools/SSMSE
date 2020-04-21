@@ -18,6 +18,7 @@
 change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE, 
                        verbose = FALSE) {
   EM_dir <- normalizePath(EM_dir)
+  
   # checks
   assertive.types::assert_is_a_string(OM_datfile)
   assertive.types::assert_is_a_string(EM_dir)
@@ -28,6 +29,7 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
   # read in the dat files
   EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = FALSE)
   OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = FALSE)
+  
   # remove extra years of data in the OM data file.
   new_EM_dat <- get_EM_dat(OM_dat = OM_dat, EM_dat = EM_dat, 
                            do_checks = do_checks)

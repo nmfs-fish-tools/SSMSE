@@ -16,7 +16,7 @@ ensure that ther recruitment deviations sum to zero? Defaults to FALSE.}
 }
 \value{
 A length(yrs) row, 2 column matrix containing the years in the first
-column and the rec_devs values in the second.
+ column and the rec_devs values in the second.
 }
 \description{
 Put recdevs into a matrix

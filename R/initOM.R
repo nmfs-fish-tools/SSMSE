@@ -62,9 +62,11 @@ create_OM <- function(OM_out_dir,
   # extra yr is added to deal with the fact that recdevs have a sum to 0
   # constraint, so need an extra yr to deal with this.
   forelist$Nforecastyrs <- nyrs_assess + 1
-  # I think this is set so it is out of the range of the forecast?
+  # I think this is set so it is out of the range of the forecast? Yes exactly
   forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
   forelist$InputBasis <- 3 # I think this is the retained catch option. Why?
+  # I fix it at the retained catch option as an assumption that retained catch is
+  # what the fishery quotas will be based on?? If we don't like that we can change it.
   # put together a Forecatch dataframe using retained catch
   # unclear why this is necessary
   forelist$Flimitfraction <- 1 # TODO: review setting.

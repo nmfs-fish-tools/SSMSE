@@ -12,7 +12,7 @@ get_retained_catch(timeseries, units_of_catch)
 \item{units_of_catch}{From datalist}
 }
 \value{
-a data frame with retained catch by Area, Yr, Era, Seas, Fleet, and 
+a data frame with retained catch by Yr, Era, Seas, Fleet, and 
  units (long format)
 }
 \description{
