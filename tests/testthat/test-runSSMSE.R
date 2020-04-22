@@ -34,7 +34,7 @@ test_that("run_SSMSE_iter runs with an EM", {
   expect_true(file.exists(file.path(temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
   # some more specific values, specific to the scenario above.
-  dat <- SS_readdat(file.path(temp_path, "1", "cod_EM", "data.ss_new"), verbose = FALSE)
+  dat <- SS_readdat(file.path(temp_path, "1", "cod_EM_106", "data.ss_new"), verbose = FALSE)
   added_catch <- dat$catch[dat$catch$year %in% catch_add_yrs, ]
   old_catch <- dat$catch[dat$catch$year < min(catch_add_yrs), ]
   expect_true(all(added_catch$catch_se == 0.005))

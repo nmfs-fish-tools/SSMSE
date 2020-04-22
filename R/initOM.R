@@ -43,7 +43,8 @@ create_OM <- function(OM_out_dir,
   r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE,
                         overwrite = TRUE, warn = FALSE)
   # run model to get standardized output ----
-  run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
+  run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", debug_par_run = TRUE, 
+               verbose = verbose)
   # read in files to use ----
   dat <- r4ss::SS_readdat(file = file.path(OM_out_dir, start$datfile), 
                           verbose = FALSE, section = 1)
@@ -294,7 +295,8 @@ create_OM <- function(OM_out_dir,
     if(file.exists(file.path(OM_out_dir, "control.ss_new"))) {
       file.remove(file.path(OM_out_dir, "control.ss_new"))
     }
-    run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
+    run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose, 
+                 debug_par_run = TRUE)
     if(!file.exists(file.path(OM_out_dir, "control.ss_new"))){
       stop("The OM model created is not valid; it did not run and produce a\n",
            "control.ss_new file. Please try running the OM model created\n", 
@@ -346,13 +348,18 @@ create_OM <- function(OM_out_dir,
 #'   SS_readdat is equivalent to specifying nboot = 1.
 #' @param init_run Is this the initial iteration of the OM? Defaults to FALSE.
 #' @template verbose
+#' @param debug_par_run If set to TRUE, and the run fails, a new folder called
+#'  error_check will be created, and the model will be run from control start 
+#'  values instead of ss.par. The 2 par files are then compared to help debug
+#'  the issue with the model run. Defaults to TRUE.
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 run_OM <- function(OM_dir, 
                         boot = TRUE,
                         nboot = 1, 
                         init_run = FALSE, 
-                        verbose = FALSE) {
+                        verbose = FALSE, 
+                        debug_par_run = TRUE) {
   # make sure OM generates the correct number of data sets.
   if (boot) {
     max_section <- nboot + 2
@@ -367,7 +374,8 @@ run_OM <- function(OM_dir,
                         warn = FALSE)
   }
   # run SS and get the data set
-  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose)
+  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose,
+               debug_par_run = debug_par_run)
 
   dat <- r4ss::SS_readdat(file.path(OM_dir,"data.ss_new"), 
                           section = max_section, 

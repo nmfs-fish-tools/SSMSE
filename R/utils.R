@@ -466,7 +466,7 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
              "Model options are: ", paste0(basename(pkg_dirs), collapse = ", "))
       }
     }
-    EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM"))
+    EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM_init"))
     dir.create(EM_out_dir, showWarnings = FALSE)
   } else {
     EM_out_dir <- NULL
@@ -509,58 +509,61 @@ locate_in_dirs <- function(OM_name, OM_in_dir) {
 #' Copy OM and EM model files
 #' 
 #' Copy OM and EM model files from input to output location.
-#' @param OM_in_dir The OM input directory
-#' @param OM_out_dir The OM output directory
-#' @param MS The management strategy. EM_in_dir and EM_out_dir will only be
-#'  used if MS = "EM". 
-#' @param EM_in_dir The EM input directory. Only needed if MS = "EM".
-#' @param EM_out_dir The EM output directory. Only needed if MS = "EM".
+#' @param OM_in_dir The OM input directory. If NULL, the OM will not be copied.
+#' @param OM_out_dir The OM output directory. If NULL, the OM will not be copied.
+#' @param EM_in_dir The EM input directory. If NULL, the EM will not be copied.
+#' @param EM_out_dir The EM output directory. If NULL, the EM will not be copied.
 #' @template verbose
 #' @return TRUE, if copying is successful
 #' 
-copy_model_files <- function(OM_in_dir, 
-                             OM_out_dir, 
-                             MS = "not_EM",
-                             EM_in_dir, 
-                             EM_out_dir, 
+copy_model_files <- function(OM_in_dir = NULL, 
+                             OM_out_dir = NULL, 
+                             EM_in_dir = NULL, 
+                             EM_out_dir = NULL, 
                              verbose = FALSE) {
- # checks
-  if(!all(c("control.ss_new", "data.ss_new", "starter.ss_new", 
-            "forecast.ss_new","ss.par") %in% list.files(OM_in_dir))) {
-    stop(".ss_new files or par file not found in the original OM directory ", 
-         OM_in_dir, ". Please run the model to make the .ss_new files available.")
+  # checks
+  if(!is.null(OM_in_dir)) {
+    if(!all(c("control.ss_new", "data.ss_new", "starter.ss_new", 
+              "forecast.ss_new") %in% list.files(OM_in_dir))) {
+      stop(".ss_new files not found in the original OM directory ", 
+           OM_in_dir, ". Please run the model to make the .ss_new files available.")
+    }
   }
   # copy over OM ----
-  if(verbose) message("Copying over .ss_new model files in ", OM_in_dir, " to ", OM_out_dir, ".")
-  success_OM <- copy_SS_inputs(dir.old = OM_in_dir, 
-                 dir.new = OM_out_dir,
-                 overwrite = FALSE,
-                 use_ss_new = TRUE, # will rename the ss new files, also.
-                 copy_par = TRUE,
-                 verbose = FALSE)
-  if(success_OM == FALSE) {
-    stop("Problem copying SS OM .ss_new files from ", OM_in_dir, " to ", 
-         OM_out_dir, ".")
+  if(!is.null(OM_in_dir) & !is.null(OM_out_dir)) {
+    if(verbose == TRUE) {
+      message("Copying over .ss_new model files in ", OM_in_dir,
+              " to ", OM_out_dir, ".")
+    }
+    success_OM <- copy_SS_inputs(dir.old = OM_in_dir, 
+                   dir.new = OM_out_dir,
+                   overwrite = FALSE,
+                   use_ss_new = TRUE, # will rename the ss new files, also.
+                   copy_par = TRUE,
+                   verbose = FALSE)
+    if(success_OM == FALSE) {
+      stop("Problem copying SS OM .ss_new files from ", OM_in_dir, " to ", 
+           OM_out_dir, ".")
+    }
+  } else {
+    success_OM <- TRUE
   }
-  # # simplify the forecasting file
-  # file.copy(from = system.file("extdata", "forecast_simple_template.ss",
-  #                              package = "SSMSE"),
-  #           to = file.path(OM_out_dir, "forecast.ss"), overwrite = TRUE)
   #copy over EM ----
-  if(MS == "EM") {
-    if(verbose) message("Copying over input model files in ", EM_in_dir, " to ", EM_out_dir, ".")
+  if(!is.null(EM_in_dir) & !is.null(EM_out_dir)) {
+    if(verbose) message("Copying over input model files in ", EM_in_dir, " to ", 
+                        EM_out_dir, ".")
     success_EM <- copy_SS_inputs(dir.old = EM_in_dir, 
                    dir.new = EM_out_dir,
                    overwrite = FALSE,
                    verbose = FALSE)
+    if(success_EM == FALSE) {
+      stop("Problem copying SS EM files from ", EM_in_dir, "to", 
+           EM_out_dir, ".")
+    }
   } else {
-    success_EM <- TRUE # because don't need to copy over
+    success_EM <- TRUE
   }
-  if(success_EM == FALSE) {
-    stop("Problem copying SS EM files from ", EM_in_dir, "to", 
-         EM_out_dir, ".")
-  }
- invisible(c(success_OM = success_OM, success_EM = success_EM))
+  invisible(c(success_OM = success_OM, success_EM = success_EM))
 }
 
 #' function that creates a combined column to the list_item of interest
