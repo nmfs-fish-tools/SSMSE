@@ -74,3 +74,17 @@ run_SSMSE_iter(OM_name = "cod",
 #unlink(run_SSMSE_dir, recursive = TRUE)
 
 ```
+
+Roadmap: where is SSMSE headed next?
+---------
+
+SSMSE is still a work in progress, with basic framework in development. Some new directions we hope to work on shortly:
+
+ - Add functions to summarize results from running MSE analyses
+ - Add functions to calculate performance metrics
+ - Add functions to make some basic plots of diagonstics and results
+
+If you have thoughts about how to implement the upcoming work or are interested in helping develop SSMSE, please contact the developers by posting an issue in this repository or emailing nmfs.stock.synthesis@noaa.gov
+
+
+
