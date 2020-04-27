@@ -12,6 +12,7 @@ run_ss_model(
   admb_pause = 0.05,
   show.output.on.console = FALSE,
   check_run = TRUE,
+  debug_par_run = FALSE,
   verbose = FALSE,
   ...
 )
@@ -43,6 +44,11 @@ value is set to \code{0.01} seconds, just to be safe.}
 \item{check_run}{Should it be checked that the model ran by deleting the 
 data.ss_new file if one exists and then checking if one was created?
 Defaults to TRUE.}
+
+\item{debug_par_run}{If set to TRUE, and the run fails, a new folder called
+error_check will be created, and the model will be run from control start 
+values instead of ss.par. The 2 par files are then compared to help debug
+the issue with the model run. Defaults to FALSE.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
