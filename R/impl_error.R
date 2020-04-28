@@ -34,7 +34,6 @@ calc_impl_errors <- function(breaks, n_impl_errors, inp_mean, inp_stdev) {
 
 #' calculate the input variance from target mean and variance
 #' 
-#' @param inp_var the input variance to the random log normal generator
 #' @param target_mean The target mean of the observed log normal values
 #' @param targ_var the target variance to the simulated log normal values
 #' @return the squared difference between observed and target variances
@@ -66,16 +65,17 @@ check_impl_error <- function(length_impl_error_seq,expected_length){
 
 #' Build a list of implementation error vectors for each scenario and iteration.
 #' 
-#' @param yrs the number of years to simulate recruitment deviations for.
-#' @param scope scope over which recruitment devations will be randomized.
-#' @param rec_dev_pattern how to simulate recruitment devations. 
-#' @param rec_dev_pars recruitment devation simulation parameters dependent on chosen pattern.
-#' @param stddev the standard deviation of simulated recruitment deviations 
-#' @param scen_name_vec a vector of scenario names 
+#' @param yrs the number of years to simulate implementation error for.
+#' @param nyrs_assess the number of years between assessments.
+#' @param n_impl_error_groups the number of fleets times number of seasons
+#' @param scope scope over which implementation errors will be randomized.
+#' @param impl_error_pattern how to simulate implementation errors. 
+#' @param impl_error_pars implementation error simulation parameters dependent on chosen pattern.
+#' @param n_scenarios The number of scenarios simulated
 #' @param iter_list a list of iteration names.
 #' @return A list of scenarios with lists of interations in each with a vector of 
-#'  rec devs for each simulation year.
-build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, scen_name_vec, iter_list) {
+#'  implementation errors for each simulation year-fleet-season combination.
+build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, n_scenarios, iter_list) {
   
   if(is.null(impl_error_pars)) {
     impl_error_pars <- c(nyrs_assess, 1, 0) 
@@ -83,7 +83,7 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
   
   if(impl_error_pattern == "none") {
     impl_error <- list()
-    for(i in 1:length(scen_name_vec)) {
+    for(i in 1:n_scenarios) {
       impl_error[[i]] <- list()
       for(j in 1:length(iter_list[[i]])) {
         impl_error[[i]][[j]] <- rep(1, yrs*n_impl_error_groups)
@@ -101,7 +101,7 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
     if(scope == 1) {
       impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), inp_mean, inp_stdev)
     }
-    for(i in 1:length(scen_name_vec)) {
+    for(i in 1:n_scenarios) {
       impl_errors[[i]] <- list()
       if(scope == 2) {
         impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), inp_mean, inp_stdev)
@@ -120,7 +120,7 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
       impl_error_seq <- impl_error_pars
       check_impl_error(length(impl_error_seq),(yrs*n_impl_error_groups))
     }
-    for(i in 1:length(scen_name_vec)) {
+    for(i in 1:n_scenarios) {
       impl_error[[i]] <- list()
       if(scope == 2) {
         impl_error_seq <- impl_error_pars[i,]

@@ -141,7 +141,7 @@ run_SSMSE <- function(scen_list           = NULL,
   
   n_impl_error_groups <-  dat$nseas*dat$Nfleet
   
-  impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, scen_name_vec, iter_list)
+  impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
   
   if(is.null(scen_list)) {
    scen_list <- create_scen_list(scen_name_vec,

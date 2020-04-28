@@ -62,15 +62,16 @@ check_recdev_error <- function(length_recdev_seq,expected_length){
 #' Build an array of recruitment deviation vectors for every scenario and iteration
 #' 
 #' @param yrs the number of years to simulate recruitment deviations for.
+#' @param nyrs_assess the number of years between assessments.
 #' @param scope scope over which recruitment devations will be randomized.
 #' @param rec_dev_pattern how to simulate recruitment devations. 
 #' @param rec_dev_pars recruitment devation simulation parameters dependent on chosen pattern.
 #' @param stddev the standard deviation of simulated recruitment deviations 
-#' @param scen_name_vec a vector of scenario names 
+#' @param n_scenarios the number of scenarios simulated 
 #' @param iter_list a list of iteration names.
 #' @return A list of scenarios with lists of interations in each with a vector of 
 #'  rec devs for each simulation year.
-build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_pars, stddev, scen_name_length, iter_list) {
+build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_pars, stddev, n_scenarios, iter_list) {
 
   if(is.null(rec_dev_pars)) {
     rec_dev_pars <- c(nyrs_assess,1) 
@@ -78,7 +79,7 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
   
   if(rec_dev_pattern == "none") {
     rec_dev_list <- list()
-    for(i in 1:scen_name_length) {
+    for(i in 1:n_scenarios) {
       rec_dev_list[[i]] <- list()
       for(j in 1:length(iter_list[[i]])) {
         rec_dev_list[[i]][[j]]<-rep(0,yrs)
@@ -88,7 +89,7 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
     breaks <- unique(c(seq(0, yrs, rec_dev_pars[1]), yrs))
     rec_dev_list <- list()
     if(scope == 1) { rec_dev_seq<-calc_rec_devs(breaks, yrs, stddev)}
-    for(i in 1:scen_name_length) {
+    for(i in 1:n_scenarios) {
       rec_dev_list[[i]] <- list()
       if(scope == 2) { rec_dev_seq<-calc_rec_devs(breaks, yrs, stddev)}
       for(j in 1:length(iter_list[[i]])) {
@@ -103,7 +104,7 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
       rec_dev_seq <- rec_dev_pars
       check_recdev_error(length(rec_dev_seq),(yrs))
     }
-    for(i in 1:scen_name_length) {
+    for(i in 1:n_scenarios) {
       rec_dev_list[[i]] <- list()
       if(scope==2) { 
         rec_dev_seq <- rec_dev_pars[i,]
