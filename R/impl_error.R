@@ -17,16 +17,21 @@ get_impl_error_matrix <- function(yrs) {
 #' 
 #' @param breaks a vector of break-points between year groups rescaled to a mean of zero
 #' @param n_impl_errors the number of implementation error to simulate equal to nyrs x nseas x nfleets
+#' @param n_impl_error_groups the number of fleets times number of seasons
+#' @param target_mean The target mean of the observed log normal values
 #' @param inp_mean the input mean to achieve desired mean and standard deviation of log normal values
 #' @param inp_stdev the input standard deviation to achieve desired mean and standard deviation of log normal values
 #' @return a vector of implementation errors.
-calc_impl_errors <- function(breaks, n_impl_errors, inp_mean, inp_stdev) {
+calc_impl_errors <- function(breaks, n_impl_errors, n_impl_error_groups, target_mean, inp_mean, inp_stdev) {
   impl_error_seq <- stats::rlnorm(n_impl_errors, inp_mean, inp_stdev)
   for(k in 1:(length(breaks)-1)) {
-    temp_impl_error <- impl_error_seq[(breaks[k]+1):(breaks[k+1])]
-    temp_impl_error <- impl_error_pars[2]*temp_impl_error/
-      (sum(temp_impl_error)/length(temp_impl_error))
-    impl_error_seq[(breaks[k]+1):(breaks[k+1])] <- temp_impl_error
+    for(ng in 1:n_impl_error_groups){
+      fleet_errors <- seq((breaks[k]+ng),(breaks[k+1]),n_impl_error_groups)
+      temp_impl_error <- impl_error_seq[fleet_errors]
+      temp_impl_error <- targ_mean[ng]*temp_impl_error/
+        (sum(temp_impl_error)/length(temp_impl_error))
+      impl_error_seq[fleet_errors] <- temp_impl_error
+    }
   } 
   return(impl_error_seq)
 }
@@ -92,23 +97,23 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
   }else if(impl_error_pattern=="rand") {
     impl_error <- list()
     
-    inp_var<-get_inp_var(impl_error_pars[2], impl_error_pars[3]^2) 
-    inp_mean<-get_inp_mean(impl_error_pars[2],inp_var)
+    inp_var<-get_inp_var(impl_error_pars[2:(n_impl_error_groups+1)], impl_error_pars[(n_impl_error_groups+2):(n_impl_error_groups*2+1)]^2) 
+    inp_mean<-get_inp_mean(impl_error_pars[2:(n_impl_error_groups+1)],inp_var)
     inp_stdev <- sqrt(inp_var)
     breaks <- unique(c(seq(0,(yrs*n_impl_error_groups),
                            (impl_error_pars[1]*n_impl_error_groups)),
                        (yrs*n_impl_error_groups)))
     if(scope == 1) {
-      impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), inp_mean, inp_stdev)
+      impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups+1)], inp_mean, inp_stdev)
     }
     for(i in 1:n_scenarios) {
       impl_errors[[i]] <- list()
       if(scope == 2) {
-        impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), inp_mean, inp_stdev)
+        impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups+1)], inp_mean, inp_stdev)
       }
       for(j in 1:length(iter_list[[i]])) {
         if(scope == 3) {
-          impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), inp_mean, inp_stdev)
+          impl_error_seq <- calc_impl_errors(breaks, (yrs*n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups+1)], inp_mean, inp_stdev)
         }
         impl_error[[i]][[j]] <- impl_error_seq
       }
