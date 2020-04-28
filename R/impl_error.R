@@ -28,7 +28,7 @@ calc_impl_errors <- function(breaks, n_impl_errors, n_impl_error_groups, target_
     for(ng in 1:n_impl_error_groups){
       fleet_errors <- seq((breaks[k]+ng),(breaks[k+1]),n_impl_error_groups)
       temp_impl_error <- impl_error_seq[fleet_errors]
-      temp_impl_error <- targ_mean[ng]*temp_impl_error/
+      temp_impl_error <- target_mean[ng]*temp_impl_error/
         (sum(temp_impl_error)/length(temp_impl_error))
       impl_error_seq[fleet_errors] <- temp_impl_error
     }
