@@ -11,28 +11,30 @@ build_impl_error(
   scope,
   impl_error_pattern,
   impl_error_pars,
-  scen_name_vec,
+  n_scenarios,
   iter_list
 )
 }
 \arguments{
-\item{yrs}{the number of years to simulate recruitment deviations for.}
+\item{yrs}{the number of years to simulate implementation error for.}
 
-\item{scope}{scope over which recruitment devations will be randomized.}
+\item{nyrs_assess}{the number of years between assessments.}
 
-\item{scen_name_vec}{a vector of scenario names}
+\item{n_impl_error_groups}{the number of fleets times number of seasons}
+
+\item{scope}{scope over which implementation errors will be randomized.}
+
+\item{impl_error_pattern}{how to simulate implementation errors.}
+
+\item{impl_error_pars}{implementation error simulation parameters dependent on chosen pattern.}
+
+\item{n_scenarios}{The number of scenarios simulated}
 
 \item{iter_list}{a list of iteration names.}
-
-\item{rec_dev_pattern}{how to simulate recruitment devations.}
-
-\item{rec_dev_pars}{recruitment devation simulation parameters dependent on chosen pattern.}
-
-\item{stddev}{the standard deviation of simulated recruitment deviations}
 }
 \value{
 A list of scenarios with lists of interations in each with a vector of 
- rec devs for each simulation year.
+ implementation errors for each simulation year-fleet-season combination.
 }
 \description{
 Build a list of implementation error vectors for each scenario and iteration.

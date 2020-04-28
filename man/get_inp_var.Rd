@@ -10,8 +10,6 @@ get_inp_var(target_mean, targ_var)
 \item{target_mean}{The target mean of the observed log normal values}
 
 \item{targ_var}{the target variance to the simulated log normal values}
-
-\item{inp_var}{the input variance to the random log normal generator}
 }
 \value{
 the squared difference between observed and target variances

@@ -11,12 +11,14 @@ build_rec_devs(
   rec_dev_pattern,
   rec_dev_pars,
   stddev,
-  scen_name_length,
+  n_scenarios,
   iter_list
 )
 }
 \arguments{
 \item{yrs}{the number of years to simulate recruitment deviations for.}
+
+\item{nyrs_assess}{the number of years between assessments.}
 
 \item{scope}{scope over which recruitment devations will be randomized.}
 
@@ -26,9 +28,9 @@ build_rec_devs(
 
 \item{stddev}{the standard deviation of simulated recruitment deviations}
 
-\item{iter_list}{a list of iteration names.}
+\item{n_scenarios}{the number of scenarios simulated}
 
-\item{scen_name_vec}{a vector of scenario names}
+\item{iter_list}{a list of iteration names.}
 }
 \value{
 A list of scenarios with lists of interations in each with a vector of 
