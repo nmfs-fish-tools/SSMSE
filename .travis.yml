@@ -8,6 +8,8 @@
 language: r
 jobs:
   include:
+  - r: oldrel
+    os: linux
   - r: release
     os: linux
   - r: devel
