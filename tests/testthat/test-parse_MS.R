@@ -31,7 +31,7 @@ test_that("get_EM_catch_df works with no discards", {
   expect_true(all(catch_list$catch_F$year %in% 101:103))
   # note: the following check would need to change if the report file does
   # F forecast could change if this model is rerun.
-  expect_true(all(round(catch_list$catch_F$catch, digits = 3) == 
+  expect_true(all(round(catch_list$catch_F$catch, digits = 3) ==
                   round(0.0496832, digits = 3)))
 })
 
@@ -58,7 +58,7 @@ test_that("get_no_EM_catch_df works with no discards", {
                                MS = "bad_MS_input"))
 })
 
-#TODO: add tests for using discards.
+# TODO: add tests for using discards.
 # copy cod to the temp_path
 unlink(file.path(temp_path, "cod_OM"), recursive = TRUE)
 unlink(file.path(temp_path, "cod_EM"), recursive = TRUE)
@@ -102,7 +102,7 @@ test_that("parse_MS works as currently expected for estimation model methods", {
   expect_true(ncol(catch_df_3) == 5)
   expect_equivalent(colnames(catch_df_3),
                     c("year", "seas", "fleet", "catch", "catch_se"))
-  #TODO: add tests to make sure parse_MS works for future iterations
+  # TODO: add tests to make sure parse_MS works for future iterations
 
 })
 
@@ -118,5 +118,5 @@ test_that("parse_MS catches errors when it should", {
            verbose = FALSE, nyrs_assess = 3),
            "Please change to a directory containing a valid SS model",
            fixed = TRUE)
-  #TODO: need to catch invalid OM_dat? What about nyrs_assess?
+  # TODO: need to catch invalid OM_dat? What about nyrs_assess?
 })

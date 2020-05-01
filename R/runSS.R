@@ -5,7 +5,7 @@
 #'
 #' This function takes care of calling SS. Importantly, it parses whether the
 #' user is on Unix or Windows and calls the binary correctly. This lower-level
-#' function is meant to be called by higher level functions. Modified from 
+#' function is meant to be called by higher level functions. Modified from
 #' run_ss3model in \href{https://github.com/ss3sim/ss3sim}{ss3sim}.
 #'
 #' @details ss3sim requires you to place the SS executable in your
@@ -30,44 +30,44 @@
 #'   value is set to \code{0.01} seconds, just to be safe.
 #' @param show.output.on.console Logical: passed on to
 #'   \code{\link[base]{system}}.
-#' @param check_run Should it be checked that the model ran by deleting the 
+#' @param check_run Should it be checked that the model ran by deleting the
 #'  data.ss_new file if one exists and then checking if one was created?
 #'  Defaults to TRUE.
 #' @param debug_par_run If set to TRUE, and the run fails, a new folder called
-#'  error_check will be created, and the model will be run from control start 
+#'  error_check will be created, and the model will be run from control start
 #'  values instead of ss.par. The 2 par files are then compared to help debug
 #'  the issue with the model run. Defaults to FALSE.
-#' @template verbose 
+#' @template verbose
 #' @param ... Anything else to pass to \code{\link[base]{system}}.
 #' @author Sean C. Anderson, Kathryn Doering
 run_ss_model <- function(dir,
-                         admb_options = "", 
+                         admb_options = "",
                          ss_bin = "ss",
                          ignore.stdout = TRUE,
-                         admb_pause = 0.05, 
+                         admb_pause = 0.05,
                          show.output.on.console = FALSE,
                          check_run = TRUE,
                          debug_par_run = FALSE,
                          verbose = FALSE,
                          ...) {
-  #TODO: create Input checking: check form of admb options
+  # TODO: create Input checking: check form of admb options
   dir <- normalizePath(dir)
   check_dir(dir)
   wd_orig <- getwd()
   on.exit(setwd(wd_orig))
   os <- .Platform$OS.type
   bin <- get_bin(ss_bin)
-  if(check_run == TRUE) {
+  if (check_run == TRUE) {
     ss_new_path <- file.path(dir, "data.ss_new")
-    if(file.exists(ss_new_path)) {
-      file.remove(ss_new_path) 
+    if (file.exists(ss_new_path)) {
+      file.remove(ss_new_path)
     }
   }
-  
-  if(verbose) message("Running SS.")
-  if(os == "unix") {
+
+  if (verbose) message("Running SS.")
+  if (os == "unix") {
     system(paste0("cd ", dir, ";", paste0(bin, " "),
-                   admb_options), 
+                   admb_options),
            ignore.stdout = ignore.stdout, ...)
   } else {
     setwd(dir)
@@ -75,12 +75,12 @@ run_ss_model <- function(dir,
            invisible = TRUE, ignore.stdout = ignore.stdout,
            show.output.on.console = show.output.on.console, ...)
   }
-  if(check_run == TRUE) { 
-    if(!file.exists(ss_new_path)) {
-      if(debug_par_run) {
-        test_no_par(orig_mod_dir = dir, 
+  if (check_run == TRUE) {
+    if (!file.exists(ss_new_path)) {
+      if (debug_par_run) {
+        test_no_par(orig_mod_dir = dir,
                     new_mod_dir = file.path(dirname(dir), "OM_error_check"))
-        #note that this will exit on error.
+        # note that this will exit on error.
       } else {
         stop("data.ss_new was not created during the model run, which suggests ",
              "SS did not run correctly")
@@ -94,7 +94,7 @@ run_ss_model <- function(dir,
 }
 
 #' Get SS3 binary/executable location in package
-#' 
+#'
 #' Get the binary/executable location in the package SSMSE. This function
 #' is from \href{https://github.com/ss3sim/ss3sim}{ss3sim}.
 #'
@@ -144,8 +144,8 @@ get_bin <- function(bin_name = "ss") {
   }
   if (bin == "") { # resort to binaries in path
     bin <- Sys.which(bin_name)[[1]]
-    if(bin == "") {
-      stop("The expected SS executable, ", bin_name, ", was not found in your", 
+    if (bin == "") {
+      stop("The expected SS executable, ", bin_name, ", was not found in your",
            " path. See the ss3sim vignette and ?ss3sim::run_ss3model for ",
            "instructions.")
     }
