@@ -35,7 +35,7 @@ Note that the SSMSE is a work in progress and not yet a minimum viable product.
 
 To install SSMSE from github and load it:
 ``` r
-library("devtools") # note that library("remotes") can also be used. Both can access `install_github`. 
+library(devtools) # note that library(remotes) can also be used. Both can access `install_github`. 
 install_github("nmfs-fish-tools/SSMSE")
 library(SSMSE)
 ```
@@ -70,8 +70,28 @@ run_SSMSE_iter(OM_name = "cod",
                  CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
                )
 )
+```
+
+The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session.
+```r
+# Summarize 1 iteration of output
+# (note: if you have issues, try reinstalling SSMSE, as this is a new feature)
+summary <- SSMSE_summary_iter(file.path(run_SSMSE_dir, "1"))
+```
+If it is easier to view or manipulate the summaries in spreadsheets, these can be written to .csv:
+```r
+write.csv(summary[["scalar"]], 
+          file = file.path(run_SSMSE_dir, "1", "scalar.csv"))
+write.csv(summary[["timeseries"]],
+          file = file.path(run_SSMSE_dir, "1", "timeseries.csv"))
+write.csv(summary[["derived"]],
+          file = file.path(run_SSMSE_dir, "1", "derived.csv"))
+```
+
+If you wish to delete the files created from this example, you can use:
+```r
 # if you want to delete the files:
-#unlink(run_SSMSE_dir, recursive = TRUE)
+unlink(run_SSMSE_dir, recursive = TRUE)
 
 ```
 

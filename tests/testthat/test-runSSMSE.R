@@ -44,6 +44,10 @@ test_that("run_SSMSE_iter runs with an EM", {
   expect_true(all(add_yrs %in% unique(added_lencomp$Yr)))
   added_agecomp <- dat$agecomp[dat$agecomp$Yr %in% add_yrs, ]
   expect_true(all(add_yrs %in% unique(added_agecomp$Yr)))
+  
+  # summarize 1 iteration of results
+  summary <- SSMSE_summary_iter(file.path(temp_path, "1"))
+  expect_true(length(summary) == 3)
 })
 
 test_that("run_SSMSE_iter runs with no EM", {

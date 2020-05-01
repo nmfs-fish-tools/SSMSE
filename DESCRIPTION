@@ -27,8 +27,10 @@ Imports:
     assertive.types,
     assertive.properties,
     assertive.base,
-    tidyr
+    tidyr,
+    ss3sim
 Suggests: 
     testthat
 Remotes:
     r4ss/r4ss@development
+    ss3sim/ss3sim@SSMSE_changes
