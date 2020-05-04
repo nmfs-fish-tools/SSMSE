@@ -32,5 +32,5 @@ Imports:
 Suggests: 
     testthat
 Remotes:
-    r4ss/r4ss@development
+    r4ss/r4ss@development,
     ss3sim/ss3sim@SSMSE_changes
