@@ -16,13 +16,13 @@ run_OM(
 \arguments{
 \item{OM_dir}{The full path to the OM directory}
 
-\item{boot}{Return the bootstrap dataset? If TRUE, function returns the 
+\item{boot}{Return the bootstrap dataset? If TRUE, function returns the
 number bootstrapped dataset specified in \code{nboot}. If FALSE, it returns
 the expected values.}
 
-\item{nboot}{The number bootstrapped data set. This value is only used if 
+\item{nboot}{The number bootstrapped data set. This value is only used if
 \code{boot = TRUE}. Note that this numbering does NOT correspond with the
-numbering in section of r4ss::SS_readdat. E.g., specifying section = 3 in 
+numbering in section of r4ss::SS_readdat. E.g., specifying section = 3 in
 SS_readdat is equivalent to specifying nboot = 1.}
 
 \item{init_run}{Is this the initial iteration of the OM? Defaults to FALSE.}
@@ -30,12 +30,12 @@ SS_readdat is equivalent to specifying nboot = 1.}
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
 \item{debug_par_run}{If set to TRUE, and the run fails, a new folder called
-error_check will be created, and the model will be run from control start 
+error_check will be created, and the model will be run from control start
 values instead of ss.par. The 2 par files are then compared to help debug
 the issue with the model run. Defaults to TRUE.}
 }
 \description{
-This function is used to initialize the OM and get either expected values 
+This function is used to initialize the OM and get either expected values
 or bootstrap.
 }
 \author{

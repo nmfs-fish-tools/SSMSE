@@ -22,11 +22,11 @@ are:  \code{"last_yr_catch"} which uses the previous year's catch;
 \code{"no_catch"} which uses 0 catch; and \code{"EM"} which uses the
 management strategy in the estimation model.}
 
-\item{EM_out_dir}{Relative or absolute path to the estimation model, if using a 
+\item{EM_out_dir}{Relative or absolute path to the estimation model, if using a
 model outside of the SSMSE package. Note that this value should be NULL if
 \code{MS} has a value other than \code{"EM"}.}
 
-\item{init_loop}{Logical. If this is the first initialization loop of the 
+\item{init_loop}{Logical. If this is the first initialization loop of the
 MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 be FALSE.}
 
@@ -43,9 +43,9 @@ assessment is conducted every 3 years, put 3 here. A single integer value.}
 \item{dat_yrs}{Which years should be added to the new model? Ignored if
 init_loop is TRUE.}
 
-\item{dat_str}{A optional list including which years and fleets should be 
+\item{dat_str}{A optional list including which years and fleets should be
 added from the OM into the EM for different types of data. If NULL, the data
-structure will try to be infered from the pattern found for each of the 
+structure will try to be infered from the pattern found for each of the
 datatypes within EM_datfile. Ignored if init_loop is TRUE.}
 }
 \description{

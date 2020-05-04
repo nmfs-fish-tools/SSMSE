@@ -19,7 +19,7 @@ change_yrs_fcast(
 \item{make_yrs_rel}{Should the absolute years in the forecast file be changed
 to relative years? Defaults to TRUE.}
 
-\item{nyrs_increment}{The number of years to increment forecasting period years. 
+\item{nyrs_increment}{The number of years to increment forecasting period years.
 If NULL (the default value), will not be incremented.}
 
 \item{nyrs_fore}{The number of years of forecasting to do. If NULL, do not

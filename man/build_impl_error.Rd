@@ -33,7 +33,7 @@ build_impl_error(
 \item{iter_list}{a list of iteration names.}
 }
 \value{
-A list of scenarios with lists of interations in each with a vector of 
+A list of scenarios with lists of interations in each with a vector of
  implementation errors for each simulation year-fleet-season combination.
 }
 \description{

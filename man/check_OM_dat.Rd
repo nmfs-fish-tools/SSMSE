@@ -7,10 +7,10 @@
 check_OM_dat(OM_dat, EM_dat)
 }
 \arguments{
-\item{OM_dat}{A data set read in using r4ss::SS_readdat from an operating 
+\item{OM_dat}{A data set read in using r4ss::SS_readdat from an operating
 model. Note that it should span the same years as EM_dat.}
 
-\item{EM_dat}{A data set read in using r4ss::SS_readdata from an estimation 
+\item{EM_dat}{A data set read in using r4ss::SS_readdata from an estimation
 model. Note that it should span the same years as EM_dat}
 }
 \description{

@@ -13,6 +13,6 @@ test_no_par(orig_mod_dir, new_mod_dir)
 }
 \description{
 The intention of this function is to help troubleshooting issues with the
-par file. It is intended mostly to help troubleshooting while developing 
+par file. It is intended mostly to help troubleshooting while developing
 the SSMSE package, but may also be helpful with runtime testing.
 }

@@ -7,10 +7,10 @@
 change_dat(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE, verbose = FALSE)
 }
 \arguments{
-\item{OM_datfile}{Filename of the datfile produced by the OM within the 
+\item{OM_datfile}{Filename of the datfile produced by the OM within the
 EM_dir.}
 
-\item{EM_datfile}{Filename of the datfile from the original EM within the 
+\item{EM_datfile}{Filename of the datfile from the original EM within the
 EM_dir.}
 
 \item{EM_dir}{Absolute or relative path to the Estimation model directory.}
@@ -28,7 +28,7 @@ Change dataset from OM into format for EM
 }
 \examples{
 \dontrun{
-#TODO: Add example
+# TODO: Add example
 }
 }
 \author{

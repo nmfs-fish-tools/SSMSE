@@ -11,9 +11,9 @@ check_dat_str(dat_str)
 fleets should be added from the OM into the EM for different types of data.}
 }
 \description{
-Check that list object dat_str_list has the expected form, including the 
+Check that list object dat_str_list has the expected form, including the
 correct names, correct column names (as in r4ss), and that all values in the
-dataframes are integer or numeric. This does not check for if numeric or 
+dataframes are integer or numeric. This does not check for if numeric or
 interger values make sense given the model used.
 }
 \author{

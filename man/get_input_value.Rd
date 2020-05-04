@@ -10,16 +10,16 @@ get_input_value(data, method = "most_common_value", colname, group = NULL)
 \item{data}{A dataframe which has a column that matches (at least partially)
 colname}
 
-\item{method}{How should the value to be returned be selected? Current 
+\item{method}{How should the value to be returned be selected? Current
 options include "most_common_value", where the most common input uncertainty
-value will be returned and "only_value" where all input values must be the 
+value will be returned and "only_value" where all input values must be the
 same in data; if they are, this value will be returned. Otherwise, an error
 will be generated.}
 
 \item{colname}{Column name as a string in \code{data}. Note that partial
 matching and regular expressions can be used.}
 
-\item{group}{Column name as a string in \code{data} used to group the data 
+\item{group}{Column name as a string in \code{data} used to group the data
 before calculating the input value to use. Defaults to NULL.}
 }
 \value{
@@ -31,14 +31,14 @@ Return a single value from a column of a dataframe using the method specified
 }
 \details{
 Note that this function was created intially to return a value to
- use as the input uncertainty, but it should be generalizable to pulling a 
+ use as the input uncertainty, but it should be generalizable to pulling a
  value from a column in any data frame using the method specified.
 }
 \examples{
- dfr <- data.frame("year" = 1:5, 
-                   "value" = c(2,2,2,3,3), 
+dfr <- data.frame("year" = 1:5,
+                   "value" = c(2, 2, 2, 3, 3),
                     "se_log" = 0.2)
- get_input_value(data = dfr, method = "most_common_value", colname = "se_log", 
+ get_input_value(data = dfr, method = "most_common_value", colname = "se_log",
                  group = "value")
  get_input_value(data = dfr, method = "most_common_value", colname = "value")
  get_input_value(data = dfr, method = "only_value", colname = "se_log")

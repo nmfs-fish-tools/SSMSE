@@ -41,12 +41,12 @@ value is set to \code{0.01} seconds, just to be safe.}
 \item{show.output.on.console}{Logical: passed on to
 \code{\link[base]{system}}.}
 
-\item{check_run}{Should it be checked that the model ran by deleting the 
+\item{check_run}{Should it be checked that the model ran by deleting the
 data.ss_new file if one exists and then checking if one was created?
 Defaults to TRUE.}
 
 \item{debug_par_run}{If set to TRUE, and the run fails, a new folder called
-error_check will be created, and the model will be run from control start 
+error_check will be created, and the model will be run from control start
 values instead of ss.par. The 2 par files are then compared to help debug
 the issue with the model run. Defaults to FALSE.}
 
@@ -57,7 +57,7 @@ the issue with the model run. Defaults to FALSE.}
 \description{
 This function takes care of calling SS. Importantly, it parses whether the
 user is on Unix or Windows and calls the binary correctly. This lower-level
-function is meant to be called by higher level functions. Modified from 
+function is meant to be called by higher level functions. Modified from
 run_ss3model in \href{https://github.com/ss3sim/ss3sim}{ss3sim}.
 }
 \details{

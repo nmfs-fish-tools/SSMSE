@@ -33,7 +33,7 @@ build_rec_devs(
 \item{iter_list}{a list of iteration names.}
 }
 \value{
-A list of scenarios with lists of interations in each with a vector of 
+A list of scenarios with lists of interations in each with a vector of
  rec devs for each simulation year.
 }
 \description{

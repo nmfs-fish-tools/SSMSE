@@ -21,9 +21,9 @@ this should be sampled data.}
 \item{EM_datfile}{Datafile name run in previous iterations with the EM.
 Assumed to exist in EM_dir.}
 
-\item{dat_str}{A optional list including which years and fleets should be 
+\item{dat_str}{A optional list including which years and fleets should be
 added from the OM into the EM for different types of data. If NULL, the data
-structure will try to be infered from the pattern found for each of the 
+structure will try to be infered from the pattern found for each of the
 datatypes within EM_datfile.}
 
 \item{EM_dir}{Absolute or relative path to the Estimation model directory.}
@@ -36,7 +36,7 @@ to. If NULL, a new datafile will not be written.}
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \value{
-A new SS datafile containing the data in EM_datfile with new data 
+A new SS datafile containing the data in EM_datfile with new data
 from OM_dat appended
 }
 \description{

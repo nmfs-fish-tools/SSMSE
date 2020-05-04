@@ -22,7 +22,7 @@ to the working directory.}
 
 \item{OM_name}{Name of OM model.}
 
-\item{OM_in_dir}{Relative or absolute path to the operating model. NULL if 
+\item{OM_in_dir}{Relative or absolute path to the operating model. NULL if
 using SSMSE package model.}
 
 \item{MS}{The management strategy. If "EM", will create the EM folders.
@@ -30,7 +30,7 @@ Otherwise, can be any name, defaulting to "not_EM".}
 
 \item{EM_name}{Name of the EM model. NULL if MS != "EM" (default value)}
 
-\item{EM_in_dir}{Relative or absolute path to the estimation model. NULL if 
+\item{EM_in_dir}{Relative or absolute path to the estimation model. NULL if
 using SSMSE package model or MS != "EM" (default value)}
 }
 \value{

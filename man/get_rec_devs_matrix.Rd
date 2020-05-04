@@ -11,7 +11,7 @@ get_rec_devs_matrix(yrs, rec_devs, sum_to_zero = FALSE)
 
 \item{rec_devs}{a vector of recdevs}
 
-\item{sum_to_zero}{Should the last rec_dev returned be a negative number to 
+\item{sum_to_zero}{Should the last rec_dev returned be a negative number to
 ensure that ther recruitment deviations sum to zero? Defaults to FALSE.}
 }
 \value{

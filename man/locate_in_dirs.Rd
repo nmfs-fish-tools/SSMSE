@@ -9,7 +9,7 @@ locate_in_dirs(OM_name, OM_in_dir)
 \arguments{
 \item{OM_name}{Name of OM model.}
 
-\item{OM_in_dir}{Relative or absolute path to the operating model. NULL if 
+\item{OM_in_dir}{Relative or absolute path to the operating model. NULL if
 using SSMSE package model.}
 }
 \value{

@@ -13,7 +13,7 @@ check_EM_forecast(fore, n_flts_catch = NULL)
 will skip a check requiring this input.}
 }
 \value{
-Function mainly used for side effects, but returns TRUE invisibly if 
+Function mainly used for side effects, but returns TRUE invisibly if
  no errors created.
 }
 \description{
