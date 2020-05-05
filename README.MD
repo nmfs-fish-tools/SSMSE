@@ -72,7 +72,7 @@ run_SSMSE_iter(OM_name = "cod",
 )
 ```
 
-The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session.
+The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Currently you will need to install a SSMSE specific branch of ss3sim `remotes::install_github("ss3sim/ss3sim",ref="SSMSE_changes")`, this should soon be merged into the development branch of ss3sim `remotes::install_github("ss3sim/ss3sim",ref="development")`. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session.
 ```r
 # Summarize 1 iteration of output
 # (note: if you have issues, try reinstalling SSMSE, as this is a new feature)
