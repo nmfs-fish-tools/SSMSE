@@ -145,18 +145,18 @@ run_SSMSE <- function(scen_list = NULL,
   impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
 
   if (is.null(scen_list)) {
-   scen_list <- create_scen_list(scen_name_vec,
-                                 out_dir_scen_vec,
-                                 iter_list,
-                                 OM_name_vec,
-                                 OM_in_dir_vec,
-                                 EM_name_vec,
-                                 EM_in_dir_vec,
-                                 MS_vec,
-                                 use_SS_boot_vec,
-                                 nyrs_vec,
-                                 nyrs_assess_vec,
-                                 dat_str_list)
+   scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
+                                 out_dir_scen_vec = out_dir_scen_vec,
+                                 iter_list = iter_list,
+                                 OM_name_vec = OM_name_vec,
+                                 OM_in_dir_vec = OM_in_dir_vec,
+                                 EM_name_vec = EM_name_vec,
+                                 EM_in_dir_vec = EM_in_dir_vec,
+                                 MS_vec = MS_vec,
+                                 use_SS_boot_vec = use_SS_boot_vec,
+                                 nyrs_vec = nyrs_vec,
+                                 nyrs_assess_vec = nyrs_assess_vec,
+                                 dat_str_list = dat_str_list)
   }
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)

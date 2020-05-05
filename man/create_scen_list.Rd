@@ -16,7 +16,6 @@ create_scen_list(
   use_SS_boot_vec = NULL,
   nyrs_vec = NULL,
   nyrs_assess_vec = NULL,
-  impl_error_vec = NULL,
   dat_str_list = NULL
 )
 }
@@ -68,8 +67,6 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{impl_error_vec}{Future parameter to specify implementation error.}
-
 \item{dat_str_list}{A optional list of lists including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
@@ -96,7 +93,6 @@ scen_list <- create_scen_list(
                use_SS_boot_vec = TRUE,
                nyrs_vec = 6,
                nyrs_assess_vec = 3,
-               impl_error_vec = NULL,
                dat_str_list = NULL
                 )
 }
