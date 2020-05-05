@@ -17,7 +17,6 @@ test_that("create_scen_list works as expected", {
                          use_SS_boot = TRUE,
                          nyrs = 6,
                          nyrs_assess = 3,
-                         impl_error = NULL,
                          dat_str = NULL
                        ),
                       scen_2 =
@@ -32,7 +31,6 @@ test_that("create_scen_list works as expected", {
                           use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2,
-                          impl_error = NULL,
                           dat_str = NULL
                         )
                        )
@@ -48,7 +46,6 @@ test_that("create_scen_list works as expected", {
                                     out_dir_scen_vec = out_dir,
                                     nyrs_vec = c(6, 3),
                                     nyrs_assess_vec = c(3, 2),
-                                    impl_error_vec = NULL,
                                     dat_str_list = NULL
                                     )
  # use expect equal because the names should be the same as well.
@@ -68,7 +65,6 @@ test_that("create_scen_list works with NAs", {
                           use_SS_boot = TRUE,
                           nyrs = 6,
                           nyrs_assess = 3,
-                          impl_error = NULL,
                           dat_str = NULL
                         ),
                       scen_2 =
@@ -83,7 +79,6 @@ test_that("create_scen_list works with NAs", {
                           use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2,
-                          impl_error = NULL,
                           dat_str = NULL
                         )
   )
@@ -98,7 +93,6 @@ test_that("create_scen_list works with NAs", {
                                      out_dir_scen_vec = out_dir,
                                      nyrs_vec = c(6, 3),
                                      nyrs_assess_vec = c(3, 2),
-                                     impl_error_vec = NULL,
                                      dat_str_list = NULL
   )
   expect_equal(scen_list_out, scen_list)
