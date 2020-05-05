@@ -5,3 +5,4 @@
 ^README\.MD$
 ^\.travis\.yml$
 ^appveyor\.yml$
+^man/figures/README*

@@ -78,6 +78,24 @@ The function `SSMSE_summary_iter` can be used to summarize the model results in 
 # (note: if you have issues, try reinstalling SSMSE, as this is a new feature)
 summary <- SSMSE_summary_iter(file.path(run_SSMSE_dir, "1"))
 ```
+Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), the EM run with last year of data in year 103 (cod_EM_103), and the EM run with last year of data in 106 (cod_EM_106)).
+```r
+library(ggplot2) # use install.packages("ggplot2") to install package if needed
+library(tidyr) # use install.packages("tidyr") to install package if needed
+summary$timeseries <- tidyr::separate(summary$timeseries,
+                               col = model_run,
+                               into = c(NA, "model_type"),
+                               remove = FALSE,
+                               sep = "_", 
+                               extra = "drop")
+plot <- ggplot2::ggplot(data = summary$timeseries, aes(x = year, y = SpawnBio)) +
+          geom_line(aes(color = model_run, linetype = model_type))+
+          theme_classic()
+print(plot)
+```
+![*SSB by year and model run.*](man/figures/README_1_iter.png)
+
+
 If it is easier to view or manipulate the summaries in spreadsheets, these can be written to .csv:
 ```r
 write.csv(summary[["scalar"]], 
@@ -90,9 +108,7 @@ write.csv(summary[["derived"]],
 
 If you wish to delete the files created from this example, you can use:
 ```r
-# if you want to delete the files:
 unlink(run_SSMSE_dir, recursive = TRUE)
-
 ```
 
 Roadmap: where is SSMSE headed next?
