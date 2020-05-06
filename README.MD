@@ -56,27 +56,37 @@ This code runs 1 iteration of an MSE feedback loop. The code specifies the opera
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE_iter-ex")
 dir.create(run_SSMSE_dir)
+# set up the data list to include for future runs of the EM
+# only catch in all years, index data in years 102 and 105, no comp data.
+dat_str <- list(
+                catch = data.frame(year = 101:106,
+                                   seas = 1,
+                                   fleet = 1),
+                CPUE = data.frame(year = c(102, 105),
+                                  seas = 7,
+                                  index = 2)
+              )
+dat_str_list <- list(dat_str)
+
 # run 1 iteration and 1 scenario of SSMSE using an EM.
-run_SSMSE_iter(OM_name = "cod",
-               MS = "EM",
-               out_dir = run_SSMSE_dir,
-               EM_name = "cod",
-               rec_dev_iter = rep(0, 6),
-               impl_error = rep(1, 6*2),
-               nyrs = 6,
-               nyrs_assess = 3,
-               dat_str = list(
-                 catch = data.frame(year = 101:106, seas = 1, fleet = 1),
-                 CPUE = data.frame(year = c(102, 105), seas = 7, index = 2)
-               )
-)
+run_SSMSE(scen_name_vec = "scen_1",
+          iter_list = list(1),
+          OM_name_vec = "cod", # cod is included in package data
+          EM_name_vec = "cod", # cod is included in package data
+          MS_vec = "EM",       # The management strategy is specified in the EM
+          use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
+          nyrs_vec = 6,        # Years to project OM forward
+          nyrs_assess_vec = 3, # Years between assessments
+          rec_dev_pattern = "none", # Don't use recruitment deviations
+          impl_error_pattern = "none", # Don't use implmentation error
+          dat_str_list = dat_str_list) # How to sample data for running the EM.
 ```
 
 The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Currently you will need to install a SSMSE specific branch of ss3sim `remotes::install_github("ss3sim/ss3sim",ref="SSMSE_changes")`, this should soon be merged into the development branch of ss3sim `remotes::install_github("ss3sim/ss3sim",ref="development")`. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session.
 ```r
 # Summarize 1 iteration of output
 # (note: if you have issues, try reinstalling SSMSE, as this is a new feature)
-summary <- SSMSE_summary_iter(file.path(run_SSMSE_dir, "1"))
+summary <- SSMSE_summary_iter(file.path(run_SSMSE_dir, "scen_1", "1"))
 ```
 Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), the EM run with last year of data in year 103 (cod_EM_103), and the EM run with last year of data in 106 (cod_EM_106)).
 ```r
@@ -99,11 +109,11 @@ print(plot)
 If it is easier to view or manipulate the summaries in spreadsheets, these can be written to .csv:
 ```r
 write.csv(summary[["scalar"]], 
-          file = file.path(run_SSMSE_dir, "1", "scalar.csv"))
+          file = file.path(run_SSMSE_dir, "scen_1", "1", "scalar.csv"))
 write.csv(summary[["timeseries"]],
-          file = file.path(run_SSMSE_dir, "1", "timeseries.csv"))
+          file = file.path(run_SSMSE_dir, "scen_1", "1", "timeseries.csv"))
 write.csv(summary[["derived"]],
-          file = file.path(run_SSMSE_dir, "1", "derived.csv"))
+          file = file.path(run_SSMSE_dir, "scen_1", "1", "derived.csv"))
 ```
 
 If you wish to delete the files created from this example, you can use:
