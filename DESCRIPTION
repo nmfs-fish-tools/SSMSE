@@ -33,4 +33,4 @@ Suggests:
     testthat
 Remotes:
     r4ss/r4ss@development,
-    ss3sim/ss3sim@SSMSE_changes
+    ss3sim/ss3sim@development
