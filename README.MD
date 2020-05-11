@@ -80,14 +80,14 @@ run_SSMSE(scen_name_vec = "scen_1",
           dat_str_list = dat_str_list) # How to sample data for running the EM.
 ```
 
-The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session. Also, make sure you are using the development branch versions of [r4ss](https://github.com/r4ss/r4ss) and [ss3sim](https://github.com/ss3sim/ss3sim) (by installing `remotes::install_github("r4ss/r4ss@development")` and `remotes::install_github("ss3sim/ss3sim@development")`. These should be installed when SSMSE is downloaded, however.
+The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session. Also, make sure you are using the development branch versions of [r4ss](https://github.com/r4ss/r4ss) and [ss3sim](https://github.com/ss3sim/ss3sim) (by installing `remotes::install_github("r4ss/r4ss@development")` and `remotes::install_github("ss3sim/ss3sim@development")`. These versions should be installed automatically when SSMSE is downloaded.
 
 ```r
 # Summarize 1 iteration of output
 # (note: if you have issues, try reinstalling SSMSE, as this is a new feature)
 summary <- SSMSE_summary_iter(file.path(run_SSMSE_dir, "scen_1", "1"))
 ```
-Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), the EM run with last year of data in year 103 (cod_EM_103), and the EM run with last year of data in 106 (cod_EM_106)).
+Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), the EM run with last year of data in year 103 (cod_EM_103), and the EM run with last year of data in 106 (cod_EM_106).
 ```r
 library(ggplot2) # use install.packages("ggplot2") to install package if needed
 library(tidyr) # use install.packages("tidyr") to install package if needed
