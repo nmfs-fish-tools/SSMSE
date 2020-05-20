@@ -139,15 +139,16 @@ check_avail_dat <- function(EM_dat, OM_dat,
 #' interger values make sense given the model used.
 #' @param dat_str The list to check. Should be a list including which years and
 #'  fleets should be added from the OM into the EM for different types of data.
+#' @valid_names The list to compare dat_str to.
 #' @author Kathryn Doering
-check_dat_str <- function(dat_str) {
+check_dat_str <- function(dat_str, 
+  valid_names = list(catch = c("Yr", "Seas", "FltSvy"),
+                     CPUE = c("Yr", "Seas", "FltSvy"),
+                     lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part"),
+                     agecomp = c("Yr", "Seas", "FltSvy", "Sex", "Part",
+                                 "Ageerr", "Lbin_lo", "Lbin_hi"))
+  ) {
   # list components should have same names as in r4ss
-  valid_names <- list(catch = c("year", "seas", "fleet"),
-                      CPUE = c("year", "seas", "index"),
-                      lencomp = c("Yr", "Seas", "FltSvy", "Gender", "Part"),
-                      agecomp = c("Yr", "Seas", "FltSvy", "Gender", "Part",
-                                  "Ageerr", "Lbin_lo", "Lbin_hi")
-                      )
   # check no repeat names
   if (length(unique(names(dat_str))) != length(names(dat_str))) {
     stop("There are repeated names in dat_str. Please make sure each list ",
@@ -163,7 +164,7 @@ check_dat_str <- function(dat_str) {
       err <- "wrong list name"
     } else {
       valid_cols <- valid_names[[which(names(valid_names) == x_name)]]
-      if (any(col_names != valid_cols)) {
+      if (any(!col_names %in% valid_cols)) {
         err <- "wrong column names in list component"
       }
     }
@@ -177,8 +178,8 @@ check_dat_str <- function(dat_str) {
     if (!is.null(e)) {
       stop("Invalid input for dat_str due to ", e, ". Please check that all",
            " names are not anything other than ",
-           paste0(names(v), collapse = ", "), " and have the column names ",
-           "that match with r4ss data lists:\n",
+           paste0(names(v), collapse = ", "), " and have the column names",
+           ":\n",
            paste0(paste0(names(v), ": ", v), collapse = "\n"))
     }
     invisible("no_error")

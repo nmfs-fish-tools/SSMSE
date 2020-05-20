@@ -377,3 +377,26 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
    expect_true(all(clean_dat_list_2$EM_dat$agecomp$Yr >= 0))
    expect_true(is.null(clean_dat_list_2[[2]]))
  })
+ 
+ test_that("assumptions about r4ss colnames are true.", {
+   # mock some values outside modle year in the modesl
+   OM_dir <- file.path(out_dir, "copy_model_files", "OM")
+   OM_dat_orig <- r4ss::SS_readdat(file.path(OM_dir, "ss3.dat"), verbose = FALSE)
+   r4ss_names <- list(
+     catch = colnames(OM_dat_orig[["catch"]]),
+     CPUE = colnames(OM_dat_orig[["CPUE"]]), 
+     lencomp = colnames(OM_dat_orig[["lencomp"]]), 
+     agecomp = colnames(OM_dat_orig[["agecomp"]]))
+   assumed_str <- list(
+     catch = data.frame(year = 101:106, seas = 1, fleet = 1),
+     CPUE = data.frame(year = c(102, 105), seas = 7, index = 2),
+     lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
+                          Gender = 0, Part = 0),
+     agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
+                          Gender = 0, Part = 0, Ageerr = 1,
+                          Lbin_lo = -1, Lbin_hi = -1))
+   return <- check_dat_str(dat_str = assumed_str, valid_names = r4ss_names)
+   expect_equal(return, "no_error")
+ })
+ 
+
