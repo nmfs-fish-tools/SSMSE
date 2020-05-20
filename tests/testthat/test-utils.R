@@ -379,6 +379,8 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
  })
  
  test_that("assumptions about r4ss colnames are true.", {
+   # if this test is not passing, modifications need to be made to 
+   # convert_to_r4ss_names function.
    # mock some values outside modle year in the modesl
    OM_dir <- file.path(out_dir, "copy_model_files", "OM")
    OM_dat_orig <- r4ss::SS_readdat(file.path(OM_dir, "ss3.dat"), verbose = FALSE)
@@ -399,4 +401,23 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
    expect_equal(return, "no_error")
  })
  
-
+test_that("convert_to_r4ss_names works", {
+  test_dat_str <- list(
+    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
+    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
+    lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
+                         Sex = 0, Part = 0),
+    agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
+                         Sex = 0, Part = 0, Ageerr = 1,
+                         Lbin_lo = -1, Lbin_hi = -1)
+  )
+  r4ss_dat_str <- convert_to_r4ss_names(test_dat_str)
+  expect_equal(names(r4ss_dat_str), names(test_dat_str))
+  expect_equal(names(r4ss_dat_str[["catch"]]), c("year", "seas", "fleet"))
+  expect_equal(names(r4ss_dat_str[["CPUE"]]), c("year", "seas", "index"))
+  expect_equal(names(r4ss_dat_str[["lencomp"]]), c("Yr", "Seas", "FltSvy", 
+                                                  "Gender", "Part"))
+  expect_equal(names(r4ss_dat_str[["agecomp"]]), c("Yr", "Seas", "FltSvy", 
+                                                  "Gender", "Part", "Ageerr",
+                                                  "Lbin_lo", "Lbin_hi"))
+})

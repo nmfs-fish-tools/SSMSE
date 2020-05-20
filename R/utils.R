@@ -731,3 +731,39 @@ copy_SS_inputs <- function(dir.old = NULL,
     return(FALSE)
   }
 }
+
+
+#' Convert user input to r4ss data names
+#' @param dat_str
+#' @param convert_key Data frame defining how r4ss names relate to the dat_str
+#'  names. For now, a 1:1 relationship is assumed.
+convert_to_r4ss_names <- function(dat_str,
+  convert_key = data.frame(
+    df_name = c(rep("catch", 3), rep("CPUE", 3), rep("lencomp", 5), 
+                rep("agecomp", 8)),
+    r4ss_name = c("year", "seas", "fleet", 
+                  "year", "seas", "index", 
+                  "Yr", "Seas", "FltSvy", "Gender", "Part", 
+                  "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
+                  "Lbin_hi"), 
+    dat_str_name = c("Yr", "Seas", "FltSvy", 
+                     "Yr", "Seas", "FltSvy", 
+                     "Yr", "Seas", "FltSvy", "Sex", "Part",
+                     "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo",
+                     "Lbin_hi"))) {
+  # note test-utils includes a check that the default assumed 
+  # names for r4ss are true)
+  dat_str_r4ss <- 
+    mapply(
+      function(df, name_df, key) {
+        df_cols <- colnames(df)
+        r4ss_cols <- rep(NA, times = length(df_cols))
+        for(i in seq_along(df_cols)) {
+          r4ss_cols[i] <- key[key$df_name == name_df & key$dat_str_name == df_cols[i], "r4ss_name"]
+        }
+        colnames(df) <- r4ss_cols
+        df
+    }, df = dat_str, name_df = names(dat_str), 
+      MoreArgs = list(key = convert_key),USE.NAMES = TRUE)
+  dat_str_r4ss
+}
