@@ -22,7 +22,7 @@ run_SSMSE(
   rec_dev_pars = NULL,
   impl_error_pattern = "none",
   impl_error_pars = NULL,
-  dat_str_list = NULL,
+  sample_struct_list = NULL,
   verbose = FALSE
 )
 }
@@ -107,7 +107,7 @@ and rows based on assigned scope. Input the vector/matrix to impl_error_pars.}
 
 \item{impl_error_pars}{Input the required parameters as specified by impl_error_pattern choice.}
 
-\item{dat_str_list}{A optional list of lists including which years, seasons,
+\item{sample_struct_list}{A optional list of lists including which years, seasons,
 and fleets should be  added from the OM into the EM for different types of
 data. If NULL, the data structure will try to be infered from the pattern
 found for each of the datatypes within the EM datafiles. Include this
@@ -125,21 +125,24 @@ Synthesis as the Operating model(s)
 my_dir <- file.path(tempdir(), "ex-run_SSMSE")
   dir.create(my_dir)
   # For the EM, use the specified data structure
-  my_dat_str_list <- list(NULL,
+  my_sample_struct_list <- list(NULL,
                          list(
-                           catch = data.frame(year = 101:106,
-                                              seas = 1,
-                                              fleet = 1),
-                           CPUE = data.frame(year = c(102, 105),
-                                             seas = 7,
-                                             index = 2)
+                           catch = data.frame(Yr = 101:106,
+                                              Seas = 1,
+                                              FltSvy = 1),
+                           CPUE = data.frame(Year = c(102, 105),
+                                             Seas = 7,
+                                             FltSvy = 2), 
+                          lencomp = data.frame(Yr = c(102, 105), Seas = 1, 
+                                               FltSvy = 1, Sex = 0,
+                                               Part = 0),
                             )
                         )
   # Use the default parameter values, except for the once specified.
   # Note that the scen_list, either specified or internally created in the
   # function is returned.
   input_list <- run_SSMSE(out_dir_scen_vec = my_dir,
-                          dat_str_list = my_dat_str_list)
+                          sample_struct_list = my_sample_struct_list)
   unlink(my_dir, recursive = TRUE)
 }
 }

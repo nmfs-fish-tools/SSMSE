@@ -17,7 +17,7 @@ run_SSMSE_iter(
   rec_dev_iter = NULL,
   impl_error = NULL,
   niter = 1,
-  dat_str = NULL,
+  sample_struct = NULL,
   verbose = FALSE
 )
 }
@@ -67,7 +67,7 @@ Dimensions are nyrs_assess\*number of fleets \* number of seasons}
 
 \item{niter}{The iteration number}
 
-\item{dat_str}{A optional list including which years, seasons, and fleets
+\item{sample_struct}{A optional list including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre
@@ -103,9 +103,9 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  EM_name = "cod",
                  nyrs = 6,
                  nyrs_assess = 3,
-                 dat_str = list(
-                   catch = data.frame(year = 101:106, seas = 1, fleet = 1),
-                   CPUE = data.frame(year = c(102, 105), seas = 7, index = 2),
+                 sample_struct = list(
+                   catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
+                   CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
                    lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
                                         Gender = 0, Part = 0),
                    agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
