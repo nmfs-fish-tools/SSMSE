@@ -48,7 +48,7 @@ You can read the help files with
 An SSMSE toy example
 ---------
 
-This code runs 1 iteration of an MSE feedback loop. The code specifies the operating model (OM) as "cod", which is an example model included in the external data for the SSMSE package. Because this is a toy example and not a true MSE, the cod model is also used as the estimation model (EM) to get future catch. The MSE loop runs for 6 years, with a stock assessment occuring every 3 years. The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100, 103, and 106. Note that the assessment run in year 106 will generate future catch for years 107, 108, and 109, but these are not feed back into the operating model because the MSE loop is specified to only run through year 106). The argument `dat_str` specifies the data structure to add to the estimation model. In this case, we add catch every year from fleet to the estimation model and an index of abundance (CPUE) in years 102 and 105 for fleet 2. Because they are not specified, no length or age composition data is added. Note that no implementation error is assumed for forecasted catch and recruitment dviations into the future are all assumed to be 0.
+This code runs 1 iteration of an MSE feedback loop. The code specifies the operating model (OM) as "cod", which is an example model included in the external data for the SSMSE package. Because this is a toy example and not a true MSE, the cod model is also used as the estimation model (EM) to get future catch. The MSE loop runs for 6 years, with a stock assessment occuring every 3 years. The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100, 103, and 106. Note that the assessment run in year 106 will generate future catch for years 107, 108, and 109, but these are not feed back into the operating model because the MSE loop is specified to only run through year 106). The argument `sample_struct` specifies the data structure to add to the estimation model. In this case, we add catch every year from fleet to the estimation model and an index of abundance (CPUE) in years 102 and 105 for fleet 2. Because they are not specified, no length or age composition data is added. Note that no implementation error is assumed for forecasted catch and recruitment dviations into the future are all assumed to be 0.
 
 ```r
 # Create a folder for the output in the working directory.
@@ -56,7 +56,7 @@ run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
 # set up the data list to include for future runs of the EM
 # only catch in all years, index data in years 102 and 105, no comp data.
-dat_str <- list(
+sample_struct <- list(
                 catch = data.frame(year = 101:106,
                                    seas = 1,
                                    fleet = 1),
@@ -64,7 +64,7 @@ dat_str <- list(
                                   seas = 7,
                                   index = 2)
               )
-dat_str_list <- list(dat_str)
+sample_struct_list <- list(sample_struct)
 
 # run 1 iteration and 1 scenario of SSMSE using an EM.
 run_SSMSE(scen_name_vec = "scen_1",
@@ -77,7 +77,7 @@ run_SSMSE(scen_name_vec = "scen_1",
           nyrs_assess_vec = 3, # Years between assessments
           rec_dev_pattern = "none", # Don't use recruitment deviations
           impl_error_pattern = "none", # Don't use implmentation error
-          dat_str_list = dat_str_list) # How to sample data for running the EM.
+          sample_struct_list = sample_struct_list) # How to sample data for running the EM.
 ```
 
 The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session. Also, make sure you are using the development branch versions of [r4ss](https://github.com/r4ss/r4ss) and [ss3sim](https://github.com/ss3sim/ss3sim) (by installing `remotes::install_github("r4ss/r4ss@development")` and `remotes::install_github("ss3sim/ss3sim@development")`. These versions should be installed automatically when SSMSE is downloaded.

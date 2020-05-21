@@ -72,7 +72,7 @@ test_that("add_new_dat works", {
   EM_dat$catch <- EM_dat$catch[-((nrow(EM_dat$catch) - 2):nrow(EM_dat$catch)), ]
   EM_dat$CPUE <- EM_dat$CPUE[-nrow(EM_dat$CPUE), ]
   # the data structure is the
-  dat_str <- list(
+  sample_struct <- list(
     catch = c,
     CPUE = CP)
   r4ss::SS_writedat(EM_dat, file.path(temp_path, "cod_EM_dat.ss"),
@@ -80,7 +80,7 @@ test_that("add_new_dat works", {
   new_EM_dat <- add_new_dat(
                   OM_dat = OM_dat,
                   EM_datfile = "cod_EM_dat.ss",
-                  dat_str = dat_str,
+                  sample_struct = sample_struct,
                   EM_dir = temp_path,
                   do_checks = TRUE,
                   new_datfile_name = NULL,

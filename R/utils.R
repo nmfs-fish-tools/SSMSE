@@ -44,7 +44,7 @@
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param dat_str_list A optional list of lists including which years, seasons, and fleets
+#' @param sample_struct_list A optional list of lists including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
@@ -64,7 +64,7 @@
 #'                use_SS_boot_vec = TRUE,
 #'                nyrs_vec = 6,
 #'                nyrs_assess_vec = 3,
-#'                dat_str_list = NULL
+#'                sample_struct_list = NULL
 #'                 )
 create_scen_list <- function(scen_name_vec,
                              out_dir_scen_vec = NULL,
@@ -77,7 +77,7 @@ create_scen_list <- function(scen_name_vec,
                              use_SS_boot_vec = NULL,
                              nyrs_vec = NULL,
                              nyrs_assess_vec = NULL,
-                             dat_str_list = NULL) {
+                             sample_struct_list = NULL) {
   # note that input checking
   scen_name_vec <- as.character(scen_name_vec)
   # construct list. Note that it may not be usable at this stage, but there
@@ -734,10 +734,10 @@ copy_SS_inputs <- function(dir.old = NULL,
 
 
 #' Convert user input to r4ss data names
-#' @param dat_str
-#' @param convert_key Data frame defining how r4ss names relate to the dat_str
+#' @param sample_struct
+#' @param convert_key Data frame defining how r4ss names relate to the sample_struct
 #'  names. For now, a 1:1 relationship is assumed.
-convert_to_r4ss_names <- function(dat_str,
+convert_to_r4ss_names <- function(sample_struct,
   convert_key = data.frame(
     df_name = c(rep("catch", 3), rep("CPUE", 3), rep("lencomp", 5), 
                 rep("agecomp", 8)),
@@ -746,24 +746,24 @@ convert_to_r4ss_names <- function(dat_str,
                   "Yr", "Seas", "FltSvy", "Gender", "Part", 
                   "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
                   "Lbin_hi"), 
-    dat_str_name = c("Yr", "Seas", "FltSvy", 
+    sample_struct_name = c("Yr", "Seas", "FltSvy", 
                      "Yr", "Seas", "FltSvy", 
                      "Yr", "Seas", "FltSvy", "Sex", "Part",
                      "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo",
                      "Lbin_hi"))) {
   # note test-utils includes a check that the default assumed 
   # names for r4ss are true)
-  dat_str_r4ss <- 
+  sample_struct_r4ss <- 
     mapply(
       function(df, name_df, key) {
         df_cols <- colnames(df)
         r4ss_cols <- rep(NA, times = length(df_cols))
         for(i in seq_along(df_cols)) {
-          r4ss_cols[i] <- key[key$df_name == name_df & key$dat_str_name == df_cols[i], "r4ss_name"]
+          r4ss_cols[i] <- key[key$df_name == name_df & key$sample_struct_name == df_cols[i], "r4ss_name"]
         }
         colnames(df) <- r4ss_cols
         df
-    }, df = dat_str, name_df = names(dat_str), 
+    }, df = sample_struct, name_df = names(sample_struct), 
       MoreArgs = list(key = convert_key),USE.NAMES = TRUE)
-  dat_str_r4ss
+  sample_struct_r4ss
 }

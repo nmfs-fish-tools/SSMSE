@@ -17,7 +17,7 @@ test_that("create_scen_list works as expected", {
                          use_SS_boot = TRUE,
                          nyrs = 6,
                          nyrs_assess = 3,
-                         dat_str = NULL
+                         sample_struct = NULL
                        ),
                       scen_2 =
                         list(
@@ -31,7 +31,7 @@ test_that("create_scen_list works as expected", {
                           use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2,
-                          dat_str = NULL
+                          sample_struct = NULL
                         )
                        )
 
@@ -46,7 +46,7 @@ test_that("create_scen_list works as expected", {
                                     out_dir_scen_vec = out_dir,
                                     nyrs_vec = c(6, 3),
                                     nyrs_assess_vec = c(3, 2),
-                                    dat_str_list = NULL
+                                    sample_struct_list = NULL
                                     )
  # use expect equal because the names should be the same as well.
  expect_equal(scen_list_out, scen_list)
@@ -65,7 +65,7 @@ test_that("create_scen_list works with NAs", {
                           use_SS_boot = TRUE,
                           nyrs = 6,
                           nyrs_assess = 3,
-                          dat_str = NULL
+                          sample_struct = NULL
                         ),
                       scen_2 =
                         list(
@@ -79,7 +79,7 @@ test_that("create_scen_list works with NAs", {
                           use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2,
-                          dat_str = NULL
+                          sample_struct = NULL
                         )
   )
   scen_list_out <- create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
@@ -93,7 +93,7 @@ test_that("create_scen_list works with NAs", {
                                      out_dir_scen_vec = out_dir,
                                      nyrs_vec = c(6, 3),
                                      nyrs_assess_vec = c(3, 2),
-                                     dat_str_list = NULL
+                                     sample_struct_list = NULL
   )
   expect_equal(scen_list_out, scen_list)
 })
@@ -397,12 +397,12 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
      agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
                           Gender = 0, Part = 0, Ageerr = 1,
                           Lbin_lo = -1, Lbin_hi = -1))
-   return <- check_dat_str(dat_str = assumed_str, valid_names = r4ss_names)
+   return <- check_sample_struct(sample_struct = assumed_str, valid_names = r4ss_names)
    expect_equal(return, "no_error")
  })
  
 test_that("convert_to_r4ss_names works", {
-  test_dat_str <- list(
+  test_sample_struct <- list(
     catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
     CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
     lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
@@ -411,13 +411,13 @@ test_that("convert_to_r4ss_names works", {
                          Sex = 0, Part = 0, Ageerr = 1,
                          Lbin_lo = -1, Lbin_hi = -1)
   )
-  r4ss_dat_str <- convert_to_r4ss_names(test_dat_str)
-  expect_equal(names(r4ss_dat_str), names(test_dat_str))
-  expect_equal(names(r4ss_dat_str[["catch"]]), c("year", "seas", "fleet"))
-  expect_equal(names(r4ss_dat_str[["CPUE"]]), c("year", "seas", "index"))
-  expect_equal(names(r4ss_dat_str[["lencomp"]]), c("Yr", "Seas", "FltSvy", 
+  r4ss_sample_struct <- convert_to_r4ss_names(test_sample_struct)
+  expect_equal(names(r4ss_sample_struct), names(test_sample_struct))
+  expect_equal(names(r4ss_sample_struct[["catch"]]), c("year", "seas", "fleet"))
+  expect_equal(names(r4ss_sample_struct[["CPUE"]]), c("year", "seas", "index"))
+  expect_equal(names(r4ss_sample_struct[["lencomp"]]), c("Yr", "Seas", "FltSvy", 
                                                   "Gender", "Part"))
-  expect_equal(names(r4ss_dat_str[["agecomp"]]), c("Yr", "Seas", "FltSvy", 
+  expect_equal(names(r4ss_sample_struct[["agecomp"]]), c("Yr", "Seas", "FltSvy", 
                                                   "Gender", "Part", "Ageerr",
                                                   "Lbin_lo", "Lbin_hi"))
 })

@@ -21,7 +21,7 @@ test_that("run_SSMSE_iter runs with an EM", {
                  rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
                  impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
                  nyrs_assess = 3,
-                 dat_str = list(
+                 sample_struct = list(
                    catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
                    CPUE = data.frame(year = add_yrs, seas = 7, index = 2),
                    lencomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 1,
@@ -87,7 +87,7 @@ test_that("cod works when treated as a custom model", {
                            rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
                            impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
                            nyrs_assess = 3,
-                           dat_str = list(
+                           sample_struct = list(
                              catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
                              CPUE = data.frame(year = add_yrs, seas = 7, index = 2),
                              lencomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 1,

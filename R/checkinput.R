@@ -131,17 +131,17 @@ check_avail_dat <- function(EM_dat, OM_dat,
   }
 }
 
-#' Check dat_str_list
+#' Check sample_struct_list
 #'
-#' Check that list object dat_str_list has the expected form, including the
+#' Check that list object sample_struct_list has the expected form, including the
 #' correct names, correct column names (as in r4ss), and that all values in the
 #' dataframes are integer or numeric. This does not check for if numeric or
 #' interger values make sense given the model used.
-#' @param dat_str The list to check. Should be a list including which years and
+#' @param sample_struct The list to check. Should be a list including which years and
 #'  fleets should be added from the OM into the EM for different types of data.
-#' @valid_names The list to compare dat_str to.
+#' @valid_names The list to compare sample_struct to.
 #' @author Kathryn Doering
-check_dat_str <- function(dat_str, 
+check_sample_struct <- function(sample_struct, 
   valid_names = list(catch = c("Yr", "Seas", "FltSvy"),
                      CPUE = c("Yr", "Seas", "FltSvy"),
                      lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part"),
@@ -150,8 +150,8 @@ check_dat_str <- function(dat_str,
   ) {
   # list components should have same names as in r4ss
   # check no repeat names
-  if (length(unique(names(dat_str))) != length(names(dat_str))) {
-    stop("There are repeated names in dat_str. Please make sure each list ",
+  if (length(unique(names(sample_struct))) != length(names(sample_struct))) {
+    stop("There are repeated names in sample_struct. Please make sure each list ",
          "component has a unique name.")
   }
   # Check correct names and column names
@@ -170,13 +170,13 @@ check_dat_str <- function(dat_str,
     }
     err
   },
-  x = dat_str, x_name = names(dat_str),
+  x = sample_struct, x_name = names(sample_struct),
   MoreArgs = list(valid_names = valid_names),
   SIMPLIFY = FALSE)
 
   lapply(error, function(e, v) {
     if (!is.null(e)) {
-      stop("Invalid input for dat_str due to ", e, ". Please check that all",
+      stop("Invalid input for sample_struct due to ", e, ". Please check that all",
            " names are not anything other than ",
            paste0(names(v), collapse = ", "), " and have the column names",
            ":\n",
@@ -185,11 +185,11 @@ check_dat_str <- function(dat_str,
     invisible("no_error")
   }, v = valid_names)
   # check that all values can be coerced to numeric
-  lapply(dat_str, function(dataframe) {
+  lapply(sample_struct, function(dataframe) {
     apply(dataframe, 2, function(col) {
       if (!is.numeric(col) & !is.integer(col)) {
-        stop("Some values in dat_str are not integers or numeric. Please check ",
-             "that all values in the list components (dataframes) of dat_str",
+        stop("Some values in sample_struct are not integers or numeric. Please check ",
+             "that all values in the list components (dataframes) of sample_struct",
              "are either integer or numeric.")
       }
     })
