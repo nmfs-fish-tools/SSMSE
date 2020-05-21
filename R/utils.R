@@ -734,7 +734,8 @@ copy_SS_inputs <- function(dir.old = NULL,
 
 
 #' Convert user input to r4ss data names
-#' @param sample_struct
+#' @param sample_struct The sampling structure specified by the user to a 
+#'  run_SSMSE* wrapper function
 #' @param convert_key Data frame defining how r4ss names relate to the sample_struct
 #'  names. For now, a 1:1 relationship is assumed.
 convert_to_r4ss_names <- function(sample_struct,

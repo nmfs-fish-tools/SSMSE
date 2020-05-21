@@ -139,7 +139,7 @@ check_avail_dat <- function(EM_dat, OM_dat,
 #' interger values make sense given the model used.
 #' @param sample_struct The list to check. Should be a list including which years and
 #'  fleets should be added from the OM into the EM for different types of data.
-#' @valid_names The list to compare sample_struct to.
+#' @param valid_names The list to compare sample_struct to.
 #' @author Kathryn Doering
 check_sample_struct <- function(sample_struct, 
   valid_names = list(catch = c("Yr", "Seas", "FltSvy"),
