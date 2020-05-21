@@ -70,7 +70,6 @@
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
-#'
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -82,12 +81,15 @@
 #'   # For the EM, use the specified data structure
 #'   my_dat_str_list <- list(NULL,
 #'                          list(
-#'                            catch = data.frame(year = 101:106,
-#'                                               seas = 1,
-#'                                               fleet = 1),
-#'                            CPUE = data.frame(year = c(102, 105),
-#'                                              seas = 7,
-#'                                              index = 2)
+#'                            catch = data.frame(Yr = 101:106,
+#'                                               Seas = 1,
+#'                                               FltSvy = 1),
+#'                            CPUE = data.frame(Year = c(102, 105),
+#'                                              Seas = 7,
+#'                                              FltSvy = 2), 
+#'                           lencomp = data.frame(Yr = c(102, 105), Seas = 1, 
+#'                                                FltSvy = 1, Sex = 0,
+#'                                                Part = 0),
 #'                             )
 #'                         )
 #'   # Use the default parameter values, except for the once specified.
@@ -375,8 +377,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3,
 #'                  dat_str = list(
-#'                    catch = data.frame(year = 101:106, seas = 1, fleet = 1),
-#'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2),
+#'                    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
+#'                    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
 #'                    lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
 #'                                         Gender = 0, Part = 0),
 #'                    agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
@@ -407,10 +409,17 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_any_of(nyrs, c("integer", "numeric"))
   assertive.types::assert_is_any_of(nyrs_assess, c("integer", "numeric"))
   assertive.types::assert_is_any_of(niter, c("integer", "numeric"))
-  if (!is.null(dat_str)) assertive.types::assert_is_list(dat_str)
+  if (!is.null(dat_str)) {
+    assertive.types::assert_is_list(dat_str)
+    check_dat_str(dat_str)
+  }
   assertive.types::assert_is_a_bool(verbose)
 
   message("Starting iteration ", niter, ".")
+  # convert dat_str names ----
+  if(!is.null) {
+    dat_str <- convert_to_r4ss_names(dat_str)
+  }
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs

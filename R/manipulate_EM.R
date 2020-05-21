@@ -177,7 +177,6 @@ add_new_dat <- function(OM_dat,
     if (OM_dat$type != "Stock_Synthesis_data_file") {
       r4ss_obj_err("OM_dat", "data list")
     }
-    if (!is.null(dat_str)) check_dat_str(dat_str)
   }
   # Read in EM_datfile
   EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = FALSE)
