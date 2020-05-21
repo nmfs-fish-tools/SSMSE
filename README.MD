@@ -57,12 +57,12 @@ dir.create(run_SSMSE_dir)
 # set up the data list to include for future runs of the EM
 # only catch in all years, index data in years 102 and 105, no comp data.
 sample_struct <- list(
-                catch = data.frame(year = 101:106,
-                                   seas = 1,
-                                   fleet = 1),
-                CPUE = data.frame(year = c(102, 105),
-                                  seas = 7,
-                                  index = 2)
+                catch = data.frame(Yr = 101:106,
+                                   Seas = 1,
+                                   FltSvy = 1),
+                CPUE = data.frame(Yr = c(102, 105),
+                                  Seas = 7,
+                                  FltSvy = 2)
               )
 sample_struct_list <- list(sample_struct)
 
