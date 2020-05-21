@@ -751,7 +751,7 @@ convert_to_r4ss_names <- function(sample_struct,
                      "Yr", "Seas", "FltSvy", 
                      "Yr", "Seas", "FltSvy", "Sex", "Part",
                      "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo",
-                     "Lbin_hi"))) {
+                     "Lbin_hi"), stringsAsFactors = FALSE)) {
   # note test-utils includes a check that the default assumed 
   # names for r4ss are true)
   sample_struct_r4ss <- 
