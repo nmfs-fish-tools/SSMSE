@@ -417,7 +417,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
 
   message("Starting iteration ", niter, ".")
   # convert sample_struct names ----
-  if(!is.null) {
+  if(!is.null(sample_struct)) {
     sample_struct <- convert_to_r4ss_names(sample_struct)
   }
   # get and create directories, copy model files ----

@@ -22,12 +22,12 @@ test_that("run_SSMSE_iter runs with an EM", {
                  impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
                  nyrs_assess = 3,
                  sample_struct = list(
-                   catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
-                   CPUE = data.frame(year = add_yrs, seas = 7, index = 2),
+                   catch = data.frame(Yr = catch_add_yrs, Seas = 1, FltSvy = 1),
+                   CPUE = data.frame(Yr = add_yrs, Seas = 7, FltSvy = 2),
                    lencomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 1,
-                                        Gender = 0, Part = 0),
+                                        Sex = 0, Part = 0),
                    agecomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 2,
-                                        Gender = 0, Part = 0, Ageerr = 1,
+                                        Sex = 0, Part = 0, Ageerr = 1,
                                         Lbin_lo = -1, Lbin_hi = -1)
                  )
   )
@@ -67,6 +67,8 @@ test_that("run_SSMSE_iter runs with no EM", {
 # add more specific tests
 })
 
+
+
 OM_path_cod <- file.path(extdat_path, "models", "cod")
 EM_path_cod <- file.path(extdat_path, "models", "cod")
 test_that("cod works when treated as a custom model", {
@@ -88,12 +90,12 @@ test_that("cod works when treated as a custom model", {
                            impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
                            nyrs_assess = 3,
                            sample_struct = list(
-                             catch = data.frame(year = catch_add_yrs, seas = 1, fleet = 1),
-                             CPUE = data.frame(year = add_yrs, seas = 7, index = 2),
+                             catch = data.frame(Yr = catch_add_yrs, Seas = 1, FltSvy = 1),
+                             CPUE = data.frame(Yr = add_yrs, Seas = 7, FltSvy = 2),
                              lencomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 1,
-                                                  Gender = 0, Part = 0),
+                                                  Sex = 0, Part = 0),
                              agecomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 2,
-                                                  Gender = 0, Part = 0, Ageerr = 1,
+                                                  Sex = 0, Part = 0, Ageerr = 1,
                                                   Lbin_lo = -1, Lbin_hi = -1)
                            )
   )
