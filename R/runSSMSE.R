@@ -84,7 +84,7 @@
 #'                            catch = data.frame(Yr = 101:106,
 #'                                               Seas = 1,
 #'                                               FltSvy = 1),
-#'                            CPUE = data.frame(Year = c(102, 105),
+#'                            CPUE = data.frame(Yr = c(102, 105),
 #'                                              Seas = 7,
 #'                                              FltSvy = 2), 
 #'                           lencomp = data.frame(Yr = c(102, 105), Seas = 1, 
