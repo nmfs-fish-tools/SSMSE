@@ -9,7 +9,6 @@ test_that("assumptions about r4ss colnames are true.", {
   # if this test is not passing, modifications need to be made to 
   # convert_to_r4ss_names function.
   # mock some values outside modle year in the modesl
-  OM_dir <- file.path(out_dir, "copy_model_files", "OM")
   OM_dat_orig <- r4ss::SS_readdat(OM_dat_path, verbose = FALSE)
   r4ss_names <- list(
     catch = colnames(OM_dat_orig[["catch"]]),
@@ -72,3 +71,29 @@ test_that("create_sample_struct works", {
                "nyrs is not of class 'numeric'")
   # todo: maybe need to expand this to account for CAL data?
 })
+
+test_that("get_full_sample_struct works", {
+  spl_str <- list(
+                 catch = data.frame(Yr = 101:110),
+                 CPUE = data.frame(Yr = c(105, 110)), 
+                 lencomp = data.frame(Yr = seq(102,110, by = 2)),
+                 agecomp = data.frame(Yr = seq(102,110, by = 4)))
+ full_spl_str <- get_full_sample_struct(spl_str, 
+   system.file("extdata", "models", "cod", package = "SSMSE"))
+ # reference to compare against
+ full_spl_str_ref <- list(
+   catch = data.frame(Yr = 101:110, Seas = 1, FltSvy = 1),
+   CPUE = data.frame(Yr = c(105, 110), Seas = 7 , FltSvy = 2), 
+   lencomp = data.frame(Yr = seq(102,110, by = 2), Seas = 1, FltSvy = 1, 
+                        Sex = 0, Part = 0),
+   agecomp = data.frame(Yr = seq(102,110, by = 4), Seas = 1, FltSvy = 2,
+                        Sex = 0, Part = 0, Ageerr = 1, Lbin_lo = -1,
+                        Lbin_hi = -1))
+ expect_equal(full_spl_str, full_spl_str_ref)
+ 
+ # TODO: add some more complex examples to verify that this will work in all
+ # situations that it should?
+ 
+})
+
+

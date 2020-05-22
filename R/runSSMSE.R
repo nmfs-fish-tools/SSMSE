@@ -416,10 +416,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_a_bool(verbose)
 
   message("Starting iteration ", niter, ".")
-  # convert sample_struct names ----
-  if(!is.null(sample_struct)) {
-    sample_struct <- convert_to_r4ss_names(sample_struct)
-  }
+
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs
@@ -444,6 +441,16 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # other things.
   clean_init_mod_files(OM_out_dir = OM_out_dir, EM_out_dir = EM_out_dir,
                        overwrite = TRUE)
+  
+  # convert sample_struct names ----
+  # get the full sampling structure for components that the user didnt specify.
+  # if meaning is ambiguous, then this will exit on error.
+  sample_struct <- get_full_sample_struct(sample_struct = sample_struct,
+                         OM_out_dir = OM_out_dir)
+  # convert to r4ss names
+  if(!is.null(sample_struct)) {
+    sample_struct <- convert_to_r4ss_names(sample_struct)
+  }
   # MSE first iteration ----
   # turn the stock assessment model into an OM
   # This function is now needed in order to make changes such as run from

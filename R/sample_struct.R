@@ -111,3 +111,158 @@ create_sample_struct <- function(dat, nyrs) {
   names(sample_struct) <- list_name
   sample_struct
 }
+
+#' Get the full sample structure from user input
+#' 
+#' Get the ful sample structure from user input by looking at the OM data. If it
+#' cannot be unambigously determined, this function will return an error
+#' describing what additional user input is required
+#' 
+#' @param sample_struct The sample structure, as defined by the user. This need
+#'  not define all the sampling structure if it can be unambiguously determined
+#'  from the OM data file.
+#' @param OM_out_dir The directory containing the operating model files
+get_full_sample_struct <- function(sample_struct,
+                                   OM_out_dir) {
+  start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = FALSE)
+  dat <- r4ss::SS_readdat(file.path(OM_out_dir, start$datfile), verbose = FALSE)
+  # years must always be specified
+  full_samp_str <- mapply(
+    function(x, x_name, dat) {
+      tmp_dat <- dat[[x_name]]
+      #to store error msgs:
+      error1 <- NULL
+      error2 <- NULL
+      if(!"Yr" %in% colnames(x)) {
+        stop("Column Yr missing from 1 or more data frames in sample_struct, but", 
+             " must always be specified")
+      }
+      if(!"FltSvy" %in% colnames(x)){
+        #there must only be 1 fleet
+        flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+             value = TRUE)
+        flt <- unique(tmp_dat[ ,flt_colname])
+        if (length(flt) == 1) {
+          x$FltSvy <- flt
+        } else {
+          error1 <- x_name 
+          error2 <- "FltSvy"
+        }
+      }
+      if(!"Seas" %in% colnames(x)){
+        x$Seas <- NA #initial value
+        seas_colname <- grep("seas", colnames(tmp_dat), ignore.case = TRUE,
+                            value = TRUE)
+        flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                            value = TRUE)
+        for (i in unique(x$FltSvy)) {
+          tmp_seas <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, seas_colname])
+          if (length(tmp_seas) == 1) {
+            x[x$FltSvy == i, "Seas"] <- tmp_seas
+          } else {
+            error1 <- c(error1, x_name)
+            error2 <- c(error2, "Seas")
+          }
+        }
+      }
+      if(x_name == "lencomp" | x_name == "agecomp") {
+        if(!"Sex" %in% colnames(x)){
+          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                              value = TRUE)
+          x$Sex <- NA
+          for(i in unique(x$FltSvy)) {
+            tmp_sx <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Gender"])
+            if(length(tmp_sx) == 1) {
+              x[x$FltSvy == i, "Sex"] <- tmp_sx
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Sex")
+            }
+          }
+        }
+        if(!"Part" %in% colnames(x)){
+          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                              value = TRUE)
+          x$Part <- NA
+          for(i in unique(x$FltSvy)) {
+            tmp_pt <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Part"])
+            if(length(tmp_pt) == 1) {
+              x[x$FltSvy == i, "Part"] <- tmp_pt
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Part")
+            }
+          }
+        }
+      }
+      if(x_name == "agecomp") {
+        # add Ageerr, Lbin_lo and Lbin_hi
+        if(!"Ageerr" %in% colnames(x)) {
+          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                              value = TRUE)
+          x$Ageerr <- NA
+          for(i in unique(x$FltSvy)) {  
+            tmp_err <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Ageerr"])
+            if(length(tmp_err) == 1) {
+              x[x$FltSvy == i, "Ageerr"] <- tmp_err
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Ageerr")
+            }
+          }
+        }
+        if(!"Lbin_lo" %in% colnames(x)) {
+          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                              value = TRUE)
+          for(i in unique(x$FltSvy)) {
+            x$Lbin_lo <- NA
+            tmp_lbin <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Lbin_lo"])
+            if(length(tmp_lbin) == 1) {
+              x[x$FltSvy == i, "Lbin_lo"] <- tmp_lbin
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Lbin_lo")
+            }
+          }
+        }
+        if(!"Lbin_hi" %in% colnames(x)) {
+          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                              value = TRUE)
+          for(i in unique(x$FltSvy)) {
+            x$Lbin_hi <- NA
+            tmp_lbin <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Lbin_hi"])
+            if(length(tmp_lbin) == 1) {
+              x[x$FltSvy == i, "Lbin_hi"] <- tmp_lbin
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Lbin_hi")
+            }
+          }
+        }
+      }
+      if(!is.null(error1)) {
+        stop("sample_struct could not be automatically expanded due to list ", 
+            "elements ", paste0(error1, collapse = ", "), "; colnames ", 
+            paste0(error2, collapse = ", "))
+      }
+    x
+    }, x = sample_struct, x_name = names(sample_struct), 
+  MoreArgs = list(dat = dat), USE.NAMES = TRUE, SIMPLIFY = FALSE)
+  #reorder cols
+  tmp_colorder <- c("Yr", "Seas", "FltSvy")
+  if(!is.null(full_samp_str$catch)) {
+    full_samp_str$catch <- full_samp_str$catch[, tmp_colorder]
+  }
+  if(!is.null(full_samp_str$CPUE)) {
+    full_samp_str$CPUE <- full_samp_str$CPUE[, tmp_colorder]
+  }
+  tmp_colorder <- c(tmp_colorder, "Sex", "Part")
+  if(!is.null(full_samp_str$lencomp)) {
+    full_samp_str$lencomp <- full_samp_str$lencomp[, tmp_colorder]
+  }
+  tmp_colorder <- c(tmp_colorder, "Ageerr", "Lbin_lo", "Lbin_hi")
+  if(!is.null(full_samp_str$agecomp)) {
+    full_samp_str$agecomp <- full_samp_str$agecomp[, tmp_colorder]
+  }
+  full_samp_str
+}
