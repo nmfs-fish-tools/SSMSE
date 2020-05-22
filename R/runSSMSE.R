@@ -351,7 +351,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  for the number of years to extend the model out. Note that the data should
 #'  be specified using the list component names and column names as in would be
 #'  used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
-#'  give an example of what this structure should be.
+#'  give an example of what this structure should be. Running the function 
+#'  create_sample_struct() will also produce a sample_struct object in the 
+#'  correct form.
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -380,9 +382,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'                    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
 #'                    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
 #'                    lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
-#'                                         Gender = 0, Part = 0),
+#'                                         Sex = 0, Part = 0),
 #'                    agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
-#'                                         Gender = 0, Part = 0, Ageerr = 1,
+#'                                         Sex = 0, Part = 0, Ageerr = 1,
 #'                                         Lbin_lo = -1, Lbin_hi = -1)
 #'                  )
 #'      )

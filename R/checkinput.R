@@ -93,7 +93,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     # check there is the same data for Years, Seas, FltSvy available
     check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "lencomp",
                     colnames = c("Yr", "Seas", "FltSvy"))
-    # there may be more rigorous checks to do (checking that gender and partion
+    # there may be more rigorous checks to do (checking that sex and partion
     # is the same?
   }
   # check age comp
