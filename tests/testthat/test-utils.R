@@ -421,3 +421,28 @@ test_that("convert_to_r4ss_names works", {
                                                   "Gender", "Part", "Ageerr",
                                                   "Lbin_lo", "Lbin_hi"))
 })
+
+
+test_that("create_sample_struct works", {
+  # correctly working
+  OM_path <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+  expect_warning(sample_struct <- create_sample_struct(OM_path, nyrs = 20), 
+                 "Pattern not found for lencomp")
+  expect_sample_struct <- list(catch = data.frame(Yr = 101:120, Seas = 1, FltSvy = 1),
+                               CPUE = data.frame(Yr = seq(105, 120, by = 5), Seas = 7, FltSvy = 2),
+                               lencomp = data.frame(Yr = NA, Seas = 1, FltSvy = 1), # because irregular input
+                               agecomp = data.frame(Yr = seq(105, 120, by = 5 ), Seas = 1, FltSvy = 2))
+  expect_equal(sample_struct, expect_sample_struct)
+  # try using one where missing lencomp data
+  dat <- r4ss::SS_readdat(system.file("extdata", "models", "cod", "ss3.dat",
+                                      package = "SSMSE"), verbose  = FALSE)
+  dat$lencomp <- NULL
+  sample_nolen <- create_sample_struct(dat, nyrs = 20)
+  expect <- expect_sample_struct
+  expect$lencomp <- NULL
+  expect_equal(sample_struct, expect_sample_struct)
+  # give bad input
+  expect_error(create_sample_struct(OM_path, nyrs = "twenty"),
+               "nyrs is not of class 'numeric'")
+  # todo: maybe need to expand this to account for CAL data?
+})
