@@ -192,6 +192,10 @@ check_sample_struct <- function(sample_struct,
              "that all values in the list components (dataframes) of sample_struct",
              "are either integer or numeric.")
       }
+      if(any(is.na(col))) {
+        stop("Some values in sample_struct are NA. Please remove or replace ", 
+             "with numeric or integer values.")
+      }
     })
   })
   invisible("no_error")

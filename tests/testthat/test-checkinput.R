@@ -118,6 +118,13 @@ test_that("check_sample_struct works", {
   expect_error(check_sample_struct(chars),
                "Some values in sample_struct are not integers or numeric.",
                fixed = TRUE)
+  # character strings included in a dataframe column
+  NA_vals <- list(
+    catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = NA),
+    CPUE  = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2))
+  expect_error(check_sample_struct(NA_vals),
+               "Some values in sample_struct are NA.",
+               fixed = TRUE)
 })
 
 test_that("r4ss_obj_err prints errors as expected", {
