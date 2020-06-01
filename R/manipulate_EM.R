@@ -149,7 +149,7 @@ run_EM <- function(EM_dir,
 #'   this should be sampled data.
 #' @param EM_datfile Datafile name run in previous iterations with the EM.
 #'  Assumed to exist in EM_dir.
-#' @param sample_struct A optional list including which years and fleets should be
+#' @param sample_struct Includes which years and fleets should be
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the
 #'  datatypes within EM_datfile.
@@ -165,7 +165,7 @@ run_EM <- function(EM_dir,
 #' @author Kathryn Doering
 add_new_dat <- function(OM_dat,
                         EM_datfile,
-                        sample_struct = NULL,
+                        sample_struct,
                         EM_dir,
                         do_checks = TRUE,
                         new_datfile_name = NULL,
@@ -183,19 +183,11 @@ add_new_dat <- function(OM_dat,
   new_EM_dat <- EM_dat
   new_EM_dat$endyr <- OM_dat$endyr # want to be the same as the OM
   # add the data from OM_dat into EM_dat
-  if (is.null(sample_struct)) {
-    stop("Option to determine sampling from EM_datfile not yet developed. ",
-         "Please specify sampling using sample_struct.")
-    # see if there is a consistent pattern in sampling design in EM_datfile
-    # if so, use this pattern to extract data from OM_dat
-    # stop on error (or generate warning and add all data??) if cannot determine
-     # a specific pattern
-  } else {
-    # checks in relation to OM_dat: check that years, fleets, etc. ar valid
+  # checks in relation to OM_dat: check that years, fleets, etc. ar valid
 
-    # extract data from OM_dat based on valid data structure
-   extracted_dat <-
-     mapply(
+  # extract data from OM_dat based on valid data structure
+  extracted_dat <-
+    mapply(
       function(df, df_name, OM_dat) {
         OM_df <- OM_dat[[df_name]]
         OM_df[, 3] <- abs(OM_df[, 3]) # get rid of negative fleet values from OM
@@ -209,22 +201,21 @@ add_new_dat <- function(OM_dat,
         }
         new_dat
       },
-      df = sample_struct, df_name = names(sample_struct),
-      MoreArgs = list(OM_dat = OM_dat),
-      SIMPLIFY = FALSE, USE.NAMES = TRUE)
-    # insert this data into the EM_datfile
-   for (n in names(extracted_dat)) {
+    df = sample_struct, df_name = names(sample_struct),
+    MoreArgs = list(OM_dat = OM_dat),
+    SIMPLIFY = FALSE, USE.NAMES = TRUE)
+  # insert this data into the EM_datfile
+  for (n in names(extracted_dat)) {
     new_EM_dat[[n]] <- rbind(new_EM_dat[[n]], extracted_dat[[n]])
-   }
-  # write the new datafile if new_datfile_name isn't NULL
-    if (!is.null(new_datfile_name)) {
-      SS_writedat(new_EM_dat,
-                  file.path(EM_dir, new_datfile_name),
-                  overwrite = TRUE,
-                  verbose = FALSE)
-    }
   }
-   new_EM_dat
+# write the new datafile if new_datfile_name isn't NULL
+  if (!is.null(new_datfile_name)) {
+    SS_writedat(new_EM_dat,
+                file.path(EM_dir, new_datfile_name),
+                overwrite = TRUE,
+                verbose = FALSE)
+  }
+  new_EM_dat
 }
 
 #' Change the years in the forecast file

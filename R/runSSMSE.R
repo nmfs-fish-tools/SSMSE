@@ -416,6 +416,9 @@ run_SSMSE_iter <- function(out_dir = NULL,
   if (!is.null(sample_struct)) {
     assertive.types::assert_is_list(sample_struct)
     check_sample_struct(sample_struct)
+  } else {
+    stop("sample_struct cannot be NULL. Please specify (helper function ",
+         "create_sample_struct can be used.")
   }
   assertive.types::assert_is_a_bool(verbose)
 
@@ -452,9 +455,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   sample_struct <- get_full_sample_struct(sample_struct = sample_struct,
                          OM_out_dir = OM_out_dir)
   # convert to r4ss names
-  if(!is.null(sample_struct)) {
-    sample_struct <- convert_to_r4ss_names(sample_struct)
-  }
+  sample_struct <- convert_to_r4ss_names(sample_struct)
   # MSE first iteration ----
   # turn the stock assessment model into an OM
   # This function is now needed in order to make changes such as run from

@@ -142,11 +142,11 @@ check_avail_dat <- function(EM_dat, OM_dat,
 #' @param valid_names The list to compare sample_struct to.
 #' @author Kathryn Doering
 check_sample_struct <- function(sample_struct, 
-  valid_names = list(catch = c("Yr", "Seas", "FltSvy"),
-                     CPUE = c("Yr", "Seas", "FltSvy"),
-                     lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part"),
+  valid_names = list(catch = c("Yr", "Seas", "FltSvy", "SE"),
+                     CPUE = c("Yr", "Seas", "FltSvy", "SE"),
+                     lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"),
                      agecomp = c("Yr", "Seas", "FltSvy", "Sex", "Part",
-                                 "Ageerr", "Lbin_lo", "Lbin_hi"))
+                                 "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"))
   ) {
   # list components should have same names as in r4ss
   # check no repeat names
