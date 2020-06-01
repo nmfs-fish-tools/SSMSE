@@ -16,36 +16,36 @@ test_that("assumptions about r4ss colnames are true.", {
     lencomp = colnames(OM_dat_orig[["lencomp"]]), 
     agecomp = colnames(OM_dat_orig[["agecomp"]]))
   assumed_str <- list(
-    catch = data.frame(year = 101:106, seas = 1, fleet = 1),
-    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2),
+    catch = data.frame(year = 101:106, seas = 1, fleet = 1, catch_se = 0.005),
+    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2, se_log = 0.2),
     lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
-                         Gender = 0, Part = 0),
+                         Gender = 0, Part = 0, Nsamp = 125),
     agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
                          Gender = 0, Part = 0, Ageerr = 1,
-                         Lbin_lo = -1, Lbin_hi = -1))
+                         Lbin_lo = -1, Lbin_hi = -1, Nsamp = 500))
   return <- check_sample_struct(sample_struct = assumed_str, valid_names = r4ss_names)
   expect_equal(return, "no_error")
 })
 
 test_that("convert_to_r4ss_names works", {
   test_sample_struct <- list(
-    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
-    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
+    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1, SE = 0.01),
+    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2, SE = 0.05),
     lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
-                         Sex = 0, Part = 0),
+                         Sex = 0, Part = 0, Nsamp = 125),
     agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
                          Sex = 0, Part = 0, Ageerr = 1,
-                         Lbin_lo = -1, Lbin_hi = -1)
+                         Lbin_lo = -1, Lbin_hi = -1, Nsamp = 500)
   )
   r4ss_sample_struct <- convert_to_r4ss_names(test_sample_struct)
   expect_equal(names(r4ss_sample_struct), names(test_sample_struct))
-  expect_equal(names(r4ss_sample_struct[["catch"]]), c("year", "seas", "fleet"))
-  expect_equal(names(r4ss_sample_struct[["CPUE"]]), c("year", "seas", "index"))
+  expect_equal(names(r4ss_sample_struct[["catch"]]), c("year", "seas", "fleet", "catch_se"))
+  expect_equal(names(r4ss_sample_struct[["CPUE"]]), c("year", "seas", "index", "se_log"))
   expect_equal(names(r4ss_sample_struct[["lencomp"]]), c("Yr", "Seas", "FltSvy", 
-                                                         "Gender", "Part"))
+                                                         "Gender", "Part", "Nsamp"))
   expect_equal(names(r4ss_sample_struct[["agecomp"]]), c("Yr", "Seas", "FltSvy", 
                                                          "Gender", "Part", "Ageerr",
-                                                         "Lbin_lo", "Lbin_hi"))
+                                                         "Lbin_lo", "Lbin_hi", "Nsamp"))
 })
 
 
@@ -53,10 +53,11 @@ test_that("create_sample_struct works", {
   # correctly working
   expect_warning(sample_struct <- create_sample_struct(OM_dat_path, nyrs = 20), 
                  "Pattern not found for lencomp")
-  expect_sample_struct <- list(catch = data.frame(Yr = 101:120, Seas = 1, FltSvy = 1),
-                               CPUE = data.frame(Yr = seq(105, 120, by = 5), Seas = 7, FltSvy = 2),
-                               lencomp = data.frame(Yr = NA, Seas = 1, FltSvy = 1), # because irregular input
-                               agecomp = data.frame(Yr = seq(105, 120, by = 5 ), Seas = 1, FltSvy = 2))
+  expect_sample_struct <- list(
+    catch = data.frame(Yr = 101:120, Seas = 1, FltSvy = 1, SE = 0.005),
+    CPUE = data.frame(Yr = seq(105, 120, by = 5), Seas = 7, FltSvy = 2, SE = 0.2),
+    lencomp = data.frame(Yr = NA, Seas = 1, FltSvy = 1, Nsamp = 125), # because irregular input
+    agecomp = data.frame(Yr = seq(105, 120, by = 5 ), Seas = 1, FltSvy = 2, Nsamp = 500))
   expect_equal(sample_struct, expect_sample_struct)
   # try using one where missing lencomp data
   dat <- r4ss::SS_readdat(system.file("extdata", "models", "cod", "ss3.dat",
@@ -64,11 +65,18 @@ test_that("create_sample_struct works", {
   dat$lencomp <- NULL
   sample_nolen <- create_sample_struct(dat, nyrs = 20)
   expect <- expect_sample_struct
-  expect$lencomp <- NULL
-  expect_equal(sample_struct, expect_sample_struct)
+  expect$lencomp <- NA
+  expect_equal(sample_nolen, expect)
   # give bad input
   expect_error(create_sample_struct(OM_dat_path, nyrs = "twenty"),
                "nyrs is not of class 'numeric'")
+  # make sure NA in sampling col works as expected.
+  dat$catch$catch_se[5] <- 0.01
+  expect_warning(sample_struct_mult_SE <- create_sample_struct(dat, nyrs = 20), 
+                 "NA included in column")
+  expect_mult_SE <- expect
+  expect_mult_SE$catch$SE <- NA
+  expect_equal(sample_struct_mult_SE, expect_mult_SE)
   # todo: maybe need to expand this to account for CAL data?
 })
 
@@ -82,13 +90,13 @@ test_that("get_full_sample_struct works", {
    system.file("extdata", "models", "cod", package = "SSMSE"))
  # reference to compare against
  full_spl_str_ref <- list(
-   catch = data.frame(Yr = 101:110, Seas = 1, FltSvy = 1),
-   CPUE = data.frame(Yr = c(105, 110), Seas = 7 , FltSvy = 2), 
+   catch = data.frame(Yr = 101:110, Seas = 1, FltSvy = 1, SE = 0.005),
+   CPUE = data.frame(Yr = c(105, 110), Seas = 7 , FltSvy = 2, SE = 0.2), 
    lencomp = data.frame(Yr = seq(102,110, by = 2), Seas = 1, FltSvy = 1, 
-                        Sex = 0, Part = 0),
+                        Sex = 0, Part = 0, Nsamp = 125),
    agecomp = data.frame(Yr = seq(102,110, by = 4), Seas = 1, FltSvy = 2,
                         Sex = 0, Part = 0, Ageerr = 1, Lbin_lo = -1,
-                        Lbin_hi = -1))
+                        Lbin_hi = -1, Nsamp = 500))
  expect_equal(full_spl_str, full_spl_str_ref)
  
  # TODO: add some more complex examples to verify that this will work in all

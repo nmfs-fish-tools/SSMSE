@@ -7,18 +7,18 @@
 #'  names. For now, a 1:1 relationship is assumed.
 convert_to_r4ss_names <- function(sample_struct,
   convert_key = data.frame(
-  df_name = c(rep("catch", 3), rep("CPUE", 3), rep("lencomp", 5), 
-              rep("agecomp", 8)),
-  r4ss_name = c("year", "seas", "fleet", 
-                "year", "seas", "index", 
-                "Yr", "Seas", "FltSvy", "Gender", "Part", 
+  df_name = c(rep("catch", 4), rep("CPUE", 4), rep("lencomp", 6), 
+              rep("agecomp", 9)),
+  r4ss_name = c("year", "seas", "fleet", "catch_se",
+                "year", "seas", "index", "se_log",
+                "Yr", "Seas", "FltSvy", "Gender", "Part", "Nsamp", 
                 "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
-                "Lbin_hi"), 
-  sample_struct_name = c("Yr", "Seas", "FltSvy", 
-                         "Yr", "Seas", "FltSvy", 
-                         "Yr", "Seas", "FltSvy", "Sex", "Part",
+                "Lbin_hi", "Nsamp"), 
+  sample_struct_name = c("Yr", "Seas", "FltSvy", "SE",
+                         "Yr", "Seas", "FltSvy", "SE",
+                         "Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp",
                          "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", 
-                         "Lbin_lo", "Lbin_hi"), stringsAsFactors = FALSE)) {
+                         "Lbin_lo", "Lbin_hi", 'Nsamp'), stringsAsFactors = FALSE)) {
   # note test-utils includes a check that the default assumed 
   # names for r4ss are true)
   sample_struct_r4ss <- 
@@ -60,19 +60,33 @@ create_sample_struct <- function(dat, nyrs) {
   if(length(dat) == 1 & is.character(dat)) {
     dat <- SS_readdat(dat, verbose = FALSE)
   }
-  catch <- dat[['catch']]
   list_name <- c("catch", "CPUE", "lencomp", "agecomp")
   sample_struct <- lapply(list_name, 
     function(name, dat) {
       df <- dat[[name]]
       if(is.null(df)) {
-        return(NULL)
+        return(NA)
       }
       # get year, seas, fleet combo, ignoring -999 values.
       yr_col <- grep("year|yr", colnames(df),ignore.case = TRUE, value = TRUE)
       seas_col <- grep("seas", colnames(df), ignore.case = TRUE, value = TRUE)
       flt_col <- grep("FltSvy|fleet|index", colnames(df), ignore.case = TRUE, 
                       value = TRUE)
+      input_SE_col <- grep("_se|se_", colnames(df), ignore.case = TRUE, 
+                           value = TRUE)# catch sample size
+      Nsamp_col <-  grep("Nsamp", colnames(df), ignore.case = TRUE, 
+                         value = TRUE)# input sample size
+      #sanity checks. should match with 1 (or 0 in some cases) cols. Failing these
+      # checks indicate a bug in the code (invalid assuptions of how to match the
+      # cols.)
+      assertive.properties::assert_is_of_length(yr_col, 1)
+      assertive.properties::assert_is_of_length(seas_col, 1)
+      assertive.properties::assert_is_of_length(flt_col, 1)
+      # b/c only Nsamp or SE should exist for a df
+      assertive.base::assert_is_identical_to_true(
+        (length(input_SE_col) == 0 & length(Nsamp_col) == 1) |
+        (length(input_SE_col) == 1 & length(Nsamp_col) == 0)
+      )
       # find combinations of season and fleet in the df.
       df_combo <- unique(df[,c(seas_col, flt_col), drop = FALSE])
       fill_vec <- vector(mode = "list", length = nrow(df_combo))
@@ -84,6 +98,8 @@ create_sample_struct <- function(dat, nyrs) {
                         df[[yr_col]] != -999, yr_col]
         tmp_yrs <- unique(tmp_yrs)
         tmp_yrs <- tmp_yrs[order(tmp_yrs)]
+
+        
         # figure out diff between first and second yr. 
         tmp_diff <- tmp_yrs[2] - tmp_yrs[1]
         # reconstruct the pattern
@@ -103,6 +119,31 @@ create_sample_struct <- function(dat, nyrs) {
                                    Seas = tmp_seas,
                                    FltSvy = tmp_flt,
                                    stringsAsFactors = FALSE)
+        }
+        # add sample size, if possible
+        # see if se or Nsamp is the same across years for the seas/flt. If so,
+        # add to the df. If not, add NA's.
+        if(length(input_SE_col) == 1) {
+          tmp_SE <- unique(df[df[[seas_col]] == tmp_seas & 
+                                df[[flt_col]] == tmp_flt &
+                                df[[yr_col]] != -999, input_SE_col])
+          if(length(tmp_SE) == 1) {
+            future_pat$SE <- tmp_SE
+          } else {
+            future_pat$SE <- NA
+            warning("NA included in column SE for ", name, ".")
+          }
+        }
+        if(length(Nsamp_col) == 1) {
+          tmp_Nsamp <- unique(df[df[[seas_col]] == tmp_seas & 
+                                   df[[flt_col]] == tmp_flt &
+                                   df[[yr_col]] != -999, Nsamp_col])
+          if(length(tmp_Nsamp) == 1) {
+            future_pat$Nsamp <- tmp_Nsamp
+          } else {
+            future_pat$Nsamp <- NA
+            warning("NA included in column Nsamp for ", name, ".")
+          }
         }
         fill_vec[[i]] <- future_pat
       }
@@ -126,6 +167,7 @@ get_full_sample_struct <- function(sample_struct,
                                    OM_out_dir) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = FALSE)
   dat <- r4ss::SS_readdat(file.path(OM_out_dir, start$datfile), verbose = FALSE)
+  dat$catch <- dat$catch[dat$catch$year != -999, ] # filter out equilibrium values
   # years must always be specified
   full_samp_str <- mapply(
     function(x, x_name, dat) {
@@ -165,6 +207,24 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
       }
+      if(x_name == "catch" | x_name == "CPUE"){
+        if(!"SE" %in% colnames(x)) {
+          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                              value = TRUE)
+          se_colname <- grep("catch_se|se_log", colnames(tmp_dat), ignore.case = TRUE, 
+                            value = TRUE)
+          x$SE <- NA
+          for(i in unique(x$FltSvy)) {
+            tmp_se <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, se_colname])
+            if(length(tmp_se) == 1) {
+              x[x$FltSvy == i, "SE"] <- tmp_se
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "SE")
+            }
+          }
+        }
+      }
       if(x_name == "lencomp" | x_name == "agecomp") {
         if(!"Sex" %in% colnames(x)){
           flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
@@ -191,6 +251,20 @@ get_full_sample_struct <- function(sample_struct,
             } else {
               error1 <- c(error1, x_name)
               error2 <- c(error2, "Part")
+            }
+          }
+        }
+        if(!"Nsamp" %in% colnames(x)) {
+          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat), ignore.case = TRUE, 
+                              value = TRUE)
+          x$Nsamp <- NA
+          for(i in unique(x$FltSvy)) {
+            tmp_nsamp <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Nsamp"])
+            if(length(tmp_nsamp) == 1) {
+              x[x$FltSvy == i, "Nsamp"] <- tmp_nsamp
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Nsamp")
             }
           }
         }
@@ -240,6 +314,7 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
       }
+
       if(!is.null(error1)) {
         stop("sample_struct could not be automatically expanded due to list ", 
             "elements ", paste0(error1, collapse = ", "), "; colnames ", 
@@ -249,18 +324,18 @@ get_full_sample_struct <- function(sample_struct,
     }, x = sample_struct, x_name = names(sample_struct), 
   MoreArgs = list(dat = dat), USE.NAMES = TRUE, SIMPLIFY = FALSE)
   #reorder cols
-  tmp_colorder <- c("Yr", "Seas", "FltSvy")
+  tmp_colorder <- c("Yr", "Seas", "FltSvy", "SE")
   if(!is.null(full_samp_str$catch)) {
     full_samp_str$catch <- full_samp_str$catch[, tmp_colorder]
   }
   if(!is.null(full_samp_str$CPUE)) {
     full_samp_str$CPUE <- full_samp_str$CPUE[, tmp_colorder]
   }
-  tmp_colorder <- c(tmp_colorder, "Sex", "Part")
+  tmp_colorder <- c(tmp_colorder[-length(tmp_colorder)], "Sex", "Part", "Nsamp")
   if(!is.null(full_samp_str$lencomp)) {
     full_samp_str$lencomp <- full_samp_str$lencomp[, tmp_colorder]
   }
-  tmp_colorder <- c(tmp_colorder, "Ageerr", "Lbin_lo", "Lbin_hi")
+  tmp_colorder <- c(tmp_colorder[-length(tmp_colorder)], "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp")
   if(!is.null(full_samp_str$agecomp)) {
     full_samp_str$agecomp <- full_samp_str$agecomp[, tmp_colorder]
   }
