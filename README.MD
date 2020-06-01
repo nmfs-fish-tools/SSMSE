@@ -59,10 +59,12 @@ dir.create(run_SSMSE_dir)
 sample_struct <- list(
                 catch = data.frame(Yr = 101:106,
                                    Seas = 1,
-                                   FltSvy = 1),
+                                   FltSvy = 1, 
+                                   SE = 0.05),
                 CPUE = data.frame(Yr = c(102, 105),
                                   Seas = 7,
-                                  FltSvy = 2)
+                                  FltSvy = 2, 
+                                  SE = 0.2)
               )
 sample_struct_list <- list(sample_struct)
 

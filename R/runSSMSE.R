@@ -83,13 +83,15 @@
 #'                          list(
 #'                            catch = data.frame(Yr = 101:106,
 #'                                               Seas = 1,
-#'                                               FltSvy = 1),
+#'                                               FltSvy = 1,
+#'                                               SE = 0.05),
 #'                            CPUE = data.frame(Yr = c(102, 105),
 #'                                              Seas = 7,
-#'                                              FltSvy = 2), 
+#'                                              FltSvy = 2, 
+#'                                              SE = 0.01), 
 #'                           lencomp = data.frame(Yr = c(102, 105), Seas = 1, 
 #'                                                FltSvy = 1, Sex = 0,
-#'                                                Part = 0),
+#'                                                Part = 0, Nsamp = 100),
 #'                             )
 #'                         )
 #'   # Use the default parameter values, except for the once specified.
@@ -379,13 +381,13 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3,
 #'                  sample_struct = list(
-#'                    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
-#'                    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
+#'                    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1, SE = 0.05),
+#'                    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2, SE = 0.01),
 #'                    lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
-#'                                         Sex = 0, Part = 0),
+#'                                         Sex = 0, Part = 0, Nsamp = 100),
 #'                    agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
 #'                                         Sex = 0, Part = 0, Ageerr = 1,
-#'                                         Lbin_lo = -1, Lbin_hi = -1)
+#'                                         Lbin_lo = -1, Lbin_hi = -1, Nsamp = 50)
 #'                  )
 #'      )
 #' unlink(temp_path, recursive = TRUE)
