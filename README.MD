@@ -28,7 +28,7 @@ https://nmfs-fish-tools.github.io/SSMSE/
 
 ***** *******
 
-Installing the SSMSE R package
+## Installing the SSMSE R package
 ---------
 
 Note that the SSMSE is a work in progress and not yet a minimum viable product.
@@ -40,11 +40,11 @@ library(SSMSE)
 ```
 You can read the help files with
 
-``` r
+```r
 ?SSMSE
 ```
 
-An SSMSE toy example
+## An SSMSE toy example
 ---------
 
 This code runs 1 iteration of an MSE feedback loop. The code specifies the operating model (OM) as "cod", which is an example model included in the external data for the SSMSE package. Because this is a toy example and not a true MSE, the cod model is also used as the estimation model (EM) to get future catch. The MSE loop runs for 6 years, with a stock assessment occuring every 3 years. The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100, 103, and 106. Note that the assessment run in year 106 will generate future catch for years 107, 108, and 109, but these are not feed back into the operating model because the MSE loop is specified to only run through year 106).
@@ -156,7 +156,14 @@ If you wish to delete the files created from this example, you can use:
 unlink(run_SSMSE_dir, recursive = TRUE)
 ```
 
-Roadmap: Where is SSMSE headed next?
+## How can I contribute to SSMSE?
+---------
+
+If you have thoughts about how to implement the [upcoming work](#roadmap-where-is-ssmse-headed-next) or are interested in helping develop SSMSE, please contact the developers by posting an issue in this repository or emailing nmfs.stock.synthesis@noaa.gov.
+
+If you are interested in contributing, please read the [NMFS Fisheries Toolbox R Contribution Guide](https://github.com/nmfs-fish-tools/Resources/blob/master/CONTRIBUTING.md). This project and everyone participating in it is governed by the [NMFS Fisheries Toolbox Code of Conduct](https://github.com/nmfs-fish-tools/Resources/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [fisheries.toolbox@noaa.gov](mailto:fisheries.toolbox@noaa.gov).
+
+## Roadmap: Where is SSMSE headed next?
 ---------
 
 SSMSE is still a work in progress, with basic framework in development. Some new directions we hope to work on shortly:
@@ -168,6 +175,4 @@ SSMSE is still a work in progress, with basic framework in development. Some new
  - Adding functions to make some basic plots of diagonstics and results
 
 If you have thoughts about how to implement the upcoming work or are interested in helping develop SSMSE, please contact the developers by posting an issue in this repository or emailing nmfs.stock.synthesis@noaa.gov
-
-
 
