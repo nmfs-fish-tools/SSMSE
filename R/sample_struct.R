@@ -105,7 +105,7 @@ create_sample_struct <- function(dat, nyrs) {
         tmp_diff <- tmp_yrs[2] - tmp_yrs[1]
         # reconstruct the pattern
         pat <- seq(tmp_yrs[1], by = tmp_diff, length.out = length(tmp_yrs))
-        if (!is.na(pat) && all(pat == tmp_yrs)) { # a pattern was found
+        if (all(!is.na(pat)) && all(pat == tmp_yrs)) { # a pattern was found
           future_pat <- seq(pat[length(pat)], dat$endyr + nyrs, by = tmp_diff)
           future_pat <- future_pat[future_pat > dat$endyr]
           future_pat <- data.frame(Yr = future_pat,

@@ -77,6 +77,8 @@ used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
 give an example of what this structure should be. Running the function 
 create_sample_struct() will also produce a sample_struct object in the 
 correct form. Can be NULL only when MS is not EM.}
+
+\item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \description{
 High level function to run 1 iteration of a scenario for a management

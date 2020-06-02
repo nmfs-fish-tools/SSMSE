@@ -356,6 +356,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  give an example of what this structure should be. Running the function 
 #'  create_sample_struct() will also produce a sample_struct object in the 
 #'  correct form. Can be NULL only when MS is not EM.
+#' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
