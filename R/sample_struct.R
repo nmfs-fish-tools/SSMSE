@@ -60,6 +60,7 @@ create_sample_struct <- function(dat, nyrs) {
   if(length(dat) == 1 & is.character(dat)) {
     dat <- SS_readdat(dat, verbose = FALSE)
   }
+  
   list_name <- c("catch", "CPUE", "lencomp", "agecomp")
   sample_struct <- lapply(list_name, 
     function(name, dat) {
@@ -119,6 +120,52 @@ create_sample_struct <- function(dat, nyrs) {
                                    Seas = tmp_seas,
                                    FltSvy = tmp_flt,
                                    stringsAsFactors = FALSE)
+        }
+        if(name %in% c("lencomp", "agecomp")) {
+          # Sex
+          sex_col <-  grep("Sex|Gender", colnames(df), ignore.case = TRUE, 
+                             value = TRUE)
+          tmp_sex <- unique(df[df[[seas_col]] == tmp_seas & 
+                                 df[[flt_col]] == tmp_flt, sex_col])
+          if(length(tmp_sex) == 1) {
+            future_pat$Sex <- tmp_sex
+          } else {
+            future_pat$Sex <- NA
+          }
+          # partition
+          tmp_part <- unique(df[df[[seas_col]] == tmp_seas & 
+                                  df[[flt_col]] == tmp_flt, "Part"])
+          if(length(tmp_sex) == 1) {
+            future_pat$Part <- tmp_part
+          } else {
+            future_pat$Part <- NA
+          }
+        }
+        if(name == "agecomp") {
+          # Ageerr, Lbin_lo, Lbin_hi
+          tmp_err <- unique(df[df[[seas_col]] == tmp_seas & 
+                                 df[[flt_col]] == tmp_flt, "Ageerr"])
+          if(length(tmp_sex) == 1) {
+            future_pat$Ageerr <- tmp_err
+          } else {
+            future_pat$Ageerr <- NA
+          }
+          # Lbin_lo (expect should be -1)
+          tmp_lo <- unique(df[df[[seas_col]] == tmp_seas & 
+                                 df[[flt_col]] == tmp_flt, "Lbin_lo"])
+          if(length(tmp_lo) == 1) {
+            future_pat$Lbin_lo <- tmp_lo
+          } else {
+            future_pat$Lbin_lo <- NA
+          }
+          # Lbin_hi (expect should be -1)
+          tmp_hi <- unique(df[df[[seas_col]] == tmp_seas & 
+                                 df[[flt_col]] == tmp_flt, "Lbin_hi"])
+          if(length(tmp_hi) == 1) {
+            future_pat$Lbin_hi <- tmp_hi
+          } else {
+            future_pat$Lbin_hi <- NA
+          }
         }
         # add sample size, if possible
         # see if se or Nsamp is the same across years for the seas/flt. If so,

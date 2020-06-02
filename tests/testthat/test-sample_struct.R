@@ -56,8 +56,10 @@ test_that("create_sample_struct works", {
   expect_sample_struct <- list(
     catch = data.frame(Yr = 101:120, Seas = 1, FltSvy = 1, SE = 0.005),
     CPUE = data.frame(Yr = seq(105, 120, by = 5), Seas = 7, FltSvy = 2, SE = 0.2),
-    lencomp = data.frame(Yr = NA, Seas = 1, FltSvy = 1, Nsamp = 125), # because irregular input
-    agecomp = data.frame(Yr = seq(105, 120, by = 5 ), Seas = 1, FltSvy = 2, Nsamp = 500))
+    lencomp = data.frame(Yr = NA, Seas = 1, FltSvy = 1, Sex = 0, Part = 0, Nsamp = 125), # because irregular input
+    agecomp = data.frame(Yr = seq(105, 120, by = 5 ), Seas = 1, FltSvy = 2,
+                         Sex = 0, Part = 0, Ageerr = 1, Lbin_lo = -1, 
+                         Lbin_hi = -1, Nsamp = 500))
   expect_equal(sample_struct, expect_sample_struct)
   # try using one where missing lencomp data
   dat <- r4ss::SS_readdat(system.file("extdata", "models", "cod", "ss3.dat",
