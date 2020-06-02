@@ -3,6 +3,9 @@
 ^docs/*
 ^LICENSE\.MD$
 ^README\.MD$
+^CODE_OF_CONDUCT.md$
+^CONTRIBUTING.md$
+^BinaryFiles$
 ^\.travis\.yml$
 ^appveyor\.yml$
 ^man/figures/README*
