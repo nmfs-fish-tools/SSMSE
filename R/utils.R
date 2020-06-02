@@ -44,7 +44,7 @@
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param dat_str_list A optional list of lists including which years, seasons, and fleets
+#' @param sample_struct_list A optional list of lists including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
@@ -64,7 +64,7 @@
 #'                use_SS_boot_vec = TRUE,
 #'                nyrs_vec = 6,
 #'                nyrs_assess_vec = 3,
-#'                dat_str_list = NULL
+#'                sample_struct_list = NULL
 #'                 )
 create_scen_list <- function(scen_name_vec,
                              out_dir_scen_vec = NULL,
@@ -77,7 +77,7 @@ create_scen_list <- function(scen_name_vec,
                              use_SS_boot_vec = NULL,
                              nyrs_vec = NULL,
                              nyrs_assess_vec = NULL,
-                             dat_str_list = NULL) {
+                             sample_struct_list = NULL) {
   # note that input checking
   scen_name_vec <- as.character(scen_name_vec)
   # construct list. Note that it may not be usable at this stage, but there
@@ -731,3 +731,4 @@ copy_SS_inputs <- function(dir.old = NULL,
     return(FALSE)
   }
 }
+

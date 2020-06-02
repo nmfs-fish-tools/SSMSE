@@ -65,12 +65,11 @@
 #' or matrix of implementation errors of length/columns equal to nyrs x nseas x Nfleets
 #' and rows based on assigned scope. Input the vector/matrix to impl_error_pars.
 #' @param impl_error_pars Input the required parameters as specified by impl_error_pattern choice.
-#' @param dat_str_list A optional list of lists including which years, seasons,
+#' @param sample_struct_list A optional list of lists including which years, seasons,
 #'  and fleets should be  added from the OM into the EM for different types of
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
-#'
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -80,21 +79,26 @@
 #' my_dir <- file.path(tempdir(), "ex-run_SSMSE")
 #'   dir.create(my_dir)
 #'   # For the EM, use the specified data structure
-#'   my_dat_str_list <- list(NULL,
+#'   my_sample_struct_list <- list(NULL,
 #'                          list(
-#'                            catch = data.frame(year = 101:106,
-#'                                               seas = 1,
-#'                                               fleet = 1),
-#'                            CPUE = data.frame(year = c(102, 105),
-#'                                              seas = 7,
-#'                                              index = 2)
+#'                            catch = data.frame(Yr = 101:106,
+#'                                               Seas = 1,
+#'                                               FltSvy = 1,
+#'                                               SE = 0.05),
+#'                            CPUE = data.frame(Yr = c(102, 105),
+#'                                              Seas = 7,
+#'                                              FltSvy = 2, 
+#'                                              SE = 0.01), 
+#'                           lencomp = data.frame(Yr = c(102, 105), Seas = 1, 
+#'                                                FltSvy = 1, Sex = 0,
+#'                                                Part = 0, Nsamp = 100),
 #'                             )
 #'                         )
 #'   # Use the default parameter values, except for the once specified.
 #'   # Note that the scen_list, either specified or internally created in the
 #'   # function is returned.
 #'   input_list <- run_SSMSE(out_dir_scen_vec = my_dir,
-#'                           dat_str_list = my_dat_str_list)
+#'                           sample_struct_list = my_sample_struct_list)
 #'   unlink(my_dir, recursive = TRUE)
 #' }
 run_SSMSE <- function(scen_list = NULL,
@@ -114,7 +118,7 @@ run_SSMSE <- function(scen_list = NULL,
                       rec_dev_pars = NULL,
                       impl_error_pattern = "none",
                       impl_error_pars = NULL,
-                      dat_str_list = NULL,
+                      sample_struct_list = NULL,
                       verbose = FALSE) {
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
@@ -156,7 +160,7 @@ run_SSMSE <- function(scen_list = NULL,
                                  use_SS_boot_vec = use_SS_boot_vec,
                                  nyrs_vec = nyrs_vec,
                                  nyrs_assess_vec = nyrs_assess_vec,
-                                 dat_str_list = dat_str_list)
+                                 sample_struct_list = sample_struct_list)
   }
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)
@@ -177,7 +181,7 @@ run_SSMSE <- function(scen_list = NULL,
                    nyrs_assess = tmp_scen[["nyrs_assess"]],
                    rec_devs_scen = rec_dev_list[[i]],
                    impl_error = impl_error[[i]],
-                   dat_str = tmp_scen[["dat_str"]],
+                   sample_struct = tmp_scen[["sample_struct"]],
                    verbose = verbose)
   }
   message("Completed all SSMSE scenarios")
@@ -222,7 +226,7 @@ run_SSMSE <- function(scen_list = NULL,
 #'   iteration.
 #' @param impl_error List containing an implementation error vector for each
 #'   iteration.
-#' @param dat_str A optional list including which years, seasons, and fleets
+#' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
@@ -261,7 +265,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            nyrs_assess = 3,
                            rec_devs_scen = NULL,
                            impl_error = NULL,
-                           dat_str = NULL,
+                           sample_struct = NULL,
                            verbose = FALSE) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
@@ -277,7 +281,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   assertive.properties::assert_is_of_length(nyrs, 1)
   assertive.types::assert_is_any_of(nyrs_assess, classes = c("numeric", "integer"))
   assertive.properties::assert_is_of_length(nyrs_assess, 1)
-  if (!is.null(dat_str)) assertive.types::assert_is_list(dat_str)
+  if (!is.null(sample_struct)) assertive.types::assert_is_list(sample_struct)
   assertive.types::assert_is_a_bool(verbose)
 
   # create the out_dir to store all files for all iter in the scenario.
@@ -300,7 +304,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                    rec_dev_iter = rec_devs_scen[[i]],
                    impl_error = impl_error[[i]],
                    niter = i,
-                   dat_str = dat_str,
+                   sample_struct = sample_struct,
                    verbose = verbose)
   }
   message("Completed all iterations for scenario ", scen_name)
@@ -342,14 +346,16 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @param impl_error An implementation error vector for the iteration.
 #'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
 #' @param niter The iteration number
-#' @param dat_str A optional list including which years, seasons, and fleets
+#' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out. Note that the data should
 #'  be specified using the list component names and column names as in would be
 #'  used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
-#'  give an example of what this structure should be.
+#'  give an example of what this structure should be. Running the function 
+#'  create_sample_struct() will also produce a sample_struct object in the 
+#'  correct form. Can be NULL only when MS is not EM.
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -374,14 +380,14 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'                  EM_name = "cod",
 #'                  nyrs = 6,
 #'                  nyrs_assess = 3,
-#'                  dat_str = list(
-#'                    catch = data.frame(year = 101:106, seas = 1, fleet = 1),
-#'                    CPUE = data.frame(year = c(102, 105), seas = 7, index = 2),
+#'                  sample_struct = list(
+#'                    catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1, SE = 0.05),
+#'                    CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2, SE = 0.01),
 #'                    lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
-#'                                         Gender = 0, Part = 0),
+#'                                         Sex = 0, Part = 0, Nsamp = 100),
 #'                    agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
-#'                                         Gender = 0, Part = 0, Ageerr = 1,
-#'                                         Lbin_lo = -1, Lbin_hi = -1)
+#'                                         Sex = 0, Part = 0, Ageerr = 1,
+#'                                         Lbin_lo = -1, Lbin_hi = -1, Nsamp = 50)
 #'                  )
 #'      )
 #' unlink(temp_path, recursive = TRUE)
@@ -398,7 +404,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            rec_dev_iter = NULL,
                            impl_error = NULL,
                            niter = 1,
-                           dat_str = NULL,
+                           sample_struct = NULL,
                            verbose = FALSE) {
   # input checks ----
   # checks for out_dir, OM_name, OM_in_dir, EM_name, EM_in_dir done in create_out_dirs
@@ -407,10 +413,19 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_any_of(nyrs, c("integer", "numeric"))
   assertive.types::assert_is_any_of(nyrs_assess, c("integer", "numeric"))
   assertive.types::assert_is_any_of(niter, c("integer", "numeric"))
-  if (!is.null(dat_str)) assertive.types::assert_is_list(dat_str)
+  if (!is.null(sample_struct)) {
+    assertive.types::assert_is_list(sample_struct)
+    check_sample_struct(sample_struct)
+  } else {
+    if(MS == "EM") {
+      stop("sample_struct cannot be NULL when using an EM. Please specify. The ",
+           "helper function create_sample_struct can be used to specify.")
+    }
+  }
   assertive.types::assert_is_a_bool(verbose)
 
   message("Starting iteration ", niter, ".")
+
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs
@@ -435,6 +450,16 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # other things.
   clean_init_mod_files(OM_out_dir = OM_out_dir, EM_out_dir = EM_out_dir,
                        overwrite = TRUE)
+  
+  # convert sample_struct names ----
+  # get the full sampling structure for components that the user didnt specify.
+  # if meaning is ambiguous, then this will exit on error.
+  if(!is.null(sample_struct)) {
+    sample_struct <- get_full_sample_struct(sample_struct = sample_struct,
+                           OM_out_dir = OM_out_dir)
+    # convert to r4ss names
+    sample_struct <- convert_to_r4ss_names(sample_struct)
+  }
   # MSE first iteration ----
   # turn the stock assessment model into an OM
   # This function is now needed in order to make changes such as run from
@@ -530,7 +555,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                                nyrs_assess = nyrs_assess,
                                OM_out_dir = OM_out_dir,
                                dat_yrs = (yr + 1):(yr + nyrs_assess),
-                               dat_str = dat_str)
+                               sample_struct = sample_struct)
   message("Finished getting catch (years ", (yr + 1), " to ",
           (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
   }

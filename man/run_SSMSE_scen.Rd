@@ -18,7 +18,7 @@ run_SSMSE_scen(
   nyrs_assess = 3,
   rec_devs_scen = NULL,
   impl_error = NULL,
-  dat_str = NULL,
+  sample_struct = NULL,
   verbose = FALSE
 )
 }
@@ -73,7 +73,7 @@ iteration.}
 \item{impl_error}{List containing an implementation error vector for each
 iteration.}
 
-\item{dat_str}{A optional list including which years, seasons, and fleets
+\item{sample_struct}{A optional list including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre

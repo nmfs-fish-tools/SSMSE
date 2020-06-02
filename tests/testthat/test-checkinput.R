@@ -66,57 +66,64 @@ test_that("check_OM_dat works", {
 
 })
 
-test_that("check_dat_str works", {
+test_that("check_sample_struct works", {
   # works with all inputs
-  good_dat_str <- list(
-    catch = data.frame(year = 2000:2002, seas = 1, fleet = 1),
-    CPUE = data.frame(year = 2000:2002, seas = 7, index = 2),
-    lencomp = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, Gender = 0,
-                         Part = 0),
-    agecomp = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, Gender = 0,
-                         Part = 0, Ageerr = 1, Lbin_lo = -1, Lbin_hi = -1))
-  out <- check_dat_str(good_dat_str)
+  good_sample_struct <- list(
+    catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = 0.01),
+    CPUE = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, SE = 0.01),
+    lencomp = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, Sex = 0,
+                         Part = 0, Nsamp = 150),
+    agecomp = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, Sex = 0,
+                         Part = 0, Ageerr = 1, Lbin_lo = -1, Lbin_hi = -1, Nsamp = 100))
+  out <- check_sample_struct(good_sample_struct)
   expect_equal(out, "no_error")
   # works with only 2 cols
-  good_dat_str_2_col <- list(
-    catch = data.frame(year = 2000:2002, seas = 1, fleet = 1),
-    CPUE = data.frame(year = 2000:2002, seas = 7, index = 2))
-  out_2 <- check_dat_str(good_dat_str_2_col)
+  good_sample_struct_2_col <- list(
+    catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = 0.01),
+    CPUE = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, SE = 0.2))
+  out_2 <- check_sample_struct(good_sample_struct_2_col)
   expect_equal(out, "no_error")
   # works when cols in different order
   good_dat_diff_order <- list(
-    CPUE  = data.frame(year = 2000:2002, seas = 7, index = 2),
-    catch = data.frame(year = 2000:2002, seas = 1, fleet = 1)
+    CPUE  = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, SE = 0.01),
+    catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = 0.2)
   )
-  out_diff_order <- check_dat_str(good_dat_diff_order)
+  out_diff_order <- check_sample_struct(good_dat_diff_order)
   expect_equal(out, "no_error")
   # wrong column names
-  wrong_colnames <- good_dat_str
+  wrong_colnames <- good_sample_struct
   colnames(wrong_colnames[[1]]) <- c("YEAR", "SEAS", "FLEET")
-  expect_error(check_dat_str(wrong_colnames),
-    "Invalid input for dat_str due to wrong column names in list component",
+  expect_error(check_sample_struct(wrong_colnames),
+    "Invalid input for sample_struct due to wrong column names in list component",
     fixed = TRUE)
   # duplicate names
   dup_names <- list(
-    catch = data.frame(year = 2000:2002, seas = 1, fleet = 1),
-    CPUE  = data.frame(year = 2000:2002, seas = 7, index = 2),
-    CPUE  = data.frame(year = 2000:2002, seas = 7, index = 2)
+    catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = 0.2),
+    CPUE  = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, SE = 0.2),
+    CPUE  = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, SE = 0.2)
   )
-  expect_error(check_dat_str(dup_names), "There are repeated names in dat_str.",
+  expect_error(check_sample_struct(dup_names), "There are repeated names in sample_struct.",
                fixed = TRUE)
   # wrong name
   wrong_name <- list(
-    catch = data.frame(year = 2000:2002, seas = 1, fleet = 1),
-    CPUE_wrong = data.frame(year = 2000:2002, seas = 7, index = 2))
-  expect_error(check_dat_str(wrong_name),
-               "Invalid input for dat_str due to wrong list name",
+    catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1),
+    CPUE_wrong = data.frame(year = 2000:2002, Seas = 7, FltSvy = 2))
+  expect_error(check_sample_struct(wrong_name),
+               "Invalid input for sample_struct due to wrong list name",
                fixed = TRUE)
   # character strings included in a dataframe column
   chars <- list(
-    catch = data.frame(year = 2000:2002, seas = "st", fleet = 1),
-    CPUE = data.frame(year = 2000:2002, seas = 7, index = 2))
-  expect_error(check_dat_str(chars),
-               "Some values in dat_str are not integers or numeric.",
+    catch = data.frame(Yr = 2000:2002, Seas = "wrong", FltSvy = 1),
+    CPUE  = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2))
+  expect_error(check_sample_struct(chars),
+               "Some values in sample_struct are not integers or numeric.",
+               fixed = TRUE)
+  # character strings included in a dataframe column
+  NA_vals <- list(
+    catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = NA),
+    CPUE  = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2))
+  expect_error(check_sample_struct(NA_vals),
+               "Some values in sample_struct are NA.",
                fixed = TRUE)
 })
 

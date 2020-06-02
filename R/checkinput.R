@@ -93,7 +93,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     # check there is the same data for Years, Seas, FltSvy available
     check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "lencomp",
                     colnames = c("Yr", "Seas", "FltSvy"))
-    # there may be more rigorous checks to do (checking that gender and partion
+    # there may be more rigorous checks to do (checking that sex and partion
     # is the same?
   }
   # check age comp
@@ -131,26 +131,27 @@ check_avail_dat <- function(EM_dat, OM_dat,
   }
 }
 
-#' Check dat_str_list
+#' Check sample_struct_list
 #'
-#' Check that list object dat_str_list has the expected form, including the
+#' Check that list object sample_struct_list has the expected form, including the
 #' correct names, correct column names (as in r4ss), and that all values in the
 #' dataframes are integer or numeric. This does not check for if numeric or
 #' interger values make sense given the model used.
-#' @param dat_str The list to check. Should be a list including which years and
+#' @param sample_struct The list to check. Should be a list including which years and
 #'  fleets should be added from the OM into the EM for different types of data.
+#' @param valid_names The list to compare sample_struct to.
 #' @author Kathryn Doering
-check_dat_str <- function(dat_str) {
+check_sample_struct <- function(sample_struct, 
+  valid_names = list(catch = c("Yr", "Seas", "FltSvy", "SE"),
+                     CPUE = c("Yr", "Seas", "FltSvy", "SE"),
+                     lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"),
+                     agecomp = c("Yr", "Seas", "FltSvy", "Sex", "Part",
+                                 "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"))
+  ) {
   # list components should have same names as in r4ss
-  valid_names <- list(catch = c("year", "seas", "fleet"),
-                      CPUE = c("year", "seas", "index"),
-                      lencomp = c("Yr", "Seas", "FltSvy", "Gender", "Part"),
-                      agecomp = c("Yr", "Seas", "FltSvy", "Gender", "Part",
-                                  "Ageerr", "Lbin_lo", "Lbin_hi")
-                      )
   # check no repeat names
-  if (length(unique(names(dat_str))) != length(names(dat_str))) {
-    stop("There are repeated names in dat_str. Please make sure each list ",
+  if (length(unique(names(sample_struct))) != length(names(sample_struct))) {
+    stop("There are repeated names in sample_struct. Please make sure each list ",
          "component has a unique name.")
   }
   # Check correct names and column names
@@ -163,33 +164,37 @@ check_dat_str <- function(dat_str) {
       err <- "wrong list name"
     } else {
       valid_cols <- valid_names[[which(names(valid_names) == x_name)]]
-      if (any(col_names != valid_cols)) {
+      if (any(!col_names %in% valid_cols)) {
         err <- "wrong column names in list component"
       }
     }
     err
   },
-  x = dat_str, x_name = names(dat_str),
+  x = sample_struct, x_name = names(sample_struct),
   MoreArgs = list(valid_names = valid_names),
   SIMPLIFY = FALSE)
 
   lapply(error, function(e, v) {
     if (!is.null(e)) {
-      stop("Invalid input for dat_str due to ", e, ". Please check that all",
+      stop("Invalid input for sample_struct due to ", e, ". Please check that all",
            " names are not anything other than ",
-           paste0(names(v), collapse = ", "), " and have the column names ",
-           "that match with r4ss data lists:\n",
+           paste0(names(v), collapse = ", "), " and have the column names",
+           ":\n",
            paste0(paste0(names(v), ": ", v), collapse = "\n"))
     }
     invisible("no_error")
   }, v = valid_names)
   # check that all values can be coerced to numeric
-  lapply(dat_str, function(dataframe) {
+  lapply(sample_struct, function(dataframe) {
     apply(dataframe, 2, function(col) {
       if (!is.numeric(col) & !is.integer(col)) {
-        stop("Some values in dat_str are not integers or numeric. Please check ",
-             "that all values in the list components (dataframes) of dat_str",
+        stop("Some values in sample_struct are not integers or numeric. Please check ",
+             "that all values in the list components (dataframes) of sample_struct",
              "are either integer or numeric.")
+      }
+      if(any(is.na(col))) {
+        stop("Some values in sample_struct are NA. Please remove or replace ", 
+             "with numeric or integer values.")
       }
     })
   })

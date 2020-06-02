@@ -20,7 +20,7 @@
 #'   assessment is conducted every 3 years, put 3 here. A single integer value.
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
-#' @param dat_str A optional list including which years and fleets should be
+#' @param sample_struct A optional list including which years and fleets should be
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the
 #'  datatypes within EM_datfile. Ignored if init_loop is TRUE.
@@ -29,7 +29,7 @@
 
 parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
                      OM_dat, OM_out_dir = NULL, verbose = FALSE, nyrs_assess, dat_yrs,
-                     dat_str) {
+                     sample_struct) {
   if (verbose) {
     message("Parsing the management strategy.")
   }
@@ -68,16 +68,16 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
                              verbose = verbose)
     } else {
 
-      if (!is.null(dat_str)) {
-        dat_str_sub <- lapply(dat_str,
+      if (!is.null(sample_struct)) {
+        sample_struct_sub <- lapply(sample_struct,
                               function(df, y) df[df[, 1] %in% y, ],
                               y = dat_yrs - nyrs_assess)
       } else {
-        dat_str_sub <- NULL
+        sample_struct_sub <- NULL
       }
       new_EM_dat <- add_new_dat(OM_dat = OM_dat,
                                  EM_datfile = new_datfile_name,
-                                 dat_str = dat_str_sub,
+                                 sample_struct = sample_struct_sub,
                                  EM_dir = EM_out_dir,
                                  do_checks = TRUE,
                                  new_datfile_name = new_datfile_name,

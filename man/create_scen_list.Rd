@@ -16,7 +16,7 @@ create_scen_list(
   use_SS_boot_vec = NULL,
   nyrs_vec = NULL,
   nyrs_assess_vec = NULL,
-  dat_str_list = NULL
+  sample_struct_list = NULL
 )
 }
 \arguments{
@@ -67,7 +67,7 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{dat_str_list}{A optional list of lists including which years, seasons, and fleets
+\item{sample_struct_list}{A optional list of lists including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre
@@ -93,7 +93,7 @@ scen_list <- create_scen_list(
                use_SS_boot_vec = TRUE,
                nyrs_vec = 6,
                nyrs_assess_vec = 3,
-               dat_str_list = NULL
+               sample_struct_list = NULL
                 )
 }
 \author{

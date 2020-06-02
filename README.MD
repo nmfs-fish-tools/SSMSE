@@ -34,9 +34,8 @@ https://nmfs-fish-tools.github.io/SSMSE/
 Note that the SSMSE is a work in progress and not yet a minimum viable product.
 
 To install SSMSE from github and load it:
-```r
-library(devtools) # note that library(remotes) can also be used. Both can access `install_github`. 
-install_github("nmfs-fish-tools/SSMSE")
+``` r
+remotes::install_github("nmfs-fish-tools/SSMSE")
 library(SSMSE)
 ```
 You can read the help files with
@@ -48,27 +47,65 @@ You can read the help files with
 ## An SSMSE toy example
 ---------
 
-This code runs 1 iteration of an MSE feedback loop. The code specifies the operating model (OM) as "cod", which is an example model included in the external data for the SSMSE package. Because this is a toy example and not a true MSE, the cod model is also used as the estimation model (EM) to get future catch. The MSE loop runs for 6 years, with a stock assessment occuring every 3 years. The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100, 103, and 106. Note that the assessment run in year 106 will generate future catch for years 107, 108, and 109, but these are not feed back into the operating model because the MSE loop is specified to only run through year 106). The argument `dat_str` specifies the data structure to add to the estimation model. In this case, we add catch every year from fleet to the estimation model and an index of abundance (CPUE) in years 102 and 105 for fleet 2. Because they are not specified, no length or age composition data is added. Note that no implementation error is assumed for forecasted catch and recruitment dviations into the future are all assumed to be 0.
+This code runs 1 iteration of an MSE feedback loop. The code specifies the operating model (OM) as "cod", which is an example model included in the external data for the SSMSE package. Because this is a toy example and not a true MSE, the cod model is also used as the estimation model (EM) to get future catch. The MSE loop runs for 6 years, with a stock assessment occuring every 3 years. The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100, 103, and 106. Note that the assessment run in year 106 will generate future catch for years 107, 108, and 109, but these are not feed back into the operating model because the MSE loop is specified to only run through year 106).
 
 ```r
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
-# set up the data list to include for future runs of the EM
-# only catch in all years, index data in years 102 and 105, no comp data.
-dat_str <- list(
-                catch = data.frame(year = 101:106,
-                                   seas = 1,
-                                   fleet = 1),
-                CPUE = data.frame(year = c(102, 105),
-                                  seas = 7,
-                                  index = 2)
-              )
-dat_str_list <- list(dat_str)
+```
 
+The argument `sample_struct` specifies the structure for sampling from the OM (and passing to the EM). The function `create_sample_struct` can be used to construct a simple sampling structure consistent with an input data file:
+
+```r
+EM_datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+sample_struct <- create_sample_struct(dat = EM_datfile, nyrs = 6)
+```
+
+```r
+sample_struct # to view structure (output below)
+# # $catch
+# #    Yr Seas FltSvy    SE
+# # 1 101    1      1 0.005
+# # 2 102    1      1 0.005
+# # 3 103    1      1 0.005
+# # 4 104    1      1 0.005
+# # 5 105    1      1 0.005
+# # 6 106    1      1 0.005
+# # 
+# # $CPUE
+# #    Yr Seas FltSvy  SE
+# # 1 105    7      2 0.2
+# # 
+# # $lencomp
+# #   Yr Seas FltSvy Sex Part Nsamp
+# # 1 NA    1      1   0    0   125
+# # 
+# # $agecomp
+# #    Yr Seas FltSvy Sex Part Ageerr Lbin_lo Lbin_hi Nsamp
+# # 1 105    1      2   0    0      1      -1      -1   500
+```
+This sample_structure suggest that catch will be added to the estimation model every year (years 101 to 106), but an index of abundance (i.e., CPUE) and age composition (i.e., agecomp) will only be added in year 105. We can modify this sampling strategy however we would like.
+
+Note that length comp (lencomp) includes an `NA` value for year. This is because
+no consistent pattern was identified, so the user must define their own input.
+In this case, we will remove sampling length comps all together:
+```r
+sample_struct$lencomp <- NULL # don't use length sampling
+```
+Note that this sampling structure is for 1 scenario, so we need to nest it into 
+a list, by scenario, to make the input correct for `run_SSMSE`:
+```r
+sample_struct_list <- list(sample_struct)
+
+```
+In this case, we add catch every year from fleet to the estimation model and an index of abundance (CPUE) in years 102 and 105 for fleet 2. Because they are not specified, no length or age composition data is added. Note that no implementation error is assumed for forecasted catch and recruitment dviations into the future are all assumed to be 0.
+
+```r
 # run 1 iteration and 1 scenario of SSMSE using an EM.
-run_SSMSE(scen_name_vec = "scen_1",
-          iter_list = list(1),
+run_SSMSE(scen_name_vec = "scen_1", # name of the scenario
+          out_dir_scen_vec = run_SSMSE_dir, # directory in which to run the scenario
+          iter_list = list(1), # run only 1 iteration
           OM_name_vec = "cod", # cod is included in package data
           EM_name_vec = "cod", # cod is included in package data
           MS_vec = "EM",       # The management strategy is specified in the EM
@@ -76,8 +113,8 @@ run_SSMSE(scen_name_vec = "scen_1",
           nyrs_vec = 6,        # Years to project OM forward
           nyrs_assess_vec = 3, # Years between assessments
           rec_dev_pattern = "none", # Don't use recruitment deviations
-          impl_error_pattern = "none", # Don't use implmentation error
-          dat_str_list = dat_str_list) # How to sample data for running the EM.
+          impl_error_pattern = "none", # Don't use implementation error
+          sample_struct_list = sample_struct_list) # How to sample data for running the EM.
 ```
 
 The function `SSMSE_summary_iter` can be used to summarize the model results in a list of dataframes. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session. Also, make sure you are using the development branch versions of [r4ss](https://github.com/r4ss/r4ss) and [ss3sim](https://github.com/ss3sim/ss3sim) (by installing `remotes::install_github("r4ss/r4ss@development")` and `remotes::install_github("ss3sim/ss3sim@development")`. These versions should be installed automatically when SSMSE is downloaded.
@@ -103,7 +140,6 @@ plot <- ggplot2::ggplot(data = summary$timeseries, aes(x = year, y = SpawnBio)) 
 print(plot)
 ```
 ![*SSB by year and model run.*](man/figures/README_1_iter.png)
-
 
 If it is easier to view or manipulate the summaries in spreadsheets, these can be written to .csv:
 ```r
@@ -132,6 +168,11 @@ If you are interested in contributing, please read the [NMFS Fisheries Toolbox R
 
 SSMSE is still a work in progress, with basic framework in development. Some new directions we hope to work on shortly:
 
- - Add functions to summarize results from running MSE analyses
- - Add functions to calculate performance metrics
- - Add functions to make some basic plots of diagonstics and results
+ - Expanding on examples to illustrate the package
+ - Improving usability of the wrapper functions that users access
+ - Adding more complex sampling options
+ - Adding functions to calculate performance metrics
+ - Adding functions to make some basic plots of diagonstics and results
+
+If you have thoughts about how to implement the upcoming work or are interested in helping develop SSMSE, please contact the developers by posting an issue in this repository or emailing nmfs.stock.synthesis@noaa.gov
+
