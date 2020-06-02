@@ -105,7 +105,7 @@ create_sample_struct <- function(dat, nyrs) {
         tmp_diff <- tmp_yrs[2] - tmp_yrs[1]
         # reconstruct the pattern
         pat <- seq(tmp_yrs[1], by = tmp_diff, length.out = length(tmp_yrs))
-        if (all(pat == tmp_yrs)) { # a pattern was found
+        if (!is.na(pat) && all(pat == tmp_yrs)) { # a pattern was found
           future_pat <- seq(pat[length(pat)], dat$endyr + nyrs, by = tmp_diff)
           future_pat <- future_pat[future_pat > dat$endyr]
           future_pat <- data.frame(Yr = future_pat,
@@ -135,7 +135,7 @@ create_sample_struct <- function(dat, nyrs) {
           # partition
           tmp_part <- unique(df[df[[seas_col]] == tmp_seas & 
                                   df[[flt_col]] == tmp_flt, "Part"])
-          if(length(tmp_sex) == 1) {
+          if(length(tmp_part) == 1) {
             future_pat$Part <- tmp_part
           } else {
             future_pat$Part <- NA
