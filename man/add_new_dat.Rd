@@ -7,7 +7,7 @@
 add_new_dat(
   OM_dat,
   EM_datfile,
-  sample_struct = NULL,
+  sample_struct,
   EM_dir,
   do_checks = TRUE,
   new_datfile_name = NULL,
@@ -21,7 +21,7 @@ this should be sampled data.}
 \item{EM_datfile}{Datafile name run in previous iterations with the EM.
 Assumed to exist in EM_dir.}
 
-\item{sample_struct}{A optional list including which years and fleets should be
+\item{sample_struct}{Includes which years and fleets should be
 added from the OM into the EM for different types of data. If NULL, the data
 structure will try to be infered from the pattern found for each of the
 datatypes within EM_datfile.}

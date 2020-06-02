@@ -6,9 +6,9 @@
 \usage{
 check_sample_struct(
   sample_struct,
-  valid_names = list(catch = c("Yr", "Seas", "FltSvy"), CPUE = c("Yr", "Seas",
-    "FltSvy"), lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part"), agecomp = c("Yr",
-    "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo", "Lbin_hi"))
+  valid_names = list(catch = c("Yr", "Seas", "FltSvy", "SE"), CPUE = c("Yr", "Seas",
+    "FltSvy", "SE"), lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"), agecomp
+    = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"))
 )
 }
 \arguments{

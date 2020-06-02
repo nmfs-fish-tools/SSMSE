@@ -74,9 +74,9 @@ for each of the datatypes within the EM datafiles. Include this strucutre
 for the number of years to extend the model out. Note that the data should
 be specified using the list component names and column names as in would be
 used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
-give an example of what this structure should be.}
-
-\item{verbose}{Want verbose output? Defaults to FALSE.}
+give an example of what this structure should be. Running the function 
+create_sample_struct() will also produce a sample_struct object in the 
+correct form. Can be NULL only when MS is not EM.}
 }
 \description{
 High level function to run 1 iteration of a scenario for a management
@@ -104,13 +104,13 @@ strategy evaluation using Stock Synthesis as the Operating model.
                  nyrs = 6,
                  nyrs_assess = 3,
                  sample_struct = list(
-                   catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1),
-                   CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2),
+                   catch = data.frame(Yr = 101:106, Seas = 1, FltSvy = 1, SE = 0.05),
+                   CPUE = data.frame(Yr = c(102, 105), Seas = 7, FltSvy = 2, SE = 0.01),
                    lencomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 1,
-                                        Gender = 0, Part = 0),
+                                        Sex = 0, Part = 0, Nsamp = 100),
                    agecomp = data.frame(Yr = c(102, 105), Seas = 1, FltSvy = 2,
-                                        Gender = 0, Part = 0, Ageerr = 1,
-                                        Lbin_lo = -1, Lbin_hi = -1)
+                                        Sex = 0, Part = 0, Ageerr = 1,
+                                        Lbin_lo = -1, Lbin_hi = -1, Nsamp = 50)
                  )
      )
 unlink(temp_path, recursive = TRUE)

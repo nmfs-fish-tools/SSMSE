@@ -129,13 +129,15 @@ my_dir <- file.path(tempdir(), "ex-run_SSMSE")
                          list(
                            catch = data.frame(Yr = 101:106,
                                               Seas = 1,
-                                              FltSvy = 1),
-                           CPUE = data.frame(Year = c(102, 105),
+                                              FltSvy = 1,
+                                              SE = 0.05),
+                           CPUE = data.frame(Yr = c(102, 105),
                                              Seas = 7,
-                                             FltSvy = 2), 
+                                             FltSvy = 2, 
+                                             SE = 0.01), 
                           lencomp = data.frame(Yr = c(102, 105), Seas = 1, 
                                                FltSvy = 1, Sex = 0,
-                                               Part = 0),
+                                               Part = 0, Nsamp = 100),
                             )
                         )
   # Use the default parameter values, except for the once specified.
