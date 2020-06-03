@@ -159,7 +159,7 @@ unlink(run_SSMSE_dir, recursive = TRUE)
 ## How can I contribute to SSMSE?
 ---------
 
-If you have thoughts about how to implement the [upcoming work](#roadmap-where-is-ssmse-headed-next) or are interested in helping develop SSMSE, please contact the developers by posting an issue in this repository or emailing nmfs.stock.synthesis@noaa.gov.
+While the most obvious ways to contribute are to report bugs, suggest features, and add code, we want to make it clear that [you don't have to contribute code](https://opensource.guide/how-to-contribute/#you-dont-have-to-contribute-code) to make SSMSE better. In particular, we would love help with documentation, creating examples, and designing graphics (e.g., a [hex sticker](http://hexb.in/)). However, we would love to hear other ways you would like to contribute, too, so please don't hesitate to reach out by posting an issue in this repository or emailing nmfs.stock.synthesis@noaa.gov.
 
 If you are interested in contributing, please read the [NMFS Fisheries Toolbox R Contribution Guide](https://github.com/nmfs-fish-tools/Resources/blob/master/CONTRIBUTING.md). This project and everyone participating in it is governed by the [NMFS Fisheries Toolbox Code of Conduct](https://github.com/nmfs-fish-tools/Resources/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [fisheries.toolbox@noaa.gov](mailto:fisheries.toolbox@noaa.gov).
 
