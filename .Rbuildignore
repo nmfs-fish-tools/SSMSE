@@ -2,7 +2,8 @@
 ^\.Rproj\.user$
 ^docs/*
 ^LICENSE\.MD$
-^README\.MD$
+^README\.md$
+^README\.Rmd$
 ^\.travis\.yml$
 ^appveyor\.yml$
 ^man/figures/README*
