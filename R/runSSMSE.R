@@ -124,6 +124,7 @@ run_SSMSE <- function(scen_list = NULL,
   # construct scen_list from other parameters.
   # Get directory of base OM files
   OM_dir <- locate_in_dirs(OM_name_vec, OM_in_dir_vec)
+  if(rec_dev_pattern == "rand") { #need to calculate std deviation.
   # Read in starter file
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                 verbose = FALSE)
@@ -141,13 +142,22 @@ run_SSMSE <- function(scen_list = NULL,
                                    verbose = FALSE)
   rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
   rec_stddev <- stats::sd(rec_dev_comb[, 2])
-
-  rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list)
-
+  } else {
+    rec_stddev <- NULL
+  }
+  #note temp workaround for nyears vec, nyears assess. need to fix
+  rec_dev_list <- build_rec_devs(nyrs_vec[1], nyrs_assess_vec[1], scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list)
+  # Read in data file
+  warning("Using only the first scenario to determine the number of values needed for implementation error")
+  # Read in starter file
+  start <- r4ss::SS_readstarter(file.path(OM_dir$OM_in_dir[1], "starter.ss"),
+                                verbose = FALSE)
+  dat <- r4ss::SS_readdat(file.path(OM_dir$OM_in_dir[1], start$datfile),
+                          section = 1,
+                          verbose = FALSE)
   n_impl_error_groups <- dat$nseas * dat$Nfleet
 
-  impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
-
+  impl_error <- build_impl_error(nyrs_vec[1], nyrs_assess_vec[1], n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
   if (is.null(scen_list)) {
    scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
                                  out_dir_scen_vec = out_dir_scen_vec,
