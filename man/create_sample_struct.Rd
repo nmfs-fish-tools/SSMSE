@@ -17,6 +17,13 @@ the MSE. A single integer value.}
 Create a sampling strcture list using the pattern in a data file and a year
 range.
 }
+\examples{
+ OM_path <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+ # note there is a warning for lencomp because it does not have a consistent pattern 
+ sample_struct <- create_sample_struct(OM_path, nyrs = 20)
+ print(sample_struct)
+
+}
 \author{
 Kathryn Doering
 }
