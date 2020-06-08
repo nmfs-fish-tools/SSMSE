@@ -61,24 +61,93 @@ You can read the help files with
 
 ## An SSMSE toy example
 
-This code runs 1 iteration of an MSE feedback loop. The code specifies
-the operating model (OM) as “cod”, which is an example model included in
-the external data for the SSMSE package. Because this is a toy example
-and not a true MSE, the cod model is also used as the estimation model
-(EM) to get future catch. The MSE loop runs for 6 years, with a stock
-assessment occuring every 3 years. The cod model’s last year is 100, so
-the OM is initially conditioned through year 100. Then, after
-conditioning the operating model through year 100, assessments will
-occur in years 100, 103, and 106. Note that the assessment run in year
-106 will generate future catch for years 107, 108, and 109, but these
-are not feed back into the operating model because the MSE loop is
+Suppose we want to look at 2 scenarios, one where natural mortality (M)
+is specified correctly and one where it is specified incorrectly in an
+estimation model (EM): 1. Cod model operating model (OM; M = 0.2) with
+cod model EM (assumed M = 0.2) 2. Lower M cod operating model (M = 0.1)
+with cod model EM (assumed M = 0.2)
+
+Note that this is a toy example and not a true MSE, so there is not
+significantly different structure between the cod EM and OM, except for
+different M. We will assume we want to run the MSE loop for 6 years,
+with a stock assessment occuring every 3 years. The cod model’s last
+year is 100, so the OM is initially conditioned through year 100. Then,
+after conditioning the operating model through year 100, assessments
+will occur in years 100, 103, and 106. Note that the assessment run in
+year 106 will generate future catch for years 107, 108, and 109, but
+these are not feed back into the operating model because the MSE loop is
 specified to only run through year 106).
+
+First, we will load the `SSMSE` package and create a folder in which to
+run the example:
+
+    ## Loading SSMSE
 
 ``` r
 library(SSMSE) #load the package
+library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
+```
+
+``` r
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
+```
+
+The cod model with M = 0.2 is included as external package data.
+However, we will need to modify it to use as an operating model with M =
+0.1.
+
+``` r
+cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
+# copy to a new location:
+file.copy(from = cod_mod_path, to = run_SSMSE_dir, recursive = TRUE)
+## [1] TRUE
+file.rename(from = file.path(run_SSMSE_dir, "cod"), to = file.path(run_SSMSE_dir, "cod-0.1"))
+## [1] TRUE
+cod_0.1_path <- file.path(run_SSMSE_dir, "cod-0.1")
+# make model read initial values from control file and not ss.par
+start <- r4ss::SS_readstarter(file = file.path(cod_0.1_path, "starter.ss"), verbose = FALSE)
+start$init_values_src # verify reading from the control file
+## [1] 0
+# change the natural mortality paramter from 0.2 to 0.1 in the control files
+r4ss::SS_changepars(dir = cod_0.1_path, ctlfile = "control.ss_new", 
+              newctlfile = "control_modified.ss", strings = "NatM_p_1_Fem_GP_1", newvals = 0.1)
+## parameter names in control file matching input vector 'strings' (n=1):
+## [1] "NatM_p_1_Fem_GP_1"
+## These are the ctl file lines as they currently exist:
+##      LO  HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr
+## 67 0.01 1.8  0.2   0.1   0.8       0    -3            0        0         0
+##    dev_maxyr dev_PH Block Block_Fxn             Label Linenum
+## 67         0      0     0         0 NatM_p_1_Fem_GP_1      67
+## line numbers in control file (n=1):
+## 67
+## wrote new file to control_modified.ss with the following changes:
+##   oldvals newvals oldphase newphase oldlos newlos oldhis newhis oldprior
+## 1     0.2     0.1       -3       -3   0.01   0.01    1.8    1.8      0.1
+##   newprior oldprsd newprsd oldprtype newprtype             comment
+## 1      0.1     0.8     0.8         0         0 # NatM_p_1_Fem_GP_1
+# remove files with M = 0.2
+file.remove(file.path(cod_0.1_path, "control.ss_new"))
+## [1] TRUE
+file.remove(file.path(cod_0.1_path, "control.ss"))
+## [1] TRUE
+file.remove(file.path(cod_0.1_path, "ss.par")) # delete control file because no longer need.
+## [1] TRUE
+# rename file with M = 0.1 to control.ss_new () and make a copy as the control file
+file.rename(from = file.path(cod_0.1_path, "control_modified.ss"),
+            to = file.path(cod_0.1_path, "control.ss"))
+## [1] TRUE
+```
+
+Rerun this model with no estimation to get valid ss.par and
+control.ss\_new files:
+
+``` r
+# run SS with no estimateion
+SSMSE:::run_ss_model(dir = cod_0.1_path, 
+                     admb_options = "-maxfn 0 -phase 50 -nohess",
+                     verbose = FALSE)
 ```
 
 The argument `sample_struct` specifies the structure for sampling from
@@ -129,36 +198,34 @@ together:
 sample_struct$lencomp <- NULL # don't use length sampling
 ```
 
-Note that this sampling structure is for 1 scenario, so we need to nest
-it into a list, by scenario, to make the input correct for `run_SSMSE`:
+The same sampling structure will be used for both scenarios:
 
 ``` r
-sample_struct_list <- list(sample_struct)
+sample_struct_list <- list("M-0.2" = sample_struct, "M-0.1" = sample_struct)
 ```
 
-In this case, we add catch every year from fleet to the estimation model
-and an index of abundance (CPUE) in years 102 and 105 for fleet 2.
-Because they are not specified, no length or age composition data is
-added. Note that no implementation error is assumed for forecasted catch
-and recruitment dviations into the future are all assumed to be 0.
+We can now use `run_SSMSE` to run the MSE analysis loop:
 
 ``` r
+run_res_path <- file.path(run_SSMSE_dir, "results")
+dir.create(run_res_path)
 # run 1 iteration and 1 scenario of SSMSE using an EM.
-run_SSMSE(scen_name_vec = "scen_1", # name of the scenario
-          out_dir_scen_vec = run_SSMSE_dir, # directory in which to run the scenario
-          iter_list = list(1), # run only 1 iteration
-          OM_name_vec = "cod", # cod is included in package data
-          EM_name_vec = "cod", # cod is included in package data
-          MS_vec = "EM",       # The management strategy is specified in the EM
-          use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
-          nyrs_vec = 6,        # Years to project OM forward
-          nyrs_assess_vec = 3, # Years between assessments
-          rec_dev_pattern = "none", # Don't use recruitment deviations
-          impl_error_pattern = "none", # Don't use implementation error
+run_SSMSE(scen_name_vec = c("M-0.2", "M-0.1"), # name of the scenario
+          out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+          iter_list = list(1:2, 1:2), # run with 5 iterations each
+          OM_name_vec = NULL, # specify directories instead
+          OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_0.1_path)), # OM files
+          EM_name_vec = c("cod", "cod"), # cod is included in package data
+          MS_vec = c("EM","EM"),       # The management strategy is specified in the EM
+          use_SS_boot_vec = c(TRUE, TRUE), # use the SS bootstrap module for sampling
+          nyrs_vec = c(6, 6),        # Years to project OM forward
+          nyrs_assess_vec = c(3, 3), # Years between assessments
+          rec_dev_pattern = c("none", "none"), # Don't use recruitment deviations
+          impl_error_pattern = c("none", "none"), # Don't use implementation error
           sample_struct_list = sample_struct_list) # How to sample data for running the EM.
 ```
 
-The function `SSMSE_summary_iter` can be used to summarize the model
+The function `SSMSE_summary_all` can be used to summarize the model
 results in a list of dataframes. Note that if you have issues, try
 reinstalling SSMSE using
 `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R
@@ -171,7 +238,10 @@ should be installed automatically when SSMSE is downloaded.
 
 ``` r
 # Summarize 1 iteration of output
-summary <- SSMSE_summary_iter(file.path(run_SSMSE_dir, "scen_1", "1"))
+summary <- SSMSE_summary_all(normalizePath(run_res_path))
+## Extracting results from 2 scenarios
+## Starting M-0.1 with 2 iterations
+## Starting M-0.2 with 2 iterations
 ```
 
 Plotting and data manipulation can then be done with these summaries.
@@ -184,32 +254,56 @@ in year 103 (cod\_EM\_103), and the EM run with last year of data in 106
 ``` r
 library(ggplot2) # use install.packages("ggplot2") to install package if needed
 library(tidyr) # use install.packages("tidyr") to install package if needed
-summary$timeseries <- tidyr::separate(summary$timeseries,
+## 
+## Attaching package: 'tidyr'
+## The following object is masked from 'package:testthat':
+## 
+##     matches
+library(dplyr)
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:testthat':
+## 
+##     matches
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+summary$ts <- tidyr::separate(summary$ts,
                                col = model_run,
                                into = c(NA, "model_type"),
                                remove = FALSE,
                                sep = "_", 
                                extra = "drop")
-# plot SSB by year and model run
-plot <- ggplot2::ggplot(data = summary$timeseries, aes(x = year, y = SpawnBio)) +
-          geom_line(aes(color = model_run, linetype = model_type))+
-          theme_classic()
-print(plot)
+# check values for cod_OM
+summary$scalar %>%
+  dplyr::filter(iteration == 1) %>% 
+  dplyr::filter(scenario == "M-0.1") %>% 
+  dplyr::select(iteration, scenario, NatM_p_1_Fem_GP_1, model_run)
+##   iteration scenario NatM_p_1_Fem_GP_1   model_run
+## 1         1    M-0.1               0.1  cod-0.1_OM
+## 2         1    M-0.1               0.2  cod_EM_103
+## 3         1    M-0.1               0.2  cod_EM_106
+## 4         1    M-0.1               0.2 cod_EM_init
+  
+
+# plot SSB by year and model run - need to correct using code from the 
+# think tank
+ggplot2::ggplot(data = subset(summary$ts, model_run %in% c("cod_OM", "cod-0.1_OM", "cod_EM_106")), 
+                aes(x = year, y = SpawnBio)) +
+                geom_vline(xintercept = 100, color = "gray") +
+                geom_line(aes(linetype = as.character(iteration), color = model_type))+
+                scale_color_manual(values = c("#D65F00", "black")) +
+                scale_linetype_manual(values = rep("solid", 50))+
+                guides(linetype = FALSE)+
+                facet_wrap(~scenario)+
+                theme_classic()
 ```
 
 ![](man/figures/README-plot_SSB-1.png)<!-- -->
-
-If it is easier to view or manipulate the summaries in spreadsheets,
-these can be written to .csv:
-
-``` r
-write.csv(summary[["scalar"]], 
-          file = file.path(run_SSMSE_dir, "scen_1", "1", "scalar.csv"))
-write.csv(summary[["timeseries"]],
-          file = file.path(run_SSMSE_dir, "scen_1", "1", "timeseries.csv"))
-write.csv(summary[["derived"]],
-          file = file.path(run_SSMSE_dir, "scen_1", "1", "derived.csv"))
-```
 
 If you wish to delete the files created from this example, you can use:
 
