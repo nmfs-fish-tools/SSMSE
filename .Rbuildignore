@@ -6,6 +6,8 @@
 ^CODE_OF_CONDUCT.md$
 ^CONTRIBUTING.md$
 ^BinaryFiles$
+^README\.md$
+^README\.Rmd$
 ^\.travis\.yml$
 ^appveyor\.yml$
 ^man/figures/README*

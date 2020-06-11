@@ -39,6 +39,7 @@
 #'  the issue with the model run. Defaults to FALSE.
 #' @template verbose
 #' @param ... Anything else to pass to \code{\link[base]{system}}.
+#' @export
 #' @author Sean C. Anderson, Kathryn Doering
 run_ss_model <- function(dir,
                          admb_options = "",
