@@ -70,6 +70,11 @@
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
+#' @param seed Input a fixed seed to replicate previous simulation runs. seed can be a single value
+#' for a global seed, n_scenarios+1 length vector for scenario specific and a global seed, 
+#' n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
+#' object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
+#' for iteration specific seeds under seed$iter[[1:n_scenarios]].
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -119,12 +124,15 @@ run_SSMSE <- function(scen_list = NULL,
                       impl_error_pattern = "none",
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
-                      verbose = FALSE) {
+                      verbose = FALSE,
+                      seed=NULL) {
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   # Get directory of base OM files
-  OM_dir <- locate_in_dirs(OM_name_vec, OM_in_dir_vec)
-  if(rec_dev_pattern == "rand") { #need to calculate std deviation.
+  #First reset the R random seed
+  set.seed(seed=NULL)
+  #Now set the global, scenario, and iteration seeds that will be used as needed
+  seed<-set_MSE_seeds(seed,scen_name_vec,iter_list)
   # Read in starter file
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                 verbose = FALSE)
