@@ -74,21 +74,35 @@ check_recdev_error <- function(length_recdev_seq, expected_length) {
 build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_pars, stddev, n_scenarios, iter_list) {
 
   if (is.null(rec_dev_pars)) {
-    rec_dev_pars <- c(nyrs_assess, 1)
+    rec_dev_pars <- c(nyrs_assess[1], 1)
   }
-
+  
+  rec_dev_list <- list()
+  
   if (rec_dev_pattern == "none") {
-    rec_dev_list <- list()
     for (i in 1:n_scenarios) {
       rec_dev_list[[i]] <- list()
       for (j in 1:length(iter_list[[i]])) {
-        rec_dev_list[[i]][[j]] <- rep(0, yrs)
+        rec_dev_list[[i]][[j]] <- rep(0, yrs[i])
       }
     }
   } else if (rec_dev_pattern == "rand") {
-    breaks <- unique(c(seq(0, yrs, rec_dev_pars[1]), yrs))
-    rec_dev_list <- list()
-    if (scope == 1) { rec_dev_seq <- calc_rec_devs(breaks, yrs, stddev)}
+    for (i in 1:n_scenarios) {
+      breaks <- unique(c(seq(0, yrs[i], rec_dev_pars[1]), yrs[i]))
+      if (scope == 1) { 
+        rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i])
+      }
+      rec_dev_list[[i]] <- list()
+      if (scope == 2) { 
+        rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i])
+      }
+      for (j in 1:length(iter_list[[i]])) {
+        if (scope == 3) { 
+          rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i])
+        }
+        rec_dev_list[[i]][[j]] <- rec_dev_seq
+      }
+    }
     for (i in 1:n_scenarios) {
       rec_dev_list[[i]] <- list()
       if (scope == 2) { rec_dev_seq <- calc_rec_devs(breaks, yrs, stddev)}
@@ -98,22 +112,22 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
       }
     }
   } else if (rec_dev_pattern == "vector") {
-    rec_dev_list <- list()
     row = 1
-    if (scope == 1) {
-      rec_dev_seq <- rec_dev_pars
-      check_recdev_error(length(rec_dev_seq), (yrs))
-    }
+    
     for (i in 1:n_scenarios) {
+      if (scope == 1) {
+        rec_dev_seq <- rec_dev_pars
+        check_recdev_error(length(rec_dev_seq), (yrs[i]))
+      }
       rec_dev_list[[i]] <- list()
       if (scope == 2) {
         rec_dev_seq <- rec_dev_pars[i, ]
-        check_recdev_error(length(rec_dev_seq), (yrs))
+        check_recdev_error(length(rec_dev_seq), (yrs[i]))
       }
       for (j in 1:length(iter_list[[i]])) {
         if (scope == 3) {
           rec_dev_seq <- rec_dev_pars[row, ]
-          check_recdev_error(length(rec_dev_seq), (yrs))
+          check_recdev_error(length(rec_dev_seq), (yrs[i]))
           row <- row + 1
         }
         rec_dev_list[[i]][[j]] <- rec_dev_seq

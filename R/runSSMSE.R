@@ -128,44 +128,78 @@ run_SSMSE <- function(scen_list = NULL,
                       seed=NULL) {
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
-  # Get directory of base OM files
+  
   #First reset the R random seed
   set.seed(seed=NULL)
   #Now set the global, scenario, and iteration seeds that will be used as needed
   seed<-set_MSE_seeds(seed,scen_name_vec,iter_list)
-  # Read in starter file
-  start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
-                                verbose = FALSE)
-  # Read in data file
-  dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile),
-                          section = 1,
-                          verbose = FALSE)
-  # Read in control file
-  ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start$ctlfile),
-                          use_datlist = TRUE, datlist = dat,
-                          verbose = FALSE)
-  # Read in parameter file
-  parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_dir, "ss.par"),
-                                   datsource = dat, ctlsource = ctl,
-                                   verbose = FALSE)
-  rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
-  rec_stddev <- stats::sd(rec_dev_comb[, 2])
-  } else {
-    rec_stddev <- NULL
+  #Adjust all the vector inputs to be full length if a single value was input by replicating
+  if(length(out_dir_scen_vec)==1){
+    out_dir_scen_vec<-rep(out_dir_scen_vec,length(scen_name_vec))
   }
-  #note temp workaround for nyears vec, nyears assess. need to fix
-  rec_dev_list <- build_rec_devs(nyrs_vec[1], nyrs_assess_vec[1], scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list)
-  # Read in data file
-  warning("Using only the first scenario to determine the number of values needed for implementation error")
-  # Read in starter file
-  start <- r4ss::SS_readstarter(file.path(OM_dir$OM_in_dir[1], "starter.ss"),
-                                verbose = FALSE)
-  dat <- r4ss::SS_readdat(file.path(OM_dir$OM_in_dir[1], start$datfile),
-                          section = 1,
-                          verbose = FALSE)
-  n_impl_error_groups <- dat$nseas * dat$Nfleet
+  if(length(OM_name_vec)==1){
+    OM_name_vec<-rep(OM_name_vec,length(scen_name_vec))
+  }
+  if(length(OM_in_dir_vec)==1){
+    OM_in_dir_vec<-rep(OM_in_dir_vec,length(scen_name_vec))
+  }
+  if(length(iter_list)==1){
+    iter_list<-rep(iter_list,length(scen_name_vec))
+  }
+  if(length(EM_name_vec)==1){
+    EM_name_vec<-rep(EM_name_vec,length(scen_name_vec))
+  }
+  if(length(EM_in_dir_vec)==1){
+    EM_in_dir_vec<-rep(EM_in_dir_vec,length(scen_name_vec))
+  }
+  if(length(MS_vec)==1){
+    MS_vec<-rep(MS_vec,length(scen_name_vec))
+  }
+  if(length(nyrs_vec)==1){
+    nyrs_vec<-rep(nyrs_vec,length(scen_name_vec))
+  }
+  if(length(nyrs_assess_vec)==1){
+    nyrs_assess_vec<-rep(nyrs_assess_vec,length(scen_name_vec))
+  }
+  
+  # Get directory of base OM files for each scenario as they may be different
+  rec_stddev<-rep(0,length(scen_name_vec))
+  for(i in 1:length(scen_name_vec)){
+    if(!is.null(OM_in_dir_vec)){
+      OM_dir <- locate_in_dirs(OM_name_vec[i], OM_in_dir_vec[i])
+    }else{
+      OM_dir <- locate_in_dirs(OM_name_vec[i], OM_in_dir_vec)
+    }
+    # Read in starter file
+    start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
+                                  verbose = FALSE)
+    # Read in data file
+    dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile),
+                            section = 1,
+                            verbose = FALSE)
+    # Read in control file
+    ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start$ctlfile),
+                            use_datlist = TRUE, datlist = dat,
+                            verbose = FALSE)
+    # Read in parameter file
+    parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_dir, "ss.par"),
+                                     datsource = dat, ctlsource = ctl,
+                                     verbose = FALSE)
+    
+    # Calculate the standard deviation and autocorrelation of historic recruitment deviations
+    rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
+    rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
+    
+    
+  }
+    rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list, rec_autoCorr)
 
-  impl_error <- build_impl_error(nyrs_vec[1], nyrs_assess_vec[1], n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
+    n_impl_error_groups <- dat$nseas * dat$Nfleet
+
+    impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
+  
+  
+  
   if (is.null(scen_list)) {
    scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
                                  out_dir_scen_vec = out_dir_scen_vec,
