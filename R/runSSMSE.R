@@ -52,8 +52,11 @@
 #' distributed random recruitment deviations. Input a vector of two values to rec_dev_pars
 #' to specify the max number of years over which the sum of rec_devs can diverge from
 #' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "user" applys a user input vector or
-#' matrix of recruitement deviations of length equal nyrs input the vector/matrix to rec_dev-pars.
+#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates 
+#' random auto-correlated rec-devs based on the distribution of historic deviations. 4) "AutoCorr_Spec" 
+#' generates auto-correlated recruitment deviations from an MA time-series model with user specified
+#' parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of 
+#' length equal nyrs input the vector/matrix to rec_dev-pars.
 #' @param rec_dev_pars Input the required parameters as specified by rec_dev_pattern choice.
 #' @param impl_error_pattern Parameter to specify future implementation error. Input options include:
 #' 1) "none" to set all future catches equal to expected (default). 2) "rand" automatically assign
@@ -164,6 +167,9 @@ run_SSMSE <- function(scen_list = NULL,
   
   # Get directory of base OM files for each scenario as they may be different
   rec_stddev<-rep(0,length(scen_name_vec))
+  
+  rec_autoCorr<-list()
+  
   for(i in 1:length(scen_name_vec)){
     if(!is.null(OM_in_dir_vec)){
       OM_dir <- locate_in_dirs(OM_name_vec[i], OM_in_dir_vec[i])
@@ -190,6 +196,10 @@ run_SSMSE <- function(scen_list = NULL,
     rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
     rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
     
+    
+    if(rec_dev_pattern=="AutoCorr_rand" | rec_dev_pattern=="AutoCorr_Spec" |){
+      rec_autoCorr[[i]] <- stats::arima(x=rec_dev_comb[,2],order=c(0,0,4))
+    }
     
   }
     rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list, rec_autoCorr)
