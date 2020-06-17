@@ -861,7 +861,7 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
         if(length(iter_list)==1){
           loc<-1
         }else{loc<-i}
-        if(length(seed$iter[[i]])!=length(iter_list[[loc]]){
+        if(length(seed$iter[[i]])!=length(iter_list[[loc]])){
           stop("wrong number of seeds for iterations")
         }
       }
@@ -871,7 +871,7 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
         if(length(iter_list)==1){
           loc<-1
         }else{loc<-i}
-        if(length(seed$iter[[i]])!=length(iter_list[[loc]]){
+        if(length(seed$iter[[i]])!=length(iter_list[[loc]])){
           stop("wrong number of seeds for iterations")
         }
       }

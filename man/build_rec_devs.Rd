@@ -12,7 +12,9 @@ build_rec_devs(
   rec_dev_pars,
   stddev,
   n_scenarios,
-  iter_list
+  iter_list,
+  rec_autoCorr,
+  seed
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ build_rec_devs(
 \item{n_scenarios}{the number of scenarios simulated}
 
 \item{iter_list}{a list of iteration names.}
+
+\item{rec_autoCorr}{a list of auto-correlation paramters and standard deviations}
+
+\item{seed}{a list prespecified random seed values to enable replication of simulated rec devs}
 }
 \value{
 A list of scenarios with lists of interations in each with a vector of

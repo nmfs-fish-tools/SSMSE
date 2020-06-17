@@ -197,7 +197,7 @@ run_SSMSE <- function(scen_list = NULL,
     rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
     
     
-    if(rec_dev_pattern=="AutoCorr_rand" | rec_dev_pattern=="AutoCorr_Spec" |){
+    if(rec_dev_pattern=="AutoCorr_rand" | rec_dev_pattern=="AutoCorr_Spec"){
       rec_autoCorr[[i]] <- stats::arima(x=rec_dev_comb[,2],order=c(0,0,4))
     }
     
