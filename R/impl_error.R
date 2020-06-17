@@ -78,9 +78,10 @@ check_impl_error <- function(length_impl_error_seq, expected_length) {
 #' @param impl_error_pars implementation error simulation parameters dependent on chosen pattern.
 #' @param n_scenarios The number of scenarios simulated
 #' @param iter_list a list of iteration names.
+#' @param seed a list prespecified random seed values to enable replication of simulated implementation error
 #' @return A list of scenarios with lists of interations in each with a vector of
 #'  implementation errors for each simulation year-fleet-season combination.
-build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, n_scenarios, iter_list) {
+build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, n_scenarios, iter_list, seed) {
 
   if (is.null(impl_error_pars)) {
     impl_error_pars <- c(nyrs_assess, 1, 0)
@@ -104,15 +105,21 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
                          (yrs[i] * n_impl_error_groups)))
       if (scope == 1) {
         
+        set.seed((seed$global+999))
+        
         impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups + 1)], inp_mean, inp_stdev)
       }
       impl_error[[i]] <- list()
       if (scope == 2) {
         
+        set.seed((seed$scenario[i]+999))
+        
         impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups + 1)], inp_mean, inp_stdev)
       }
       for (j in 1:length(iter_list[[i]])) {
         if (scope == 3) {
+          
+          set.seed((seed$iter[[i]][j]+999))
           
           impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups + 1)], inp_mean, inp_stdev)
         }

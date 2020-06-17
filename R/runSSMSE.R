@@ -202,11 +202,11 @@ run_SSMSE <- function(scen_list = NULL,
     }
     
   }
-    rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list, rec_autoCorr)
+    rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list, rec_autoCorr, seed)
 
     n_impl_error_groups <- dat$nseas * dat$Nfleet
 
-    impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
+    impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list, seed)
   
   
   
