@@ -116,9 +116,8 @@ test_that("check_sample_struct works", {
     catch = data.frame(Yr = 2000:2002, Seas = "wrong", FltSvy = 1),
     CPUE  = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2))
   expect_error(check_sample_struct(chars),
-               paste0("Some values in sample_struct are not integers or numeric. Please check ",
-                      "that all values in the list components (dataframes) of dat_str",
-                      "are either integer or numeric. values are = wrong"),
+               "Some values in sample_struct are not integers or numeric. Please check 
+             that all values in the list components of sample_struct are either integer or numeric.",
                fixed = TRUE)
   # character strings included in a dataframe column
   NA_vals <- list(
