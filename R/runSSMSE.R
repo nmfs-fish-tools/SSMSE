@@ -229,6 +229,10 @@ run_SSMSE <- function(scen_list = NULL,
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
+    scen_seed <- list()
+    scen_seed$global <- seed$global
+    scen_seed$scenario <- seed$scenario[i]
+    scen_seed$iter <- seed$iter[[i]]
     # run for each scenario
     run_SSMSE_scen(scen_name = names(scen_list)[i],
                    out_dir_scen = tmp_scen[["out_dir_scen"]],
@@ -243,6 +247,7 @@ run_SSMSE <- function(scen_list = NULL,
                    nyrs_assess = tmp_scen[["nyrs_assess"]],
                    rec_devs_scen = rec_dev_list[[i]],
                    impl_error = impl_error[[i]],
+                   scen_seed = scen_seed,
                    sample_struct = tmp_scen[["sample_struct"]],
                    verbose = verbose)
   }
@@ -288,6 +293,7 @@ run_SSMSE <- function(scen_list = NULL,
 #'   iteration.
 #' @param impl_error List containing an implementation error vector for each
 #'   iteration.
+#' @param scen_seed List containing fixed seeds for this scenario and its iterations.
 #' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
@@ -327,6 +333,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            nyrs_assess = 3,
                            rec_devs_scen = NULL,
                            impl_error = NULL,
+                           scen_seed = NULL,
                            sample_struct = NULL,
                            verbose = FALSE) {
   # input checks
@@ -354,6 +361,10 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   }
   dir.create(out_dir_iter)
   for (i in iter) { # TODO: make work in parallel.
+    iter_seed <- list()
+    iter_seed$global <- scen_seed$global
+    iter_seed$scenario <- scen_seed$scenario
+    iter_seed$iter <- scen_seed$iter[i]
     run_SSMSE_iter(out_dir = out_dir_iter,
                    OM_name = OM_name,
                    OM_in_dir = OM_in_dir,
@@ -366,6 +377,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                    rec_dev_iter = rec_devs_scen[[i]],
                    impl_error = impl_error[[i]],
                    niter = i,
+                   iter_seed = iter_seed,
                    sample_struct = sample_struct,
                    verbose = verbose)
   }
@@ -408,6 +420,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @param impl_error An implementation error vector for the iteration.
 #'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
 #' @param niter The iteration number
+#' @param iter_seed List containing fixed seeds for this iteration.
 #' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
@@ -466,6 +479,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            rec_dev_iter = NULL,
                            impl_error = NULL,
                            niter = 1,
+                           iter_seed = NULL,
                            sample_struct = NULL,
                            verbose = FALSE) {
   # input checks ----
@@ -488,6 +502,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
 
   message("Starting iteration ", niter, ".")
 
+  set.seed((iter_seed$iter[1]+123))
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs
