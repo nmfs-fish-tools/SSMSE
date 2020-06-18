@@ -188,7 +188,7 @@ check_sample_struct <- function(sample_struct,
   lapply(sample_struct, function(dataframe) {
     apply(dataframe, 2, function(col) {
       if (!is.numeric(col) & !is.integer(col) & length(col)>=1) {
-        stop(paste0("Some values in dat_str are not integers or numeric. Please check ",
+        stop(paste0("Some values in sample_struct are not integers or numeric. Please check ",
              "that all values in the list components (dataframes) of dat_str",
              "are either integer or numeric. values are = ",col))
       }
