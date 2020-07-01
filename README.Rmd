@@ -143,9 +143,10 @@ run_SSMSE(scen_name_vec = c("H-ctl", "H-1"), # name of the scenario
           use_SS_boot_vec = c(TRUE, TRUE), # use the SS bootstrap module for sampling
           nyrs_vec = c(6, 6),        # Years to project OM forward
           nyrs_assess_vec = c(3, 3), # Years between assessments
-          rec_dev_pattern = c("none", "none"), # Don't use recruitment deviations
-          impl_error_pattern = c("none", "none"), # Don't use implementation error
-          sample_struct_list = sample_struct_list) # How to sample data for running the EM.
+          rec_dev_pattern = c("none"), # Don't use recruitment deviations
+          impl_error_pattern = c("none"), # Don't use implementation error
+          sample_struct_list = sample_struct_list, # How to sample data for running the EM.
+          seed = 12345) #Set a fixed integer seed that allows replication 
 ```
 
 The function `SSMSE_summary_all` can be used to summarize the model results in a list of dataframes. Note that if you have issues, try reinstalling SSMSE using `remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R session. Also, make sure you are using the development branch versions of [r4ss](https://github.com/r4ss/r4ss) and [ss3sim](https://github.com/ss3sim/ss3sim) (by installing `remotes::install_github("r4ss/r4ss@development")` and `remotes::install_github("ss3sim/ss3sim@development")`. These versions should be installed automatically when SSMSE is downloaded.
