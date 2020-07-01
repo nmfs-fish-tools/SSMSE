@@ -91,37 +91,37 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
     for (i in 1:n_scenarios) {
       impl_error[[i]] <- list()
       for (j in 1:length(iter_list[[i]])) {
-        impl_error[[i]][[j]] <- rep(1, yrs * n_impl_error_groups)
+        impl_error[[i]][[j]] <- rep(1, yrs[i] * n_impl_error_groups[i])
       }
     }
   } else if (impl_error_pattern == "rand") {
-    inp_var <- get_inp_var(impl_error_pars[2:(n_impl_error_groups + 1)], impl_error_pars[(n_impl_error_groups + 2):(n_impl_error_groups * 2 + 1)]^2)
-    inp_mean <- get_inp_mean(impl_error_pars[2:(n_impl_error_groups + 1)], inp_var)
-    inp_stdev <- sqrt(inp_var)
-    
     for (i in 1:n_scenarios) {
-      breaks <- unique(c(seq(0, (yrs[i] * n_impl_error_groups),
-                             (impl_error_pars[1] * n_impl_error_groups)),
-                         (yrs[i] * n_impl_error_groups)))
+      inp_var <- get_inp_var(impl_error_pars[2:(n_impl_error_groups[i] + 1)], impl_error_pars[(n_impl_error_groups[i] + 2):(n_impl_error_groups[i] * 2 + 1)]^2)
+      inp_mean <- get_inp_mean(impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_var)
+      inp_stdev <- sqrt(inp_var)
+      
+      breaks <- unique(c(seq(0, (yrs[i] * n_impl_error_groups[i]),
+                             (impl_error_pars[1] * n_impl_error_groups[i])),
+                         (yrs[i] * n_impl_error_groups[i])))
       if (scope == 1) {
         
         set.seed((seed$global+999))
         
-        impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups + 1)], inp_mean, inp_stdev)
+        impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
       }
       impl_error[[i]] <- list()
       if (scope == 2) {
         
         set.seed((seed$scenario[i]+999))
         
-        impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups + 1)], inp_mean, inp_stdev)
+        impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
       }
       for (j in 1:length(iter_list[[i]])) {
         if (scope == 3) {
           
           set.seed((seed$iter[[i]][j]+999))
           
-          impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups), impl_error_pars[2:(n_impl_error_groups + 1)], inp_mean, inp_stdev)
+          impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
         }
         impl_error[[i]][[j]] <- impl_error_seq
       }
@@ -131,17 +131,17 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
     for (i in 1:n_scenarios) {
       if (scope == 1) {
         impl_error_seq <- impl_error_pars
-        check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups))
+        check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups[i]))
       }
       impl_error[[i]] <- list()
       if (scope == 2) {
         impl_error_seq <- impl_error_pars[i, ]
-        check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups))
+        check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups[i]))
       }
       for (j in 1:length(iter_list[[i]])) {
         if (scope == 3) {
           impl_error_seq <- impl_error_pars[row, ]
-          check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups))
+          check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups[i]))
           row <- row + 1
         }
         impl_error[[i]][[j]] <- impl_error_seq

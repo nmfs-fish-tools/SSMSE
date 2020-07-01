@@ -131,7 +131,6 @@ run_SSMSE <- function(scen_list = NULL,
                       seed=NULL) {
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
-  
   #First reset the R random seed
   set.seed(seed=NULL)
   #Now set the global, scenario, and iteration seeds that will be used as needed
@@ -167,7 +166,7 @@ run_SSMSE <- function(scen_list = NULL,
   
   # Get directory of base OM files for each scenario as they may be different
   rec_stddev<-rep(0,length(scen_name_vec))
-  
+  n_impl_error_groups <- rep(0,length(scen_name_vec))
   rec_autoCorr<-list()
   
   for(i in 1:length(scen_name_vec)){
@@ -195,7 +194,7 @@ run_SSMSE <- function(scen_list = NULL,
     # Calculate the standard deviation and autocorrelation of historic recruitment deviations
     rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
     rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
-    
+    n_impl_error_groups[i] <- dat$nseas * dat$Nfleet
     
     if(rec_dev_pattern=="AutoCorr_rand" | rec_dev_pattern=="AutoCorr_Spec"){
       rec_autoCorr[[i]] <- stats::arima(x=rec_dev_comb[,2],order=c(0,0,4))
@@ -204,7 +203,7 @@ run_SSMSE <- function(scen_list = NULL,
   }
     rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list, rec_autoCorr, seed)
 
-    n_impl_error_groups <- dat$nseas * dat$Nfleet
+    
 
     impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list, seed)
   
