@@ -18,6 +18,7 @@ run_SSMSE_scen(
   nyrs_assess = 3,
   rec_devs_scen = NULL,
   impl_error = NULL,
+  scen_seed = NULL,
   sample_struct = NULL,
   verbose = FALSE
 )
@@ -72,6 +73,8 @@ iteration.}
 
 \item{impl_error}{List containing an implementation error vector for each
 iteration.}
+
+\item{scen_seed}{List containing fixed seeds for this scenario and its iterations.}
 
 \item{sample_struct}{A optional list including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.

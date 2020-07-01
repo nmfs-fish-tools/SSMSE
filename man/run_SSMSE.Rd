@@ -23,7 +23,8 @@ run_SSMSE(
   impl_error_pattern = "none",
   impl_error_pars = NULL,
   sample_struct_list = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  seed = NULL
 )
 }
 \arguments{
@@ -90,8 +91,11 @@ a matrix with ncols=nyrs_vec and nrows=(number of iterations)*(number of scenari
 distributed random recruitment deviations. Input a vector of two values to rec_dev_pars
 to specify the max number of years over which the sum of rec_devs can diverge from
 zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "user" applys a user input vector or
-matrix of recruitement deviations of length equal nyrs input the vector/matrix to rec_dev-pars.}
+rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates 
+random auto-correlated rec-devs based on the distribution of historic deviations. 4) "AutoCorr_Spec" 
+generates auto-correlated recruitment deviations from an MA time-series model with user specified
+parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of 
+length equal nyrs input the vector/matrix to rec_dev-pars.}
 
 \item{rec_dev_pars}{Input the required parameters as specified by rec_dev_pattern choice.}
 
@@ -114,6 +118,12 @@ found for each of the datatypes within the EM datafiles. Include this
 strucutre for the number of years to extend the model out.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
+
+\item{seed}{Input a fixed seed to replicate previous simulation runs. seed can be a single value
+for a global seed, n_scenarios+1 length vector for scenario specific and a global seed, 
+n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
+object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
+for iteration specific seeds under seed$iter[[1:n_scenarios]].}
 }
 \description{
 High level function to run a management strategy evaluation using Stock

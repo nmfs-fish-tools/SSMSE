@@ -21,6 +21,7 @@ test_that("run_SSMSE_iter runs with an EM", {
                  rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
                  impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
                  nyrs_assess = 3,
+                 iter_seed = list(global=12345,scenario=123456,iter=1234567),
                  sample_struct = list(
                    catch = data.frame(Yr = catch_add_yrs, Seas = 1, FltSvy = 1),
                    CPUE = data.frame(Yr = add_yrs, Seas = 7, FltSvy = 2),
@@ -61,6 +62,7 @@ test_that("run_SSMSE_iter runs with no EM", {
                            nyrs_assess = 3,
                            rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
                            impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
+                           iter_seed = list(global=12345,scenario=123456,iter=1234567)
                            )
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
@@ -89,6 +91,7 @@ test_that("cod works when treated as a custom model", {
                            rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
                            impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
                            nyrs_assess = 3,
+                           iter_seed = list(global=12345,scenario=123456,iter=1234567),
                            sample_struct = list(
                              catch = data.frame(Yr = catch_add_yrs, Seas = 1, FltSvy = 1),
                              CPUE = data.frame(Yr = add_yrs, Seas = 7, FltSvy = 2),

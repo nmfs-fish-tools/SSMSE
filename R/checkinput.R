@@ -187,10 +187,9 @@ check_sample_struct <- function(sample_struct,
   # check that all values can be coerced to numeric
   lapply(sample_struct, function(dataframe) {
     apply(dataframe, 2, function(col) {
-      if (!is.numeric(col) & !is.integer(col)) {
-        stop("Some values in sample_struct are not integers or numeric. Please check ",
-             "that all values in the list components (dataframes) of sample_struct",
-             "are either integer or numeric.")
+      if (!is.numeric(col) & !is.integer(col) & length(col)>=1) {
+        stop("Some values in sample_struct are not integers or numeric. Please check 
+             that all values in the list components of sample_struct are either integer or numeric.")
       }
       if(any(is.na(col))) {
         stop("Some values in sample_struct are NA. Please remove or replace ", 

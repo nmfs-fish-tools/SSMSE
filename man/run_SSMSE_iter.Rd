@@ -17,6 +17,7 @@ run_SSMSE_iter(
   rec_dev_iter = NULL,
   impl_error = NULL,
   niter = 1,
+  iter_seed = NULL,
   sample_struct = NULL,
   verbose = FALSE
 )
@@ -66,6 +67,8 @@ Dimensions are nyrs_assess\*number of fleets \* number of seasons}
 Dimensions are nyrs_assess\*number of fleets \* number of seasons}
 
 \item{niter}{The iteration number}
+
+\item{iter_seed}{List containing fixed seeds for this iteration.}
 
 \item{sample_struct}{A optional list including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.

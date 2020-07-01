@@ -52,8 +52,11 @@
 #' distributed random recruitment deviations. Input a vector of two values to rec_dev_pars
 #' to specify the max number of years over which the sum of rec_devs can diverge from
 #' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "user" applys a user input vector or
-#' matrix of recruitement deviations of length equal nyrs input the vector/matrix to rec_dev-pars.
+#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates 
+#' random auto-correlated rec-devs based on the distribution of historic deviations. 4) "AutoCorr_Spec" 
+#' generates auto-correlated recruitment deviations from an MA time-series model with user specified
+#' parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of 
+#' length equal nyrs input the vector/matrix to rec_dev-pars.
 #' @param rec_dev_pars Input the required parameters as specified by rec_dev_pattern choice.
 #' @param impl_error_pattern Parameter to specify future implementation error. Input options include:
 #' 1) "none" to set all future catches equal to expected (default). 2) "rand" automatically assign
@@ -70,6 +73,11 @@
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
+#' @param seed Input a fixed seed to replicate previous simulation runs. seed can be a single value
+#' for a global seed, n_scenarios+1 length vector for scenario specific and a global seed, 
+#' n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
+#' object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
+#' for iteration specific seeds under seed$iter[[1:n_scenarios]].
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -119,45 +127,88 @@ run_SSMSE <- function(scen_list = NULL,
                       impl_error_pattern = "none",
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
-                      verbose = FALSE) {
+                      verbose = FALSE,
+                      seed=NULL) {
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
-  # Get directory of base OM files
-  OM_dir <- locate_in_dirs(OM_name_vec, OM_in_dir_vec)
-  if(rec_dev_pattern == "rand") { #need to calculate std deviation.
-  # Read in starter file
-  start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
-                                verbose = FALSE)
-  # Read in data file
-  dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile),
-                          section = 1,
-                          verbose = FALSE)
-  # Read in control file
-  ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start$ctlfile),
-                          use_datlist = TRUE, datlist = dat,
-                          verbose = FALSE)
-  # Read in parameter file
-  parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_dir, "ss.par"),
-                                   datsource = dat, ctlsource = ctl,
-                                   verbose = FALSE)
-  rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
-  rec_stddev <- stats::sd(rec_dev_comb[, 2])
-  } else {
-    rec_stddev <- NULL
+  #First reset the R random seed
+  set.seed(seed=NULL)
+  #Now set the global, scenario, and iteration seeds that will be used as needed
+  seed<-set_MSE_seeds(seed,scen_name_vec,iter_list)
+  #Adjust all the vector inputs to be full length if a single value was input by replicating
+  if(length(out_dir_scen_vec)==1){
+    out_dir_scen_vec<-rep(out_dir_scen_vec,length(scen_name_vec))
   }
-  #note temp workaround for nyears vec, nyears assess. need to fix
-  rec_dev_list <- build_rec_devs(nyrs_vec[1], nyrs_assess_vec[1], scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list)
-  # Read in data file
-  warning("Using only the first scenario to determine the number of values needed for implementation error")
-  # Read in starter file
-  start <- r4ss::SS_readstarter(file.path(OM_dir$OM_in_dir[1], "starter.ss"),
-                                verbose = FALSE)
-  dat <- r4ss::SS_readdat(file.path(OM_dir$OM_in_dir[1], start$datfile),
-                          section = 1,
-                          verbose = FALSE)
-  n_impl_error_groups <- dat$nseas * dat$Nfleet
+  if(length(OM_name_vec)==1){
+    OM_name_vec<-rep(OM_name_vec,length(scen_name_vec))
+  }
+  if(length(OM_in_dir_vec)==1){
+    OM_in_dir_vec<-rep(OM_in_dir_vec,length(scen_name_vec))
+  }
+  if(length(iter_list)==1){
+    iter_list<-rep(iter_list,length(scen_name_vec))
+  }
+  if(length(EM_name_vec)==1){
+    EM_name_vec<-rep(EM_name_vec,length(scen_name_vec))
+  }
+  if(length(EM_in_dir_vec)==1){
+    EM_in_dir_vec<-rep(EM_in_dir_vec,length(scen_name_vec))
+  }
+  if(length(MS_vec)==1){
+    MS_vec<-rep(MS_vec,length(scen_name_vec))
+  }
+  if(length(nyrs_vec)==1){
+    nyrs_vec<-rep(nyrs_vec,length(scen_name_vec))
+  }
+  if(length(nyrs_assess_vec)==1){
+    nyrs_assess_vec<-rep(nyrs_assess_vec,length(scen_name_vec))
+  }
+  
+  # Get directory of base OM files for each scenario as they may be different
+  rec_stddev<-rep(0,length(scen_name_vec))
+  n_impl_error_groups <- rep(0,length(scen_name_vec))
+  rec_autoCorr<-list()
+  
+  for(i in 1:length(scen_name_vec)){
+    if(!is.null(OM_in_dir_vec)){
+      OM_dir <- locate_in_dirs(OM_name_vec[i], OM_in_dir_vec[i])
+    }else{
+      OM_dir <- locate_in_dirs(OM_name_vec[i], OM_in_dir_vec)
+    }
+    # Read in starter file
+    start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
+                                  verbose = FALSE)
+    # Read in data file
+    dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile),
+                            section = 1,
+                            verbose = FALSE)
+    # Read in control file
+    ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start$ctlfile),
+                            use_datlist = TRUE, datlist = dat,
+                            verbose = FALSE)
+    # Read in parameter file
+    parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_dir, "ss.par"),
+                                     datsource = dat, ctlsource = ctl,
+                                     verbose = FALSE)
+    
+    # Calculate the standard deviation and autocorrelation of historic recruitment deviations
+    rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
+    rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
+    n_impl_error_groups[i] <- dat$nseas * dat$Nfleet
+    
+    if(rec_dev_pattern=="AutoCorr_rand" | rec_dev_pattern=="AutoCorr_Spec"){
+      rec_autoCorr[[i]] <- stats::arima(x=rec_dev_comb[,2],order=c(0,0,4))
+    }
+    
+  }
+    rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list, rec_autoCorr, seed)
 
-  impl_error <- build_impl_error(nyrs_vec[1], nyrs_assess_vec[1], n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list)
+    
+
+    impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list, seed)
+  
+  
+  
   if (is.null(scen_list)) {
    scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
                                  out_dir_scen_vec = out_dir_scen_vec,
@@ -177,6 +228,10 @@ run_SSMSE <- function(scen_list = NULL,
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
+    scen_seed <- list()
+    scen_seed$global <- seed$global
+    scen_seed$scenario <- seed$scenario[i]
+    scen_seed$iter <- seed$iter[[i]]
     # run for each scenario
     run_SSMSE_scen(scen_name = names(scen_list)[i],
                    out_dir_scen = tmp_scen[["out_dir_scen"]],
@@ -191,6 +246,7 @@ run_SSMSE <- function(scen_list = NULL,
                    nyrs_assess = tmp_scen[["nyrs_assess"]],
                    rec_devs_scen = rec_dev_list[[i]],
                    impl_error = impl_error[[i]],
+                   scen_seed = scen_seed,
                    sample_struct = tmp_scen[["sample_struct"]],
                    verbose = verbose)
   }
@@ -236,6 +292,7 @@ run_SSMSE <- function(scen_list = NULL,
 #'   iteration.
 #' @param impl_error List containing an implementation error vector for each
 #'   iteration.
+#' @param scen_seed List containing fixed seeds for this scenario and its iterations.
 #' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
@@ -275,6 +332,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            nyrs_assess = 3,
                            rec_devs_scen = NULL,
                            impl_error = NULL,
+                           scen_seed = NULL,
                            sample_struct = NULL,
                            verbose = FALSE) {
   # input checks
@@ -302,6 +360,10 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   }
   dir.create(out_dir_iter)
   for (i in iter) { # TODO: make work in parallel.
+    iter_seed <- list()
+    iter_seed$global <- scen_seed$global
+    iter_seed$scenario <- scen_seed$scenario
+    iter_seed$iter <- scen_seed$iter[i]
     run_SSMSE_iter(out_dir = out_dir_iter,
                    OM_name = OM_name,
                    OM_in_dir = OM_in_dir,
@@ -314,6 +376,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                    rec_dev_iter = rec_devs_scen[[i]],
                    impl_error = impl_error[[i]],
                    niter = i,
+                   iter_seed = iter_seed,
                    sample_struct = sample_struct,
                    verbose = verbose)
   }
@@ -356,6 +419,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @param impl_error An implementation error vector for the iteration.
 #'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
 #' @param niter The iteration number
+#' @param iter_seed List containing fixed seeds for this iteration.
 #' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
@@ -414,6 +478,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            rec_dev_iter = NULL,
                            impl_error = NULL,
                            niter = 1,
+                           iter_seed = NULL,
                            sample_struct = NULL,
                            verbose = FALSE) {
   # input checks ----
@@ -436,6 +501,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
 
   message("Starting iteration ", niter, ".")
 
+  set.seed((iter_seed$iter[1]+123))
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs
