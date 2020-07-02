@@ -9,7 +9,7 @@ test_that("create_scen_list works as expected", {
   scen_list <- list(scen_1 =
                        list(
                          out_dir_scen = out_dir,
-                         iter = 1:2,
+                         iter = 1,
                          OM_name = "cod",
                          OM_in_dir = NULL,
                          EM_name = "cod",
@@ -23,7 +23,7 @@ test_that("create_scen_list works as expected", {
                       scen_2 =
                         list(
                           out_dir_scen = out_dir,
-                          iter = 1:2,
+                          iter = 2,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = "cod",
@@ -37,7 +37,7 @@ test_that("create_scen_list works as expected", {
                        )
 
  scen_list_out <- create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
-                                    iter_list = list(1:2),
+                                    iter_vec = 1:2,
                                     OM_name_vec = "cod",
                                     OM_in_dir_vec = NULL,
                                     use_SS_boot_vec = TRUE,
@@ -57,7 +57,7 @@ test_that("create_scen_list works with NAs", {
   scen_list <- list(scen_1 =
                         list(
                           out_dir_scen = out_dir,
-                          iter = 1:2,
+                          iter_vec = 2,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = "cod",
@@ -71,7 +71,7 @@ test_that("create_scen_list works with NAs", {
                       scen_2 =
                         list(
                           out_dir_scen = out_dir,
-                          iter = 1:2,
+                          iter_vec = 2,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = NULL,
@@ -84,7 +84,7 @@ test_that("create_scen_list works with NAs", {
                         )
   )
   scen_list_out <- create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
-                                     iter_list = list(1:2),
+                                     iter_vec = 1:2,
                                      OM_name_vec = "cod",
                                      OM_in_dir_vec = NULL,
                                      use_SS_boot_vec = TRUE,

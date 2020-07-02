@@ -77,11 +77,11 @@ check_impl_error <- function(length_impl_error_seq, expected_length) {
 #' @param impl_error_pattern how to simulate implementation errors.
 #' @param impl_error_pars implementation error simulation parameters dependent on chosen pattern.
 #' @param n_scenarios The number of scenarios simulated
-#' @param iter_list a list of iteration names.
+#' @param iter_vec a vector of iteration names.
 #' @param seed a list prespecified random seed values to enable replication of simulated implementation error
 #' @return A list of scenarios with lists of interations in each with a vector of
 #'  implementation errors for each simulation year-fleet-season combination.
-build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, n_scenarios, iter_list, seed) {
+build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, n_scenarios, iter_vec, seed) {
 
   if (is.null(impl_error_pars)) {
     impl_error_pars <- c(nyrs_assess, 1, 0)
@@ -90,7 +90,7 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
   if (impl_error_pattern == "none") {
     for (i in 1:n_scenarios) {
       impl_error[[i]] <- list()
-      for (j in 1:length(iter_list[[i]])) {
+      for (j in 1:iter_vec[i]) {
         impl_error[[i]][[j]] <- rep(1, yrs[i] * n_impl_error_groups[i])
       }
     }
@@ -116,7 +116,7 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
         
         impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
       }
-      for (j in 1:length(iter_list[[i]])) {
+      for (j in 1:iter_vec[i]) {
         if (scope == 3) {
           
           set.seed((seed$iter[[i]][j]+999))
@@ -138,7 +138,7 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
         impl_error_seq <- impl_error_pars[i, ]
         check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups[i]))
       }
-      for (j in 1:length(iter_list[[i]])) {
+      for (j in 1:iter_vec[i]) {
         if (scope == 3) {
           impl_error_seq <- impl_error_pars[row, ]
           check_impl_error(length(impl_error_seq), (yrs[i] * n_impl_error_groups[i]))
