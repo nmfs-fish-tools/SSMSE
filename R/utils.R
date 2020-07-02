@@ -737,11 +737,16 @@ copy_SS_inputs <- function(dir.old = NULL,
 
 #' Set the initial global, scenario, and iteration seeds 
 #'
-#' @param seed reads in the user specified seeds if any to allow replication of runs
+#' @param seed reads in the user specified seeds if any to allow replication of runs. Defaults to NULL.
+#' Can be 1) NULL (default); 2) An integer vector of length 1, length 1+length(scen_name_vec), or length 1 + length(scen_name_vec)+sum(iter_vec); 3) A list with 3 components the same as teh output of set_MSE_seeds
 #' @param scen_name_vec reads the user input scen_name_vec to determine the number of scenarios
-#' @param iter_list reads the user specified iteration list to determine the number of 
+#' @param iter_vec reads the user specified iteration list to determine the number of 
 #' iterations per scenario
-set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
+#' @returns A list of length 3 with 1) the global seed value; 2) the scenario seed values; and 3) the iteration seed values.
+#' @example set_MSE_seeds(seed = seq(10, 80, by = 10),
+#'                        scen_name_vec = c("scen_1", "scen_2"),
+#'                        iter_vec = c(2, 3))
+set_MSE_seeds<-function(seed = NULL, scen_name_vec, iter_vec)
 {
   if(is.null(seed)){
     seed<-list()
@@ -751,7 +756,7 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
     seed$iter<-list()
     for(i in 1:length(scen_name_vec)){
       set.seed(seed=seed$scenario[i])
-      seed$iter[[i]]<-floor(runif(length(iter_list[[i]]),1000000,9999999))
+      seed$iter[[i]]<-floor(runif(iter_vec[i],1000000,9999999))
     }
   }else if(!is.list(seed)){
     if(length(seed)==1){
@@ -763,22 +768,26 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
       seed$iter<-list()
       for(i in 1:length(scen_name_vec)){
         set.seed(seed=seed$scenario[i])
-        seed$iter[[i]]<-floor(runif(length(iter_list[[i]]),1000000,9999999))
+        seed$iter[[i]]<-floor(runif(iter_vec[i],1000000,9999999))
       }
     }else if(length(seed)==(length(scen_name_vec)+1)){
       input.seed<-seed
+      seed <- vector(mode = "list", length = 3)
+      names(seed) <- c("global", "scenario", "iter")
       seed$global<-input.seed[1]
       input.seed<-input.seed[-1]
       seed$scenario<-input.seed
       seed$iter<-list()
       for(i in 1:length(scen_name_vec)){
         set.seed(seed=seed$scenario[i])
-        seed$iter[[i]]<-floor(runif(length(iter_list[[i]]),1000000,9999999))
+        seed$iter[[i]]<-floor(runif(iter_vec[i],1000000,9999999))
       }
-    }else if(length(iter_list)==length(scen_name_vec)){
-      if(length(seed)==(unlist(lapply(iter_list,length))[1]+length(scen_name_vec)+1)){
-        if(length(unique(unlist(lapply(iter_list,length))))==1){
+    }else if(length(iter_vec)==length(scen_name_vec)){
+      if(length(seed)==(iter_vec[1]+length(scen_name_vec)+1)){
+        if(length(unique(iter_vec)==1)){
           input.seed<-seed
+          seed <- vector(mode = "list", length = 3)
+          names(seed) <- c("global", "scenario", "iter")
           seed$global<-input.seed[1]
           input.seed<-input.seed[-1]
           seed$scenario<-input.seed[1:length(scen_name_vec)]
@@ -790,25 +799,29 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
         }else{
           stop("Error: All scenarios must have same number of iterations to use a single input of seeds")
         }
-      }else if(length(seed)==(sum(unlist(lapply(iter_list,length)))+length(scen_name_vec)+1)){
+      }else if(length(seed)==(sum(iter_vec)+length(scen_name_vec)+1)){
         input.seed<-seed
+        seed <- vector(mode = "list", length = 3)
+        names(seed) <- c("global", "scenario", "iter")
         seed$global<-input.seed[1]
         input.seed<-input.seed[-1]
         seed$scenario<-input.seed[1:length(scen_name_vec)]
         input.seed<-input.seed[-c(1:length(scen_name_vec))]
         seed$iter<-list()
         for(i in 1:length(scen_name_vec)){
-          seed$iter[[i]]<-input.seed[1:length(iter_list[[i]])]
-          input.seed<-input.seed[-c(1:length(iter_list[[i]]))]
+          seed$iter[[i]]<-input.seed[1:iter_vec[i]]
+          input.seed<-input.seed[-c(1:iter_vec[i])]
         }
       }else{
         stop("The length of your seed vector doesn't match either 
           (1, 1+n_scenarios, 1+n_scenarios+n_iterations_single_scenario, 
           or 1+n_scenarios+n_iterations_all_scenarios)")
       }
-    }else if(length(iter_list)==1){
-      if(length(seed)==(unlist(lapply(iter_list,length))[1]+length(scen_name_vec)+1)){
+    }else if(length(iter_vec)==1){
+      if(length(seed)==(iter_vec[1]+length(scen_name_vec)+1)){
         input.seed<-seed
+        seed <- vector(mode = "list", length = 3)
+        names(seed) <- c("global", "scenario", "iter")
         seed$global<-input.seed[1]
         input.seed<-input.seed[-1]
         seed$scenario<-input.seed[1:length(scen_name_vec)]
@@ -818,16 +831,18 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
           seed$iter[[i]]<-input.seed
         }
         
-      }else if(length(seed)==((unlist(lapply(iter_list,length))[1]*length(scen_name_vec))+length(scen_name_vec)+1)){
+      }else if(length(seed)==((iter_vec[1]*length(scen_name_vec))+length(scen_name_vec)+1)){
         input.seed<-seed
+        seed <- vector(mode = "list", length = 3)
+        names(seed) <- c("global", "scenario", "iter")
         seed$global<-input.seed[1]
         input.seed<-input.seed[-1]
         seed$scenario<-input.seed[1:length(scen_name_vec)]
         input.seed<-input.seed[-c(1:length(scen_name_vec))]
         seed$iter<-list()
         for(i in 1:length(scen_name_vec)){
-          seed$iter[[i]]<-input.seed[1:length(iter_list[[i]])]
-          input.seed<-input.seed[-c(1:length(iter_list[[i]]))]
+          seed$iter[[i]]<-input.seed[1:iter_vec[i]]
+          input.seed<-input.seed[-c(1:iter_vec[i])]
         }
       }else{
         stop("The length of your seed vector doesn't match either 
@@ -837,7 +852,8 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
     }
   }else{
     input.seed<-seed
-    seed<-list()
+    seed <- vector(mode = "list", length = 3)
+    names(seed) <- c("global", "scenario", "iter")
     if(length(input.seed$global)==1){
       seed$global<-input.seed$global
     }else if(length(input.seed[[1]])==1){
@@ -858,20 +874,20 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
     if(length(input.seed$iter)==length(scen_name_vec) & is.list(input.seed$iter)){
       seed$iter<-input.seed$iter
       for(i in 1:length(seed$iter)){
-        if(length(iter_list)==1){
+        if(length(iter_vec)==1){
           loc<-1
         }else{loc<-i}
-        if(length(seed$iter[[i]])!=length(iter_list[[loc]])){
+        if(length(seed$iter[[i]])!=iter_vec[loc]){
           stop("wrong number of seeds for iterations")
         }
       }
-    }else if(length(input.seed[[3]])==length(scen_name_vec)){
-      seed$iter<-input.seed[[3]]
+    }else if(length(input.seed[["iter"]])==length(scen_name_vec)){
+      seed$iter<-input.seed[["iter"]]
       for(i in 1:length(seed$iter)){
-        if(length(iter_list)==1){
+        if(length(iter_vec)==1){
           loc<-1
         }else{loc<-i}
-        if(length(seed$iter[[i]])!=length(iter_list[[loc]])){
+        if(length(seed$iter[[i]])!=iter_vec[loc]){
           stop("wrong number of seeds for iterations")
         }
       }
@@ -882,3 +898,4 @@ set_MSE_seeds<-function(seed,scen_name_vec,iter_list)
   }
   return(seed)
 }
+
