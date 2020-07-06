@@ -57,7 +57,7 @@ test_that("create_scen_list works with NAs", {
   scen_list <- list(scen_1 =
                         list(
                           out_dir_scen = out_dir,
-                          iter_vec = 2,
+                          iter = 1,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = "cod",
@@ -71,7 +71,7 @@ test_that("create_scen_list works with NAs", {
                       scen_2 =
                         list(
                           out_dir_scen = out_dir,
-                          iter_vec = 2,
+                          iter = 2,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = NULL,
