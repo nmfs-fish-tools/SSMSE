@@ -188,11 +188,11 @@ run_SSMSE <- function(scen_list = NULL,
     }
     
   }
-    rec_dev_list <- build_rec_devs(yrs = nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_list), iter_vec, rec_autoCorr, seed)
+    rec_dev_list <- build_rec_devs(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, n_scenarios = length(scen_list), iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
 
     
 
-    impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_list), iter_vec, seed)
+    impl_error <- build_impl_error(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, n_impl_error_groups = n_impl_error_groups, scope = scope, impl_error_pattern = impl_error_pattern, impl_error_pars = impl_error_pars, n_scenarios = length(scen_list), iter_vec = iter_vec, seed = seed)
 
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
