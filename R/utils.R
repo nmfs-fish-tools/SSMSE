@@ -473,11 +473,11 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
 
 #' Locate the OM model files
 #'
-#' @param OM_name Name of OM model.
+#' @param OM_name Name of OM model.Defaults to NULL
 #' @param OM_in_dir Relative or absolute path to the operating model. NULL if
-#'  using SSMSE package model.
+#'  using SSMSE package model. Defaults to NULL.
 #' @return A list with on comonent, OM_in_dir, which contains the model location
-locate_in_dirs <- function(OM_name, OM_in_dir) {
+locate_in_dirs <- function(OM_name = NULL, OM_in_dir = NULL) {
   # checks
   if (!is.null(OM_name)) assertive.types::assert_is_a_string(OM_name)
   if (is.null(OM_name) & is.null(OM_in_dir)) {

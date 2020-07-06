@@ -151,16 +151,16 @@ run_SSMSE <- function(scen_list = NULL,
   #Now set the global, scenario, and iteration seeds that will be used as needed
   seed<-set_MSE_seeds(seed = seed,
                       iter_vec = iter_vec)
-  
   # Get directory of base OM files for each scenario as they may be different
-  rec_stddev<-rep(0,length(scen_list$scen_name_vec))
-  n_impl_error_groups <- rep(0,length(scen_list$scen_name_vec))
-  rec_autoCorr<-list()
-  for(i in 1:length(scen_list$scen_name_vec)){
-    if(!is.null(scen_list$OM_in_dir_vec)){
-      OM_dir <- locate_in_dirs(scen_list$OM_name_vec[i], scen_list$OM_in_dir_vec[i])
+  rec_stddev<-rep(0,length(scen_list))
+  n_impl_error_groups <- rep(0,length(scen_list))
+  rec_autoCorr<-vector(mode = "list", length = length(scen_list))
+  for(i in 1:length(scen_list)){
+    tmp_scen_list <- scen_list[[i]]
+    if(is.null(tmp_scen_list[["OM_in_dir"]])){
+      OM_dir <- locate_in_dirs( OM_name = tmp_scen_list[["OM_name"]])
     }else{
-      OM_dir <- locate_in_dirs(scen_list$OM_name_vec[i], scen_list$OM_in_dir_vec)
+      OM_dir <- locate_in_dirs(OM_in_dir =  tmp_scen_list[["OM_in_dir"]])
     }
     # Read in starter file
     start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
@@ -188,11 +188,11 @@ run_SSMSE <- function(scen_list = NULL,
     }
     
   }
-    rec_dev_list <- build_rec_devs(yrs = scen_list$nyrs_vec, scen_list$nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_list$scen_name_vec), scen_list$iter_vec, rec_autoCorr, seed)
+    rec_dev_list <- build_rec_devs(yrs = nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_list), iter_vec, rec_autoCorr, seed)
 
     
 
-    impl_error <- build_impl_error(scen_list$nyrs_vec, scen_list$nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_list$scen_name_vec), scen_list$iter_vec, seed)
+    impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_list), iter_vec, seed)
 
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
@@ -341,7 +341,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   }
   
   for (i in seq_len(iter)) { # TODO: make work in parallel.
-    iter_seed <- as.vector(mode = "list", length = 3)
+    iter_seed <- vector(mode = "list", length = 3)
     names(iter_seed) <- c("global", "scenario", "iter")
     iter_seed$global <- scen_seed$global
     iter_seed$scenario <- scen_seed$scenario

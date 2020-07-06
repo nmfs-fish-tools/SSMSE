@@ -63,21 +63,24 @@ You can read the help files with
 
 Suppose we want to look at 2 scenarios, one where Steepness (H) is
 specified correctly and one where it is specified incorrectly in an
-estimation model (EM): 1. **H-ctl**: Cod operating model (H = 0.65) with
-correctly specified cod model EM (fixed H = 0.65) 2. **H-1**: Cod
-operating model (OM; H = 1) with misspecified cod model EM (fixed H =
-0.65)
+estimation model (EM):
 
-Note that this is a toy example and not a true MSE, so there is not
-significantly different structure between the cod EM and OM, except for
-different steepness. We will assume we want to run the MSE loop for 6
-years, with a stock assessment occuring every 3 years. The cod model’s
-last year is 100, so the OM is initially conditioned through year 100.
-Then, after conditioning the operating model through year 100,
-assessments will occur in years 100, 103, and 106. Note that the
-assessment run in year 106 will generate future catch for years 107,
-108, and 109, but these are not feed back into the operating model
-because the MSE loop is specified to only run through year 106).
+1.  **H-ctl**: Cod operating model (H = 0.65) with correctly specified
+    cod model EM (fixed H = 0.65)
+2.  **H-1**: Cod operating model (OM; H = 1) with misspecified cod model
+    EM (fixed H = 0.65)
+
+Note that this is a toy example and not a true MSE, so the OM and EM
+structures for both scenarios are identical, except for different
+steepness between the OM and EM in scenario 2. We will assume we want to
+run the MSE loop for 6 years, with a stock assessment occuring every 3
+years. The cod model’s last year is 100, so the OM is initially
+conditioned through year 100. Then, after conditioning the operating
+model through year 100, assessments will occur in years 100, 103, and
+106. Note that the assessment run in year 106 will generate future catch
+for years 107, 108, and 109, but the future catch values are not input
+into the operating model because the MSE loop is specified to only run
+through year 106).
 
 First, we will load the `SSMSE` package and create a folder in which to
 run the example:
@@ -93,7 +96,6 @@ library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
-## Warning in dir.create(run_SSMSE_dir): 'run_SSMSE-ex' already exists
 ```
 
 The cod model with H = 0.65 is included as external package data.
@@ -106,10 +108,7 @@ cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
 file.copy(from = cod_mod_path, to = run_SSMSE_dir, recursive = TRUE)
 ## [1] TRUE
 file.rename(from = file.path(run_SSMSE_dir, "cod"), to = file.path(run_SSMSE_dir, "cod-1"))
-## Warning in file.rename(from = file.path(run_SSMSE_dir, "cod"), to =
-## file.path(run_SSMSE_dir, : cannot rename file 'run_SSMSE-ex/cod' to 'run_SSMSE-
-## ex/cod-1', reason 'Access is denied'
-## [1] FALSE
+## [1] TRUE
 cod_1_path <- file.path(run_SSMSE_dir, "cod-1")
 # make model read initial values from control file and not ss.par
 start <- r4ss::SS_readstarter(file = file.path(cod_1_path, "starter.ss"), verbose = FALSE)
@@ -122,14 +121,14 @@ r4ss::SS_changepars(dir = cod_1_path, ctlfile = "control.ss_new",
 ## [1] "SR_BH_steep"
 ## These are the ctl file lines as they currently exist:
 ##      LO HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr
-## 107 0.2  1    1   0.7  0.05       0    -4            0        0         0
+## 107 0.2  1 0.65   0.7  0.05       0    -4            0        0         0
 ##     dev_maxyr dev_PH Block Block_Fxn       Label Linenum
 ## 107         0      0     0         0 SR_BH_steep     107
 ## line numbers in control file (n=1):
 ## 107
 ## wrote new file to control_modified.ss with the following changes:
 ##   oldvals newvals oldphase newphase oldlos newlos oldhis newhis oldprior
-## 1       1       1       -4       -4    0.2    0.2      1      1      0.7
+## 1    0.65       1       -4       -4    0.2    0.2      1      1      0.7
 ##   newprior oldprsd newprsd oldprtype newprtype       comment
 ## 1      0.7    0.05    0.05         0         0 # SR_BH_steep
 # remove files with M = 0.2
@@ -188,11 +187,13 @@ sample_struct
 ## 1 105    1      2   0    0      1      -1      -1   500
 ```
 
-This sample\_structure suggest that catch will be added to the
+The sample structure specifies that catch will be added to the
 estimation model every year (years 101 to 106), but an index of
 abundance (i.e., CPUE) and age composition (i.e., agecomp) will only be
-added in year 105. We can modify this sampling strategy however we would
-like.
+added in year 105. The user could modify this sampling strategy (for
+example, maybe age composition should also be sampled from FltSvy 2 in
+Yr 102; the user could add another line to the dataframe in
+`sample_struct$agecomp`).
 
 Note that length comp (lencomp) includes an `NA` value for year. This is
 because no consistent pattern was identified, so the user must define
@@ -217,7 +218,7 @@ dir.create(run_res_path)
 # run 1 iteration and 1 scenario of SSMSE using an EM.
 run_SSMSE(scen_name_vec = c("H-ctl", "H-1"), # name of the scenario
           out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-          iter_list = list(1:5, 1:5), # run with 5 iterations each
+          iter_vec = c(5,5), # run with 5 iterations each
           OM_name_vec = NULL, # specify directories instead
           OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
           EM_name_vec = c("cod", "cod"), # cod is included in package data
@@ -246,12 +247,8 @@ should be installed automatically when SSMSE is downloaded.
 # Summarize 1 iteration of output
 summary <- SSMSE_summary_all(normalizePath(run_res_path))
 ## Extracting results from 2 scenarios
-## Warning in ss3sim::get_results_all(directory = dir, user_scenarios = scenarios):
-## ss3sim_scalar.csv already exists and overwrite_files = FALSE, so a new file was
-## not written
-## Warning in ss3sim::get_results_all(directory = dir, user_scenarios = scenarios):
-## ss3sim_ts.csv already exists and overwrite_files = FALSE, so a new file was not
-## written
+## Starting H-1 with 5 iterations
+## Starting H-ctl with 5 iterations
 ```
 
 Plotting and data manipulation can then be done with these summaries.
@@ -263,7 +260,6 @@ in year 103 (cod\_EM\_103), and the EM run with last year of data in 106
 
 ``` r
 library(ggplot2) # use install.packages("ggplot2") to install package if needed
-## Warning: package 'ggplot2' was built under R version 4.0.2
 library(tidyr) # use install.packages("tidyr") to install package if needed
 ## 
 ## Attaching package: 'tidyr'
@@ -283,6 +279,9 @@ library(dplyr)
 ## The following objects are masked from 'package:base':
 ## 
 ##     intersect, setdiff, setequal, union
+```
+
+``` r
 summary$ts <- tidyr::separate(summary$ts,
                                col = model_run,
                                into = c(NA, "model_type"),
@@ -304,14 +303,14 @@ summary$scalar %>%
 # plot SSB by year and model run - need to correct using code from the 
 # think tank
 ggplot2::ggplot(data = subset(summary$ts, model_run %in% c("cod_OM", "cod-1_OM", "cod_EM_106")), 
-                aes(x = year, y = SpawnBio)) +
-                geom_vline(xintercept = 100, color = "gray") +
-                geom_line(aes(linetype = as.character(iteration), color = model_type))+
-                scale_color_manual(values = c("#D65F00", "black")) +
-                scale_linetype_manual(values = rep("solid", 50))+
-                guides(linetype = FALSE)+
-                facet_wrap(~scenario)+
-                theme_classic()
+                ggplot2::aes(x = year, y = SpawnBio)) +
+                ggplot2::geom_vline(xintercept = 100, color = "gray") +
+                ggplot2::geom_line(ggplot2::aes(linetype = as.character(iteration), color = model_type))+
+                ggplot2::scale_color_manual(values = c("#D65F00", "black")) +
+                ggplot2::scale_linetype_manual(values = rep("solid", 50)) +
+                ggplot2::guides(linetype = FALSE) +
+                ggplot2::facet_wrap(. ~ scenario) +
+                ggplot2::theme_classic()
 ```
 
 ![](man/figures/README-plot_SSB-1.png)<!-- -->
