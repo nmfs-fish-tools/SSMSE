@@ -135,7 +135,7 @@ dir.create(run_res_path)
 # run 1 iteration and 1 scenario of SSMSE using an EM.
 run_SSMSE(scen_name_vec = c("H-ctl", "H-1"), # name of the scenario
           out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-          iter_list = list(1:5, 1:5), # run with 5 iterations each
+          iter_vec = c(5,5), # run with 5 iterations each
           OM_name_vec = NULL, # specify directories instead
           OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
           EM_name_vec = c("cod", "cod"), # cod is included in package data

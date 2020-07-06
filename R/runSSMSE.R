@@ -150,14 +150,12 @@ run_SSMSE <- function(scen_list = NULL,
   set.seed(seed=NULL)
   #Now set the global, scenario, and iteration seeds that will be used as needed
   seed<-set_MSE_seeds(seed = seed,
-                      scen_name_vec = scen_list$scen_name_vec,
-                      iter_vec = scen_list$iter_vec)
+                      iter_vec = iter_vec)
   
   # Get directory of base OM files for each scenario as they may be different
   rec_stddev<-rep(0,length(scen_list$scen_name_vec))
   n_impl_error_groups <- rep(0,length(scen_list$scen_name_vec))
   rec_autoCorr<-list()
-  
   for(i in 1:length(scen_list$scen_name_vec)){
     if(!is.null(scen_list$OM_in_dir_vec)){
       OM_dir <- locate_in_dirs(scen_list$OM_name_vec[i], scen_list$OM_in_dir_vec[i])
