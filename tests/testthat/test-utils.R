@@ -380,29 +380,24 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
  })
  
  test_that("setting seeds works", {
-   scen_name_vec <- c("scen_1", "scen_2")
    iter_vec <- c(2,3)
-   seed_rand <- set_MSE_seeds(scen_name_vec = scen_name_vec, iter_vec = iter_vec)
+   seed_rand <- set_MSE_seeds(iter_vec = iter_vec)
    expect_true(length(seed_rand) == 3)
-   expect_true(length(seed_rand$scenario) == length(scen_name_vec))
+   expect_true(length(seed_rand$scenario) == length(iter_vec))
    expect_true(length(seed_rand$iter[[1]]) == iter_vec[1])
    expect_true(length(seed_rand$iter[[2]]) == iter_vec[2])
    seed_1 <- set_MSE_seeds(seed = 123, 
-                           scen_name_vec = scen_name_vec, 
                            iter_vec = iter_vec)
    seed_2 <- set_MSE_seeds(seed = 123, 
-                           scen_name_vec = scen_name_vec, 
                            iter_vec = iter_vec)
    expect_equal(seed_1, seed_2)
  })
  
  test_that("setting seeds works with diff expected seed inputs", {
-   scen_name_vec <- c("scen_1", "scen_2")
    iter_vec <- c(2, 3)
    # seed of length 3; does it make sense how these are set?
    seed_rand <- set_MSE_seeds(
      seed = c(10, 20, 30),
-     scen_name_vec = scen_name_vec,
      iter_vec = iter_vec)
    expect_length(seed_rand, 3)
    expect_equal(seed_rand$global, 10)
@@ -412,7 +407,6 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
    # seed of length 7
    seed_rand <- set_MSE_seeds(
      seed = c(10, 20, 30, 40, 50, 60, 70, 80),
-     scen_name_vec = scen_name_vec,
      iter_vec = iter_vec)
    expect_length(seed_rand, 3)
    expect_equal(seed_rand$global, 10)
@@ -422,14 +416,12 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
  })
  
  test_that("setting seeds works with list inputs", {
-   scen_name_vec <- c("scen_1", "scen_2")
    iter_vec <- c(2, 3)
    seed_input <- list(global = 10,
                       scenario = c(20, 30), 
                       iter = list(c(40, 50), c(60, 70, 80)))
    seed_rand <- set_MSE_seeds(
      seed = seed_input,
-     scen_name_vec = scen_name_vec,
      iter_vec = iter_vec)
    expect_equal(seed_rand, seed_input)
  })
@@ -437,7 +429,6 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
  test_that("setting seeds exits on error with bad input", {
    #need to check with NV on what are valid inputs for seed.
    expect_error(bad_val <- set_MSE_seeds(seed = c(1, 2, 3, 4),
-                            scen_name_vec = c("scen_1", "scen_2"),
                             iter_vec = c(2,3)),
                 "The length of your seed vector doesn't match either")
  })
