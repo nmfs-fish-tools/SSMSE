@@ -176,14 +176,14 @@ summary$scalar %>%
 # plot SSB by year and model run - need to correct using code from the 
 # think tank
 ggplot2::ggplot(data = subset(summary$ts, model_run %in% c("cod_OM", "cod-1_OM", "cod_EM_106")), 
-                aes(x = year, y = SpawnBio)) +
-                geom_vline(xintercept = 100, color = "gray") +
-                geom_line(aes(linetype = as.character(iteration), color = model_type))+
-                scale_color_manual(values = c("#D65F00", "black")) +
-                scale_linetype_manual(values = rep("solid", 50))+
-                guides(linetype = FALSE)+
-                facet_wrap(~scenario)+
-                theme_classic()
+                ggplot2::aes(x = year, y = SpawnBio)) +
+                ggplot2::geom_vline(xintercept = 100, color = "gray") +
+                ggplot2::geom_line(ggplot2::aes(linetype = as.character(iteration), color = model_type))+
+                ggplot2::scale_color_manual(values = c("#D65F00", "black")) +
+                ggplot2::scale_linetype_manual(values = rep("solid", 50)) +
+                ggplot2::guides(linetype = FALSE) +
+                ggplot2::facet_wrap(. ~ scenario) +
+                ggplot2::theme_classic()
 ```
 
 If you wish to delete the files created from this example, you can use:
