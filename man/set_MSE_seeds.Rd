@@ -4,15 +4,17 @@
 \alias{set_MSE_seeds}
 \title{Set the initial global, scenario, and iteration seeds}
 \usage{
-set_MSE_seeds(seed, scen_name_vec, iter_list)
+set_MSE_seeds(seed = NULL, iter_vec)
 }
 \arguments{
-\item{seed}{reads in the user specified seeds if any to allow replication of runs}
+\item{seed}{reads in the user specified seeds if any to allow replication of runs. Defaults to NULL.
+Can be 1) NULL (default); 2) An integer vector of length 1, length 1+length(scen_name_vec), or length 1 + length(scen_name_vec)+sum(iter_vec); 3) A list with 3 components the same as teh output of set_MSE_seeds}
 
-\item{scen_name_vec}{reads the user input scen_name_vec to determine the number of scenarios}
-
-\item{iter_list}{reads the user specified iteration list to determine the number of 
-iterations per scenario}
+\item{iter_vec}{The number of iterations per scenario. A vector of integers
+in the same order as scen_name_vec.}
+}
+\value{
+A list of length 3 with 1) the global seed value; 2) the scenario seed values; and 3) the iteration seed values.
 }
 \description{
 Set the initial global, scenario, and iteration seeds

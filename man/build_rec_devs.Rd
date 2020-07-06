@@ -12,7 +12,7 @@ build_rec_devs(
   rec_dev_pars,
   stddev,
   n_scenarios,
-  iter_list,
+  iter_vec,
   rec_autoCorr,
   seed
 )
@@ -32,7 +32,7 @@ build_rec_devs(
 
 \item{n_scenarios}{the number of scenarios simulated}
 
-\item{iter_list}{a list of iteration names.}
+\item{iter_vec}{a vector of number of iterations by scenario}
 
 \item{rec_autoCorr}{a list of auto-correlation paramters and standard deviations}
 

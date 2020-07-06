@@ -7,7 +7,7 @@
 create_scen_list(
   scen_name_vec,
   out_dir_scen_vec = NULL,
-  iter_list = NULL,
+  iter_vec = NULL,
   OM_name_vec = NULL,
   OM_in_dir_vec = NULL,
   EM_name_vec = NULL,
@@ -32,9 +32,8 @@ scen_name_vec, will match up with the names in scen_name_vec and ad a
 subfolder to each location using the names in scen_name_vec (this is mostly)
 to help verify which scenarios were run.}
 
-\item{iter_list}{A list of integers to refer each iteration of the scenario.
-The length of this vector will be the number of iterations run for the
-scenario.}
+\item{iter_vec}{The number of iterations by scenario. A vector of integers. In
+the same order as scen_name_vec.}
 
 \item{OM_name_vec}{Name of a valid Stock Synthesis stock assessment model from
 which to create the OM. Currently, only allows models in the package, so
@@ -84,7 +83,7 @@ can be used as input to run_SSMSE.
 scen_list <- create_scen_list(
                scen_name_vec = c("scen 1", "scen_2"),
                out_dir_scen_vec = file.path("path", "to", "dir"),
-               iter_list = list(1:2, 5:7),
+               iter_vec = list(1:2, 5:7),
                OM_name_vec = "cod",
                OM_in_dir_vec = NULL,
                EM_name_vec = "cod",
