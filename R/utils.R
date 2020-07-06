@@ -749,13 +749,13 @@ set_MSE_seeds<-function(seed = NULL, scen_name_vec, iter_vec)
 {
   if(is.null(seed)){
     seed<-list()
-    seed$global<-floor(runif(1,1000000,9999999))
+    seed$global<-floor(stats::runif(1,1000000,9999999))
     set.seed(seed=seed$global)
-    seed$scenario<-floor(runif(length(scen_name_vec),1000000,9999999))
+    seed$scenario<-floor(stats::runif(length(scen_name_vec),1000000,9999999))
     seed$iter<-list()
     for(i in 1:length(scen_name_vec)){
       set.seed(seed=seed$scenario[i])
-      seed$iter[[i]]<-floor(runif(iter_vec[i],1000000,9999999))
+      seed$iter[[i]]<-floor(stats::runif(iter_vec[i],1000000,9999999))
     }
   }else if(!is.list(seed)){
     if(length(seed)==1){
@@ -763,11 +763,11 @@ set_MSE_seeds<-function(seed = NULL, scen_name_vec, iter_vec)
       seed<-list()
       seed$global<-input.seed[1]
       set.seed(seed=seed$global)
-      seed$scenario<-floor(runif(length(scen_name_vec),1000000,9999999))
+      seed$scenario<-floor(stats::runif(length(scen_name_vec),1000000,9999999))
       seed$iter<-list()
       for(i in 1:length(scen_name_vec)){
         set.seed(seed=seed$scenario[i])
-        seed$iter[[i]]<-floor(runif(iter_vec[i],1000000,9999999))
+        seed$iter[[i]]<-floor(stats::runif(iter_vec[i],1000000,9999999))
       }
     }else if(length(seed)==(length(scen_name_vec)+1)){
       input.seed<-seed
@@ -779,7 +779,7 @@ set_MSE_seeds<-function(seed = NULL, scen_name_vec, iter_vec)
       seed$iter<-list()
       for(i in 1:length(scen_name_vec)){
         set.seed(seed=seed$scenario[i])
-        seed$iter[[i]]<-floor(runif(iter_vec[i],1000000,9999999))
+        seed$iter[[i]]<-floor(stats::runif(iter_vec[i],1000000,9999999))
       }
     }else if(length(iter_vec)==length(scen_name_vec)){
       if(length(seed)==(iter_vec[1]+length(scen_name_vec)+1)){
