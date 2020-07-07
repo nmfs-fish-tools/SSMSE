@@ -186,7 +186,7 @@ run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
   }
   if(is.null(rec_dev_pars)) {
     # to do: make this a better default value.
-    rec_dev_pars <- c(ceiling(mean(yrs_assess_vec)), 1)
+    rec_dev_pars <- c(ceiling(mean(nyrs_assess_vec)), 1)
   }
   
   # make sure values are the correct length

@@ -741,7 +741,7 @@ copy_SS_inputs <- function(dir.old = NULL,
 #' @param iter_vec The number of iterations per scenario. A vector of integers
 #'  in the same order as scen_name_vec.
 #' @returns A list of length 3 with 1) the global seed value; 2) the scenario seed values; and 3) the iteration seed values.
-#' @example set_MSE_seeds(seed = seq(10, 80, by = 10), iter_vec = c(2, 3))
+#' @examples  set_MSE_seeds(seed = seq(10, 80, by = 10), iter_vec = c(2, 3))
 set_MSE_seeds<-function(seed = NULL, iter_vec)
 {
   if(is.null(seed)){

@@ -19,3 +19,6 @@ A list of length 3 with 1) the global seed value; 2) the scenario seed values; a
 \description{
 Set the initial global, scenario, and iteration seeds
 }
+\examples{
+ set_MSE_seeds(seed = seq(10, 80, by = 10), iter_vec = c(2, 3))
+}

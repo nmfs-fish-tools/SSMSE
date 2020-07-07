@@ -5,34 +5,33 @@
 \title{Build an array of recruitment deviation vectors for every scenario and iteration}
 \usage{
 build_rec_devs(
-  yrs,
-  nyrs_assess,
-  scope,
-  rec_dev_pattern,
-  rec_dev_pars,
-  stddev,
+  rec_dev_pattern = c("none", "rand", "AutoCorr_rand", "AutoCorr_Spec", "vector"),
   n_scenarios,
+  yrs,
   iter_vec,
-  rec_autoCorr,
-  seed
+  scope = c("2", "1", "3"),
+  rec_dev_pars = NULL,
+  stddev = NULL,
+  rec_autoCorr = NULL,
+  seed = NULL
 )
 }
 \arguments{
-\item{yrs}{the number of years to simulate recruitment deviations for.}
+\item{rec_dev_pattern}{how to simulate recruitment devations.}
 
-\item{nyrs_assess}{the number of years between assessments.}
+\item{n_scenarios}{the number of scenarios simulated}
+
+\item{yrs}{the number of years to simulate recruitment deviations for for each 
+scenario. An integer vector with length n_scenarios.}
+
+\item{iter_vec}{An integer vector (with length n_scenarios) of number of iterations by
+scenario.}
 
 \item{scope}{scope over which recruitment devations will be randomized.}
-
-\item{rec_dev_pattern}{how to simulate recruitment devations.}
 
 \item{rec_dev_pars}{recruitment devation simulation parameters dependent on chosen pattern.}
 
 \item{stddev}{the standard deviation of simulated recruitment deviations}
-
-\item{n_scenarios}{the number of scenarios simulated}
-
-\item{iter_vec}{a vector of number of iterations by scenario}
 
 \item{rec_autoCorr}{a list of auto-correlation paramters and standard deviations}
 

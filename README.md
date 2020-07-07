@@ -96,6 +96,7 @@ library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
+## Warning in dir.create(run_SSMSE_dir): 'run_SSMSE-ex' already exists
 ```
 
 The cod model with H = 0.65 is included as external package data.
@@ -108,7 +109,10 @@ cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
 file.copy(from = cod_mod_path, to = run_SSMSE_dir, recursive = TRUE)
 ## [1] TRUE
 file.rename(from = file.path(run_SSMSE_dir, "cod"), to = file.path(run_SSMSE_dir, "cod-1"))
-## [1] TRUE
+## Warning in file.rename(from = file.path(run_SSMSE_dir, "cod"), to =
+## file.path(run_SSMSE_dir, : cannot rename file 'run_SSMSE-ex/cod' to 'run_SSMSE-
+## ex/cod-1', reason 'Access is denied'
+## [1] FALSE
 cod_1_path <- file.path(run_SSMSE_dir, "cod-1")
 # make model read initial values from control file and not ss.par
 start <- r4ss::SS_readstarter(file = file.path(cod_1_path, "starter.ss"), verbose = FALSE)
@@ -121,14 +125,14 @@ r4ss::SS_changepars(dir = cod_1_path, ctlfile = "control.ss_new",
 ## [1] "SR_BH_steep"
 ## These are the ctl file lines as they currently exist:
 ##      LO HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr
-## 107 0.2  1 0.65   0.7  0.05       0    -4            0        0         0
+## 107 0.2  1    1   0.7  0.05       0    -4            0        0         0
 ##     dev_maxyr dev_PH Block Block_Fxn       Label Linenum
 ## 107         0      0     0         0 SR_BH_steep     107
 ## line numbers in control file (n=1):
 ## 107
 ## wrote new file to control_modified.ss with the following changes:
 ##   oldvals newvals oldphase newphase oldlos newlos oldhis newhis oldprior
-## 1    0.65       1       -4       -4    0.2    0.2      1      1      0.7
+## 1       1       1       -4       -4    0.2    0.2      1      1      0.7
 ##   newprior oldprsd newprsd oldprtype newprtype       comment
 ## 1      0.7    0.05    0.05         0         0 # SR_BH_steep
 # remove files with M = 0.2
