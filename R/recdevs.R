@@ -78,29 +78,41 @@ calc_autoCor_rec_devs <- function(breaks, yrs, rec_autocorr_mean, rec_autocorr_s
 
 #' Build an array of recruitment deviation vectors for every scenario and iteration
 #'
-#' @param yrs the number of years to simulate recruitment deviations for.
-#' @param nyrs_assess the number of years between assessments.
-#' @param scope scope over which recruitment devations will be randomized.
 #' @param rec_dev_pattern how to simulate recruitment devations.
+#' @param n_scenarios the number of scenarios simulated
+#' @param yrs the number of years to simulate recruitment deviations for for each 
+#'  scenario. An integer vector with length n_scenarios.
+#' @param iter_vec An integer vector (with length n_scenarios) of number of iterations by
+#'  scenario. 
+#' @param scope scope over which recruitment devations will be randomized.
 #' @param rec_dev_pars recruitment devation simulation parameters dependent on chosen pattern.
 #' @param stddev the standard deviation of simulated recruitment deviations
-#' @param n_scenarios the number of scenarios simulated
-#' @param iter_vec a vector of number of iterations by scenario
 #' @param rec_autoCorr a list of auto-correlation paramters and standard deviations
 #' @param seed a list prespecified random seed values to enable replication of simulated rec devs
 #' @return A list of scenarios with lists of interations in each with a vector of
 #'  rec devs for each simulation year.
-build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_pars, stddev, n_scenarios, iter_vec, rec_autoCorr, seed) {
-
-  if (is.null(rec_dev_pars)) {
-    rec_dev_pars <- c(nyrs_assess[1], 1)
-  }
-  
-  rec_dev_list <- list()
-  
+build_rec_devs <- function(
+  rec_dev_pattern = c("none", "rand", "AutoCorr_rand", "AutoCorr_Spec", 
+                      "vector"),
+  n_scenarios,
+  yrs,
+  iter_vec,
+  scope = c("2", "1", "3"),
+  rec_dev_pars = NULL,
+  stddev = NULL,
+  rec_autoCorr = NULL, 
+  seed = NULL) {
+  #input checks - to add
+  scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
+  rec_dev_pattern <- match.arg(rec_dev_pattern, 
+                               choices = c("none", "rand", "AutoCorr_rand", 
+                                           "AutoCorr_Spec", "vector"))
+  # initialize the vector.
+  rec_dev_list <- vector(mode = "list", length = n_scenarios)
+  # pattern specific filling of recdevs.
   if (rec_dev_pattern == "none") {
     for (i in 1:n_scenarios) {
-      rec_dev_list[[i]] <- list()
+      rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       for (j in 1:iter_vec[i]) {
         rec_dev_list[[i]][[j]] <- rep(0, yrs[i])
       }
@@ -114,7 +126,7 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
         
         rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i])
       }
-      rec_dev_list[[i]] <- list()
+      rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) { 
         
         set.seed(seed$scenario[i])
@@ -143,7 +155,7 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
         
         rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, c(0,0,0,0))
       }
-      rec_dev_list[[i]] <- list()
+      rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) { 
         
         set.seed(seed$scenario[i])
@@ -169,7 +181,7 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
         
         rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autoCorr[[i]]$mean, rec_autoCorr[[i]]$sd)
       }
-      rec_dev_list[[i]] <- list()
+      rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) { 
         
         set.seed(seed$scenario[i])
@@ -194,7 +206,7 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
         rec_dev_seq <- rec_dev_pars
         check_recdev_error(length(rec_dev_seq), (yrs[i]))
       }
-      rec_dev_list[[i]] <- list()
+      rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) {
         rec_dev_seq <- rec_dev_pars[i, ]
         check_recdev_error(length(rec_dev_seq), (yrs[i]))

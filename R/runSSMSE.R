@@ -120,14 +120,20 @@ run_SSMSE <- function(scen_list = NULL,
                       use_SS_boot_vec = TRUE,
                       nyrs_vec = 6,
                       nyrs_assess_vec = 3,
-                      scope = 2,
-                      rec_dev_pattern = "none",
+                      scope = c("2", "1", "3"),
+                      rec_dev_pattern = c("none", "rand", "AutoCorr_rand", 
+                                          "AutoCorr_Spec", "vector"),
                       rec_dev_pars = NULL,
                       impl_error_pattern = "none",
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
                       verbose = FALSE,
                       seed=NULL) {
+  # input checks
+  scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
+  rec_dev_pattern <- match.arg(rec_dev_pattern, 
+                               choices = c("none", "rand", "AutoCorr_rand", 
+                                           "AutoCorr_Spec", "vector"))
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   if (is.null(scen_list)) {
@@ -188,7 +194,11 @@ run_SSMSE <- function(scen_list = NULL,
     }
     
   }
-    rec_dev_list <- build_rec_devs(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, n_scenarios = length(scen_list), iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
+  if(is.null(rec_dev_pars)) {
+    # to do: make this a better default value.
+    rec_dev_pars <- c(ceiling(mean(yrs_assess_vec)), 1)
+  }
+    rec_dev_list <- build_rec_devs(yrs = nyrs_vec,scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, n_scenarios = length(scen_list), iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
 
     
 
