@@ -2,14 +2,6 @@
 #'
 #' High level function to run a management strategy evaluation using Stock
 #' Synthesis as the Operating model(s)
-#' @param scen_list A list containing the design for all scenarios and
-#'  iterations of the model. Each list component is named according to its
-#'  scenario and contains a list of the other parameters below, asides from
-#'  scen_name vec.
-#'  Contains columns for each of the parameters listed
-#'  below, except verbose. If a column is missing, its value is assumed to be
-#'  null or NA, as appropriate. Note that all other inputs (except for verbose)
-#'  are ignored if scen_list is specified.
 #' @param scen_name_vec A vector containing names of the scenarios. The each
 #'  string will be a directory containing all the model runs for a scenario.s
 #' @param out_dir_scen_vec The directory to which to write output. IF NULL, will
@@ -108,8 +100,7 @@
 #'                           sample_struct_list = my_sample_struct_list)
 #'   unlink(my_dir, recursive = TRUE)
 #' }
-run_SSMSE <- function(scen_list = NULL,
-                      scen_name_vec = c("scen_1", "scen_2"),
+run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
                       out_dir_scen_vec = NULL,
                       iter_vec = c(2, 2),
                       OM_name_vec = "cod",
@@ -136,20 +127,18 @@ run_SSMSE <- function(scen_list = NULL,
                                            "AutoCorr_Spec", "vector"))
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
-  if (is.null(scen_list)) {
-    scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
-                                  out_dir_scen_vec = out_dir_scen_vec,
-                                  iter_vec = iter_vec,
-                                  OM_name_vec = OM_name_vec,
-                                  OM_in_dir_vec = OM_in_dir_vec,
-                                  EM_name_vec = EM_name_vec,
-                                  EM_in_dir_vec = EM_in_dir_vec,
-                                  MS_vec = MS_vec,
-                                  use_SS_boot_vec = use_SS_boot_vec,
-                                  nyrs_vec = nyrs_vec,
-                                  nyrs_assess_vec = nyrs_assess_vec,
-                                  sample_struct_list = sample_struct_list)
-  }
+  scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
+                                out_dir_scen_vec = out_dir_scen_vec,
+                                iter_vec = iter_vec,
+                                OM_name_vec = OM_name_vec,
+                                OM_in_dir_vec = OM_in_dir_vec,
+                                EM_name_vec = EM_name_vec,
+                                EM_in_dir_vec = EM_in_dir_vec,
+                                MS_vec = MS_vec,
+                                use_SS_boot_vec = use_SS_boot_vec,
+                                nyrs_vec = nyrs_vec,
+                                nyrs_assess_vec = nyrs_assess_vec,
+                                sample_struct_list = sample_struct_list)
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)
   #First reset the R random seed
