@@ -144,8 +144,9 @@ run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
   #First reset the R random seed
   set.seed(seed=NULL)
   #Now set the global, scenario, and iteration seeds that will be used as needed
+  
   seed<-set_MSE_seeds(seed = seed,
-                      iter_vec = iter_vec)
+                      iter_vec = unlist(lapply(scen_list, function(scen) scen["iter"])))
   # Get directory of base OM files for each scenario as they may be different
   rec_stddev<-rep(0,length(scen_list))
   n_impl_error_groups <- rep(0,length(scen_list))
@@ -187,20 +188,32 @@ run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
     # to do: make this a better default value.
     rec_dev_pars <- c(ceiling(mean(yrs_assess_vec)), 1)
   }
+  
+  # make sure values are the correct length
+  nyrs_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs"]))
+  nyrs_assess_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs_assess"]))
+  iter_vec <- unlist(lapply(scen_list, function(scen) scen["iter"]))
+  
     rec_dev_list <- build_rec_devs(yrs = nyrs_vec,scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, n_scenarios = length(scen_list), iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
 
     
 
     impl_error <- build_impl_error(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, n_impl_error_groups = n_impl_error_groups, scope = scope, impl_error_pattern = impl_error_pattern, impl_error_pars = impl_error_pars, n_scenarios = length(scen_list), iter_vec = iter_vec, seed = seed)
-
+  # add recdevs, impl_err, and seed to scen_list
+  for(i in seq_along(scen_list)) {
+    scen_list[[i]][["rec_devs"]] <- rec_dev_list[[i]]
+    scen_list[[i]][["impl_error"]] <- impl_error[[i]]
+    scen_seed <- vector(mode = "list", length = 3)
+    names(scen_seed) <- c("global", "scenario", "iter")
+    scen_seed[["global"]] <- seed[["global"]]
+    scen_seed[["scenario"]] <- seed[["scenario"]][i]
+    scen_seed[["iter"]] <- seed[["iter"]][[i]]
+    scen_list[[i]][["scen_seed"]] <- scen_seed
+  }
+    
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
-    scen_seed <- vector(mode = "list", length = 3)
-    names(scen_seed) <- c("global", "scenario", "iter")
-    scen_seed$global <- seed$global
-    scen_seed$scenario <- seed$scenario[i]
-    scen_seed$iter <- seed$iter[[i]]
     # run for each scenario
     run_SSMSE_scen(scen_name = names(scen_list)[i],
                    out_dir_scen = tmp_scen[["out_dir_scen"]],
@@ -213,9 +226,9 @@ run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
                    use_SS_boot = tmp_scen[["use_SS_boot"]],
                    nyrs = tmp_scen[["nyrs"]],
                    nyrs_assess = tmp_scen[["nyrs_assess"]],
-                   rec_devs_scen = rec_dev_list[[i]],
-                   impl_error = impl_error[[i]],
-                   scen_seed = scen_seed,
+                   rec_devs_scen = tmp_scen[["rec_devs"]],
+                   impl_error = tmp_scen[["impl_error"]],
+                   scen_seed = tmp_scen[["scen_seed"]],
                    sample_struct = tmp_scen[["sample_struct"]],
                    verbose = verbose)
   }
