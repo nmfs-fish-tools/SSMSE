@@ -63,8 +63,9 @@ check_recdev_error <- function(length_recdev_seq, expected_length) {
 #' @param yrs the number of years to simulate recruitment deviations for
 #' @param rec_autocorr_mean a vector of the mean estimated autocorrelation parameters with length equal to the order of the timelag
 #' @param rec_autocorr_sd a vector of the standard deviation of estimated autocorrelation parameters with length equal to the order of the timelag
+#' @param stddev the standard deviation of simulated recruitment deviations
 #' @return a vector of recruitment deviations.
-calc_autoCor_rec_devs <- function(breaks, yrs, rec_autocorr_mean, rec_autocorr_sd) {
+calc_autoCor_rec_devs <- function(breaks, yrs, rec_autocorr_mean, rec_autocorr_sd, stddev) {
   model_parms<-stats::rnorm(n=length(rec_autocorr_mean),mean=rec_autocorr_mean,sd=rec_autocorr_sd)
   rec_dev_seq <- as.vector(stats::arima.sim(model=list(ma=model_parms), n=yrs))
   for (k in 1:(length(breaks) - 1)) {
@@ -141,21 +142,21 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
         
         set.seed(seed$global)
         
-        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, c(0,0,0,0))
+        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, c(0,0,0,0), stddev[i])
       }
       rec_dev_list[[i]] <- list()
       if (scope == 2) { 
         
         set.seed(seed$scenario[i])
         
-        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd)
+        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd, stddev[i])
       }
       for (j in 1:length(iter_list[[i]])) {
         if (scope == 3) { 
           
           set.seed(seed$iter[[i]][j])
           
-          rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd)
+          rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd, stddev[i])
         }
         rec_dev_list[[i]][[j]] <- rec_dev_seq
       }
@@ -167,21 +168,21 @@ build_rec_devs <- function(yrs, nyrs_assess, scope, rec_dev_pattern, rec_dev_par
         
         set.seed(seed$global)
         
-        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autoCorr[[i]]$mean, rec_autoCorr[[i]]$sd)
+        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autoCorr[[i]]$mean, rec_autoCorr[[i]]$sd, stddev[i])
       }
       rec_dev_list[[i]] <- list()
       if (scope == 2) { 
         
         set.seed(seed$scenario[i])
         
-        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autoCorr[[i]]$mean, rec_autoCorr[[i]]$sd)
+        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autoCorr[[i]]$mean, rec_autoCorr[[i]]$sd, stddev[i])
       }
       for (j in 1:length(iter_list[[i]])) {
         if (scope == 3) { 
           
           set.seed(seed$iter[[i]][j])
           
-          rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autoCorr[[i]]$mean, rec_autoCorr[[i]]$sd)
+          rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autoCorr[[i]]$mean, rec_autoCorr[[i]]$sd, stddev[i])
         }
         rec_dev_list[[i]][[j]] <- rec_dev_seq
       }
