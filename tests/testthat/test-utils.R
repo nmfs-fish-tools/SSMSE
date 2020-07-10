@@ -432,3 +432,20 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
                             iter_vec = c(2,3)),
                 "The length of your seed vector doesn't match either")
  })
+ 
+ test_that("locate_in_dirs works", {
+   OM_dir <- locate_in_dirs(OM_name = "cod", OM_in_dir = NULL)
+   expect_true(basename(OM_dir$OM_in_dir) == "cod" )
+   OM_dir <- locate_in_dirs(OM_name = NULL, OM_in_dir = "path/to/model")
+   expect_true(OM_dir$OM_in_dir  == "path/to/model")
+   OM_dir <- locate_in_dirs(OM_name = "cod", OM_in_dir = "path/to/model")
+   expect_true(OM_dir$OM_in_dir  == "path/to/model")
+   expect_error(locate_in_dirs(OM_name = NULL, OM_in_dir = NULL), 
+                "OM_name and OM_in_dir are both NULL")
+   expect_error(locate_in_dirs(OM_name = NULL, 
+     OM_in_dir = c("path/to/model", "this/path/is/bad/input")), 
+     "is_a_string")
+   expect_error(locate_in_dirs(OM_name = c("cod", "bad_input"), 
+                               OM_in_dir = NULL), "is_a_string")
+ })
+ 
