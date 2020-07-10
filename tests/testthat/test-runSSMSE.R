@@ -8,46 +8,48 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
 
-test_that("run_SSMSE_iter runs with an EM", {
+test_that("run_SSMSE runs with an EM", {
   skip_on_travis()
   skip_on_cran()
-  catch_add_yrs <- 101:106
-  add_yrs <- c(102, 105)
-  result <- run_SSMSE_iter(OM_name = "cod",
-                 MS = "EM",
-                 out_dir = temp_path,
-                 EM_name = "cod",
-                 nyrs = 6,
-                 rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
-                 impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
-                 nyrs_assess = 3,
-                 iter_seed = list(global=12345,scenario=123456,iter=1234567),
-                 sample_struct = list(
-                   catch = data.frame(Yr = catch_add_yrs, Seas = 1, FltSvy = 1),
-                   CPUE = data.frame(Yr = add_yrs, Seas = 7, FltSvy = 2),
-                   lencomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 1,
-                                        Sex = 0, Part = 0),
-                   agecomp = data.frame(Yr = add_yrs, Seas = 1, FltSvy = 2,
-                                        Sex = 0, Part = 0, Ageerr = 1,
-                                        Lbin_lo = -1, Lbin_hi = -1)
-                 )
-  )
-  expect_true(file.exists(file.path(temp_path, "1", "cod_OM", "data.ss_new")))
-  expect_true(result)
+  nyrs <- 6
+  datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+  # use sample_struct to determine its structure
+  sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
+  sample_struct$lencomp <- NULL
+  result <- run_SSMSE(scen_name_vec = "H-ctl", # name of the scenario
+                      out_dir_scen_vec = temp_path, # directory in which to run the scenario
+                      iter_vec = 1, # run with 5 iterations each
+                      OM_name_vec = "cod", 
+                      EM_name_vec = "cod", # cod is included in package data
+                      MS_vec = "EM",       # The management strategy is specified in the EM
+                      use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
+                      nyrs_vec = nyrs,        # Years to project OM forward
+                      nyrs_assess_vec = 3, # Years between assessments
+                      rec_dev_pattern = "none", # Don't use recruitment deviations
+                      impl_error_pattern = "none", # Don't use implementation error
+                      sample_struct_list = list(sample_struct), # How to sample data for running the EM.
+                      seed = 12345) #Set a fixed integer seed that allows replication 
+  expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
+  expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
+  expect_length(result, 1)
   # some more specific values, specific to the scenario above.
-  dat <- SS_readdat(file.path(temp_path, "1", "cod_EM_106", "data.ss_new"), verbose = FALSE)
-  added_catch <- dat$catch[dat$catch$year %in% catch_add_yrs, ]
-  old_catch <- dat$catch[dat$catch$year < min(catch_add_yrs), ]
-  expect_true(all(added_catch$catch_se == 0.005))
-  added_CPUE <- dat$CPUE[dat$CPUE$year >= min(catch_add_yrs), ]
-  expect_true(all(add_yrs %in% unique(added_CPUE$year)))
-  added_lencomp <- dat$lencomp[dat$lencomp$Yr %in% add_yrs, ]
-  expect_true(all(add_yrs %in% unique(added_lencomp$Yr)))
-  added_agecomp <- dat$agecomp[dat$agecomp$Yr %in% add_yrs, ]
-  expect_true(all(add_yrs %in% unique(added_agecomp$Yr)))
-  
+  dat <- SS_readdat(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new"), verbose = FALSE)
+  added_catch <- dat$catch[dat$catch$year %in% sample_struct$catch$Yr, ]
+  old_catch <- dat$catch[dat$catch$year < min(sample_struct$catch$Yr), ]
+  expect_true(all(added_catch$catch_se == unique(sample_struct$catch$SE)))
+  added_CPUE <- dat$CPUE[dat$CPUE$year >= min(sample_struct$CPUE$Yr), ]
+  expect_true(all(sample_struct$CPUE$Yr %in% unique(added_CPUE$year)))
+  added_agecomp <- dat$agecomp[dat$agecomp$Yr %in% sample_struct$agecomp$Yr, ]
+  expect_true(all(sample_struct$agecomp$Yr %in% unique(added_agecomp$Yr)))
+})
+
+test_that("functions in results.R works", {
   # summarize 1 iteration of results
-  summary <- SSMSE_summary_iter(file.path(temp_path, "1"))
+  summary_iter <- SSMSE_summary_iter(file.path(temp_path, "H-ctl", "1"))
+  expect_true(length(summary_iter) == 3)
+  summary_scen <- SSMSE_summary_scen(file.path(temp_path, "H-ctl"))
+  expect_true(length(summary_scen) == 3)
+  summary <- SSMSE_summary_all(temp_path, scenarios = "H-ctl")
   expect_true(length(summary) == 3)
 })
 
@@ -105,3 +107,6 @@ test_that("cod works when treated as a custom model", {
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
 })
+
+
+
