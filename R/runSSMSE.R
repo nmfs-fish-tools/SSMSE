@@ -115,7 +115,7 @@ run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
                       rec_dev_pattern = c("none", "rand", "AutoCorr_rand", 
                                           "AutoCorr_Spec", "vector"),
                       rec_dev_pars = NULL,
-                      impl_error_pattern = "none",
+                      impl_error_pattern = c("none", "rand", "user"),
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
                       verbose = FALSE,
@@ -125,6 +125,8 @@ run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
   rec_dev_pattern <- match.arg(rec_dev_pattern, 
                                choices = c("none", "rand", "AutoCorr_rand", 
                                            "AutoCorr_Spec", "vector"))
+  impl_error_pattern <- match.arg(impl_error_pattern, 
+                                  choices = c("none", "rand", "user"))
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
