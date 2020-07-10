@@ -8,7 +8,7 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
 
-test_that("run_SSMSE runs with an EM", {
+test_that("run_SSMSE runs with an EM, and works with summary funs", {
   skip_on_travis()
   skip_on_cran()
   nyrs <- 6
@@ -41,9 +41,6 @@ test_that("run_SSMSE runs with an EM", {
   expect_true(all(sample_struct$CPUE$Yr %in% unique(added_CPUE$year)))
   added_agecomp <- dat$agecomp[dat$agecomp$Yr %in% sample_struct$agecomp$Yr, ]
   expect_true(all(sample_struct$agecomp$Yr %in% unique(added_agecomp$Yr)))
-})
-
-test_that("functions in results.R works", {
   # summarize 1 iteration of results
   summary_iter <- SSMSE_summary_iter(file.path(temp_path, "H-ctl", "1"))
   expect_true(length(summary_iter) == 3)
