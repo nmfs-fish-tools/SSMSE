@@ -97,7 +97,7 @@ test_that("Build recdevs works as expected for option autocorrelated random", {
                             iter_vec = iter_vec,
                             scope = 3,
                             rec_dev_pars = c(3, 1),
-                            stddev = list(0.2, 0.2),
+                            stddev = c(0.2, 0.2),
                             rec_autoCorr = rec_autoCorr,
                             seed = seed_vals)
   expect_length(recdevs, 2)
@@ -120,13 +120,14 @@ test_that("Build recdevs works as expected for option autocorrelated specified",
                             iter_vec = iter_vec,
                             scope = 3,
                             rec_dev_pars = c(3, 1),
-                            stddev = list(0.2, 0.2),
+                            stddev = c(0.2, 0.2),
                             rec_autoCorr = rec_autoCorr,
                             seed = seed_vals)
   expect_length(recdevs, 2)
   expect_length(recdevs[[1]], iter_vec[1])
 })
 
+#TODO: add tests for vector option (the custom recdevs list???)
 # test_that("Build recdevs works as expected for custom values", {
 #   iter_vec <- c(3,2)
 #   seed_vals <- set_MSE_seeds(seed = 123, iter_vec = iter_vec)
