@@ -96,35 +96,58 @@
 #'   # Use the default parameter values, except for the once specified.
 #'   # Note that the scen_list, either specified or internally created in the
 #'   # function is returned.
-#'   input_list <- run_SSMSE(out_dir_scen_vec = my_dir,
+#'   input_list <- run_SSMSE(
+#'                           scen_name_vec = c("scen_1", "scen_2")
+#'                           out_dir_scen_vec = my_dir,
+#'                           iter_vec = c(2, 2),
+#'                           OM_name_vec = c("cod","cod"),
+#'                           OM_in_dir_vec = NULL,
+#'                           EM_name_vec = c(NA, "cod"),
+#'                           EM_in_dir_vec = NULL,
+#'                           MS_vec = c("no_catch", "EM"),
+#'                           use_SS_boot_vec = TRUE,
+#'                           nyrs_vec = 6,
+#'                           nyrs_assess_vec = 3,
+#'                           scope = c("2", "1", "3"),
+#'                           rec_dev_pattern = c("none", "rand", "AutoCorr_rand",
+#'                                                 "AutoCorr_Spec", "vector"),
+#'                           rec_dev_pars = NULL,
+#'                           impl_error_pattern = c("none", "rand", "user"),
+#'                           impl_error_pars = NULL,
+#'                           verbose = FALSE,
+#'                           seed=NULL
 #'                           sample_struct_list = my_sample_struct_list)
 #'   unlink(my_dir, recursive = TRUE)
 #' }
-run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
+run_SSMSE <- function(scen_name_vec,
                       out_dir_scen_vec = NULL,
-                      iter_vec = c(2, 2),
-                      OM_name_vec = "cod",
+                      iter_vec,
+                      OM_name_vec = NULL,
                       OM_in_dir_vec = NULL,
-                      EM_name_vec = c(NA, "cod"),
+                      EM_name_vec = NULL,
                       EM_in_dir_vec = NULL,
-                      MS_vec = c("no_catch", "EM"),
+                      MS_vec = c("EM", "no_catch"),
                       use_SS_boot_vec = TRUE,
-                      nyrs_vec = 6,
-                      nyrs_assess_vec = 3,
+                      nyrs_vec,
+                      nyrs_assess_vec,
                       scope = c("2", "1", "3"),
                       rec_dev_pattern = c("none", "rand", "AutoCorr_rand", 
                                           "AutoCorr_Spec", "vector"),
                       rec_dev_pars = NULL,
-                      impl_error_pattern = "none",
+                      impl_error_pattern = c("none", "rand", "user"),
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
                       verbose = FALSE,
-                      seed=NULL) {
+                      seed = NULL) {
   # input checks
   scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
   rec_dev_pattern <- match.arg(rec_dev_pattern, 
                                choices = c("none", "rand", "AutoCorr_rand", 
                                            "AutoCorr_Spec", "vector"))
+  impl_error_pattern <- match.arg(impl_error_pattern, 
+                                  choices = c("none", "rand", "user"))
+  MS_vec <- match.arg(MS_vec, 
+                      choices = c("EM", "no_catch"))
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(scen_name_vec = scen_name_vec,

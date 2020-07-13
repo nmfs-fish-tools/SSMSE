@@ -80,6 +80,13 @@ test_that("create_sample_struct works", {
   expect_mult_SE$catch$SE <- NA
   expect_equal(sample_struct_mult_SE, expect_mult_SE)
   # todo: maybe need to expand this to account for CAL data?
+  
+  # test that create_sample_structure works when a pattern found but there is 
+  # no data to add for the nyrs specified
+  expect_warning(sample_struct_no_dat <- 
+                   create_sample_struct(OM_dat_path, nyrs = 1))
+  expect_equivalent(sample_struct_no_dat[["CPUE"]], 
+                    data.frame(Yr = NA, Seas = 7, FltSvy = 2, SE = 0.2))
 })
 
 test_that("get_full_sample_struct works", {

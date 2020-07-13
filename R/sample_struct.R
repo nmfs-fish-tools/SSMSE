@@ -108,10 +108,21 @@ create_sample_struct <- function(dat, nyrs) {
         if (all(!is.na(pat)) && all(pat == tmp_yrs)) { # a pattern was found
           future_pat <- seq(pat[length(pat)], dat$endyr + nyrs, by = tmp_diff)
           future_pat <- future_pat[future_pat > dat$endyr]
-          future_pat <- data.frame(Yr = future_pat,
-                                   Seas = tmp_seas,
-                                   FltSvy = tmp_flt,
-                                   stringsAsFactors = FALSE)
+          if (length(future_pat) > 0) {
+            future_pat <- data.frame(Yr = future_pat,
+                                     Seas = tmp_seas,
+                                     FltSvy = tmp_flt,
+                                     stringsAsFactors = FALSE)
+          } else {
+            message("Pattern found for ", name, ": FltSvy ", tmp_flt,
+                    ", Seas ", tmp_seas, ", but no data to add for the ",
+                    "timeframe specified. Returning NA for Yr in this ",
+                    "dataframe.")
+            future_pat <- data.frame(Yr = NA,
+                                     Seas = tmp_seas,
+                                     FltSvy = tmp_flt,
+                                     stringsAsFactors = FALSE)
+          }
         } else {
           # the pattern was not found
           warning("Pattern not found for ", name, ": FltSvy ", tmp_flt, 
