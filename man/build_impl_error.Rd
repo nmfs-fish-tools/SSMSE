@@ -12,7 +12,7 @@ build_impl_error(
   impl_error_pattern,
   impl_error_pars,
   n_scenarios,
-  iter_list,
+  iter_vec,
   seed
 )
 }
@@ -31,7 +31,7 @@ build_impl_error(
 
 \item{n_scenarios}{The number of scenarios simulated}
 
-\item{iter_list}{a list of iteration names.}
+\item{iter_vec}{a vector of iteration names.}
 
 \item{seed}{a list prespecified random seed values to enable replication of simulated implementation error}
 }

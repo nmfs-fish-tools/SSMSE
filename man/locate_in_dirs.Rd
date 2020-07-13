@@ -4,13 +4,15 @@
 \alias{locate_in_dirs}
 \title{Locate the OM model files}
 \usage{
-locate_in_dirs(OM_name, OM_in_dir)
+locate_in_dirs(OM_name = NULL, OM_in_dir = NULL)
 }
 \arguments{
-\item{OM_name}{Name of OM model.}
+\item{OM_name}{Name of OM model.Defaults to NULL. OM_name should be a string 
+of length 1.}
 
 \item{OM_in_dir}{Relative or absolute path to the operating model. NULL if
-using SSMSE package model.}
+using SSMSE package model. Defaults to NULL. OM_in dir should be a string 
+of length 1.}
 }
 \value{
 A list with on comonent, OM_in_dir, which contains the model location

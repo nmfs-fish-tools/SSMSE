@@ -9,7 +9,7 @@ test_that("create_scen_list works as expected", {
   scen_list <- list(scen_1 =
                        list(
                          out_dir_scen = out_dir,
-                         iter = 1:2,
+                         iter = 1,
                          OM_name = "cod",
                          OM_in_dir = NULL,
                          EM_name = "cod",
@@ -23,7 +23,7 @@ test_that("create_scen_list works as expected", {
                       scen_2 =
                         list(
                           out_dir_scen = out_dir,
-                          iter = 1:2,
+                          iter = 2,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = "cod",
@@ -37,7 +37,7 @@ test_that("create_scen_list works as expected", {
                        )
 
  scen_list_out <- create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
-                                    iter_list = list(1:2),
+                                    iter_vec = 1:2,
                                     OM_name_vec = "cod",
                                     OM_in_dir_vec = NULL,
                                     use_SS_boot_vec = TRUE,
@@ -57,7 +57,7 @@ test_that("create_scen_list works with NAs", {
   scen_list <- list(scen_1 =
                         list(
                           out_dir_scen = out_dir,
-                          iter = 1:2,
+                          iter = 1,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = "cod",
@@ -71,7 +71,7 @@ test_that("create_scen_list works with NAs", {
                       scen_2 =
                         list(
                           out_dir_scen = out_dir,
-                          iter = 1:2,
+                          iter = 2,
                           OM_name = "cod",
                           OM_in_dir = NULL,
                           EM_name = NULL,
@@ -84,7 +84,7 @@ test_that("create_scen_list works with NAs", {
                         )
   )
   scen_list_out <- create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
-                                     iter_list = list(1:2),
+                                     iter_vec = 1:2,
                                      OM_name_vec = "cod",
                                      OM_in_dir_vec = NULL,
                                      use_SS_boot_vec = TRUE,
@@ -377,5 +377,75 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
    expect_true(all(clean_dat_list_2$EM_dat$CPUE$year >= 0))
    expect_true(all(clean_dat_list_2$EM_dat$agecomp$Yr >= 0))
    expect_true(is.null(clean_dat_list_2[[2]]))
+ })
+ 
+ test_that("setting seeds works", {
+   iter_vec <- c(2,3)
+   seed_rand <- set_MSE_seeds(iter_vec = iter_vec)
+   expect_true(length(seed_rand) == 3)
+   expect_true(length(seed_rand$scenario) == length(iter_vec))
+   expect_true(length(seed_rand$iter[[1]]) == iter_vec[1])
+   expect_true(length(seed_rand$iter[[2]]) == iter_vec[2])
+   seed_1 <- set_MSE_seeds(seed = 123, 
+                           iter_vec = iter_vec)
+   seed_2 <- set_MSE_seeds(seed = 123, 
+                           iter_vec = iter_vec)
+   expect_equal(seed_1, seed_2)
+ })
+ 
+ test_that("setting seeds works with diff expected seed inputs", {
+   iter_vec <- c(2, 3)
+   # seed of length 3; does it make sense how these are set?
+   seed_rand <- set_MSE_seeds(
+     seed = c(10, 20, 30),
+     iter_vec = iter_vec)
+   expect_length(seed_rand, 3)
+   expect_equal(seed_rand$global, 10)
+   expect_equal(seed_rand$scenario, c(20, 30))
+   expect_equal(length(seed_rand$iter[[1]]), iter_vec[1])
+   expect_equal(length(seed_rand$iter[[2]]), iter_vec[2])
+   # seed of length 7
+   seed_rand <- set_MSE_seeds(
+     seed = c(10, 20, 30, 40, 50, 60, 70, 80),
+     iter_vec = iter_vec)
+   expect_length(seed_rand, 3)
+   expect_equal(seed_rand$global, 10)
+   expect_equal(seed_rand$scenario, c(20, 30))
+   expect_equal(seed_rand$iter[[1]], c(40, 50))
+   expect_equal(seed_rand$iter[[2]], c(60, 70, 80))
+ })
+ 
+ test_that("setting seeds works with list inputs", {
+   iter_vec <- c(2, 3)
+   seed_input <- list(global = 10,
+                      scenario = c(20, 30), 
+                      iter = list(c(40, 50), c(60, 70, 80)))
+   seed_rand <- set_MSE_seeds(
+     seed = seed_input,
+     iter_vec = iter_vec)
+   expect_equal(seed_rand, seed_input)
+ })
+
+ test_that("setting seeds exits on error with bad input", {
+   #need to check with NV on what are valid inputs for seed.
+   expect_error(bad_val <- set_MSE_seeds(seed = c(1, 2, 3, 4),
+                            iter_vec = c(2,3)),
+                "The length of your seed vector doesn't match either")
+ })
+ 
+ test_that("locate_in_dirs works", {
+   OM_dir <- locate_in_dirs(OM_name = "cod", OM_in_dir = NULL)
+   expect_true(basename(OM_dir$OM_in_dir) == "cod" )
+   OM_dir <- locate_in_dirs(OM_name = NULL, OM_in_dir = "path/to/model")
+   expect_true(OM_dir$OM_in_dir  == "path/to/model")
+   OM_dir <- locate_in_dirs(OM_name = "cod", OM_in_dir = "path/to/model")
+   expect_true(OM_dir$OM_in_dir  == "path/to/model")
+   expect_error(locate_in_dirs(OM_name = NULL, OM_in_dir = NULL), 
+                "OM_name and OM_in_dir are both NULL")
+   expect_error(locate_in_dirs(OM_name = NULL, 
+     OM_in_dir = c("path/to/model", "this/path/is/bad/input")), 
+     "is_a_string")
+   expect_error(locate_in_dirs(OM_name = c("cod", "bad_input"), 
+                               OM_in_dir = NULL), "is_a_string")
  })
  

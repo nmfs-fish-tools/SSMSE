@@ -5,10 +5,9 @@
 \title{run an MSE using SS OMs}
 \usage{
 run_SSMSE(
-  scen_list = NULL,
   scen_name_vec = c("scen_1", "scen_2"),
   out_dir_scen_vec = NULL,
-  iter_list = list(1:2, 1:2),
+  iter_vec = c(2, 2),
   OM_name_vec = "cod",
   OM_in_dir_vec = NULL,
   EM_name_vec = c(NA, "cod"),
@@ -17,8 +16,8 @@ run_SSMSE(
   use_SS_boot_vec = TRUE,
   nyrs_vec = 6,
   nyrs_assess_vec = 3,
-  scope = 2,
-  rec_dev_pattern = "none",
+  scope = c("2", "1", "3"),
+  rec_dev_pattern = c("none", "rand", "AutoCorr_rand", "AutoCorr_Spec", "vector"),
   rec_dev_pars = NULL,
   impl_error_pattern = "none",
   impl_error_pars = NULL,
@@ -28,24 +27,14 @@ run_SSMSE(
 )
 }
 \arguments{
-\item{scen_list}{A list containing the design for all scenarios and
-iterations of the model. Each list component is named according to its
-scenario and contains a list of the other parameters below, asides from
-scen_name vec.
-Contains columns for each of the parameters listed
-below, except verbose. If a column is missing, its value is assumed to be
-null or NA, as appropriate. Note that all other inputs (except for verbose)
-are ignored if scen_list is specified.}
-
 \item{scen_name_vec}{A vector containing names of the scenarios. The each
 string will be a directory containing all the model runs for a scenario.s}
 
 \item{out_dir_scen_vec}{The directory to which to write output. IF NULL, will
 default to the working directory.}
 
-\item{iter_list}{A vector of integers to refer each iteration of the scenario.
-The length of this vector will be the number of iterations run for the
-scenario.}
+\item{iter_vec}{The number of iterations per scenario. A vector of integers
+in the same order as scen_name_vec.}
 
 \item{OM_name_vec}{Name of a valid Stock Synthesis stock assessment model from
 which to create the OM. Currently, only allows models in the package, so

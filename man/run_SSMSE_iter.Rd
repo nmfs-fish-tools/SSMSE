@@ -66,7 +66,8 @@ Dimensions are nyrs_assess\*number of fleets \* number of seasons}
 \item{impl_error}{An implementation error vector for the iteration.
 Dimensions are nyrs_assess\*number of fleets \* number of seasons}
 
-\item{niter}{The iteration number}
+\item{niter}{The iteration number, which is also the name of the folder the 
+results will be written to.}
 
 \item{iter_seed}{List containing fixed seeds for this iteration.}
 

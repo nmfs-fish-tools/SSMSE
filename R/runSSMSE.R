@@ -2,21 +2,12 @@
 #'
 #' High level function to run a management strategy evaluation using Stock
 #' Synthesis as the Operating model(s)
-#' @param scen_list A list containing the design for all scenarios and
-#'  iterations of the model. Each list component is named according to its
-#'  scenario and contains a list of the other parameters below, asides from
-#'  scen_name vec.
-#'  Contains columns for each of the parameters listed
-#'  below, except verbose. If a column is missing, its value is assumed to be
-#'  null or NA, as appropriate. Note that all other inputs (except for verbose)
-#'  are ignored if scen_list is specified.
 #' @param scen_name_vec A vector containing names of the scenarios. The each
 #'  string will be a directory containing all the model runs for a scenario.s
 #' @param out_dir_scen_vec The directory to which to write output. IF NULL, will
 #'  default to the working directory.
-#' @param iter_list A vector of integers to refer each iteration of the scenario.
-#'  The length of this vector will be the number of iterations run for the
-#'  scenario.
+#' @param iter_vec The number of iterations per scenario. A vector of integers
+#'  in the same order as scen_name_vec.
 #' @param OM_name_vec Name of a valid Stock Synthesis stock assessment model from
 #'   which to create the OM. Currently, only allows models in the package, so
 #'   valid inputs are: \code{"cod"}.
@@ -109,10 +100,9 @@
 #'                           sample_struct_list = my_sample_struct_list)
 #'   unlink(my_dir, recursive = TRUE)
 #' }
-run_SSMSE <- function(scen_list = NULL,
-                      scen_name_vec = c("scen_1", "scen_2"),
+run_SSMSE <- function(scen_name_vec = c("scen_1", "scen_2"),
                       out_dir_scen_vec = NULL,
-                      iter_list = list(1:2, 1:2),
+                      iter_vec = c(2, 2),
                       OM_name_vec = "cod",
                       OM_in_dir_vec = NULL,
                       EM_name_vec = c(NA, "cod"),
@@ -121,59 +111,52 @@ run_SSMSE <- function(scen_list = NULL,
                       use_SS_boot_vec = TRUE,
                       nyrs_vec = 6,
                       nyrs_assess_vec = 3,
-                      scope = 2,
-                      rec_dev_pattern = "none",
+                      scope = c("2", "1", "3"),
+                      rec_dev_pattern = c("none", "rand", "AutoCorr_rand", 
+                                          "AutoCorr_Spec", "vector"),
                       rec_dev_pars = NULL,
                       impl_error_pattern = "none",
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
                       verbose = FALSE,
                       seed=NULL) {
+  # input checks
+  scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
+  rec_dev_pattern <- match.arg(rec_dev_pattern, 
+                               choices = c("none", "rand", "AutoCorr_rand", 
+                                           "AutoCorr_Spec", "vector"))
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
+  scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
+                                out_dir_scen_vec = out_dir_scen_vec,
+                                iter_vec = iter_vec,
+                                OM_name_vec = OM_name_vec,
+                                OM_in_dir_vec = OM_in_dir_vec,
+                                EM_name_vec = EM_name_vec,
+                                EM_in_dir_vec = EM_in_dir_vec,
+                                MS_vec = MS_vec,
+                                use_SS_boot_vec = use_SS_boot_vec,
+                                nyrs_vec = nyrs_vec,
+                                nyrs_assess_vec = nyrs_assess_vec,
+                                sample_struct_list = sample_struct_list)
+  # check list and change if need to duplicate values.
+  scen_list <- check_scen_list(scen_list, verbose = verbose)
   #First reset the R random seed
   set.seed(seed=NULL)
   #Now set the global, scenario, and iteration seeds that will be used as needed
-  seed<-set_MSE_seeds(seed,scen_name_vec,iter_list)
-  #Adjust all the vector inputs to be full length if a single value was input by replicating
-  if(length(out_dir_scen_vec)==1){
-    out_dir_scen_vec<-rep(out_dir_scen_vec,length(scen_name_vec))
-  }
-  if(length(OM_name_vec)==1){
-    OM_name_vec<-rep(OM_name_vec,length(scen_name_vec))
-  }
-  if(length(OM_in_dir_vec)==1){
-    OM_in_dir_vec<-rep(OM_in_dir_vec,length(scen_name_vec))
-  }
-  if(length(iter_list)==1){
-    iter_list<-rep(iter_list,length(scen_name_vec))
-  }
-  if(length(EM_name_vec)==1){
-    EM_name_vec<-rep(EM_name_vec,length(scen_name_vec))
-  }
-  if(length(EM_in_dir_vec)==1){
-    EM_in_dir_vec<-rep(EM_in_dir_vec,length(scen_name_vec))
-  }
-  if(length(MS_vec)==1){
-    MS_vec<-rep(MS_vec,length(scen_name_vec))
-  }
-  if(length(nyrs_vec)==1){
-    nyrs_vec<-rep(nyrs_vec,length(scen_name_vec))
-  }
-  if(length(nyrs_assess_vec)==1){
-    nyrs_assess_vec<-rep(nyrs_assess_vec,length(scen_name_vec))
-  }
   
+  seed<-set_MSE_seeds(seed = seed,
+                      iter_vec = unlist(lapply(scen_list, function(scen) scen["iter"])))
   # Get directory of base OM files for each scenario as they may be different
-  rec_stddev<-rep(0,length(scen_name_vec))
-  n_impl_error_groups <- rep(0,length(scen_name_vec))
-  rec_autoCorr<-list()
-  
-  for(i in 1:length(scen_name_vec)){
-    if(!is.null(OM_in_dir_vec)){
-      OM_dir <- locate_in_dirs(OM_name_vec[i], OM_in_dir_vec[i])
+  rec_stddev<-rep(0,length(scen_list))
+  n_impl_error_groups <- rep(0,length(scen_list))
+  rec_autoCorr<-vector(mode = "list", length = length(scen_list))
+  for(i in 1:length(scen_list)){
+    tmp_scen_list <- scen_list[[i]]
+    if(is.null(tmp_scen_list[["OM_in_dir"]])){
+      OM_dir <- locate_in_dirs( OM_name = tmp_scen_list[["OM_name"]])
     }else{
-      OM_dir <- locate_in_dirs(OM_name_vec[i], OM_in_dir_vec)
+      OM_dir <- locate_in_dirs(OM_in_dir =  tmp_scen_list[["OM_in_dir"]])
     }
     # Read in starter file
     start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
@@ -201,37 +184,36 @@ run_SSMSE <- function(scen_list = NULL,
     }
     
   }
-    rec_dev_list <- build_rec_devs(nyrs_vec, nyrs_assess_vec, scope, rec_dev_pattern, rec_dev_pars, rec_stddev, length(scen_name_vec), iter_list, rec_autoCorr, seed)
+  if(is.null(rec_dev_pars)) {
+    # to do: make this a better default value.
+    rec_dev_pars <- c(ceiling(mean(nyrs_assess_vec)), 1)
+  }
+  
+  # make sure values are the correct length
+  nyrs_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs"]))
+  nyrs_assess_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs_assess"]))
+  iter_vec <- unlist(lapply(scen_list, function(scen) scen["iter"]))
+  
+    rec_dev_list <- build_rec_devs(yrs = nyrs_vec,scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, n_scenarios = length(scen_list), iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
 
     
 
-    impl_error <- build_impl_error(nyrs_vec, nyrs_assess_vec, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, length(scen_name_vec), iter_list, seed)
-  
-  
-  
-  if (is.null(scen_list)) {
-   scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
-                                 out_dir_scen_vec = out_dir_scen_vec,
-                                 iter_list = iter_list,
-                                 OM_name_vec = OM_name_vec,
-                                 OM_in_dir_vec = OM_in_dir_vec,
-                                 EM_name_vec = EM_name_vec,
-                                 EM_in_dir_vec = EM_in_dir_vec,
-                                 MS_vec = MS_vec,
-                                 use_SS_boot_vec = use_SS_boot_vec,
-                                 nyrs_vec = nyrs_vec,
-                                 nyrs_assess_vec = nyrs_assess_vec,
-                                 sample_struct_list = sample_struct_list)
+    impl_error <- build_impl_error(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, n_impl_error_groups = n_impl_error_groups, scope = scope, impl_error_pattern = impl_error_pattern, impl_error_pars = impl_error_pars, n_scenarios = length(scen_list), iter_vec = iter_vec, seed = seed)
+  # add recdevs, impl_err, and seed to scen_list
+  for(i in seq_along(scen_list)) {
+    scen_list[[i]][["rec_devs"]] <- rec_dev_list[[i]]
+    scen_list[[i]][["impl_error"]] <- impl_error[[i]]
+    scen_seed <- vector(mode = "list", length = 3)
+    names(scen_seed) <- c("global", "scenario", "iter")
+    scen_seed[["global"]] <- seed[["global"]]
+    scen_seed[["scenario"]] <- seed[["scenario"]][i]
+    scen_seed[["iter"]] <- seed[["iter"]][[i]]
+    scen_list[[i]][["scen_seed"]] <- scen_seed
   }
-  # check list and change if need to duplicate values.
-  scen_list <- check_scen_list(scen_list, verbose = verbose)
+    
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
-    scen_seed <- list()
-    scen_seed$global <- seed$global
-    scen_seed$scenario <- seed$scenario[i]
-    scen_seed$iter <- seed$iter[[i]]
     # run for each scenario
     run_SSMSE_scen(scen_name = names(scen_list)[i],
                    out_dir_scen = tmp_scen[["out_dir_scen"]],
@@ -244,9 +226,9 @@ run_SSMSE <- function(scen_list = NULL,
                    use_SS_boot = tmp_scen[["use_SS_boot"]],
                    nyrs = tmp_scen[["nyrs"]],
                    nyrs_assess = tmp_scen[["nyrs_assess"]],
-                   rec_devs_scen = rec_dev_list[[i]],
-                   impl_error = impl_error[[i]],
-                   scen_seed = scen_seed,
+                   rec_devs_scen = tmp_scen[["rec_devs"]],
+                   impl_error = tmp_scen[["impl_error"]],
+                   scen_seed = tmp_scen[["scen_seed"]],
                    sample_struct = tmp_scen[["sample_struct"]],
                    verbose = verbose)
   }
@@ -262,9 +244,8 @@ run_SSMSE <- function(scen_list = NULL,
 #'  runs the scenario will be stored within a folder of this name.
 #' @param out_dir_scen The directory to which to write output. IF NULL, will
 #'  default to the working directory.
-#' @param iter A vector of integers to refer each iteration of the scenario.
-#'  The length of this vector will be the number of iterations run for the
-#'  scenario.
+#' @param iter The number of iterations for the scenario. A single integer
+#'  value.
 #' @param OM_name Name of a valid Stock Synthesis stock assessment model from
 #'   which to create the OM. Currently, only allows models in the package, so
 #'   valid inputs are: \code{"cod"}.
@@ -321,7 +302,7 @@ run_SSMSE <- function(scen_list = NULL,
 #'
 run_SSMSE_scen <- function(scen_name = "scen_1",
                            out_dir_scen = NULL,
-                           iter = 1:2,
+                           iter = 2,
                            OM_name = "cod",
                            OM_in_dir = NULL,
                            EM_name = NULL,
@@ -358,9 +339,22 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   } else {
     out_dir_iter <- file.path(out_dir_scen, scen_name)
   }
-  dir.create(out_dir_iter)
-  for (i in iter) { # TODO: make work in parallel.
-    iter_seed <- list()
+  dir.create(out_dir_iter, showWarnings = FALSE)
+  # find the first iteration, in case other iterations have been run previously
+  # for this scenario.
+  all_folds <- list.dirs(path = out_dir_iter, full.names = FALSE)
+  existing_iters <- grep("^[0-9]+$", all_folds, value = TRUE)
+  if(length(existing_iters) > 0 ) {
+    max_prev_iter <- max(as.integer(existing_iters))
+    message("Previous iterations found in folder for scenario ", scen_name, ".",
+            "First iteration folder will be ", max_prev_iter + 1, ".")
+  } else {
+    max_prev_iter <- 0
+  }
+  
+  for (i in seq_len(iter)) { # TODO: make work in parallel.
+    iter_seed <- vector(mode = "list", length = 3)
+    names(iter_seed) <- c("global", "scenario", "iter")
     iter_seed$global <- scen_seed$global
     iter_seed$scenario <- scen_seed$scenario
     iter_seed$iter <- scen_seed$iter[i]
@@ -375,7 +369,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                    nyrs_assess = nyrs_assess,
                    rec_dev_iter = rec_devs_scen[[i]],
                    impl_error = impl_error[[i]],
-                   niter = i,
+                   niter = max_prev_iter + i,
                    iter_seed = iter_seed,
                    sample_struct = sample_struct,
                    verbose = verbose)
@@ -418,7 +412,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
 #' @param impl_error An implementation error vector for the iteration.
 #'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
-#' @param niter The iteration number
+#' @param niter The iteration number, which is also the name of the folder the 
+#'  results will be written to.
 #' @param iter_seed List containing fixed seeds for this iteration.
 #' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.

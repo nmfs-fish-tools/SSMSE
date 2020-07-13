@@ -7,7 +7,7 @@
 run_SSMSE_scen(
   scen_name = "scen_1",
   out_dir_scen = NULL,
-  iter = 1:2,
+  iter = 2,
   OM_name = "cod",
   OM_in_dir = NULL,
   EM_name = NULL,
@@ -30,9 +30,8 @@ runs the scenario will be stored within a folder of this name.}
 \item{out_dir_scen}{The directory to which to write output. IF NULL, will
 default to the working directory.}
 
-\item{iter}{A vector of integers to refer each iteration of the scenario.
-The length of this vector will be the number of iterations run for the
-scenario.}
+\item{iter}{The number of iterations for the scenario. A single integer
+value.}
 
 \item{OM_name}{Name of a valid Stock Synthesis stock assessment model from
 which to create the OM. Currently, only allows models in the package, so
