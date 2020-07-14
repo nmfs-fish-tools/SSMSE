@@ -244,7 +244,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
                   outfile = file.path(EM_out_dir, EM_start$datfile),
                   verbose = FALSE,
                   overwrite = TRUE)
-      SS_writestarter(EM_start, 
+      r4ss::SS_writestarter(EM_start, 
                       dir = EM_out_dir, 
                       overwrite = TRUE, 
                       verbose = FALSE,
