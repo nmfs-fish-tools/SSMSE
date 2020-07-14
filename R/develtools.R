@@ -14,7 +14,7 @@ test_no_par <- function(orig_mod_dir, new_mod_dir) {
   if (!dir.exists(new_mod_dir)) {
     dir.create(new_mod_dir)
   }
-  copy_SS_inputs(orig_mod_dir, new_mod_dir, verbose = FALSE)
+  r4ss::copy_SS_inputs(orig_mod_dir, new_mod_dir, verbose = FALSE)
   start <- r4ss::SS_readstarter(file.path(new_mod_dir, "starter.ss"),
                                 verbose = FALSE)
   start$init_values_src <- 0 # read inits from ctl instead of par.
