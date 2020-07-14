@@ -372,11 +372,14 @@ unlink(file.path(out_dir, "5"), recursive = TRUE)
    expect_true(all(clean_dat_list$EM_dat$agecomp$Yr >= 0))
    expect_true(all(clean_dat_list$OM_dat$CPUE$year == OM_dat_orig$CPUE$year))
    expect_true(all(clean_dat_list$OM_dat$lencomp$Yr == OM_dat_orig$lencomp$Yr))
+   expect_true(!is.null(clean_dat_list[["EM_start"]]))
+   expect_equivalent(clean_dat_list[["EM_start"]][["init_values_src"]], 0)
 
    clean_dat_list_2 <- clean_init_mod_files(OM_out_dir = OM_dir, EM_out_dir = NULL)
    expect_true(all(clean_dat_list_2$EM_dat$CPUE$year >= 0))
    expect_true(all(clean_dat_list_2$EM_dat$agecomp$Yr >= 0))
    expect_true(is.null(clean_dat_list_2[[2]]))
+   expect_true(is.null(clean_dat_list_2[["EM_start"]]))
  })
  
  test_that("setting seeds works", {

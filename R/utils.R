@@ -184,6 +184,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
                              verbose = FALSE)
   EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start$datfile), verbose = FALSE)
   } else {
+    EM_start <- NULL
     EM_dat <- NULL
   }
   # model start and end yr should be the same for both
@@ -223,6 +224,15 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
         }
         dat
      }, styr = styr, endyr = endyr)
+  
+  if(!is.null(EM_dat)) {
+    if(EM_start$init_values_src == 1) {
+      warning("Original EM model files read initial values from ss.par, but ",
+              "SSMSE can only read initial values from control. Changing EM to",
+              "read initial values from control file.")
+      EM_start$init_values_src <- 0
+    }
+  }
 
   if (overwrite) {
     SS_writedat(datlist = clean_dat$OM_dat,
@@ -230,12 +240,17 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
                 verbose = FALSE,
                 overwrite = TRUE)
     if (!is.null(EM_dat)) {
-    SS_writedat(datlist = clean_dat$EM_dat,
-                outfile = file.path(EM_out_dir, EM_start$datfile),
-                verbose = FALSE,
-                overwrite = TRUE)
+      SS_writedat(datlist = clean_dat$EM_dat,
+                  outfile = file.path(EM_out_dir, EM_start$datfile),
+                  verbose = FALSE,
+                  overwrite = TRUE)
+      SS_writestarter(EM_start, 
+                      dir = EM_out_dir, 
+                      overwrite = TRUE, 
+                      verbose = FALSE)
     }
   }
+  clean_dat[["EM_start"]] <- EM_start
   clean_dat
 }
 
