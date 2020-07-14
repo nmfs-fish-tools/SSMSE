@@ -15,7 +15,7 @@ start_orig <- r4ss::SS_readstarter(file.path(orig_mod_dir, "starter.ss"),
                                    verbose = FALSE)
 start_orig$init_values_src <- 1 # read inits from ctl instead of par.
 r4ss::SS_writestarter(start_orig, dir = file.path(orig_mod_dir), overwrite = TRUE,
-                      verbose = FALSE)
+                      verbose = FALSE, warn = FALSE)
 
 # mock a bad par file by deleting a line
 orig_par <- readLines(file.path(orig_mod_dir, "ss.par"))

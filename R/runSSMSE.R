@@ -370,7 +370,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   if(length(existing_iters) > 0 ) {
     max_prev_iter <- max(as.integer(existing_iters))
     message("Previous iterations found in folder for scenario ", scen_name, ".",
-            "First iteration folder will be ", max_prev_iter + 1, ".")
+            " First iteration folder will be ", max_prev_iter + 1, ".")
   } else {
     max_prev_iter <- 0
   }

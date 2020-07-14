@@ -256,7 +256,7 @@ change_yrs_fcast <- function(fore,
           x <- x - endyr # make it relative to endyr
         } else {
           stop("Year in fcast file out of range. Please change to be within ",
-               "start and end yrs.")
+               "start and end yrs. Check Bmark_years, Fcast_years")
         }
       }
       x

@@ -247,7 +247,8 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       SS_writestarter(EM_start, 
                       dir = EM_out_dir, 
                       overwrite = TRUE, 
-                      verbose = FALSE)
+                      verbose = FALSE,
+                      warn = FALSE)
     }
   }
   clean_dat[["EM_start"]] <- EM_start
