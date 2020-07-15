@@ -2,7 +2,6 @@ context("Code in recdevs.R works")
 
 test_that("Build recdevs works as expected for option none", {
   recdevs <- build_rec_devs(rec_dev_pattern = "none", 
-                            n_scenarios = 1,
                             yrs = 6, 
                             iter_vec = 3
                             )
@@ -10,7 +9,6 @@ test_that("Build recdevs works as expected for option none", {
   expect_equal(recdevs, expected_output)
   
   recdevs <- build_rec_devs(rec_dev_pattern = "none",
-                            n_scenarios = 2,
                             yrs = c(3,6),
                             iter_vec = c(3,2)
   )
@@ -23,7 +21,6 @@ test_that("Build recdevs works as expected for option rand", {
   iter_vec <- c(3,3)
   seed_vals <- set_MSE_seeds(seed = 123, iter_vec = iter_vec)
   recdevs <- build_rec_devs(rec_dev_pattern = "rand" ,
-                            n_scenarios = 2,
                             yrs = c(3,3),
                             iter_vec = iter_vec,
                             scope = 1,
@@ -37,20 +34,18 @@ test_that("Build recdevs works as expected for option rand", {
 
   expect_equivalent(recdevs[[1]], recdevs[[2]])
   # setting seeds works
-  second_run <- build_rec_devs(rec_dev_pattern = "rand" ,
-                               n_scenarios = 2,
+  second_run <- build_rec_devs(rec_dev_pattern = "rand",
                                yrs = c(3,3),
                                iter_vec = iter_vec,
                                scope = 1,
                                rec_dev_pars = c(3, 1),
-                               stddev = rep(0.2, 2),# needs to be same length as n_scenarios
+                               stddev = rep(0.2, 2),# needs to be same length as number of scenarios
                                rec_autoCorr = NA,
                                seed = seed_vals)
   expect_equal(recdevs, second_run)
 
   #test scope = 2
-  recdevs_scope_2 <- build_rec_devs(rec_dev_pattern = "rand" ,
-                                    n_scenarios = 2,
+  recdevs_scope_2 <- build_rec_devs(rec_dev_pattern = "rand",
                                     yrs = c(3,3),
                                     iter_vec = iter_vec,
                                     scope = 2,
@@ -64,8 +59,7 @@ test_that("Build recdevs works as expected for option rand", {
   expect_true(all(!is.na(unlist(recdevs_scope_2))))
   expect_true(all(!is.na(unlist(recdevs_scope_2))))
   
-  recdevs_scope_3 <- build_rec_devs(rec_dev_pattern = "rand" ,
-                                    n_scenarios = 2,
+  recdevs_scope_3 <- build_rec_devs(rec_dev_pattern = "rand",
                                     yrs = c(3,3),
                                     iter_vec = iter_vec,
                                     scope = 3,
@@ -92,7 +86,6 @@ test_that("Build recdevs works as expected for option autocorrelated random", {
   rec_autoCorr[[2]] <- stats::arima(x = ts[21:40],order=c(0,0,4))
 
   recdevs <- build_rec_devs(rec_dev_pattern = "AutoCorr_rand",
-                            n_scenarios = 2,
                             yrs = c(3,6),
                             iter_vec = iter_vec,
                             scope = 3,
@@ -115,7 +108,6 @@ test_that("Build recdevs works as expected for option autocorrelated specified",
   rec_autoCorr[[2]] <- list(mean = 0.2, sd = 0.1)
   
   recdevs <- build_rec_devs(rec_dev_pattern = "AutoCorr_Spec",
-                            n_scenarios = 2,
                             yrs = c(3,6),
                             iter_vec = iter_vec,
                             scope = 3,
@@ -129,17 +121,19 @@ test_that("Build recdevs works as expected for option autocorrelated specified",
 
 #TODO: add tests for vector option (the custom recdevs list???)
 # test_that("Build recdevs works as expected for custom values", {
-#   iter_vec <- c(3,2)
+#   set.seed <- 123
+#   iter_vec <- c(3, 2)
+#   yrs_vec <- c(3, 6)
+#   custom_recdevs_vec <- rnorm(iter_vec[1] * yrs_vec[1] + iter_vec[2] * yrs_vec[2])
+#   custom_recdevs_matrix <- as.matrix(custom_recdevs_vec, nrow = sum(iter_vec))
+#   
 #   seed_vals <- set_MSE_seeds(seed = 123, iter_vec = iter_vec)
 #   recdevs <- build_rec_devs(rec_dev_pattern = "vector",
-#                             n_scenarios = 2,
-#                             yrs = c(3,6),
+#                             yrs = yrs_vec,
 #                             iter_vec = iter_vec,
 #                             scope = 3,
-#                             rec_dev_pars = c(3, 1),
-#                             stddev = 0.2,
+#                             rec_dev_pars = custom_recdevs_matrix,
+#                             stddev = NA,
 #                             rec_autoCorr = NA,
 #                             seed = seed_vals)
-#   expect_length(recdevs, 2)
-#   expect_length(recdevs[[1]], iter_vec[1])
 # })

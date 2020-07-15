@@ -217,7 +217,7 @@ run_SSMSE <- function(scen_name_vec,
   nyrs_assess_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs_assess"]))
   iter_vec <- unlist(lapply(scen_list, function(scen) scen["iter"]))
   
-    rec_dev_list <- build_rec_devs(yrs = nyrs_vec,scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, n_scenarios = length(scen_list), iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
+    rec_dev_list <- build_rec_devs(yrs = nyrs_vec,scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
 
     
 

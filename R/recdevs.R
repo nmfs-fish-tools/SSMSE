@@ -80,11 +80,10 @@ calc_autoCor_rec_devs <- function(breaks, yrs, rec_autocorr_mean, rec_autocorr_s
 #' Build an array of recruitment deviation vectors for every scenario and iteration
 #'
 #' @param rec_dev_pattern how to simulate recruitment devations.
-#' @param n_scenarios the number of scenarios simulated
+#' @param iter_vec An integer vector (with length n_scenarios) of number of 
+#'  iterations by scenario. length(iter_vec) should be the number of scenarios simulated.
 #' @param yrs the number of years to simulate recruitment deviations for for each 
-#'  scenario. An integer vector with length n_scenarios.
-#' @param iter_vec An integer vector (with length n_scenarios) of number of iterations by
-#'  scenario. 
+#'  scenario. An integer vector with length equal to the number of scenarios.
 #' @param scope scope over which recruitment devations will be randomized.
 #' @param rec_dev_pars recruitment devation simulation parameters dependent on chosen pattern.
 #' @param stddev the standard deviation of simulated recruitment deviations
@@ -95,7 +94,6 @@ calc_autoCor_rec_devs <- function(breaks, yrs, rec_autocorr_mean, rec_autocorr_s
 build_rec_devs <- function(
   rec_dev_pattern = c("none", "rand", "AutoCorr_rand", "AutoCorr_Spec", 
                       "vector"),
-  n_scenarios,
   yrs,
   iter_vec,
   scope = c("2", "1", "3"),
@@ -103,11 +101,14 @@ build_rec_devs <- function(
   stddev = NULL,
   rec_autoCorr = NULL, 
   seed = NULL) {
+  
   #input checks - to add
   scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
   rec_dev_pattern <- match.arg(rec_dev_pattern, 
                                choices = c("none", "rand", "AutoCorr_rand", 
                                            "AutoCorr_Spec", "vector"))
+  n_scenarios <- length(iter_vec) # should be 1 value for each scenario
+  
   # initialize the vector.
   rec_dev_list <- vector(mode = "list", length = n_scenarios)
   # pattern specific filling of recdevs.
