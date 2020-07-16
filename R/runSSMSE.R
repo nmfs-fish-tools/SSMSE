@@ -44,7 +44,10 @@
 #' to specify the max number of years over which the sum of rec_devs can diverge from
 #' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
 #' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates 
-#' random auto-correlated rec-devs based on the distribution of historic deviations. 4) "AutoCorr_Spec" 
+#' random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars
+#' to specify the max number of years over which the sum of rec_devs can diverge from
+#' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
+#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 4) "AutoCorr_Spec" 
 #' generates auto-correlated recruitment deviations from an MA time-series model with user specified
 #' parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of 
 #' length equal nyrs input the vector/matrix to rec_dev-pars.

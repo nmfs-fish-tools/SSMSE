@@ -126,21 +126,21 @@ build_rec_devs <- function(
         
         set.seed(seed$global)
         
-        rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i])
+        rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i]*rec_dev_pars[2])
       }
       rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) { 
         
         set.seed(seed$scenario[i])
         
-        rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i])
+        rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i]*rec_dev_pars[2])
       }
       for (j in 1:iter_vec[i]) {
         if (scope == 3) { 
           
           set.seed(seed$iter[[i]][j])
           
-          rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i])
+          rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i]*rec_dev_pars[2])
         }
         rec_dev_list[[i]][[j]] <- rec_dev_seq
       }
@@ -155,21 +155,21 @@ build_rec_devs <- function(
         
         set.seed(seed$global)
         
-        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, c(0,0,0,0), stddev[i])
+        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, c(0,0,0,0), stddev[i]*rec_dev_pars[2])
       }
       rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) { 
         
         set.seed(seed$scenario[i])
         
-        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd, stddev[i])
+        rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd, stddev[i]*rec_dev_pars[2])
       }
       for (j in 1:iter_vec[i]) {
         if (scope == 3) { 
           
           set.seed(seed$iter[[i]][j])
           
-          rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd, stddev[i])
+          rec_dev_seq <- calc_autoCor_rec_devs(breaks, yrs[i], rec_autocorr_mean, rec_autocorr_sd, stddev[i]*rec_dev_pars[2])
         }
         rec_dev_list[[i]][[j]] <- rec_dev_seq
       }
