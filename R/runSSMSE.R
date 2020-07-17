@@ -149,8 +149,9 @@ run_SSMSE <- function(scen_name_vec,
                                            "AutoCorr_Spec", "vector"))
   impl_error_pattern <- match.arg(impl_error_pattern, 
                                   choices = c("none", "rand", "user"))
-  MS_vec <- match.arg(MS_vec, 
-                      choices = c("EM", "no_catch"))
+  if(!all(MS_vec %in% c("EM", "no_catch"))) {
+    stop("MS_vec can only include 'EM' or 'no_catch'.")
+  }
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
