@@ -136,7 +136,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
   rpt <- readLines(file.path(EM_dir, "Report.sso"))
   start <- grep("TIME_SERIES", rpt)
   start <- start[length(start)] + 1
-  end <- grep("SPR_series", rpt)
+  end <- grep("SPR_series", rpt, ignore.case = TRUE)
   end <- end[length(end)] - 1
   # sanity checks to catch false assumptions about number of times the
   # expressions occur
