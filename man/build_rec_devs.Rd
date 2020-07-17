@@ -6,7 +6,6 @@
 \usage{
 build_rec_devs(
   rec_dev_pattern = c("none", "rand", "AutoCorr_rand", "AutoCorr_Spec", "vector"),
-  n_scenarios,
   yrs,
   iter_vec,
   scope = c("2", "1", "3"),
@@ -19,13 +18,11 @@ build_rec_devs(
 \arguments{
 \item{rec_dev_pattern}{how to simulate recruitment devations.}
 
-\item{n_scenarios}{the number of scenarios simulated}
-
 \item{yrs}{the number of years to simulate recruitment deviations for for each 
-scenario. An integer vector with length n_scenarios.}
+scenario. An integer vector with length equal to the number of scenarios.}
 
-\item{iter_vec}{An integer vector (with length n_scenarios) of number of iterations by
-scenario.}
+\item{iter_vec}{An integer vector (with length n_scenarios) of number of 
+iterations by scenario. length(iter_vec) should be the number of scenarios simulated.}
 
 \item{scope}{scope over which recruitment devations will be randomized.}
 
