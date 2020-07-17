@@ -180,8 +180,10 @@ extend_OM <- function(catch,
   }
   dat$endyr <- dat$endyr + nyrs_extend
 
-  # modify ctl file
-  ctl$MainRdevYrLast <- dat$endyr # check that this is necessary for every model?
+  # modify ctl file ----
+  ctl[["MainRdevYrLast"]] <- dat$endyr
+  ctl[["last_yr_fullbias_adj"]] <- dat$endyr
+  ctl[["first_recent_yr_nobias_adj"]] <- dat$endyr
 
   # write out the changed files, except for dat.
   r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_dir, start$ctlfile),

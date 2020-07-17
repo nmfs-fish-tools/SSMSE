@@ -80,8 +80,30 @@ create_OM <- function(OM_out_dir,
   # only put values in that are in the Fcas year range.
   forelist$ForeCatch <- temp_fore[
     is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess + 1)), ]
-
+  
   # modify par file ----
+  all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
+  # get recdevs for all model yeasrs
+  all_recdevs <- all_recdevs[all_recdevs$year >= dat$styr && all_recdevs$year <= dat$endyr, ]
+  new_recdevs_df <- data.frame(year = dat$styr:dat$endyr, recdev = NA)
+  for (i in seq_along(dat$styr:dat$endyr)) {
+    tmp_yr <- (dat$styr:dat$endyr)[i]
+    if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+      new_recdevs_df[i,"recdev"] <- 0 # just assume no recdevs
+    } else {
+      new_recdevs_df[i,"recdev"] <-
+        all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+    }
+  }
+  new_recdevs_mat <- as.matrix(new_recdevs_df)
+  if(!is.null(parlist[["recdev1"]])) {
+    parlist[["recdev1"]] <- new_recdevs_mat
+  } else if (!is.null(parlist[["recdev2"]])) {
+    parlist[["recdev2"]] <- new_recdevs_mat
+  } else {
+    stop("no recdevs in initial OM model")
+  }
+  
   # use report.sso time series table to find the F's to put into the parlist.
   F_list <- get_F(timeseries = outlist$timeseries,
     fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
@@ -100,13 +122,36 @@ create_OM <- function(OM_out_dir,
     get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
 
   # modify ctl file ----
+  ctl$do_recdev <- 1
+  # in the context of an OM, do not want to use the bias adjustment ramp, so just
+  # turn off and make the recdevs years always the same.
+  ctl[["MainRdevYrFirst"]] <- dat$styr 
+  ctl[["MainRdevYrLast"]] <- dat$endyr
+  ctl[["recdev_phase"]] <- -2
+  ctl[["recdev_adv"]] <- 1
+  ctl[["recdev_early_start"]] <- 0
+  ctl[["recdev_early_phase"]] <- -4
+  ctl[["Fcast_recr_phase"]] <- 0
+  ctl[["lambda4Fcast_recr_like"]] <- 1
+  ctl[["last_early_yr_nobias_adj"]] <- dat$styr
+  ctl[["first_yr_fullbias_adj"]] <- dat$styr
+  ctl[["last_yr_fullbias_adj"]] <- dat$endyr
+  ctl[["first_recent_yr_nobias_adj"]] <- dat$endyr
+  ctl[["max_bias_adj"]] <- 0
+  ctl[["period_of_cycles_in_recr"]] <- ifelse(
+    is.null(ctl[["period_of_cycles_in_recr"]]),
+    0,
+    ctl[["period_of_cycles_in_recr"]])
+  ctl[["min_rec_dev"]] <- -10
+  ctl[["max_rec_dev"]] <- 10
+  ctl[["N_Read_recdevs"]] <- 0
+  ctl[["recdev_input"]] <- NULL
   ctl$F_Method <- 2 # Want all OMs to use F_Method = 2.
   # need to specify some starting value Fs, although not used in OM
   ctl$F_setup <- c(0.05, 1, 0)
   # make sure list components used by other F methods are NULL:
   ctl$F_iter <- NULL
   ctl$F_setup2 <- NULL
-
 
   # write all files
   r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_out_dir, start$ctlfile),
