@@ -82,6 +82,12 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
                                  do_checks = TRUE,
                                  new_datfile_name = new_datfile_name,
                                  verbose = verbose)
+      # extend forward bias adjustment(if using)
+      new_ctl <- extend_EM_bias_adj(
+        ctlfile = file.path(EM_out_dir, start$ctlfile), 
+        datlist = new_EM_dat,
+        nyrs_assess = nyrs_assess, write_ctl = TRUE)
+      
     }
     # manipulate the forecasting file.
     # make sure enough yrs can be forecasted.
@@ -375,4 +381,37 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
                       catch_bio = catch_bio,
                       catch_F = catch_F,
                       discards = NULL) # assume no discards if using simple MS.
+}
+
+#' Extend the EM bias adjustment forward in time
+#' 
+#' Extends the EN bias adjustment forward the same amount as the number of
+#' assessment years. A simple default way of doing this.
+#' @param ctlfile Path to the control file.
+#' @param datlist_new A data file read in usint r4ss::SS_readdat that has already
+#'  been extended forward
+#' @param nyrs_asses
+#' @param write_ctl Should the new controlfile be written, overwritting the old
+#'  one?
+#' @return The new control file with recdev values extended forward by
+#'  nyrs_assess
+extend_EM_bias_adj <- function(ctlfile, datlist_new, nyrs_assess, write_ctl) {
+  # read the control file
+  ctl <- r4ss::SS_readctl(ctlfile,
+                          use_datlist = TRUE,
+                          datlist = datlist_new,
+                          verbose = FALSE)
+  ctl[["MainRdevYrLast"]] <- ctl[["MainRdevYrLast"]] + nyrs_assess
+  if(!is.null(ctl[["last_yr_fullbias_adj"]])) {
+    ctl[["last_yr_fullbias_adj"]] <- 
+      ctl[["last_yr_fullbias_adj"]] + nyrs_assess
+  }
+  if(!is.null(ctl[["first_recent_yr_nobias_adj"]])) {
+    ctl[["first_recent_yr_nobias_adj"]] <-
+      ctl[["first_recent_yr_nobias_adj"]] + nyrs_assess 
+  }
+  if(write_ctl == TRUE) {
+    r4ss::SS_writectl(ctl, ctlfile, overwrite = TRUE, verbose = FALSE)
+  }
+  ctl
 }
