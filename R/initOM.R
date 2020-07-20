@@ -57,20 +57,30 @@ create_OM <- function(OM_out_dir,
   parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_out_dir, "ss.par"),
                                    datsource = dat, ctlsource = ctl,
                                    verbose = FALSE)
+  
   # modify forecast file ----
-  currentNforecast <- forelist$Nforecastyrs
-  # Note that this forecasting is being set up for future runs of the OM. 1
-  # extra yr is added to deal with the fact that recdevs have a sum to 0
-  # constraint, so need an extra yr to deal with this.
-  forelist$Nforecastyrs <- nyrs_assess + 1
-  # I think this is set so it is out of the range of the forecast? Yes exactly
-  forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
-  forelist$InputBasis <- 3 # I think this is the retained catch option. Why?
-  # I fix it at the retained catch option as an assumption that retained catch is
-  # what the fishery quotas will be based on?? If we don't like that we can change it.
-  # put together a Forecatch dataframe using retained catch
-  # unclear why this is necessary
-  forelist$Flimitfraction <- 1 # TODO: review setting.
+  currentNforecast <- forelist[["Nforecastyrs"]]
+  forelist[["Nforecastyrs"]] <- nyrs_assess
+  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1
+  forelist[["InputBasis"]] <- 3
+  forelist[["ControlRuleMethod"]] <- 1
+  forelist[["BforconstantF"]] <- 0.001
+  forelist[["BfornoF"]] <- 0.0001
+  forelist[["Flimitfraction"]] <- 1 
+  
+  # convert forecast year selectors to standard form
+  for(i in 1:10){
+    if(forelist[["Bmark_years"]][i] > 0){
+      forelist[["Bmark_years"]][i] <- dat[["endyr"]]+forelist[["Bmark_years"]][i]
+    }
+  }
+  for(i in 1:6){
+    if(forelist[["Fcast_years"]][i] > 0){
+      forelist[["Fcast_years"]][i] <- dat[["endyr"]]+forelist[["Fcast_years"]][i]
+    }
+  }
+  # put together a Forecatch dataframe using retained catch as a starting point for the OM
+  # this would only matter if an EM assessment is not run in the first year. 
   ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
         units_of_catch = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"])
   temp_fore <- ret_catch[ret_catch$Era == "FORE",
@@ -79,7 +89,7 @@ create_OM <- function(OM_out_dir,
   names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F")
   # only put values in that are in the Fcas year range.
   forelist$ForeCatch <- temp_fore[
-    is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess + 1)), ]
+    is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess)), ]
   
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
@@ -113,7 +123,6 @@ create_OM <- function(OM_out_dir,
   parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")]
   parlist[["init_F"]] <- F_list[["init_F"]]
   # add recdevs to the parlist
-  # TODO: need to use sum_to_zero = TRUE?
   parlist[["recdev_forecast"]] <-
     get_rec_devs_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs),
                         rec_devs = rec_devs)
@@ -122,9 +131,9 @@ create_OM <- function(OM_out_dir,
     get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
 
   # modify ctl file ----
-  ctl$do_recdev <- 1
   # in the context of an OM, do not want to use the bias adjustment ramp, so just
   # turn off and make the recdevs years always the same.
+  ctl[["do_recdev"]] <- 2
   ctl[["MainRdevYrFirst"]] <- dat$styr 
   ctl[["MainRdevYrLast"]] <- dat$endyr
   ctl[["recdev_phase"]] <- -2
@@ -146,13 +155,11 @@ create_OM <- function(OM_out_dir,
   ctl[["max_rec_dev"]] <- 10
   ctl[["N_Read_recdevs"]] <- 0
   ctl[["recdev_input"]] <- NULL
-  ctl$F_Method <- 2 # Want all OMs to use F_Method = 2.
-  # need to specify some starting value Fs, although not used in OM
-  ctl$F_setup <- c(0.05, 1, 0)
-  # make sure list components used by other F methods are NULL:
-  ctl$F_iter <- NULL
-  ctl$F_setup2 <- NULL
-
+  ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
+  ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM
+  ctl[["F_iter"]] <- NULL # make sure list components used by other F methods are NULL:
+  ctl[["F_setup2"]] <- NULL # make sure list components used by other F methods are NULL:
+  
   # write all files
   r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_out_dir, start$ctlfile),
                     overwrite = TRUE, verbose = FALSE)

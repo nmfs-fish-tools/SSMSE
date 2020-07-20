@@ -71,7 +71,7 @@ extend_OM <- function(catch,
   # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
-  forelist$Nforecastyrs <- nyrs_extend + 1 # should already have this value, but just in case.
+  forelist$Nforecastyrs <- nyrs_extend # should already have this value, but just in case.
   forelist$ForeCatch <- catch[, c("year", "seas", "fleet", "catch")]
   # note: may need to change the colnames.
   # this is the true catch. TODO should impl_error be added or multiplied?
@@ -83,8 +83,7 @@ extend_OM <- function(catch,
   # modify par file ----
   parlist[["recdev_forecast"]] <- get_rec_devs_matrix(
     yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs),
-    rec_devs = rec_devs,
-    sum_to_zero = TRUE)
+    rec_devs = rec_devs)
   # implementation error should always be 0 in the OM
   parlist[["Fcast_impl_error"]] <-
     get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
@@ -108,10 +107,7 @@ extend_OM <- function(catch,
     units_of_catch = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"])
   # Check that SS created projections with the intended catches before updating model
   # make sure retained catch is close to the same as the input catch.
-  fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE" &
-                                  # don't include extra yr needed for recdevs.
-                                  ret_catch$Yr != (dat$endyr + nyrs_extend + 1),
-                                  "retained_catch"]
+  fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE", "retained_catch"]
   catch_diff <- fcast_ret_catch - catch[, "catch"]
   if (all(catch[, "catch"] != 0)) {
     if (max(abs(catch_diff) / abs(catch[, "catch"])) > 0.0001) {
@@ -124,12 +120,12 @@ extend_OM <- function(catch,
            unintentionally projected with an unrealistic value.")
       # KD: can we offer any solutions on where to go from here in this error msg?
       # This check is helpful, though!
-      # NV: My best guess is this will only trip is SS messes up after the catches
+      # NV: My best guess is this will only trip if SS messes up after the catches
       # crash the stock. In those cases projections can do all sorts of weird things
       # like put in negative F's and create super stock recoveries. I think we should
       # have some sort of default max F that overrides the catch the user could modify.
       # something like apical F can't exceed 2 times the historic maximum or something
-      # under the assumption that in the real world their are effort capacity limits.
+      # under the assumption that in the real world there are effort capacity limits.
 
     }
   } else { # a second check when there is 0 catch.This is fairly arbitrary and
@@ -161,11 +157,10 @@ extend_OM <- function(catch,
   # implementation error
   parlist$Fcast_impl_error <- get_impl_error_matrix(
     yrs = (dat$endyr + nyrs_extend + 1))
-  # recdevs - check if this is right
+  # recdevs
   parlist$recdev_forecast <-
     get_rec_devs_matrix(yrs = (dat$endyr + nyrs_extend + 1),
-                        rec_devs = rec_devs,
-                        sum_to_zero = FALSE)
+                        rec_devs = 0)
   # F values
   add_F_rate <- F_list[["F_rate_fcast"]][,
                     setdiff(colnames(F_list[["F_rate_fcast"]]), "name")]
