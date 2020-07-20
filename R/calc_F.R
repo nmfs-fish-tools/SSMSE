@@ -108,7 +108,8 @@ get_F <- function(timeseries, fleetnames) {
 #' Get retained catch from the timeseries Report.sso table
 #'
 #' @param timeseries from SSoutput
-#' @param units_of_catch From datalist
+#' @param units_of_catch From datalist, the catch units. A named list where the 
+#' names are the fleets (to provide an extra check)
 #' @importFrom tidyr gather separate
 #' @return a data frame with retained catch by Yr, Era, Seas, Fleet, and
 #'  units (long format)
@@ -117,10 +118,17 @@ get_retained_catch <- function(timeseries, units_of_catch) {
   assertive.types::assert_is_data.frame(timeseries)
   nfleets <- length(grep("^F:_\\d+$", colnames(timeseries)))
   assertive.properties::assert_is_of_length(units_of_catch, nfleets)
+  fleet_names <- strsplit(grep("^F:_\\d+$", colnames(timeseries), value = TRUE), 
+                          "_", fixed = TRUE)
+  fleet_names <- unlist(lapply(fleet_names, function(x) x[2]))
+  if(!is.null(names(units_of_catch))) {
+    assertive.base::assert_all_are_true(fleet_names == names(units_of_catch))
+  }
+  
   # calc retained catch
   units_catch_string <- ifelse(units_of_catch == 1, "B", "N")
   retain_catch_colnames <- paste0("retain(", units_catch_string, "):_",
-                                  seq_along(units_catch_string))
+                                  fleet_names)
   # some may not be included in output if no catch.
   retain_catch_colnames <- retain_catch_colnames[
                             retain_catch_colnames %in% colnames(timeseries)]

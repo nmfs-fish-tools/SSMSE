@@ -103,18 +103,22 @@ extend_OM <- function(catch,
   # Extract the achieved F and Catch for the forecast period
   F_list <- get_F(timeseries = outlist$timeseries,
     fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
+  units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
+  names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
   ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
-    units_of_catch = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"])
+    units_of_catch = units_of_catch)
   # Check that SS created projections with the intended catches before updating model
   # make sure retained catch is close to the same as the input catch.
-  fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE", "retained_catch"]
-  catch_diff <- fcast_ret_catch - catch[, "catch"]
+  fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
+  names(fcast_ret_catch) <- c("year", "seas", "fleet", "retained_catch_fcast")
+  catch_diff_df <- merge(catch,fcast_ret_catch, all = TRUE)
+  catch_diff <- catch_diff_df[, "retained_catch_fcast"] - catch_diff_df[, "catch"]
   if (all(catch[, "catch"] != 0)) {
-    if (max(abs(catch_diff) / abs(catch[, "catch"])) > 0.0001) {
+    if (max(abs(catch_diff) / abs(catch_diff_df[, "catch"])) > 0.0001) {
       stop("Forecasted retained catch - ",
-           paste0(fcast_ret_catch, collapse = ", "),
+           paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
            " - don't match those expected - ",
-           paste0(catch[, "catch"], collapse = ", "), "
+           paste0(catch_diff_df[, "catch"], collapse = ", "), "
            : NOTE: This can often occure in scenarios where
            the stock has collapsed at some point and SS has
            unintentionally projected with an unrealistic value.")
@@ -132,9 +136,9 @@ extend_OM <- function(catch,
     # perhaps should be more stringent.
    if (max(abs(catch_diff)) > 0.1) {
      stop("Forecasted retained catch - ",
-          paste0(fcast_ret_catch, collapse = ", "),
+          paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
           " - don't match those expected - ",
-          paste0(catch[, "catch"], collapse = ", "))
+          paste0(catch_diff_df[, "catch"], collapse = ", "))
    }
   }
 

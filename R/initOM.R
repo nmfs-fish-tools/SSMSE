@@ -81,8 +81,10 @@ create_OM <- function(OM_out_dir,
   }
   # put together a Forecatch dataframe using retained catch as a starting point for the OM
   # this would only matter if an EM assessment is not run in the first year. 
+  units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
+  names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
   ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
-        units_of_catch = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"])
+        units_of_catch = units_of_catch)
   temp_fore <- ret_catch[ret_catch$Era == "FORE",
                          c("Yr", "Seas", "Fleet", "retained_catch")]
   row.names(temp_fore) <- NULL

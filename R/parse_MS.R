@@ -239,6 +239,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
                             fcast_catch_df[, tmp_cols[1]]
       if (tmp_units_code == 2) { # get discard as a fractional value.
         tmp_discard_amount <- tmp_discard_amount / fcast_catch_df[, tmp_cols[2]]
+        tmp_discard_amount[is.na(tmp_discard_amount)] <- 0 # replace any NAs with 0s
       }
       if (sum(tmp_discard_amount) == 0) {
         dis_df_list[[i]] <- NULL
@@ -362,7 +363,6 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
                                   # b/c want biomass in all cases.
                                   units_of_catch = rep(1,
       times = NROW(dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), ])))
-  dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
   catch_bio <- catch_bio[catch_bio$Era == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
   colnames(catch_bio) <- c("year", "seas", "fleet", "catch")
   } else {
