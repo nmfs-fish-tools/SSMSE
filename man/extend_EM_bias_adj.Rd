@@ -12,6 +12,8 @@ extend_EM_bias_adj(ctlfile, datlist_new, nyrs_assess, write_ctl)
 \item{datlist_new}{A data file read in usint r4ss::SS_readdat that has already
 been extended forward}
 
+\item{nyrs_assess}{The number of years between assessments}
+
 \item{write_ctl}{Should the new controlfile be written, overwritting the old
 one?}
 }

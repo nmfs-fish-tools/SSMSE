@@ -46,15 +46,15 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     check_dir(EM_out_dir)
     # TODO: change this name to make it less ambiguous
     new_datfile_name <- "init_dat.ss"
+    # change the name of data file.
+    start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
+                            verbose = FALSE)
     if (init_loop) {
     # copy over raw data file from the OM to EM folder
     SS_writedat(OM_dat,
                       file.path(EM_out_dir, new_datfile_name),
                       overwrite = TRUE,
                       verbose = FALSE)
-    # change the name of data file.
-    start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
-                                  verbose = FALSE)
     orig_datfile_name <- start$datfile # save the original data file name.
     start$datfile <- new_datfile_name
     SS_writestarter(start, file.path(EM_out_dir), verbose = FALSE,
@@ -85,7 +85,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
       # extend forward bias adjustment(if using)
       new_ctl <- extend_EM_bias_adj(
         ctlfile = file.path(EM_out_dir, start$ctlfile), 
-        datlist = new_EM_dat,
+        datlist_new = new_EM_dat,
         nyrs_assess = nyrs_assess, write_ctl = TRUE)
       
     }
@@ -390,7 +390,7 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
 #' @param ctlfile Path to the control file.
 #' @param datlist_new A data file read in usint r4ss::SS_readdat that has already
 #'  been extended forward
-#' @param nyrs_asses
+#' @param nyrs_assess The number of years between assessments
 #' @param write_ctl Should the new controlfile be written, overwritting the old
 #'  one?
 #' @return The new control file with recdev values extended forward by
