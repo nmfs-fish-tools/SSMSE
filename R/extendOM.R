@@ -263,44 +263,46 @@ extend_OM <- function(catch,
           dat$lencomp <- rbind(dat$lencomp, lencomp_df)
         }
       }
-      meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr",
-                             "Lbin_lo", "Lbin_hi")
-      agecomp_combo <- dat$agecomp[, meta_cols_agecomp]
-      agecomp_combo$FltSvy <- abs(agecomp_combo$FltSvy)
-      agecomp_combo <- unique(agecomp_combo)
-      # get col names to use later
-      agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
-      age_Nsamp_val <- get_input_value(data = dat[["agecomp"]],
-                                       method = "most_common_value",
-                                       colname = "Nsamp",
-                                       group = "FltSvy")
-      if (verbose) {
-        message("Input uncertainty for extending OM agecomp currently can only",
-                " have a single value for each fleet. All agecomp data added ",
-                "to the operating model is assigned the most common value of ",
-                "Nsamp for each fleet.")
-      }
-      for (i in 1:nrow(agecomp_combo)) {
-        tmp_age_Nsamp_val <- age_Nsamp_val[
-        age_Nsamp_val$FltSvy == agecomp_combo[i, "FltSvy"], "Nsamp"]
-        assertive.properties::assert_is_atomic(tmp_age_Nsamp_val)
-        assertive.properties::assert_is_of_length(tmp_age_Nsamp_val, 1)
-        agecomp_df <- data.frame(Yr = (dat$endyr - nyrs_extend + 1):dat$endyr,
-                                 Seas = agecomp_combo[i, "Seas"],
-                                 FltSvy = -agecomp_combo[i, "FltSvy"],
-                                 Gender = agecomp_combo[i, "Gender"],
-                                 Part = agecomp_combo[i, "Part"],
-                                 Ageerr = agecomp_combo[i, "Ageerr"],
-                                 Lbin_lo = agecomp_combo[i, "Lbin_lo"],
-                                 Lbin_hi = agecomp_combo[i, "Lbin_hi"],
-                                 Nsamp = tmp_age_Nsamp_val
-        )
-        tmp_df_dat <- matrix(1,
-                             nrow = nrow(agecomp_df),
-                             ncol = length(agecomp_dat_colnames))
-        colnames(tmp_df_dat) <- agecomp_dat_colnames
-        agecomp_df <- cbind(agecomp_df, as.data.frame(tmp_df_dat))
-        dat$agecomp <- rbind(dat$agecomp, agecomp_df)
+      if(!is.null(dat$agecomp)) {
+        meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr",
+                               "Lbin_lo", "Lbin_hi")
+        agecomp_combo <- dat$agecomp[, meta_cols_agecomp]
+        agecomp_combo$FltSvy <- abs(agecomp_combo$FltSvy)
+        agecomp_combo <- unique(agecomp_combo)
+        # get col names to use later
+        agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
+        age_Nsamp_val <- get_input_value(data = dat[["agecomp"]],
+                                         method = "most_common_value",
+                                         colname = "Nsamp",
+                                         group = "FltSvy")
+        if (verbose) {
+          message("Input uncertainty for extending OM agecomp currently can only",
+                  " have a single value for each fleet. All agecomp data added ",
+                  "to the operating model is assigned the most common value of ",
+                  "Nsamp for each fleet.")
+        }
+        for (i in 1:nrow(agecomp_combo)) {
+          tmp_age_Nsamp_val <- age_Nsamp_val[
+          age_Nsamp_val$FltSvy == agecomp_combo[i, "FltSvy"], "Nsamp"]
+          assertive.properties::assert_is_atomic(tmp_age_Nsamp_val)
+          assertive.properties::assert_is_of_length(tmp_age_Nsamp_val, 1)
+          agecomp_df <- data.frame(Yr = (dat$endyr - nyrs_extend + 1):dat$endyr,
+                                   Seas = agecomp_combo[i, "Seas"],
+                                   FltSvy = -agecomp_combo[i, "FltSvy"],
+                                   Gender = agecomp_combo[i, "Gender"],
+                                   Part = agecomp_combo[i, "Part"],
+                                   Ageerr = agecomp_combo[i, "Ageerr"],
+                                   Lbin_lo = agecomp_combo[i, "Lbin_lo"],
+                                   Lbin_hi = agecomp_combo[i, "Lbin_hi"],
+                                   Nsamp = tmp_age_Nsamp_val
+          )
+          tmp_df_dat <- matrix(1,
+                               nrow = nrow(agecomp_df),
+                               ncol = length(agecomp_dat_colnames))
+          colnames(tmp_df_dat) <- agecomp_dat_colnames
+          agecomp_df <- cbind(agecomp_df, as.data.frame(tmp_df_dat))
+          dat$agecomp <- rbind(dat$agecomp, agecomp_df)
+        }
       }
     } else {
       stop("Code to add in dummy data lines for a specific scheme has not yet",

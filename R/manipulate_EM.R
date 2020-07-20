@@ -78,12 +78,14 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
     new_dat$lencomp <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
   }
   # add in age comps
-  acomps <- lapply(dat, function(x) {
-    tmp <- combine_cols(x, "agecomp",
-             c("Yr", "Seas", "FltSvy", "Gender", "Part", "Lbin_lo", "Lbin_hi"))
-  })
-  matches_a <- which(acomps[[1]][, "combo"] %in% acomps[[2]][, "combo"])
-  new_dat$agecomp <- acomps[[1]][matches_a, -ncol(acomps[[1]])]
+  if(!is.null(dat[["agecomp"]])) {
+    acomps <- lapply(dat, function(x) {
+      tmp <- combine_cols(x, "agecomp",
+               c("Yr", "Seas", "FltSvy", "Gender", "Part", "Lbin_lo", "Lbin_hi"))
+    })
+    matches_a <- which(acomps[[1]][, "combo"] %in% acomps[[2]][, "combo"])
+    new_dat$agecomp <- acomps[[1]][matches_a, -ncol(acomps[[1]])]
+  }
   # TODO: check this for other types of data, esp. mean size at age, k
   # and mean size.
 
