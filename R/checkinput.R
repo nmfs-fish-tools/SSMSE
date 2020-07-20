@@ -73,10 +73,10 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     stop("Models with mean body size observations cannot yet be used as OMs ",
          "or EMs in SSMSE")
   }
-  if (OM_dat$use_MeanSize_at_Age_obs == 1 | EM_dat$use_meanbodywt == 1) {
-    stop("Models with mean size-at-age observations cannot yet be used as OMs ",
-         "or EMs in SSMSE")
-  }
+  # if (OM_dat$use_MeanSize_at_Age_obs == 1 | EM_dat$use_meanbodywt == 1) {
+  #   stop("Models with mean size-at-age observations cannot yet be used as OMs ",
+  #        "or EMs in SSMSE")
+  # }
   # check population length bins
   # check lcomp bins and lcomp bins (if exists)
   if (EM_dat$use_lencomp == 1) {
@@ -243,11 +243,11 @@ check_EM_forecast <- function(fore, n_flts_catch = NULL) {
     msg <- c(msg, "Forecast set to -1 or 0, but needs to be turned on. ")
   }
   # check allocation defined if the fleets with catch > 1
-  if (!is.null(n_flts_catch)) {
-    if (fore[["N_allocation_groups"]] == 0 & n_flts_catch > 1) {
-      msg <- c(msg, "Fleets with catch > 1, so allocation must be defined.")
-    }
-  }
+  # if (!is.null(n_flts_catch)) {
+  #   if (fore[["N_allocation_groups"]] == 0 & n_flts_catch > 1) {
+  #     msg <- c(msg, "Fleets with catch > 1, so allocation must be defined.")
+  #   }
+  # }
   # check rebuilder off (in the future, the option to use rebuilder could be
   # added?)
   if (fore[["Do_West_Coast_gfish_rebuilder_output"]] == 1) {
