@@ -94,7 +94,7 @@ create_OM <- function(OM_out_dir,
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
   # get recdevs for all model yeasrs
-  all_recdevs <- all_recdevs[all_recdevs$year >= dat$styr && all_recdevs$year <= dat$endyr, ]
+  all_recdevs <- all_recdevs[all_recdevs$year >= dat$styr & all_recdevs$year <= dat$endyr, ]
   new_recdevs_df <- data.frame(year = dat$styr:dat$endyr, recdev = NA)
   for (i in seq_along(dat$styr:dat$endyr)) {
     tmp_yr <- (dat$styr:dat$endyr)[i]
