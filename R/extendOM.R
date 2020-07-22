@@ -12,13 +12,6 @@
 #' @param discards A dataframe of discard values an dassociated information to
 #'  add to the OM. The column names are as in an SS datafile.
 #' @param OM_dir The full path to the OM directory.
-#' @param dummy_dat_scheme The sampling scheme for dummy data. Current options
-#'  are NULL, which means no new dummy data will be added CPUE, length comps, or
-#'  age comps, or \code{"all"}, which means that new years of data will be added
-#'  for CPUE, length comps (if using), and age comps, for all new years and
-#'  combinations of fleet and season. For length comps and age comps, a dummy
-#'  value will also be added for each combination of other metadata values,
-#'  including (but not limited to ) sex, partition, and bin high and low values.
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
@@ -31,7 +24,7 @@
 extend_OM <- function(catch,
                       discards,
                       OM_dir,
-                      dummy_dat_scheme = NULL,
+                      sample_struct = NULL,
                       nyrs_extend = 3,
                       write_dat = TRUE,
                       rec_devs = NULL,
@@ -191,122 +184,60 @@ extend_OM <- function(catch,
                          overwrite = TRUE, verbose = FALSE)
   r4ss::SS_writepar_3.30(parlist = parlist,
                          outfile = file.path(OM_dir, "ss.par"), overwrite = TRUE)
-  # add in dummy data: just do for indices, comps for now. Always do this in
-  # case the EM needs this input (should be okay to remove if not needed?)
-  if (!is.null(dummy_dat_scheme)) {
-    if (dummy_dat_scheme == "all") {
-      # figure out which unique combos of fleets and seas exist in each of
-      # CPUE, lencomp, agecomp, then get the dummy values
-      CPUE_combo <- dat$CPUE[, c("seas", "index")]
-      CPUE_combo$index <- abs(CPUE_combo$index)
-      CPUE_combo <- unique(CPUE_combo)
-      # get sample size to use
-      # TODO make this more general
-      se_log_val <- get_input_value(data = dat[["CPUE"]],
-                                    method = "most_common_value",
-                                    colname = "se_log",
-                                    group = "index")
-      if (verbose) {
-        message("Input uncertainty for extending OM CPUE currently can only ",
-                "have a single value for each fleet. All CPUE data added to ",
-                "the operating model is assigned the most common value of ",
-                "se_log for each fleet.")
-      }
-      for (i in 1:nrow(CPUE_combo)) { # loop through combinations and add
-        tmp_se_log_val <- se_log_val[se_log_val$index == CPUE_combo$index[i],
-                                     "se_log"]
-        assertive.properties::assert_is_atomic(tmp_se_log_val)
-        assertive.properties::assert_is_of_length(tmp_se_log_val, 1)
-        tmp_CPUE_df <- data.frame(year = (dat$endyr - nyrs_extend + 1):dat$endyr,
-                                  seas = CPUE_combo$seas[i],
-                                  index = -CPUE_combo$index[i],
-                                  obs = 1,
-                                  se_log = tmp_se_log_val) # need to make this more general.
-       dat$CPUE <- rbind(dat$CPUE, tmp_CPUE_df)
-      }
-      if (dat$use_lencomp == 1) {
-        meta_cols_lencomp <- c("Seas", "FltSvy", "Gender", "Part")
-        lencomp_combo <- dat$lencomp[, meta_cols_lencomp]
-        lencomp_combo$FltSvy <- abs(lencomp_combo$FltSvy)
-        lencomp_combo <- unique(lencomp_combo)
-        # get col names to use later
-        lencomp_dat_colnames <- colnames(dat$lencomp)[7:ncol(dat$lencomp)]
-        # TODO: add more options for extending len comp
-        len_Nsamp_val <- get_input_value(data = dat[["lencomp"]],
-                                      method = "most_common_value",
-                                      colname = "Nsamp",
-                                      group = "FltSvy")
-        if (verbose) {
-          message("Input uncertainty for extending OM lencomp currently can ",
-                   "only have a single value for each fleet. All lencomp data ",
-                   "added to the operating model is assigned the most common ",
-                   "value of Nsamp for each fleet.")
-        }
-        for (i in 1:nrow(lencomp_combo)) {
-          tmp_len_Nsamp_val <- len_Nsamp_val[len_Nsamp_val$"FltSvy" == lencomp_combo[i, "FltSvy"],
-                                             "Nsamp"]
-          assertive.properties::assert_is_atomic(tmp_len_Nsamp_val)
-          assertive.properties::assert_is_of_length(tmp_len_Nsamp_val, 1)
-          lencomp_df <- data.frame(Yr = (dat$endyr - nyrs_extend + 1):dat$endyr,
-                                   Seas = lencomp_combo[i, "Seas"],
-                                   FltSvy = -lencomp_combo[i, "FltSvy"],
-                                   Gender = lencomp_combo[i, "Gender"],
-                                   Part = lencomp_combo[i, "Part"],
-                                   Nsamp = tmp_len_Nsamp_val
-                                   )
-          # get col names
-          tmp_df_dat <- matrix(1,
-                               nrow = nrow(lencomp_df),
-                               ncol = length(lencomp_dat_colnames))
-          colnames(tmp_df_dat) <- lencomp_dat_colnames
-          lencomp_df <- cbind(lencomp_df, as.data.frame(tmp_df_dat))
-          dat$lencomp <- rbind(dat$lencomp, lencomp_df)
-        }
-      }
-      if(!is.null(dat$agecomp)) {
-        meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr",
-                               "Lbin_lo", "Lbin_hi")
-        agecomp_combo <- dat$agecomp[, meta_cols_agecomp]
-        agecomp_combo$FltSvy <- abs(agecomp_combo$FltSvy)
-        agecomp_combo <- unique(agecomp_combo)
-        # get col names to use later
-        agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
-        age_Nsamp_val <- get_input_value(data = dat[["agecomp"]],
-                                         method = "most_common_value",
-                                         colname = "Nsamp",
-                                         group = "FltSvy")
-        if (verbose) {
-          message("Input uncertainty for extending OM agecomp currently can only",
-                  " have a single value for each fleet. All agecomp data added ",
-                  "to the operating model is assigned the most common value of ",
-                  "Nsamp for each fleet.")
-        }
-        for (i in 1:nrow(agecomp_combo)) {
-          tmp_age_Nsamp_val <- age_Nsamp_val[
-          age_Nsamp_val$FltSvy == agecomp_combo[i, "FltSvy"], "Nsamp"]
-          assertive.properties::assert_is_atomic(tmp_age_Nsamp_val)
-          assertive.properties::assert_is_of_length(tmp_age_Nsamp_val, 1)
-          agecomp_df <- data.frame(Yr = (dat$endyr - nyrs_extend + 1):dat$endyr,
-                                   Seas = agecomp_combo[i, "Seas"],
-                                   FltSvy = -agecomp_combo[i, "FltSvy"],
-                                   Gender = agecomp_combo[i, "Gender"],
-                                   Part = agecomp_combo[i, "Part"],
-                                   Ageerr = agecomp_combo[i, "Ageerr"],
-                                   Lbin_lo = agecomp_combo[i, "Lbin_lo"],
-                                   Lbin_hi = agecomp_combo[i, "Lbin_hi"],
-                                   Nsamp = tmp_age_Nsamp_val
-          )
-          tmp_df_dat <- matrix(1,
-                               nrow = nrow(agecomp_df),
-                               ncol = length(agecomp_dat_colnames))
-          colnames(tmp_df_dat) <- agecomp_dat_colnames
-          agecomp_df <- cbind(agecomp_df, as.data.frame(tmp_df_dat))
-          dat$agecomp <- rbind(dat$agecomp, agecomp_df)
-        }
-      }
-    } else {
-      stop("Code to add in dummy data lines for a specific scheme has not yet",
-           "been implemented. Please use dummy_dat_scheme = 'all'.")
+  # add in future years data that the EM will need.
+  if (!is.null(sample_struct)) {
+    tmp_CPUE <- sample_struct[["CPUE"]]
+    if(!is.null(tmp_CPUE)) {
+      tmp_CPUE <- tmp_CPUE[tmp_CPUE$year >= (dat$endyr - nyrs_extend + 1) &
+                           tmp_CPUE$year <= dat$endyr, ]
+      tmp_CPUE$obs <- 1 #dummy observation
+      tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
+      tmp_CPUE$index <- -abs(tmp_CPUE$index)
+      dat$CPUE <- rbind(dat$CPUE, tmp_CPUE)
+    }
+
+    # This method of adding new data doesn't work if len comp is not already 
+    # turned on. Add warninig for now, but could potentially turn on len comp 
+    # for the user in the OM?
+    if (dat$use_lencomp == 0 & !is.null(sample_struct[["lencomp"]])) {
+      warning("Length composition is not specified in the OM, but the lencomp ",
+              "sampling was requested through sample_struct. Please turn on ",
+              "length comp in the OM to allow lencomp sampling.")
+    }
+    if (dat$use_lencomp == 1 & !is.null(sample_struct[["lencomp"]])) {
+      tmp_lencomp <- sample_struct[["lencomp"]]
+      tmp_lencomp <- tmp_lencomp[tmp_lencomp$Yr >= (dat$endyr - nyrs_extend + 1) &
+                             tmp_lencomp$Yr <= dat$endyr, ]
+      # get col names
+      lencomp_dat_colnames <- colnames(dat$lencomp)[7:ncol(dat$lencomp)]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_lencomp),
+                           ncol = length(lencomp_dat_colnames))
+      colnames(tmp_df_dat) <- lencomp_dat_colnames
+      tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
+      tmp_lencomp$FltSvy <- -abs(tmp_lencomp$FltSvy) # make sure negative
+      dat$lencomp <- rbind(dat$lencomp, tmp_lencomp)
+    }
+    # TODO: can write code that adds age comp obs when dat$agecomp is NULL.
+    if(is.null(dat$agecomp) & !is.null(sample_struct[["agecomp"]])) {
+      warning("Age composition is not specified in the OM, but the agecomp ",
+              "sampling was requested through sample_struct. Please turn on ",
+              "age comp in the OM by adding at least  to allow agecomp ", 
+              "sampling.")
+    }
+    if(!is.null(dat$agecomp) & !is.null(sample_struct[["agecomp"]])) {
+      tmp_agecomp <- sample_struct[["agecomp"]]
+      tmp_agecomp <- tmp_agecomp[tmp_agecomp$Yr >= (dat$endyr - nyrs_extend + 1) &
+                                   tmp_agecomp$Yr <= dat$endyr, ]
+      # get col names
+      agecomp_dat_colnames <- colnames(dat$agecomp)[7:ncol(dat$agecomp)]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_agecomp),
+                           ncol = length(agecomp_dat_colnames))
+      colnames(tmp_df_dat) <- agecomp_dat_colnames
+      tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
+      tmp_agecomp$FltSvy <- -abs(tmp_agecomp$FltSvy) # make sure negative
+      dat$agecomp <- rbind(dat$agecomp, tmp_agecomp)
     }
   }
   # write the new data file

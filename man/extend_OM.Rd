@@ -8,7 +8,7 @@ extend_OM(
   catch,
   discards,
   OM_dir,
-  dummy_dat_scheme = NULL,
+  sample_struct = NULL,
   nyrs_extend = 3,
   write_dat = TRUE,
   rec_devs = NULL,
@@ -26,14 +26,6 @@ length of the number of years (only works when catch is for 1 fleet)}
 add to the OM. The column names are as in an SS datafile.}
 
 \item{OM_dir}{The full path to the OM directory.}
-
-\item{dummy_dat_scheme}{The sampling scheme for dummy data. Current options
-are NULL, which means no new dummy data will be added CPUE, length comps, or
-age comps, or \code{"all"}, which means that new years of data will be added
-for CPUE, length comps (if using), and age comps, for all new years and
-combinations of fleet and season. For length comps and age comps, a dummy
-value will also be added for each combination of other metadata values,
-including (but not limited to ) sex, partition, and bin high and low values.}
 
 \item{nyrs_extend}{An integer value of years to extend the model forward. Defaults
 to an arbitrary value of 3.}
