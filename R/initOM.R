@@ -69,14 +69,18 @@ create_OM <- function(OM_out_dir,
   forelist[["Flimitfraction"]] <- 1 
   
   # convert forecast year selectors to standard form
-  for(i in 1:10){
-    if(forelist[["Bmark_years"]][i] > 0){
-      forelist[["Bmark_years"]][i] <- dat[["endyr"]]+forelist[["Bmark_years"]][i]
-    }
-  }
-  for(i in 1:6){
-    if(forelist[["Fcast_years"]][i] > 0){
-      forelist[["Fcast_years"]][i] <- dat[["endyr"]]+forelist[["Fcast_years"]][i]
+  for(i in 1:6) {
+    x <- forelist[["Fcast_years"]][i]
+    if (forelist[["Fcast_years"]][i] == dat[["styr"]]) {
+      forelist[["Fcast_years"]][i] <- -999
+    } else if (forelist[["Fcast_years"]][i] == dat[["endyr"]]) {
+      forelist[["Fcast_years"]][i] <- 0
+    } else if (forelist[["Fcast_years"]][i] > dat[["styr"]] &
+               forelist[["Fcast_years"]][i] < dat[["endyr"]]) {
+      forelist[["Fcast_years"]][i] <- forelist[["Fcast_years"]][i] - dat[["endyr"]] # make it relative to endyr
+    } else {
+      stop("Year in fcast file out of range. Please change to be within ",
+           "start and end yrs. Check Fcast_years")
     }
   }
   # put together a Forecatch dataframe using retained catch as a starting point for the OM
