@@ -193,7 +193,31 @@ add_new_dat <- function(OM_dat,
       function(df, df_name, OM_dat) {
         OM_df <- OM_dat[[df_name]]
         OM_df[, 3] <- abs(OM_df[, 3]) # get rid of negative fleet values from OM
-        new_dat <- merge(df, OM_df, all.x = TRUE, all.y = FALSE)
+
+        by_val <- switch(df_name, 
+               "catch" = c("year", "seas", "fleet"), 
+               "CPUE" = c("year", "seas", "index"), 
+               "lencomp" = c("Yr", "Seas", "FltSvy", "Gender", "Part"),
+               "agecomp" = c("Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", 
+                             "Lbin_lo", "Lbin_hi")
+               )
+        new_dat <- merge(df, OM_df, by = by_val, all.x = TRUE, all.y = FALSE)
+        # Sample sizes are likely different from user inputs if there is 
+        # variance adjustment values or extra SD. Keep the Nsamp.y value
+        # (from the bootstrap sample) To be consistent with other bootstrap
+        # model values
+        if("catch_se.y" %in% colnames(new_dat)) {
+          new_dat[["catch_se.x"]] <- NULL
+          colnames(new_dat)[which(colnames(new_dat) == "catch_se.y")] <- "catch_se"
+        }
+        if("se_log.y" %in% colnames(new_dat)) {
+          new_dat[["se_log.x"]] <- NULL
+          colnames(new_dat)[which(colnames(new_dat) == "se_log.y")] <- "se_log"
+        }
+        if("Nsamp.y" %in% colnames(new_dat)) {
+          new_dat[["Nsamp.x"]] <- NULL
+          colnames(new_dat)[which(colnames(new_dat) == "Nsamp.y")] <- "Nsamp"
+        }
         # warn if there were matches not found for OM_df, but remove to continue
         if (any(is.na(new_dat))) {
           warning("Some values specified in sample_struct (list component ", df_name,
