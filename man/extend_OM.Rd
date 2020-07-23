@@ -27,6 +27,8 @@ add to the OM. The column names are as in an SS datafile.}
 
 \item{OM_dir}{The full path to the OM directory.}
 
+\item{sample_struct}{The sample structure dataframe.}
+
 \item{nyrs_extend}{An integer value of years to extend the model forward. Defaults
 to an arbitrary value of 3.}
 

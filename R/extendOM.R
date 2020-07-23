@@ -12,6 +12,7 @@
 #' @param discards A dataframe of discard values an dassociated information to
 #'  add to the OM. The column names are as in an SS datafile.
 #' @param OM_dir The full path to the OM directory.
+#' @param sample_struct The sample structure dataframe.
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
