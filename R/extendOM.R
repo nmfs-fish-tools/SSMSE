@@ -191,10 +191,12 @@ extend_OM <- function(catch,
     if(!is.null(tmp_CPUE)) {
       tmp_CPUE <- tmp_CPUE[tmp_CPUE$year >= (dat$endyr - nyrs_extend + 1) &
                            tmp_CPUE$year <= dat$endyr, ]
-      tmp_CPUE$obs <- 1 #dummy observation
-      tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
-      tmp_CPUE$index <- -abs(tmp_CPUE$index)
-      dat$CPUE <- rbind(dat$CPUE, tmp_CPUE)
+      if(nrow(tmp_CPUE) > 0) {
+        tmp_CPUE$obs <- 1 #dummy observation
+        tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
+        tmp_CPUE$index <- -abs(tmp_CPUE$index)
+        dat$CPUE <- rbind(dat$CPUE, tmp_CPUE)
+      }
     }
 
     # This method of adding new data doesn't work if len comp is not already 
@@ -209,15 +211,17 @@ extend_OM <- function(catch,
       tmp_lencomp <- sample_struct[["lencomp"]]
       tmp_lencomp <- tmp_lencomp[tmp_lencomp$Yr >= (dat$endyr - nyrs_extend + 1) &
                              tmp_lencomp$Yr <= dat$endyr, ]
-      # get col names
-      lencomp_dat_colnames <- colnames(dat$lencomp)[7:ncol(dat$lencomp)]
-      tmp_df_dat <- matrix(1,
-                           nrow = nrow(tmp_lencomp),
-                           ncol = length(lencomp_dat_colnames))
-      colnames(tmp_df_dat) <- lencomp_dat_colnames
-      tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
-      tmp_lencomp$FltSvy <- -abs(tmp_lencomp$FltSvy) # make sure negative
-      dat$lencomp <- rbind(dat$lencomp, tmp_lencomp)
+      if(nrow(tmp_lencomp) > 0 ) {
+        # get col names
+        lencomp_dat_colnames <- colnames(dat$lencomp)[7:ncol(dat$lencomp)]
+        tmp_df_dat <- matrix(1,
+                             nrow = nrow(tmp_lencomp),
+                             ncol = length(lencomp_dat_colnames))
+        colnames(tmp_df_dat) <- lencomp_dat_colnames
+        tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
+        tmp_lencomp$FltSvy <- -abs(tmp_lencomp$FltSvy) # make sure negative
+        dat$lencomp <- rbind(dat$lencomp, tmp_lencomp)
+      }
     }
     # TODO: can write code that adds age comp obs when dat$agecomp is NULL.
     if(is.null(dat$agecomp) & !is.null(sample_struct[["agecomp"]])) {
@@ -230,15 +234,17 @@ extend_OM <- function(catch,
       tmp_agecomp <- sample_struct[["agecomp"]]
       tmp_agecomp <- tmp_agecomp[tmp_agecomp$Yr >= (dat$endyr - nyrs_extend + 1) &
                                    tmp_agecomp$Yr <= dat$endyr, ]
-      # get col names
-      agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
-      tmp_df_dat <- matrix(1,
-                           nrow = nrow(tmp_agecomp),
-                           ncol = length(agecomp_dat_colnames))
-      colnames(tmp_df_dat) <- agecomp_dat_colnames
-      tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
-      tmp_agecomp$FltSvy <- -abs(tmp_agecomp$FltSvy) # make sure negative
-      dat$agecomp <- rbind(dat$agecomp, tmp_agecomp)
+      if(nrow(tmp_agecomp) > 0) {
+        # get col names
+        agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
+        tmp_df_dat <- matrix(1,
+                             nrow = nrow(tmp_agecomp),
+                             ncol = length(agecomp_dat_colnames))
+        colnames(tmp_df_dat) <- agecomp_dat_colnames
+        tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
+        tmp_agecomp$FltSvy <- -abs(tmp_agecomp$FltSvy) # make sure negative
+        dat$agecomp <- rbind(dat$agecomp, tmp_agecomp)
+      }
     }
   }
   # write the new data file
