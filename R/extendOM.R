@@ -231,7 +231,7 @@ extend_OM <- function(catch,
       tmp_agecomp <- tmp_agecomp[tmp_agecomp$Yr >= (dat$endyr - nyrs_extend + 1) &
                                    tmp_agecomp$Yr <= dat$endyr, ]
       # get col names
-      agecomp_dat_colnames <- colnames(dat$agecomp)[7:ncol(dat$agecomp)]
+      agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
       tmp_df_dat <- matrix(1,
                            nrow = nrow(tmp_agecomp),
                            ncol = length(agecomp_dat_colnames))
