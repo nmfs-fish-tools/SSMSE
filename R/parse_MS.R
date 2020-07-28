@@ -46,9 +46,6 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
   # parsing management strategies ----
   # Interim Assessment ----
   if(MS == "Interim") {
-    if(is.null(interim_struct)){
-      interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
-    }
     #check_dir(EM_out_dir)
     # name for reference data file 
     ref_datfile_name <- "ref_dat.ss"
@@ -82,20 +79,26 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                        file = "starter.ss",
                        overwrite = TRUE,
                        verbose = FALSE)
+      ref_index <- Reference_dat[["CPUE"]]
+      if(is.null(interim_struct)){
+        interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+      }
       
       for(j in 1:(interim_struct[["assess_freq"]]+interim_struct[["MA_years"]])){
         for(i in 1:length(unique(Reference_dat$CPUE$index))){
           temp_index<-unique(Reference_dat$CPUE$index)[i]
-          new_year<-(Reference_dat$endyr+j-interim_struct[["MA_years"]])
+          new_year<-as.numeric((Reference_dat$endyr+j-interim_struct[["MA_years"]]))
           check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==temp_index,,drop=FALSE]
-          check_vec<-check_vec[check_vec$year==new_year,]
-          temp_vec<-temp_vec[1,,drop=FALSE]
-          if(length(check_vec[,1])==0){
-            temp_vec[1,1]<-new_year
-            temp_vec[1,4]<-1
-            temp_vec[1,5]<-10
-            temp_vec[1,3]<-(-temp_vec[1,3])
-            Reference_dat$CPUE<-rbind(Reference_dat$CPUE,temp_vec)
+          if(length(check_vec[,1])>0){
+            check_vec<-check_vec[as.numeric(check_vec$year)==new_year,,drop=FALSE]
+            temp_vec<-temp_vec[1,,drop=FALSE]
+            if(length(check_vec[,1])==0){
+              temp_vec[1,1]<-new_year
+              temp_vec[1,4]<-1
+              temp_vec[1,5]<-10
+              temp_vec[1,3]<-(-temp_vec[1,3])
+              Reference_dat$CPUE<-rbind(Reference_dat$CPUE,temp_vec)
+            }
           }
         }
       }
@@ -194,6 +197,10 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         ref_index[["index"]]<-abs(ref_index[["index"]])
         curr_index <- OM_dat[["CPUE"]]
         curr_index[["index"]]<-abs(curr_index[["index"]])
+        
+        if(is.null(interim_struct)){
+          interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+        }
         
         curr_index <- curr_index[is.element(curr_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
         ref_index <- ref_index[is.element(ref_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
