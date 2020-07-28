@@ -460,7 +460,7 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
   OM_out_dir <- file.path(out_dir, OM_folder_name)
   dir.create(OM_out_dir, showWarnings = FALSE)
   # Add the EM dir, if necessary
-  if (MS == "EM") {
+  if (MS == "EM" || MS == "Interim") {
     if (is.null(EM_name) & is.null(EM_in_dir)) {
       stop("Management Strategy (MS) is EM (estimation model), but both EM_name",
            " and EM_in_dir are null. Please specify either EM_name or EM_in_dir, or ",
@@ -538,7 +538,7 @@ copy_model_files <- function(OM_in_dir = NULL,
   # checks
   if (!is.null(OM_in_dir)) {
     if (!all(c("control.ss_new", "data.ss_new", "starter.ss_new",
-              "forecast.ss_new") %in% list.files(OM_in_dir))) {
+              "forecast.ss_new", "ss.par") %in% list.files(OM_in_dir))) {
       stop(".ss_new files not found in the original OM directory ",
            OM_in_dir, ". Please run the model to make the .ss_new files available.")
     }
@@ -569,6 +569,7 @@ copy_model_files <- function(OM_in_dir = NULL,
     success_EM <- r4ss::copy_SS_inputs(dir.old = EM_in_dir,
                    dir.new = EM_out_dir,
                    overwrite = FALSE,
+                   copy_par = TRUE,
                    verbose = FALSE)
     if (success_EM == FALSE) {
       stop("Problem copying SS EM files from ", EM_in_dir, "to",

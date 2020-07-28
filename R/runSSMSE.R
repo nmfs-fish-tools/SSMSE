@@ -67,6 +67,13 @@
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
+#' @param interim_struct_list A optional list of parameters to control an interim assessment
+#'  with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
+#'  MA_years= the number of years to average index observations of when calculating deviations, 
+#'  assess_freq=the number of years between full assessments during with an interim assessment will happen
+#'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
+#'  inference. 
+#'  interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
 #' @param seed Input a fixed seed to replicate previous simulation runs. seed can be a single value
 #' for a global seed, n_scenarios+1 length vector for scenario specific and a global seed, 
 #' n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
@@ -118,7 +125,7 @@
 #'                           impl_error_pattern = c("none", "rand", "user"),
 #'                           impl_error_pars = NULL,
 #'                           verbose = FALSE,
-#'                           seed=NULL
+#'                           seed=NULL,
 #'                           sample_struct_list = my_sample_struct_list)
 #'   unlink(my_dir, recursive = TRUE)
 #' }
@@ -140,6 +147,7 @@ run_SSMSE <- function(scen_name_vec,
                       impl_error_pattern = c("none", "rand", "user"),
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
+                      interim_struct_list = NULL,
                       verbose = FALSE,
                       seed = NULL) {
   # input checks
@@ -149,8 +157,8 @@ run_SSMSE <- function(scen_name_vec,
                                            "AutoCorr_Spec", "vector"))
   impl_error_pattern <- match.arg(impl_error_pattern, 
                                   choices = c("none", "rand", "user"))
-  if(!all(MS_vec %in% c("EM", "no_catch"))) {
-    stop("MS_vec can only include 'EM' or 'no_catch'.")
+  if(!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
+    stop("MS_vec can only include 'EM', 'no_catch', or 'Interim'.")
   }
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
@@ -236,6 +244,7 @@ run_SSMSE <- function(scen_name_vec,
     scen_seed[["scenario"]] <- seed[["scenario"]][i]
     scen_seed[["iter"]] <- seed[["iter"]][[i]]
     scen_list[[i]][["scen_seed"]] <- scen_seed
+    scen_list[[i]][["interim_struct"]] <- interim_struct_list
   }
     
   # pass each scenario to run
@@ -256,7 +265,8 @@ run_SSMSE <- function(scen_name_vec,
                    rec_devs_scen = tmp_scen[["rec_devs"]],
                    impl_error = tmp_scen[["impl_error"]],
                    scen_seed = tmp_scen[["scen_seed"]],
-                   sample_struct = tmp_scen[["sample_struct"]],
+                   sample_struct = tmp_scen[["sample_struct"]], 
+                   interim_struct = tmp_scen[["interim_struct"]],
                    verbose = verbose)
   }
   message("Completed all SSMSE scenarios")
@@ -341,7 +351,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            rec_devs_scen = NULL,
                            impl_error = NULL,
                            scen_seed = NULL,
-                           sample_struct = NULL,
+                           sample_struct = NULL, 
+                           interim_struct = NULL,
                            verbose = FALSE) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
@@ -398,7 +409,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                    impl_error = impl_error[[i]],
                    niter = max_prev_iter + i,
                    iter_seed = iter_seed,
-                   sample_struct = sample_struct,
+                   sample_struct = sample_struct, 
+                   interim_struct = interim_struct,
                    verbose = verbose)
   }
   message("Completed all iterations for scenario ", scen_name)
@@ -501,7 +513,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            impl_error = NULL,
                            niter = 1,
                            iter_seed = NULL,
-                           sample_struct = NULL,
+                           sample_struct = NULL, 
+                           interim_struct = NULL,
                            verbose = FALSE) {
   # input checks ----
   # checks for out_dir, OM_name, OM_in_dir, EM_name, EM_in_dir done in create_out_dirs
@@ -585,10 +598,10 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
 
-
+  
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
                            OM_dat = OM_dat, OM_out_dir = OM_out_dir,
-                           verbose = verbose, nyrs_assess = nyrs_assess)
+                           verbose = verbose, nyrs_assess = nyrs_assess, interim_struct = interim_struct)
   message("Finished getting catch (years ",
           (OM_dat$endyr + 1), " to ", (OM_dat$endyr + nyrs_assess),
           ") to feed into OM for iteration ", niter, ".")
@@ -648,12 +661,14 @@ run_SSMSE_iter <- function(out_dir = NULL,
     # loop EM and get management quantities.
     new_catch_list <- parse_MS(MS = MS,
                                EM_out_dir = EM_out_dir,
+                               EM_init_dir = paste0(EM_out_dir_basename, "_init"),
                                OM_dat = new_OM_dat,
                                init_loop = FALSE, verbose = verbose,
                                nyrs_assess = nyrs_assess,
                                OM_out_dir = OM_out_dir,
                                dat_yrs = (yr + 1):(yr + nyrs_assess),
-                               sample_struct = sample_struct)
+                               sample_struct = sample_struct, 
+                               interim_struct = interim_struct)
   message("Finished getting catch (years ", (yr + 1), " to ",
           (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
   }

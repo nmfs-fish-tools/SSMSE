@@ -20,6 +20,7 @@ run_SSMSE_scen(
   impl_error = NULL,
   scen_seed = NULL,
   sample_struct = NULL,
+  interim_struct = NULL,
   verbose = FALSE
 )
 }

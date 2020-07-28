@@ -19,6 +19,7 @@ run_SSMSE_iter(
   niter = 1,
   iter_seed = NULL,
   sample_struct = NULL,
+  interim_struct = NULL,
   verbose = FALSE
 )
 }
