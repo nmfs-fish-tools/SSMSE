@@ -67,8 +67,10 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       start$N_bootstraps <- 2
       start$init_values_src <- 1
       start$last_estimation_phase <- 0
-      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, start[["datfile"]]), version = 3.30)  
-      Reference_forecast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"))
+      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, start[["datfile"]]), version = 3.30,
+                                  verbose = FALSE)  
+      Reference_forecast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"),
+                                            verbose = FALSE)
       SS_writeforecast(mylist = Reference_forecast,
                   dir = EM_out_dir,
                   file = ref_forecast_name,
@@ -115,8 +117,11 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
       
     } else {
-      Reference_dat <- SS_readdat(file = file.path(EM_init_dir, ref_datfile_name), version = 3.30)
-      Reference_forecast <- SS_readforecast(file.path(EM_init_dir, ref_forecast_name))
+      Reference_dat <- SS_readdat(file = file.path(EM_init_dir, ref_datfile_name), 
+                                  version = 3.30,
+                                  verbose = FALSE)
+      Reference_forecast <- SS_readforecast(file.path(EM_init_dir, ref_forecast_name),
+                                            verbose = FALSE)
       
       #TODO: Work on code to run assessments intermitently with interim assessment
       #Sample_year <- (OM_dat[["endyr"]] == (Reference_dat[["endyr"]] + interim_struct[["assess_freq"]]))

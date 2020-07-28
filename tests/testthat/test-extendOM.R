@@ -12,7 +12,8 @@ extdat_path <- system.file("extdata", package = "SSMSE")
 cod_mod <- file.path(extdat_path, "test_mod", "cod_initOM_for_tests")
 # copy cod to the temp_path
 file.copy(cod_mod, temp_path, recursive = TRUE)
-dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"))
+dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"),
+                        verbose = FALSE)
 file.rename(file.path(temp_path, "cod_initOM_for_tests"),
             file.path(temp_path, "cod_initOM1"))
 
@@ -111,7 +112,8 @@ test_that("extend_OM exits on error when it should", {
 
 # copy cod to the temp_path
 file.copy(cod_mod, temp_path, recursive = TRUE)
-dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"))
+dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"),
+                        verbose = FALSE)
 file.rename(file.path(temp_path, "cod_initOM_for_tests"),
             file.path(temp_path, "cod_initOM3"))
 
