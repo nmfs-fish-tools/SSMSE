@@ -64,10 +64,11 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       start$N_bootstraps <- 2
       start$init_values_src <- 1
       start$last_estimation_phase <- 0
-      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, start[["datfile"]]), version = 3.30)  
-      Reference_ctl <- SS_readctl(file = file.path(EM_out_dir, start[["ctlfile"]]), use_datlist = TRUE, datlist = Reference_dat)
-      Reference_forecast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"))
-      Reference_par <- SS_readpar_3.30(parfile=file.path(EM_out_dir, "ss.par"), datsource = Reference_dat, ctlsource = Reference_ctl)
+      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, start[["datfile"]]),
+                                  version = 3.30, verbose = FALSE)  
+      Reference_ctl <- SS_readctl(file = file.path(EM_out_dir, start[["ctlfile"]]), use_datlist = TRUE, datlist = Reference_dat, verbose = FALSE)
+      Reference_forecast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"), verbose = FALSE)
+      Reference_par <- SS_readpar_3.30(parfile=file.path(EM_out_dir, "ss.par"), datsource = Reference_dat, ctlsource = Reference_ctl, verbose = FALSE)
       SS_writestarter(mylist = start,
                        dir = EM_out_dir,
                        file = "starter.ss",
@@ -129,7 +130,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       
       run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
       
-      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"), version = 3.30, section = 2)  
+      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"), 
+                                  version = 3.30, section = 2, verbose = FALSE)  
       SS_writedat(Reference_dat,file.path(EM_out_dir, ref_datfile_name),
                   overwrite = TRUE,
                   verbose = FALSE)
