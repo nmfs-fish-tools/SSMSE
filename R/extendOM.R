@@ -107,6 +107,7 @@ extend_OM <- function(catch,
   names(fcast_ret_catch) <- c("year", "seas", "fleet", "retained_catch_fcast")
   catch_diff_df <- merge(catch,fcast_ret_catch, all = TRUE)
   catch_diff <- catch_diff_df[, "retained_catch_fcast"] - catch_diff_df[, "catch"]
+  
   if (all(catch[, "catch"] != 0)) {
     if (max(abs(catch_diff) / abs(catch_diff_df[, "catch"])) > 0.0001) {
       stop("Forecasted retained catch - ",

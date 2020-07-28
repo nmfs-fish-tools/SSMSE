@@ -65,13 +65,9 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       start$init_values_src <- 1
       start$last_estimation_phase <- 0
       Reference_dat <- SS_readdat(file = file.path(EM_out_dir, start[["datfile"]]), version = 3.30)  
+      Reference_ctl <- SS_readctl(file = file.path(EM_out_dir, start[["ctlfile"]]), use_datlist = TRUE, datlist = Reference_dat)
       Reference_forecast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"))
-      SS_writeforecast(mylist = Reference_forecast,
-                  dir = EM_out_dir,
-                  file = ref_forecast_name,
-                  writeAll = TRUE,
-                  overwrite = TRUE,
-                  verbose = FALSE)
+      Reference_par <- SS_readpar_3.30(parfile=file.path(EM_out_dir, "ss.par"), datsource = Reference_dat, ctlsource = Reference_ctl)
       SS_writestarter(mylist = start,
                        dir = EM_out_dir,
                        file = "starter.ss",
@@ -81,20 +77,46 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       if(is.null(interim_struct)){
         interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
       }
+      forecast_adjust<-length(Reference_par$recdev_forecast[,2])-Reference_forecast$Nforecastyrs
+      Reference_forecast$Nforecastyrs <- interim_struct[["assess_freq"]]
+      temp_forecast<-matrix(0,nrow=(Reference_forecast$Nforecastyrs+forecast_adjust),ncol=2)
+      temp_forecast[,1]<-(Reference_dat$endyr+1-forecast_adjust):(Reference_dat$endyr+Reference_forecast$Nforecastyrs-forecast_adjust)
+      colnames(temp_forecast)<-c("year","recdev")
+      Reference_par$recdev_forecast <- as.data.frame(temp_forecast)
+      temp_impl_error<-matrix(0,nrow=(Reference_forecast$Nforecastyrs),ncol=2)
+      temp_impl_error[,1]<-(Reference_dat$endyr+1):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
+      colnames(temp_impl_error)<-c("year","impl_error")
+      Reference_par$Fcast_impl_error <- as.data.frame(temp_impl_error)
       
-      for(j in 1:(interim_struct[["assess_freq"]]+interim_struct[["MA_years"]])){
-        for(i in 1:length(unique(Reference_dat$CPUE$index))){
-          temp_index<-unique(Reference_dat$CPUE$index)[i]
-          new_year<-as.numeric((Reference_dat$endyr+j-interim_struct[["MA_years"]]))
-          check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==temp_index,,drop=FALSE]
+      SS_writepar_3.30(parlist=Reference_par, outfile = file.path(EM_out_dir, "ss.par"), overwrite = TRUE)
+      
+      SS_writeforecast(mylist = Reference_forecast,
+                       dir = EM_out_dir,
+                       file = ref_forecast_name,
+                       writeAll = TRUE,
+                       overwrite = TRUE,
+                       verbose = FALSE)
+      
+      SS_writeforecast(mylist = Reference_forecast,
+                       dir = EM_out_dir,
+                       file = "forecast.ss",
+                       writeAll = TRUE,
+                       overwrite = TRUE,
+                       verbose = FALSE)
+      
+      indices <- unique(abs(Reference_dat$CPUE$index))
+      years <- (Reference_dat$endyr-interim_struct[["MA_years"]]+1):(Reference_dat$endyr+interim_struct[["assess_freq"]])
+      for(j in years){
+        for(i in indices){
+          check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==i,,drop=FALSE]
           if(length(check_vec[,1])>0){
-            check_vec<-check_vec[as.numeric(check_vec$year)==new_year,,drop=FALSE]
+            check_vec<-check_vec[as.numeric(check_vec$year)==j,,drop=FALSE]
             temp_vec<-temp_vec[1,,drop=FALSE]
             if(length(check_vec[,1])==0){
-              temp_vec[1,1]<-new_year
+              temp_vec[1,1]<-j
               temp_vec[1,4]<-1
               temp_vec[1,5]<-10
-              temp_vec[1,3]<-(-temp_vec[1,3])
+              temp_vec[1,3]<-(-i)
               Reference_dat$CPUE<-rbind(Reference_dat$CPUE,temp_vec)
             }
           }
@@ -112,11 +134,18 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                   overwrite = TRUE,
                   verbose = FALSE)
       new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = Reference_dat)
+      if(!is.null(new_catch_list[["catch"]])){
       new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),] 
+      }
+      if(!is.null(new_catch_list[["discards"]])){
       new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+      }
+      if(!is.null(new_catch_list[["catch_bio"]])){
       new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+      }
+      if(!is.null(new_catch_list[["catch_F"]])){
       new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
-      
+      }
     } else {
       Reference_dat <- SS_readdat(file = file.path(EM_init_dir, ref_datfile_name), version = 3.30)
       Reference_forecast <- SS_readforecast(file.path(EM_init_dir, ref_forecast_name))
@@ -212,7 +241,6 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         }
         ref_index <- new_ref_index
         curr_index <- new_curr_index
-        
         adjust_index <- ref_index[,c(1,3,4,4,4,4)]
        
         #interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.  
@@ -226,20 +254,33 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         #interim_struct[["MA_years"]] #a value with the number of years over which to calculate a moving average to test indicies
         
         used_index <- adjust_index[is.element(adjust_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
+        for(i in 1:length(used_index[,5])){
+          used_index[i,5]<-max(min(used_index[i,5],2),0.25)
+        }
         used_index[,6] <- used_index[,6]/sum(used_index[,6])
         
         catch_scaling_factor <- sum(used_index[,5]*used_index[,6])
         
-        new_catch_list <- get_EM_catch_df(EM_dir = EM_init_dir, dat = Reference_dat)
-        new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),] 
-        new_catch_list[["catch"]][["catch"]] <- new_catch_list[["catch"]][["catch"]]*catch_scaling_factor
-        new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
-        new_catch_list[["discards"]][["Discard"]] <- new_catch_list[["discards"]][["Discard"]]*catch_scaling_factor
-        new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
-        new_catch_list[["catch_bio"]][["catch"]] <- new_catch_list[["catch_bio"]][["catch"]]*catch_scaling_factor
-        new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
-        new_catch_list[["catch_F"]][["catch"]] <- new_catch_list[["catch_F"]][["catch"]]*catch_scaling_factor
+        catch_scaling_factor <- max(min(catch_scaling_factor,2),0.25)
         
+        new_catch_list <- get_EM_catch_df(EM_dir = EM_init_dir, dat = Reference_dat)
+        
+        if(!is.null(new_catch_list[["catch"]])){
+          new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),] 
+          new_catch_list[["catch"]][["catch"]] <- new_catch_list[["catch"]][["catch"]]*catch_scaling_factor
+        }
+        if(!is.null(new_catch_list[["discards"]])){
+          new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["discards"]][["Discard"]] <- new_catch_list[["discards"]][["Discard"]]*catch_scaling_factor
+        }
+        if(!is.null(new_catch_list[["catch_bio"]])){
+          new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["catch_bio"]][["catch"]] <- new_catch_list[["catch_bio"]][["catch"]]*catch_scaling_factor
+        }
+        if(!is.null(new_catch_list[["catch_F"]])){
+          new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["catch_F"]][["catch"]] <- new_catch_list[["catch_F"]][["catch"]]*catch_scaling_factor
+        }
       }
     }
   }
