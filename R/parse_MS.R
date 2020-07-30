@@ -81,7 +81,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       forecast_adjust<-length(Reference_par$recdev_forecast[,2])-Reference_forecast$Nforecastyrs
       Reference_forecast$Nforecastyrs <- interim_struct[["assess_freq"]]
       temp_forecast<-matrix(0,nrow=(Reference_forecast$Nforecastyrs+forecast_adjust),ncol=2)
-      temp_forecast[,1]<-(Reference_dat$endyr+1-forecast_adjust):(Reference_dat$endyr+Reference_forecast$Nforecastyrs-forecast_adjust)
+      temp_forecast[,1]<-(Reference_dat$endyr+1-forecast_adjust):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
       colnames(temp_forecast)<-c("year","recdev")
       Reference_par$recdev_forecast <- as.data.frame(temp_forecast)
       temp_impl_error<-matrix(0,nrow=(Reference_forecast$Nforecastyrs),ncol=2)

@@ -61,7 +61,7 @@ extend_OM <- function(catch,
          (dat$endyr + nyrs_extend), ". Please either remove years of catch data or ",
          "the end year of the model longer.")
   }
-
+ 
   # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
@@ -160,6 +160,7 @@ extend_OM <- function(catch,
   parlist$recdev_forecast <-
     get_rec_devs_matrix(yrs = (dat$endyr + nyrs_extend + 1),
                         rec_devs = 0)
+  
   # F values
   add_F_rate <- F_list[["F_rate_fcast"]][,
                     setdiff(colnames(F_list[["F_rate_fcast"]]), "name")]
@@ -167,6 +168,7 @@ extend_OM <- function(catch,
                              (dat$endyr + 1):(dat$endyr + nyrs_extend), ]
   parlist$F_rate <- rbind(parlist$F_rate, add_F_rate)
 
+  parlist$F_rate <- parlist$F_rate[order(parlist$F_rate$fleet,parlist$F_rate$year,parlist$F_rate$seas),]
   # change data file
   dat$catch <- rbind(dat$catch, catch)
   if (dat$N_discard_fleets > 0) {

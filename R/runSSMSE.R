@@ -577,6 +577,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # the par file and potentially change F method to 2 to unify results.
   # TODO allow user to decide through this wrapper function to use add dummy data
   # or not.
+  
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
             verbose = verbose, writedat = TRUE, nyrs_assess = nyrs_assess,
             rec_devs = rec_dev_iter)
