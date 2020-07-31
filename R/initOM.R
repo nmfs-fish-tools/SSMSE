@@ -96,22 +96,81 @@ create_OM <- function(OM_out_dir,
   # only put values in that are in the Fcas year range.
   forelist$ForeCatch <- temp_fore[
     is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess)), ]
+
+  # modify ctl file ----
+  # in the context of an OM, do not want to use the bias adjustment ramp, so just
+  # turn off and make the recdevs years always the same.
+  # UPDATE NOTE: For the OM we do not want bias adjustment in the future. However we
+  # do want the historic period to be consistent with the original assessment model.
+  # We therefore need to add advanced options if not already specified. I am also 
+  # updating the extend EM process to fix the main recdevs end year. This way all new
+  # recdevs become late phase/forecast recdevs which are not subject to sum to zero 
+  # constraints or bias adjustment.
+  if(ctl[["recdev_adv"]]==0){
+    ctl[["recdev_adv"]] <- 1
+    ctl[["recdev_early_start"]] <- 0
+    ctl[["recdev_early_phase"]] <- -4
+    ctl[["Fcast_recr_phase"]] <- 0
+    ctl[["lambda4Fcast_recr_like"]] <- 1
+    ctl[["last_early_yr_nobias_adj"]] <- ctl[["MainRdevYrFirst"]]-1
+    ctl[["first_yr_fullbias_adj"]] <- ctl[["MainRdevYrFirst"]]
+    ctl[["last_yr_fullbias_adj"]] <- ctl[["MainRdevYrLast"]]
+    ctl[["first_recent_yr_nobias_adj"]] <- ctl[["MainRdevYrLast"]]+1
+    ctl[["max_bias_adj"]] <- 0.8
+    ctl[["period_of_cycles_in_recr"]] <- 0
+    ctl[["min_rec_dev"]] <- -10
+    ctl[["max_rec_dev"]] <- 10
+    ctl[["N_Read_recdevs"]] <- 0
+    ctl[["recdev_input"]] <- NULL
+  }
   
+  if(ctl[["recdev_early_start"]]<=0){
+   first_year <- ctl[["MainRdevYrFirst"]] + ctl[["recdev_early_start"]]
+  }else if(ctl[["recdev_early_start"]]<ctl[["MainRdevYrFirst"]]){
+    first_year <- ctl[["recdev_early_start"]]
+  }else(
+    first_year <- ctl[["MainRdevYrFirst"]]
+  )
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
   # get recdevs for all model yeasrs
-  all_recdevs <- all_recdevs[all_recdevs$year >= dat$styr & all_recdevs$year <= dat$endyr, ]
-  new_recdevs_df <- data.frame(year = dat$styr:dat$endyr, recdev = NA)
-  for (i in seq_along(dat$styr:dat$endyr)) {
-    tmp_yr <- (dat$styr:dat$endyr)[i]
+  all_recdevs <- all_recdevs[all_recdevs$year >= first_year & all_recdevs$year <= (dat$endyr + forelist$Nforecastyrs), ]
+  #new_recdevs_df <- data.frame(year = dat$styr:dat$endyr, recdev = NA)
+  new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
+  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]]+1):(dat$endyr + forelist$Nforecastyrs), recdev = NA)
+  for (i in seq_along(first_year:(dat$endyr + forelist$Nforecastyrs))) {
+    
+    tmp_yr <- (first_year:(dat$endyr + forelist$Nforecastyrs))[i]
+    if(tmp_yr<=ctl[["MainRdevYrLast"]]){
+      step<-i
     if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
       new_recdevs_df[i,"recdev"] <- 0 # just assume no recdevs
     } else {
       new_recdevs_df[i,"recdev"] <-
         all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
     }
+    }else if(tmp_yr<=dat$endyr){
+      if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+        fore_recdevs_df[(i-step),"recdev"] <- 0
+      } else {
+        fore_recdevs_df[(i-step),"recdev"] <-
+          all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+      }
+    }else{
+      temp_recs<-get_rec_devs_matrix(yrs = tmp_yr,
+                                 rec_devs = rec_devs)
+      if (length(temp_recs[,"recdev"])==1)  {
+        fore_recdevs_df[(i-step),"recdev"] <- temp_recs[1, "recdev"]  
+      }else if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+        fore_recdevs_df[(i-step),"recdev"] <- 0
+      } else {
+        fore_recdevs_df[(i-step),"recdev"] <-
+          all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+      }
+    }
   }
   new_recdevs_mat <- as.matrix(new_recdevs_df)
+  new_fore_recdevs_mat <- as.matrix(fore_recdevs_df)
   if(!is.null(parlist[["recdev1"]])) {
     parlist[["recdev1"]] <- new_recdevs_mat
   } else if (!is.null(parlist[["recdev2"]])) {
@@ -129,38 +188,14 @@ create_OM <- function(OM_out_dir,
   parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")]
   parlist[["init_F"]] <- F_list[["init_F"]]
   # add recdevs to the parlist
-  parlist[["recdev_forecast"]] <-
-    get_rec_devs_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs),
-                        rec_devs = rec_devs)
+  parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
+    # get_rec_devs_matrix(yrs = (ctl[["MainRdevYrLast"]] + 1):(dat$endyr + forelist$Nforecastyrs),
+    #                     rec_devs = rec_devs)
   # want no implementation error for the forecast, so function adds in 0s.
   parlist[["Fcast_impl_error"]] <-
     get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
 
-  # modify ctl file ----
-  # in the context of an OM, do not want to use the bias adjustment ramp, so just
-  # turn off and make the recdevs years always the same.
-  ctl[["do_recdev"]] <- 2
-  ctl[["MainRdevYrFirst"]] <- dat$styr 
-  ctl[["MainRdevYrLast"]] <- dat$endyr
-  ctl[["recdev_phase"]] <- -2
-  ctl[["recdev_adv"]] <- 1
-  ctl[["recdev_early_start"]] <- 0
-  ctl[["recdev_early_phase"]] <- -4
-  ctl[["Fcast_recr_phase"]] <- 0
-  ctl[["lambda4Fcast_recr_like"]] <- 1
-  ctl[["last_early_yr_nobias_adj"]] <- dat$styr
-  ctl[["first_yr_fullbias_adj"]] <- dat$styr
-  ctl[["last_yr_fullbias_adj"]] <- dat$endyr
-  ctl[["first_recent_yr_nobias_adj"]] <- dat$endyr
-  ctl[["max_bias_adj"]] <- 0
-  ctl[["period_of_cycles_in_recr"]] <- ifelse(
-    is.null(ctl[["period_of_cycles_in_recr"]]),
-    0,
-    ctl[["period_of_cycles_in_recr"]])
-  ctl[["min_rec_dev"]] <- -10
-  ctl[["max_rec_dev"]] <- 10
-  ctl[["N_Read_recdevs"]] <- 0
-  ctl[["recdev_input"]] <- NULL
+  
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
   ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM
   ctl[["F_iter"]] <- NULL # make sure list components used by other F methods are NULL:

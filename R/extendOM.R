@@ -75,9 +75,15 @@ extend_OM <- function(catch,
     impl_error[seq_along(NROW(forelist$ForeCatch[, "catch"]))]
 
   # modify par file ----
-  parlist[["recdev_forecast"]] <- get_rec_devs_matrix(
+  old_recs<-parlist[["recdev_forecast"]]
+  old_recs<-old_recs[old_recs[,"year"]<=dat$endyr,,drop=FALSE]
+  
+  new_recs <- get_rec_devs_matrix(
     yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs),
     rec_devs = rec_devs)
+  
+  parlist[["recdev_forecast"]] <- rbind(old_recs,new_recs)
+  
   # implementation error should always be 0 in the OM
   parlist[["Fcast_impl_error"]] <-
     get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
@@ -146,20 +152,24 @@ extend_OM <- function(catch,
   # recdevs
   # recdev1 is created when using do_rec_devs method 1; recdev2 is created when
   # using do_rec_devs method 2,3,or 4;
-  if (!is.null(parlist$recdev1)) {
-    parlist$recdev1 <- rbind(parlist$recdev1,
-                             parlist$recdev_forecast[seq_len(nyrs_extend), ])
-  } else if (!is.null(parlist$recdev2)) {
-    parlist$recdev2 <- rbind(parlist$recdev2,
-                             parlist$recdev_forecast[seq_len(nyrs_extend), ])
-  }
+  dummy_rec<- get_rec_devs_matrix(yrs = (dat$endyr + nyrs_extend + 1),
+                                  rec_devs = 0)
+  parlist[["recdev_forecast"]] <- rbind(parlist[["recdev_forecast"]],dummy_rec)
+  # 
+  # if (!is.null(parlist$recdev1)) {
+  #   parlist$recdev1 <- rbind(parlist$recdev1,
+  #                            parlist$recdev_forecast[seq_len(nyrs_extend+length(temp_recs[,1])), ])
+  # } else if (!is.null(parlist$recdev2)) {
+  #   parlist$recdev2 <- rbind(parlist$recdev2,
+  #                            parlist$recdev_forecast[seq_len(nyrs_extend), ])
+  # }
   # implementation error
   parlist$Fcast_impl_error <- get_impl_error_matrix(
     yrs = (dat$endyr + nyrs_extend + 1))
   # recdevs
-  parlist$recdev_forecast <-
-    get_rec_devs_matrix(yrs = (dat$endyr + nyrs_extend + 1),
-                        rec_devs = 0)
+  # parlist$recdev_forecast <-
+  #   get_rec_devs_matrix(yrs = (dat$endyr + nyrs_extend + 1),
+  #                       rec_devs = 0)
   
   # F values
   add_F_rate <- F_list[["F_rate_fcast"]][,
@@ -177,9 +187,9 @@ extend_OM <- function(catch,
   dat$endyr <- dat$endyr + nyrs_extend
 
   # modify ctl file ----
-  ctl[["MainRdevYrLast"]] <- dat$endyr
-  ctl[["last_yr_fullbias_adj"]] <- dat$endyr
-  ctl[["first_recent_yr_nobias_adj"]] <- dat$endyr
+  #ctl[["MainRdevYrLast"]] <- dat$endyr
+  #ctl[["last_yr_fullbias_adj"]] <- dat$endyr
+  #ctl[["first_recent_yr_nobias_adj"]] <- dat$endyr
 
   # write out the changed files, except for dat.
   r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_dir, start$ctlfile),

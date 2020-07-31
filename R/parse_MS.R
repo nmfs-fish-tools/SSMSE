@@ -251,8 +251,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         #interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.  
         #interim_struct[["Index_weights"]] #vector of length n indices with values summing to 1
         
-        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]]*curr_index[,5]
-        adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]]*ref_index[,5]
+        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]]#*curr_index[,5]
+        adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]]#*ref_index[,5]
         adjust_index[,5] <- adjust_index[,3]/adjust_index[,4]
         adjust_index[,6] <- interim_struct[["Index_weights"]][adjust_index[,2]]
         
