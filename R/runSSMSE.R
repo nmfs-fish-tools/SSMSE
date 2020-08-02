@@ -630,8 +630,10 @@ run_SSMSE_iter <- function(out_dir = NULL,
     rec_dev_iter <- rec_dev_iter[-(1:nyrs_assess)]
     impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat$nseas * OM_dat$Nfleet)]
     impl_error <- impl_error[-(1:(nyrs_assess * OM_dat$nseas * OM_dat$Nfleet))]
+    
     extend_OM(catch = new_catch_list[["catch"]],
               discards = new_catch_list[["discards"]],
+              harvest_rate = new_catch_list[["catch_F"]],
               OM_dir = OM_out_dir,
               sample_struct = sample_struct,
               nyrs_extend = nyrs_assess,

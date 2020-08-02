@@ -27,6 +27,7 @@ new_catch <- data.frame(
               catch = dat$catch$catch[nrow(dat$catch)],
               catch_se = dat$catch$catch_se[nrow(dat$catch)]
              )
+
 new_yrs <- new_catch$year
 
 # create a dataframe here.

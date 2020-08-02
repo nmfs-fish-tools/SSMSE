@@ -53,7 +53,9 @@ structure will try to be infered from the pattern found for each of the
 datatypes within EM_datfile. Ignored if init_loop is TRUE.}
 
 \item{interim_struct}{An optional including how many years to average over, 
-fleet weights, and the scaling rate of Catch relative to the index change.}
+fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
+and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
+will stay constant during simulation while relative year will progress with simulation).}
 }
 \description{
 This function matches each management strategy with its correct method. And

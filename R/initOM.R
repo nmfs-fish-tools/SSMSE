@@ -68,19 +68,13 @@ create_OM <- function(OM_out_dir,
   forelist[["BfornoF"]] <- 0.0001
   forelist[["Flimitfraction"]] <- 1 
   
-  # convert forecast year selectors to standard form
+  # convert forecast year selectors to absolute form
   for(i in 1:6) {
     x <- forelist[["Fcast_years"]][i]
-    if (forelist[["Fcast_years"]][i] == dat[["styr"]]) {
-      forelist[["Fcast_years"]][i] <- -999
-    } else if (forelist[["Fcast_years"]][i] == dat[["endyr"]]) {
-      forelist[["Fcast_years"]][i] <- 0
-    } else if (forelist[["Fcast_years"]][i] > dat[["styr"]] &
-               forelist[["Fcast_years"]][i] < dat[["endyr"]]) {
-      forelist[["Fcast_years"]][i] <- forelist[["Fcast_years"]][i] - dat[["endyr"]] # make it relative to endyr
-    } else {
-      stop("Year in fcast file out of range. Please change to be within ",
-           "start and end yrs. Check Fcast_years")
+    if(x <= 0){
+      forelist[["Fcast_years"]][i] <- dat[["endyr"]] + x
+    }else if(x < dat[["styr"]] | x > dat[["endyr"]]){
+      stop("Forecast year should be <=0 or between start year and end year")
     }
   }
   # put together a Forecatch dataframe using retained catch as a starting point for the OM
@@ -111,7 +105,7 @@ create_OM <- function(OM_out_dir,
     ctl[["recdev_early_start"]] <- 0
     ctl[["recdev_early_phase"]] <- -4
     ctl[["Fcast_recr_phase"]] <- 0
-    ctl[["lambda4Fcast_recr_like"]] <- 1
+    ctl[["lambda4Fcast_recr_like"]] <- 0
     ctl[["last_early_yr_nobias_adj"]] <- ctl[["MainRdevYrFirst"]]-1
     ctl[["first_yr_fullbias_adj"]] <- ctl[["MainRdevYrFirst"]]
     ctl[["last_yr_fullbias_adj"]] <- ctl[["MainRdevYrLast"]]

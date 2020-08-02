@@ -7,6 +7,7 @@
 extend_OM(
   catch,
   discards,
+  harvest_rate = NULL,
   OM_dir,
   sample_struct = NULL,
   nyrs_extend = 3,
@@ -22,7 +23,10 @@ extend_OM(
  year,    season, fleet,    catch,    catch_se).
 length of the number of years (only works when catch is for 1 fleet)}
 
-\item{discards}{A dataframe of discard values an dassociated information to
+\item{discards}{A dataframe of discard values and associated information to
+add to the OM. The column names are as in an SS datafile.}
+
+\item{harvest_rate}{A dataframe of harvest rate (F) values and associated information to
 add to the OM. The column names are as in an SS datafile.}
 
 \item{OM_dir}{The full path to the OM directory.}

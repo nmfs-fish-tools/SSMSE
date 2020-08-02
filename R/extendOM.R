@@ -9,7 +9,9 @@
 #'  add to the OM. The column names are the same as in an SS data file (e.g.,
 #'  year,	season, fleet,	catch,	catch_se).
 #' length of the number of years (only works when catch is for 1 fleet)
-#' @param discards A dataframe of discard values an dassociated information to
+#' @param discards A dataframe of discard values and associated information to
+#'  add to the OM. The column names are as in an SS datafile.
+#' @param harvest_rate A dataframe of harvest rate (F) values and associated information to
 #'  add to the OM. The column names are as in an SS datafile.
 #' @param OM_dir The full path to the OM directory.
 #' @param sample_struct The sample structure dataframe.
@@ -24,6 +26,7 @@
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 extend_OM <- function(catch,
                       discards,
+                      harvest_rate = NULL,
                       OM_dir,
                       sample_struct = NULL,
                       nyrs_extend = 3,
@@ -61,32 +64,48 @@ extend_OM <- function(catch,
          (dat$endyr + nyrs_extend), ". Please either remove years of catch data or ",
          "the end year of the model longer.")
   }
- 
+  
+  
   # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
-  forelist$Nforecastyrs <- nyrs_extend # should already have this value, but just in case.
-  forelist$ForeCatch <- catch[, c("year", "seas", "fleet", "catch")]
-  # note: may need to change the colnames.
-  # this is the true catch. TODO should impl_error be added or multiplied?
-  # NV: Yes as written this should be multiplied as impl_error defaults to 1.
-  # We could always change the default to 0 and change to addition if people prefered.
-  forelist$ForeCatch[, "catch"] <- forelist$ForeCatch[, "catch"] *
-    impl_error[seq_along(NROW(forelist$ForeCatch[, "catch"]))]
+  forelist[["Nforecastyrs"]] <- nyrs_extend # should already have this value, but just in case.
+  forelist[["InputBasis"]] <- -1
+  
+  temp_catch <- catch[, c("year", "seas", "fleet", "catch")]
+  temp_catch <- cbind(temp_catch, rep(3, length(temp_catch[,1])))
+  
+  temp_catch[, "catch"] <- temp_catch[, "catch"] *
+    impl_error[seq_along(NROW(temp_catch[, "catch"]))]
+  temp_comb <- temp_catch
+  mod_catch<-catch
+  
+  if(!is.null(harvest_rate))
+    {
+  temp_F <- harvest_rate[, c("year", "seas", "fleet", "catch")]
+  temp_F <- cbind(temp_F, rep(99, length(temp_F[,1])))
+  
+  temp_comb[temp_catch[["catch"]]==0, ] <- temp_F[temp_catch[["catch"]]==0, ]
+  mod_catch[mod_catch[["catch"]]==0 & harvest_rate[["catch"]]!=0, "catch"] <- 0.1
+  }
+  
+  colnames(temp_comb) <- c("year", "seas", "fleet", "catch", "basis")
+  forelist[["ForeCatch"]] <- temp_comb
+  catch_intended <- forelist[["ForeCatch"]][, c("year", "seas", "fleet", "catch")]
 
   # modify par file ----
   old_recs<-parlist[["recdev_forecast"]]
-  old_recs<-old_recs[old_recs[,"year"]<=dat$endyr,,drop=FALSE]
+  old_recs<-old_recs[old_recs[,"year"]<=dat[["endyr"]],,drop=FALSE]
   
   new_recs <- get_rec_devs_matrix(
-    yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs),
+    yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]),
     rec_devs = rec_devs)
   
   parlist[["recdev_forecast"]] <- rbind(old_recs,new_recs)
   
   # implementation error should always be 0 in the OM
   parlist[["Fcast_impl_error"]] <-
-    get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
+    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
 
   # write out the changed files ----
   r4ss::SS_writeforecast(mylist = forelist, dir = OM_dir, writeAll = TRUE,
@@ -103,19 +122,30 @@ extend_OM <- function(catch,
   # Extract the achieved F and Catch for the forecast period
   F_list <- get_F(timeseries = outlist$timeseries,
     fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
+  
   units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
+  
   names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
+  
   ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
     units_of_catch = units_of_catch)
   # Check that SS created projections with the intended catches before updating model
   # make sure retained catch is close to the same as the input catch.
+  
+  F_achieved <- F_list$F_rate_fcast[,c("year", "seas", "fleet", "F")]
+  #TODO: Find another way to prevent the zero catch scenario from crashing when F_rate_fcast returns a null
+  # I didn't want to change it to returning 0 F's because I assume that will break a ton of other funtionality.
+  if(!is.null(F_achieved)){
   fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
   names(fcast_ret_catch) <- c("year", "seas", "fleet", "retained_catch_fcast")
-  catch_diff_df <- merge(catch,fcast_ret_catch, all = TRUE)
+  catch_achieved <- fcast_ret_catch
+  catch_achieved[catch_achieved[["retained_catch_fcast"]]==0, "retained_catch_fcast"] <- F_achieved[catch_achieved[["retained_catch_fcast"]]==0, "F"]
+  catch_achieved[is.na(catch_achieved[["retained_catch_fcast"]]), "retained_catch_fcast"] <- 0
+  catch_diff_df <- merge(catch_intended,catch_achieved, all = TRUE)
   catch_diff <- catch_diff_df[, "retained_catch_fcast"] - catch_diff_df[, "catch"]
   
   if (all(catch[, "catch"] != 0)) {
-    if (max(abs(catch_diff) / abs(catch_diff_df[, "catch"])) > 0.0001) {
+    if (max(abs(catch_diff) / (abs(catch_diff_df[, "catch"])+0.00001)) > 0.0001) {
       stop("Forecasted retained catch - ",
            paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
            " - don't match those expected - ",
@@ -142,12 +172,12 @@ extend_OM <- function(catch,
           paste0(catch_diff_df[, "catch"], collapse = ", "))
    }
   }
-
+}
   # extend the number of yrs in the model and add in catch ----
   # modify forecast file - do this to make the forecasting elements simpler for
   # the second run of the OM.
-  forelist$Nforecastyrs <- 1
-  forelist$ForeCatch <- NULL
+  forelist[["Nforecastyrs"]] <- 1
+  forelist[["ForeCatch"]] <- NULL
   # change parfile
   # recdevs
   # recdev1 is created when using do_rec_devs method 1; recdev2 is created when
@@ -180,7 +210,8 @@ extend_OM <- function(catch,
 
   parlist$F_rate <- parlist$F_rate[order(parlist$F_rate$fleet,parlist$F_rate$year,parlist$F_rate$seas),]
   # change data file
-  dat$catch <- rbind(dat$catch, catch)
+  
+  dat$catch <- rbind(dat$catch, mod_catch)
   if (dat$N_discard_fleets > 0) {
     dat$discard_data <- rbind(dat$discard_data, discards)
   }

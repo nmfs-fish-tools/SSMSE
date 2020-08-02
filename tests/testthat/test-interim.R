@@ -17,10 +17,11 @@ test_that("run_SSMSE runs with interim assessment workflow", {
   sample_struct$CPUE <- data.frame(Yr = 101:110, Seas = 7, FltSvy = 2, SE = 0.2)
   sample_struct$agecomp <- NULL
   sample_struct$lencomp <- NULL
-  interim_struct_list <- list(Beta = 1,
-                              MA_years = 3,
+  interim_struct_list <- list(MA_years = 3,
                               assess_freq = 10,
-                              Index_weights = c(1, 1))
+                              Beta = c(1, 1),
+                              Index_weights = c(1, 1),
+                              Ref_years = c(0, 0))
   result <- run_SSMSE(scen_name_vec = "base", # name of the scenario
                       out_dir_scen_vec = temp_path, # directory in which to run the scenario
                       iter_vec = 1, # run with 5 iterations each

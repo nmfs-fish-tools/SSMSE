@@ -26,7 +26,9 @@
 #'  structure will try to be infered from the pattern found for each of the
 #'  datatypes within EM_datfile. Ignored if init_loop is TRUE.
 #' @param interim_struct An optional including how many years to average over, 
-#'  fleet weights, and the scaling rate of Catch relative to the index change.  
+#'  fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
+#'  and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
+#'  will stay constant during simulation while relative year will progress with simulation).  
 #' @author Kathryn Doering & Nathan Vaughan
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 
@@ -76,7 +78,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                        verbose = FALSE)
       ref_index <- Reference_dat[["CPUE"]]
       if(is.null(interim_struct)){
-        interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+        interim_struct<-list(MA_years=3,assess_freq=10,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(1,max(ref_index[,3])))
       }
       forecast_adjust<-length(Reference_par$recdev_forecast[,2])-Reference_forecast$Nforecastyrs
       Reference_forecast$Nforecastyrs <- interim_struct[["assess_freq"]]
@@ -106,9 +108,15 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                        verbose = FALSE)
       
       indices <- unique(abs(Reference_dat$CPUE$index))
-      years <- (Reference_dat$endyr-interim_struct[["MA_years"]]+1):(Reference_dat$endyr+interim_struct[["assess_freq"]])
-      for(j in years){
-        for(i in indices){
+      for(i in indices){
+        if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=Reference_dat$endyr){
+          base_yr<-interim_struct[["Ref_years"]][i]
+        }else{
+          base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]
+        }
+        years <- (base_yr-interim_struct[["MA_years"]]+1):(Reference_dat$endyr+interim_struct[["assess_freq"]])
+        Ref_SE <- median(Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])
+        for(j in years){
           check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==i,,drop=FALSE]
           if(length(check_vec[,1])>0){
             check_vec<-check_vec[as.numeric(check_vec$year)==j,,drop=FALSE]
@@ -116,7 +124,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
             if(length(check_vec[,1])==0){
               temp_vec[1,1]<-j
               temp_vec[1,4]<-1
-              temp_vec[1,5]<-10
+              temp_vec[1,5]<-Ref_SE
               temp_vec[1,3]<-(-i)
               Reference_dat$CPUE<-rbind(Reference_dat$CPUE,temp_vec)
             }
@@ -130,8 +138,39 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       
       run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
       
+      
       Reference_dat <- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"), 
-                                  version = 3.30, section = 2, verbose = FALSE)  
+                                  version = 3.30, section = 2, verbose = FALSE)
+      
+      
+      ### This is test code that calculates the standard error of index residuals that could be 
+      ### an alternative formulation to the mean of the standard errors used above.
+      # Ref_obs<- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"), 
+      #                      version = 3.30, section = 1, verbose = FALSE)
+      # 
+      # indices <- unique(abs(Reference_dat$CPUE$index))
+      # for(i in indices){
+      #   if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=Reference_dat$endyr){
+      #     base_yr<-interim_struct[["Ref_years"]][i]
+      #   }else{
+      #     base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]
+      #   }
+      #   years <- (base_yr-interim_struct[["MA_years"]]+1):(Reference_dat$endyr+interim_struct[["assess_freq"]])
+      #   
+      #   
+      #   Ref_SE <- sqrt(var(Ref_obs$CPUE[Ref_obs$CPUE$index==i,"se_log"] - Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])/(length(Reference_dat$CPUE[Reference_dat$CPUE$index==i, "se_log"])-1))
+      #   
+      #   for(j in years){
+      #     check_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==(-i),,drop=FALSE]
+      #     if(length(check_vec[,1])>0){
+      #       check_vec<-check_vec[as.numeric(check_vec$year)==j,,drop=FALSE]
+      #       if(length(check_vec[,1])==1){
+      #         Reference_dat$CPUE[Reference_dat$CPUE$index==(-i) & as.numeric(Reference_dat$CPUE$year==year),"se_log"]<-Ref_SE
+      #       }
+      #     }
+      #   }
+      # }
+      
       SS_writedat(Reference_dat,file.path(EM_out_dir, ref_datfile_name),
                   overwrite = TRUE,
                   verbose = FALSE)
@@ -228,11 +267,34 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         curr_index[["index"]]<-abs(curr_index[["index"]])
         
         if(is.null(interim_struct)){
-          interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+          interim_struct<-list(MA_years=3,assess_freq=5,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(0,max(ref_index[,3])))
         }
         
-        curr_index <- curr_index[is.element(curr_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
-        ref_index <- ref_index[is.element(ref_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
+        new_ref_index <- ref_index[0,,drop=FALSE]
+        new_curr_index <- curr_index[0,,drop=FALSE]
+        
+        indices <- unique(abs(Reference_dat$CPUE$index))
+        for(i in indices){
+          if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=Reference_dat$endyr){
+            base_yr<-interim_struct[["Ref_years"]][i]
+          }else{
+            base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]
+          }
+          years <- (base_yr-interim_struct[["MA_years"]]+1):base_yr
+          
+          temp_ref_index <- ref_index[is.element(ref_index[,"year"],years),,drop=FALSE]
+          temp_ref_index <- temp_ref_index[temp_ref_index[,"index"]==i,,drop=FALSE]
+          new_ref_index <- rbind(new_ref_index,temp_ref_index)
+          
+          temp_curr_index <- curr_index[is.element(curr_index[,"year"],years),,drop=FALSE]
+          temp_curr_index <- temp_curr_index[temp_curr_index[,"index"]==i,,drop=FALSE]
+          new_curr_index <- rbind(new_curr_index,temp_curr_index)
+        }
+        ref_index <- new_ref_index
+        curr_index <- new_curr_index
+        
+        # curr_index <- curr_index[is.element(curr_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
+        # ref_index <- ref_index[is.element(ref_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
         new_ref_index <- ref_index[0,,drop=FALSE]
         new_curr_index <- curr_index[0,,drop=FALSE]
         for(i in 1:length(ref_index[,1])){
@@ -251,14 +313,14 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         #interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.  
         #interim_struct[["Index_weights"]] #vector of length n indices with values summing to 1
         
-        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]]#*curr_index[,5]
-        adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]]#*ref_index[,5]
+        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]][curr_index[,3]]*curr_index[,5]
+        adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]][ref_index[,3]]*ref_index[,5]
         adjust_index[,5] <- adjust_index[,3]/adjust_index[,4]
         adjust_index[,6] <- interim_struct[["Index_weights"]][adjust_index[,2]]
         
         #interim_struct[["MA_years"]] #a value with the number of years over which to calculate a moving average to test indicies
         
-        used_index <- adjust_index[is.element(adjust_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
+        used_index <- adjust_index
         for(i in 1:length(used_index[,5])){
           used_index[i,5]<-max(min(used_index[i,5],2),0.25)
         }
@@ -272,7 +334,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         
         if(!is.null(new_catch_list[["catch"]])){
           new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),] 
-          new_catch_list[["catch"]][["catch"]] <- new_catch_list[["catch"]][["catch"]]*catch_scaling_factor
+          new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
         }
         if(!is.null(new_catch_list[["discards"]])){
           new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
@@ -280,11 +342,11 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         }
         if(!is.null(new_catch_list[["catch_bio"]])){
           new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
-          new_catch_list[["catch_bio"]][["catch"]] <- new_catch_list[["catch_bio"]][["catch"]]*catch_scaling_factor
+          new_catch_list[["catch_bio"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch_bio"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
         }
         if(!is.null(new_catch_list[["catch_F"]])){
           new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
-          new_catch_list[["catch_F"]][["catch"]] <- new_catch_list[["catch_F"]][["catch"]]*catch_scaling_factor
+          new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
         }
       }
     }
@@ -619,7 +681,7 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   } else {
     # all should be 0. note for now there is no catch_se column.
     catch_bio <- df_catch[, c("year", "seas", "fleet", "catch")]
-    catch_F <- catch_bio
+    catch_F <- NULL
   }
   # TODO: evaluate if this is the correct way to do it and if it is appropriate to
   # add the standard error here?
