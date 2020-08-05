@@ -81,7 +81,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         interim_struct<-list(MA_years=3,assess_freq=10,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(1,max(ref_index[,3])))
       }
       forecast_adjust<-length(Reference_par$recdev_forecast[,2])-Reference_forecast$Nforecastyrs
-      Reference_forecast$Nforecastyrs <- interim_struct[["assess_freq"]]
+      Reference_forecast$Nforecastyrs <- max(interim_struct[["assess_freq"]],Reference_forecast$Nforecastyrs)
       temp_forecast<-matrix(0,nrow=(Reference_forecast$Nforecastyrs+forecast_adjust),ncol=2)
       temp_forecast[,1]<-(Reference_dat$endyr+1-forecast_adjust):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
       colnames(temp_forecast)<-c("year","recdev")
@@ -109,12 +109,12 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       
       indices <- unique(abs(Reference_dat$CPUE$index))
       for(i in indices){
-        if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=Reference_dat$endyr){
-          base_yr<-interim_struct[["Ref_years"]][i]
+        if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=(Reference_dat$endyr+Reference_forecast$Nforecastyrs)){
+          base_yr<-floor(interim_struct[["Ref_years"]][i])
         }else{
-          base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]
+          base_yr<-floor(Reference_dat$endyr+interim_struct[["Ref_years"]][i])
         }
-        years <- (base_yr-interim_struct[["MA_years"]]+1):(Reference_dat$endyr+interim_struct[["assess_freq"]])
+        years <- (Reference_dat$styr):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
         Ref_SE <- median(Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])
         for(j in years){
           check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==i,,drop=FALSE]
@@ -275,45 +275,51 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         
         indices <- unique(abs(Reference_dat$CPUE$index))
         for(i in indices){
-          if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=Reference_dat$endyr){
-            base_yr<-interim_struct[["Ref_years"]][i]
-          }else{
-            base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]
+          for(j in 1:interim_struct[["MA_years"]]){
+            if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=(Reference_dat$endyr+Reference_forecast$Nforecastyrs)){
+              base_yr<-interim_struct[["Ref_years"]][i]
+              curr_yr<-(Reference_dat$endyr-j+1)
+            }else{
+              base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]-j+1
+              curr_yr<-(Reference_dat$endyr+interim_struct[["Ref_years"]][i]-j+1)
+            }
+            
+            temp_ref_index <- ref_index[is.element(ref_index[,"year"],base_yr),,drop=FALSE]
+            temp_ref_index <- temp_ref_index[temp_ref_index[,"index"]==i,,drop=FALSE]
+            
+            temp_curr_index <- curr_index[is.element(curr_index[,"year"],curr_yr),,drop=FALSE]
+            temp_curr_index <- temp_curr_index[temp_curr_index[,"index"]==i,,drop=FALSE]
+            
+            if(length(temp_ref_index[,1])==1 & length(temp_curr_index[,1])==1){
+              new_ref_index <- rbind(new_ref_index,temp_ref_index)
+              new_curr_index <- rbind(new_curr_index,temp_curr_index)
+            }
           }
-          years <- (base_yr-interim_struct[["MA_years"]]+1):base_yr
-          
-          temp_ref_index <- ref_index[is.element(ref_index[,"year"],years),,drop=FALSE]
-          temp_ref_index <- temp_ref_index[temp_ref_index[,"index"]==i,,drop=FALSE]
-          new_ref_index <- rbind(new_ref_index,temp_ref_index)
-          
-          temp_curr_index <- curr_index[is.element(curr_index[,"year"],years),,drop=FALSE]
-          temp_curr_index <- temp_curr_index[temp_curr_index[,"index"]==i,,drop=FALSE]
-          new_curr_index <- rbind(new_curr_index,temp_curr_index)
         }
         ref_index <- new_ref_index
         curr_index <- new_curr_index
         
         # curr_index <- curr_index[is.element(curr_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
         # ref_index <- ref_index[is.element(ref_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
-        new_ref_index <- ref_index[0,,drop=FALSE]
-        new_curr_index <- curr_index[0,,drop=FALSE]
-        for(i in 1:length(ref_index[,1])){
-          year <- ref_index[i,1]
-          index <- ref_index[i,3]
-          temp_check <- curr_index[curr_index[,1]==year & curr_index[,3]==index,,drop=FALSE]
-          if(length(temp_check[,1]) == 1){
-            new_ref_index <- rbind(new_ref_index,ref_index[i,])
-            new_curr_index <- rbind(new_curr_index,temp_check[1,])
-          }
-        }
-        ref_index <- new_ref_index
-        curr_index <- new_curr_index
+        # new_ref_index <- ref_index[0,,drop=FALSE]
+        # new_curr_index <- curr_index[0,,drop=FALSE]
+        # for(i in 1:length(ref_index[,1])){
+        #   year <- ref_index[i,1]
+        #   index <- ref_index[i,3]
+        #   temp_check <- curr_index[curr_index[,1]==year & curr_index[,3]==index,,drop=FALSE]
+        #   if(length(temp_check[,1]) == 1){
+        #     new_ref_index <- rbind(new_ref_index,ref_index[i,])
+        #     new_curr_index <- rbind(new_curr_index,temp_check[1,])
+        #   }
+        # }
+        # ref_index <- new_ref_index
+        # curr_index <- new_curr_index
         adjust_index <- ref_index[,c(1,3,4,4,4,4)]
        
         #interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.  
         #interim_struct[["Index_weights"]] #vector of length n indices with values summing to 1
         
-        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]][curr_index[,3]]*curr_index[,5]
+        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]][curr_index[,3]]*ref_index[,5]
         adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]][ref_index[,3]]*ref_index[,5]
         adjust_index[,5] <- adjust_index[,3]/adjust_index[,4]
         adjust_index[,6] <- interim_struct[["Index_weights"]][adjust_index[,2]]
