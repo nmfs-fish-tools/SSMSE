@@ -81,7 +81,13 @@ be specified using the list component names and column names as in would be
 used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
 give an example of what this structure should be. Running the function 
 create_sample_struct() will also produce a sample_struct object in the 
-correct form. Can be NULL only when MS is not EM.}
+correct form. Can be NULL only when MS is not EM.
+@param interim_struct A optional list of parameters to control an interim assessment
+with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
+MA_years= the number of years to average index observations of when calculating deviations, 
+assess_freq=the number of years between full assessments during with an interim assessment will happen
+every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
+inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }

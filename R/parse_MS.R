@@ -115,7 +115,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
           base_yr<-floor(Reference_dat$endyr+interim_struct[["Ref_years"]][i])
         }
         years <- (Reference_dat$styr):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
-        Ref_SE <- median(Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])
+        Ref_SE <- stats::median(Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])
         for(j in years){
           check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==i,,drop=FALSE]
           if(length(check_vec[,1])>0){

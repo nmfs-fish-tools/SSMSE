@@ -34,7 +34,7 @@ test_that("run_SSMSE runs with interim assessment workflow", {
                       rec_dev_pattern = "none", # Don't use recruitment deviations
                       impl_error_pattern = "none", # Don't use implementation error
                       sample_struct_list = list(sample_struct), # How to sample data for running the EM.  
-                      interim_struct_list = interim_struct_list,
+                      interim_struct_list = list(interim_struct_list),
                       seed = 12345) #Set a fixed integer seed that allows replication 
   expect_true(file.exists(file.path(temp_path, "base", "1", "cod_OM",
                                     "data.ss_new")))
