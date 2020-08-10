@@ -142,10 +142,15 @@ extend_OM <- function(catch,
   catch_achieved[catch_achieved[["retained_catch_fcast"]]==0, "retained_catch_fcast"] <- F_achieved[catch_achieved[["retained_catch_fcast"]]==0, "F"]
   catch_achieved[is.na(catch_achieved[["retained_catch_fcast"]]), "retained_catch_fcast"] <- 0
   catch_diff_df <- merge(catch_intended,catch_achieved, all = TRUE)
+  catch_diff_df <- catch_diff_df[is.element(catch_diff_df[,"fleet"],F_achieved[,"fleet"]),]
+  catch_diff_df <- merge(catch_diff_df,F_achieved,all = TRUE)
+  catch_diff_df <- catch_diff_df[catch_diff_df[,"F"]<1,]
   catch_diff <- catch_diff_df[, "retained_catch_fcast"] - catch_diff_df[, "catch"]
   
-  if (all(catch[, "catch"] != 0)) {
-    if (max(abs(catch_diff) / (abs(catch_diff_df[, "catch"])+0.00001)) > 0.0001) {
+  
+  # if (all(catch[, "catch"] != 0)) {
+    if (max(abs(catch_diff) / (abs(catch_diff_df[, "catch"])+0.00001)) > 0.01) {
+      
       stop("Forecasted retained catch - ",
            paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
            " - don't match those expected - ",
@@ -163,15 +168,15 @@ extend_OM <- function(catch,
       # under the assumption that in the real world there are effort capacity limits.
 
     }
-  } else { # a second check when there is 0 catch.This is fairly arbitrary and
-    # perhaps should be more stringent.
-   if (max(abs(catch_diff)) > 0.1) {
-     stop("Forecasted retained catch - ",
-          paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
-          " - don't match those expected - ",
-          paste0(catch_diff_df[, "catch"], collapse = ", "))
-   }
-  }
+  # } else { # a second check when there is 0 catch.This is fairly arbitrary and
+  #   # perhaps should be more stringent.
+  #  if (max(abs(catch_diff)) > 0.1) {
+  #    stop("Forecasted retained catch - ",
+  #         paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
+  #         " - don't match those expected - ",
+  #         paste0(catch_diff_df[, "catch"], collapse = ", "))
+  #  }
+  # }
 }
   # extend the number of yrs in the model and add in catch ----
   # modify forecast file - do this to make the forecasting elements simpler for
