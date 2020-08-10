@@ -18,7 +18,8 @@ test_that("create_scen_list works as expected", {
                          use_SS_boot = TRUE,
                          nyrs = 6,
                          nyrs_assess = 3,
-                         sample_struct = NULL
+                         sample_struct = NULL,
+                         interim_struct = NULL
                        ),
                       scen_2 =
                         list(
@@ -32,7 +33,8 @@ test_that("create_scen_list works as expected", {
                           use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2,
-                          sample_struct = NULL
+                          sample_struct = NULL,
+                          interim_struct = NULL
                         )
                        )
 
@@ -47,7 +49,8 @@ test_that("create_scen_list works as expected", {
                                     out_dir_scen_vec = out_dir,
                                     nyrs_vec = c(6, 3),
                                     nyrs_assess_vec = c(3, 2),
-                                    sample_struct_list = NULL
+                                    sample_struct_list = NULL,
+                                    interim_struct_list = NULL
                                     )
  # use expect equal because the names should be the same as well.
  expect_equal(scen_list_out, scen_list)
@@ -66,7 +69,8 @@ test_that("create_scen_list works with NAs", {
                           use_SS_boot = TRUE,
                           nyrs = 6,
                           nyrs_assess = 3,
-                          sample_struct = NULL
+                          sample_struct = NULL,
+                          interim_struct = NULL
                         ),
                       scen_2 =
                         list(
@@ -80,7 +84,8 @@ test_that("create_scen_list works with NAs", {
                           use_SS_boot = TRUE,
                           nyrs = 3,
                           nyrs_assess = 2,
-                          sample_struct = NULL
+                          sample_struct = NULL,
+                          interim_struct = NULL
                         )
   )
   scen_list_out <- create_scen_list(scen_name_vec = c("scen_1", "scen_2"),
@@ -94,7 +99,8 @@ test_that("create_scen_list works with NAs", {
                                      out_dir_scen_vec = out_dir,
                                      nyrs_vec = c(6, 3),
                                      nyrs_assess_vec = c(3, 2),
-                                     sample_struct_list = NULL
+                                     sample_struct_list = NULL,
+                                    interim_struct_list = NULL
   )
   expect_equal(scen_list_out, scen_list)
 })
