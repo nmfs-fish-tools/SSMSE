@@ -48,6 +48,18 @@
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
+#' @param interim_struct_list A optional list of lists including the parameters
+#'  for an interim assessment that modify the number of years to average over
+#'  for index deviations (MA_years: single value), the Beta sensitity parameters 
+#'  that quantifies how rapidly an observed deviation for an index is translated 
+#'  to a future catch deviation (Beta: vector length n indices),the weight
+#'  each index is given for use in the model allowing multiple index deviations to
+#'  be used in combination (Index_weights: vector length n indices), The reference
+#'  years for which to compare index deviations where for absolute year values 
+#'  greater than zero all observed index values will be compared to that specific 
+#'  year while for values <=0 the observed index values will be compared to their
+#'  expected value with the reference value identifying the lag in years for availability 
+#'  of the index (Ref_years: vector length n indices). 
 #' @export
 #' @author Kathryn Doering
 #' @examples
@@ -76,7 +88,8 @@ create_scen_list <- function(scen_name_vec,
                              use_SS_boot_vec = NULL,
                              nyrs_vec = NULL,
                              nyrs_assess_vec = NULL,
-                             sample_struct_list = NULL) {
+                             sample_struct_list = NULL,
+                             interim_struct_list = NULL) {
   # note that input checking
   scen_name_vec <- as.character(scen_name_vec)
   # construct list. Note that it may not be usable at this stage, but there
@@ -89,7 +102,7 @@ create_scen_list <- function(scen_name_vec,
   # clear.
 
   # function to get the value for a scenario, which depends on if it is a list,
-  # vector, or null. also inculdes error checking.
+  # vector, or null. also includes error checking.
   #
   # @param num_scen Which number scenario in the list is this?
   # @param var The variable we want to pull output from. Should be a vector or

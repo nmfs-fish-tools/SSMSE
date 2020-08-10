@@ -173,7 +173,8 @@ run_SSMSE <- function(scen_name_vec,
                                 use_SS_boot_vec = use_SS_boot_vec,
                                 nyrs_vec = nyrs_vec,
                                 nyrs_assess_vec = nyrs_assess_vec,
-                                sample_struct_list = sample_struct_list)
+                                sample_struct_list = sample_struct_list,
+                                interim_struct_list = interim_struct_list)
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)
   #First reset the R random seed
@@ -244,7 +245,6 @@ run_SSMSE <- function(scen_name_vec,
     scen_seed[["scenario"]] <- seed[["scenario"]][i]
     scen_seed[["iter"]] <- seed[["iter"]][[i]]
     scen_list[[i]][["scen_seed"]] <- scen_seed
-    scen_list[[i]][["interim_struct"]] <- interim_struct_list
   }
     
   # pass each scenario to run
@@ -652,7 +652,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
             ".")
 
     # if using an EM, want to save results to a new folder
-    if (!is.null(EM_out_dir)) {
+    if (!is.null(EM_out_dir) & MS!="Interim") {
       new_EM_out_dir <- paste0(EM_out_dir_basename, "_", yr)
       dir.create(new_EM_out_dir)
       success <- copy_model_files(EM_in_dir = EM_out_dir,
