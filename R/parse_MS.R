@@ -136,6 +136,10 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                        overwrite = TRUE,
                        verbose = FALSE)
       
+      SS_writedat(OM_dat,file.path(EM_out_dir, "data_OM_init.dat"),
+                  overwrite = TRUE,
+                  verbose = FALSE)
+      
       run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
       
       
@@ -144,7 +148,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       
       
       ### This is test code that calculates the standard error of index residuals that could be 
-      ### an alternative formulation to the mean of the standard errors used above.
+      ### an alternative formulation to the median of the standard errors used above.
       # Ref_obs<- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"), 
       #                      version = 3.30, section = 1, verbose = FALSE)
       # 
@@ -187,6 +191,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       if(!is.null(new_catch_list[["catch_F"]])){
       new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
       }
+      write.csv(new_catch_list[["catch"]],file.path(EM_out_dir,"intended_catch_init.csv"))
     } else {
       Reference_dat <- SS_readdat(file = file.path(EM_init_dir, ref_datfile_name), 
                                   version = 3.30,
@@ -261,10 +266,33 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
      
     }else {
       
+      start <- SS_readstarter(file.path(EM_init_dir, "starter.ss"),
+                              verbose = FALSE)
+      
+      if (!is.null(sample_struct)) {
+        sample_struct_sub <- lapply(sample_struct,
+                                    function(df, y) df[df[, 1] %in% y, ],
+                                    y = dat_yrs - nyrs_assess)
+      } else {
+        sample_struct_sub <- NULL
+      }
+      
+      new_EM_dat <- add_new_dat(OM_dat = OM_dat,
+                                EM_datfile = start[["datfile"]],
+                                sample_struct = sample_struct_sub,
+                                EM_dir = EM_init_dir,
+                                do_checks = TRUE,
+                                new_datfile_name = start[["datfile"]],
+                                verbose = verbose)
+      
+      # extend forward bias adjustment(if using)
+      new_ctl <- extend_EM_bias_adj(
+        ctlfile = file.path(EM_init_dir, start[["ctlfile"]]), 
+        datlist_new = new_EM_dat,
+        nyrs_assess = nyrs_assess, write_ctl = TRUE)
+      
         ref_index <- Reference_dat[["CPUE"]]
-        ref_index[["index"]]<-abs(ref_index[["index"]])
-        curr_index <- OM_dat[["CPUE"]]
-        curr_index[["index"]]<-abs(curr_index[["index"]])
+        curr_index <- new_EM_dat[["CPUE"]]
         
         if(is.null(interim_struct)){
           interim_struct<-list(MA_years=3,assess_freq=5,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(0,max(ref_index[,3])))
@@ -280,25 +308,43 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
               base_yr<-interim_struct[["Ref_years"]][i]
               curr_yr<-(Reference_dat$endyr-j+1)
             }else{
-              base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]-j+1
-              curr_yr<-(Reference_dat$endyr+interim_struct[["Ref_years"]][i]-j+1)
+              base_yr<-new_EM_dat$endyr+interim_struct[["Ref_years"]][i]-j+1
+              curr_yr<-(new_EM_dat$endyr+interim_struct[["Ref_years"]][i]-j+1)
             }
             
             temp_ref_index <- ref_index[is.element(ref_index[,"year"],base_yr),,drop=FALSE]
-            temp_ref_index <- temp_ref_index[temp_ref_index[,"index"]==i,,drop=FALSE]
+            temp_ref_index_pos <- temp_ref_index[temp_ref_index[,"index"]==i,,drop=FALSE]
+            temp_ref_index_neg <- temp_ref_index[temp_ref_index[,"index"]==(-i),,drop=FALSE]
             
             temp_curr_index <- curr_index[is.element(curr_index[,"year"],curr_yr),,drop=FALSE]
-            temp_curr_index <- temp_curr_index[temp_curr_index[,"index"]==i,,drop=FALSE]
+            temp_curr_index_pos <- temp_curr_index[temp_curr_index[,"index"]==i,,drop=FALSE]
+            temp_curr_index_neg <- temp_curr_index[temp_curr_index[,"index"]==(-i),,drop=FALSE]
             
-            if(length(temp_ref_index[,1])==1 & length(temp_curr_index[,1])==1){
-              new_ref_index <- rbind(new_ref_index,temp_ref_index)
-              new_curr_index <- rbind(new_curr_index,temp_curr_index)
-            }
+            if(length(temp_ref_index_pos[,1])==1){
+              if(length(temp_curr_index_pos[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_pos)
+                new_curr_index <- rbind(new_curr_index,temp_curr_index_pos)
+              }else if(length(temp_curr_index_neg[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_pos)
+                new_curr_index <- rbind(new_curr_index,temp_ref_index_pos)
+              }
+            }else if(length(temp_ref_index_neg[,1])==1){
+              if(length(temp_curr_index_pos[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_neg)
+                new_curr_index <- rbind(new_curr_index,temp_curr_index_pos)
+              }else if(length(temp_curr_index_neg[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_neg)
+                new_curr_index <- rbind(new_curr_index,temp_ref_index_neg)
+              }
+            } 
           }
         }
+        #browser()
         ref_index <- new_ref_index
         curr_index <- new_curr_index
         
+        ref_index[["index"]]<-abs(ref_index[["index"]])
+        curr_index[["index"]]<-abs(curr_index[["index"]])
         # curr_index <- curr_index[is.element(curr_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
         # ref_index <- ref_index[is.element(ref_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
         # new_ref_index <- ref_index[0,,drop=FALSE]
@@ -339,21 +385,28 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         new_catch_list <- get_EM_catch_df(EM_dir = EM_init_dir, dat = Reference_dat)
         
         if(!is.null(new_catch_list[["catch"]])){
-          new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),] 
+          new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),] 
           new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
         }
         if(!is.null(new_catch_list[["discards"]])){
-          new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),]
           new_catch_list[["discards"]][["Discard"]] <- new_catch_list[["discards"]][["Discard"]]*catch_scaling_factor
         }
         if(!is.null(new_catch_list[["catch_bio"]])){
-          new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),]
           new_catch_list[["catch_bio"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch_bio"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
         }
         if(!is.null(new_catch_list[["catch_F"]])){
-          new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),]
           new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
         }
+        
+        SS_writedat(new_EM_dat,file.path(EM_init_dir, paste0("data_OM_",new_EM_dat$endyr,".dat")),
+                    overwrite = TRUE,
+                    verbose = FALSE)
+        
+        write.csv(new_catch_list[["catch"]],file.path(EM_init_dir, paste0("intended_catch_",new_EM_dat$endyr,".csv")))
+        write.csv(adjust_index,file.path(EM_init_dir, paste0("scaling_factors_",new_EM_dat$endyr,"_",catch_scaling_factor,".csv")))
       }
     }
   }
