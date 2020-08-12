@@ -324,6 +324,9 @@ run_SSMSE <- function(scen_name_vec,
 #'  inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
 #' @template verbose
 #' @export
+#' @import parallel
+#' @import foreach
+#' @import doParallel
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -396,7 +399,11 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
     max_prev_iter <- 0
   }
   
-  for (i in seq_len(iter)) { # TODO: make work in parallel.
+  
+  cl <- makeCluster((detectCores()-1))
+  registerDoParallel(cl, cores = (detectCores()-1))
+  
+  foreach(i=seq_len(iter))%dopar%{ 
     iter_seed <- vector(mode = "list", length = 3)
     names(iter_seed) <- c("global", "scenario", "iter")
     iter_seed$global <- scen_seed$global
