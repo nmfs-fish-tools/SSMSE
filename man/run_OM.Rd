@@ -10,7 +10,8 @@ run_OM(
   nboot = 1,
   init_run = FALSE,
   verbose = FALSE,
-  debug_par_run = TRUE
+  debug_par_run = TRUE,
+  seed = NULL
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ SS_readdat is equivalent to specifying nboot = 1.}
 error_check will be created, and the model will be run from control start
 values instead of ss.par. The 2 par files are then compared to help debug
 the issue with the model run. Defaults to TRUE.}
+
+\item{seed}{A random seed for SS to enable reproducible SS results.}
 }
 \description{
 This function is used to initialize the OM and get either expected values

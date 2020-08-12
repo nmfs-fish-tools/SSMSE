@@ -29,12 +29,13 @@
 #'  fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
 #'  and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
 #'  will stay constant during simulation while relative year will progress with simulation).  
+#' @param seed a random seed to initialize SS runs
 #' @author Kathryn Doering & Nathan Vaughan
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 
 parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE,
                      OM_dat, OM_out_dir = NULL, verbose = FALSE, nyrs_assess, dat_yrs,
-                     sample_struct = NULL, interim_struct = NULL) {
+                     sample_struct = NULL, interim_struct = NULL, seed = NULL) {
   if (verbose) {
     message("Parsing the management strategy.")
   }
@@ -45,6 +46,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
          valid_MS)
   }
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
+  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
   # parsing management strategies ----
   # Interim Assessment ----
   if(MS == "Interim") {
@@ -66,6 +68,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       start$N_bootstraps <- 2
       start$init_values_src <- 1
       start$last_estimation_phase <- 0
+      start$seed <- seed
       Reference_dat <- SS_readdat(file = file.path(EM_out_dir, start[["datfile"]]),
                                   version = 3.30, verbose = FALSE)  
       Reference_ctl <- SS_readctl(file = file.path(EM_out_dir, start[["ctlfile"]]), use_datlist = TRUE, datlist = Reference_dat, verbose = FALSE)
@@ -269,6 +272,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       start <- SS_readstarter(file.path(EM_init_dir, "starter.ss"),
                               verbose = FALSE)
       
+      
+      
       if (!is.null(sample_struct)) {
         sample_struct_sub <- lapply(sample_struct,
                                     function(df, y) df[df[, 1] %in% y, ],
@@ -306,7 +311,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
           for(j in 1:interim_struct[["MA_years"]]){
             if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=(Reference_dat$endyr+Reference_forecast$Nforecastyrs)){
               base_yr<-interim_struct[["Ref_years"]][i]
-              curr_yr<-(Reference_dat$endyr-j+1)
+              curr_yr<-(new_EM_dat$endyr-j+1)
             }else{
               base_yr<-new_EM_dat$endyr+interim_struct[["Ref_years"]][i]-j+1
               curr_yr<-(new_EM_dat$endyr+interim_struct[["Ref_years"]][i]-j+1)
@@ -360,8 +365,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         # }
         # ref_index <- new_ref_index
         # curr_index <- new_curr_index
-        adjust_index <- ref_index[,c(1,3,4,4,4,4)]
-       
+        adjust_index <- ref_index[,c(1,3,4,4,4,4,1)]
+        adjust_index[,7] <- curr_index[,1]
         #interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.  
         #interim_struct[["Index_weights"]] #vector of length n indices with values summing to 1
         
@@ -427,6 +432,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                       verbose = FALSE)
     orig_datfile_name <- start$datfile # save the original data file name.
     start$datfile <- new_datfile_name
+    start$seed <- seed
     SS_writestarter(start, file.path(EM_out_dir), verbose = FALSE,
                     overwrite = TRUE, warn = FALSE)
     # make sure the data file has the correct formatting (use existing data
@@ -459,8 +465,15 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         nyrs_assess = nyrs_assess, write_ctl = TRUE)
       
     }
+    # Update SS random seed
+    start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
+                            verbose = FALSE)
+    start$seed <- seed
+    SS_writestarter(start, file.path(EM_out_dir), verbose = FALSE,
+                    overwrite = TRUE, warn = FALSE)
     # manipulate the forecasting file.
     # make sure enough yrs can be forecasted.
+    
     fcast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"),
                              readAll = TRUE,
                              verbose = FALSE)

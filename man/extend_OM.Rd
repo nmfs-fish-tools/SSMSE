@@ -14,7 +14,8 @@ extend_OM(
   write_dat = TRUE,
   rec_devs = NULL,
   impl_error = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  seed = NULL
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ to an arbitrary value of 3.}
 \item{impl_error}{The implementation error}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
+
+\item{seed}{A random initialization seed for SS to allow reproducibility}
 }
 \value{
 A new dat list object (format as created by r4ss::SS_readdat) that

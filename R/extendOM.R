@@ -20,6 +20,7 @@
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
 #' @param rec_devs The recruitment deviations
 #' @param impl_error The implementation error
+#' @param seed A random initialization seed for SS to allow reproducibility
 #' @template verbose
 #' @return A new dat list object (format as created by r4ss::SS_readdat) that
 #'  has been extended forward  as if read in by r4ss function SS_readdat
@@ -33,7 +34,8 @@ extend_OM <- function(catch,
                       write_dat = TRUE,
                       rec_devs = NULL,
                       impl_error = NULL,
-                      verbose = FALSE) {
+                      verbose = FALSE,
+                      seed = NULL) {
 
   # input checks
   check_catch_df(catch)
@@ -64,7 +66,12 @@ extend_OM <- function(catch,
          (dat$endyr + nyrs_extend), ". Please either remove years of catch data or ",
          "the end year of the model longer.")
   }
+  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
   
+  start$seed <- seed
+  
+  r4ss::SS_writestarter(start, dir = OM_dir, verbose = FALSE, overwrite = TRUE,
+                        warn = FALSE)
   
   # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
   # Apply implementation error to the catches before it is added to the OM
@@ -81,103 +88,159 @@ extend_OM <- function(catch,
   mod_catch<-catch
   
   if(!is.null(harvest_rate))
-    {
-  temp_F <- harvest_rate[, c("year", "seas", "fleet", "catch")]
-  temp_F <- cbind(temp_F, rep(99, length(temp_F[,1])))
-  
-  temp_comb[temp_catch[["catch"]]==0, ] <- temp_F[temp_catch[["catch"]]==0, ]
-  mod_catch[mod_catch[["catch"]]==0 & harvest_rate[["catch"]]!=0, "catch"] <- 0.1
+  {
+    temp_F <- harvest_rate[, c("year", "seas", "fleet", "catch")]
+    temp_F <- cbind(temp_F, rep(99, length(temp_F[,1])))
+    
+    temp_comb[temp_catch[["catch"]]==0, ] <- temp_F[temp_catch[["catch"]]==0, ]
+    mod_catch[mod_catch[["catch"]]==0 & harvest_rate[["catch"]]!=0, "catch"] <- 0.1
   }
   
+  achieved_Catch <- FALSE
   colnames(temp_comb) <- c("year", "seas", "fleet", "catch", "basis")
-  forelist[["ForeCatch"]] <- temp_comb
-  catch_intended <- forelist[["ForeCatch"]][, c("year", "seas", "fleet", "catch")]
-
+  catch_intended <- temp_comb
+  
   # modify par file ----
   old_recs<-parlist[["recdev_forecast"]]
   old_recs<-old_recs[old_recs[,"year"]<=dat[["endyr"]],,drop=FALSE]
-  
+    
   new_recs <- get_rec_devs_matrix(
     yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]),
     rec_devs = rec_devs)
-  
+    
   parlist[["recdev_forecast"]] <- rbind(old_recs,new_recs)
   
+  #write new par file
+  r4ss::SS_writepar_3.30(parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
+                         overwrite = TRUE, verbose = FALSE)  
   # implementation error should always be 0 in the OM
   parlist[["Fcast_impl_error"]] <-
-    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
-
-  # write out the changed files ----
-  r4ss::SS_writeforecast(mylist = forelist, dir = OM_dir, writeAll = TRUE,
-                         overwrite = TRUE, verbose = FALSE)
-  r4ss::SS_writepar_3.30(parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
-                         overwrite = TRUE, verbose = FALSE)
-  # Run SS with the new catch set as forecast targets. This will use SS to
-  # calculate the F required in the OM to achieve these catches.
-  run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose,
-               debug_par_run = TRUE)
-  # Load the SS results
-  outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE,
-                             covar = FALSE, warn = FALSE, readwt = FALSE)
-  # Extract the achieved F and Catch for the forecast period
-  F_list <- get_F(timeseries = outlist$timeseries,
-    fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
+  get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
   
-  units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
+  Fleet_scale <- catch_intended  
+  Fleet_scale[,"catch"] <- 1
+  Fleet_scale[,"basis"] <- 0
   
-  names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
-  
-  ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
-    units_of_catch = units_of_catch)
-  # Check that SS created projections with the intended catches before updating model
-  # make sure retained catch is close to the same as the input catch.
-  
-  F_achieved <- F_list$F_rate_fcast[,c("year", "seas", "fleet", "F")]
-  #TODO: Find another way to prevent the zero catch scenario from crashing when F_rate_fcast returns a null
-  # I didn't want to change it to returning 0 F's because I assume that will break a ton of other funtionality.
-  if(!is.null(F_achieved)){
-  fcast_ret_catch <- ret_catch[ret_catch$Era == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
-  names(fcast_ret_catch) <- c("year", "seas", "fleet", "retained_catch_fcast")
-  catch_achieved <- fcast_ret_catch
-  catch_achieved[catch_achieved[["retained_catch_fcast"]]==0, "retained_catch_fcast"] <- F_achieved[catch_achieved[["retained_catch_fcast"]]==0, "F"]
-  catch_achieved[is.na(catch_achieved[["retained_catch_fcast"]]), "retained_catch_fcast"] <- 0
-  catch_diff_df <- merge(catch_intended,catch_achieved, all = TRUE)
-  catch_diff_df <- catch_diff_df[is.element(catch_diff_df[,"fleet"],F_achieved[,"fleet"]),]
-  catch_diff_df <- merge(catch_diff_df,F_achieved,all = TRUE)
-  catch_diff_df <- catch_diff_df[catch_diff_df[,"F"]<1,]
-  catch_diff <- catch_diff_df[, "retained_catch_fcast"] - catch_diff_df[, "catch"]
-  
-  
-  # if (all(catch[, "catch"] != 0)) {
-    if (max(abs(catch_diff) / (abs(catch_diff_df[, "catch"])+0.00001)) > 0.01) {
+  while(achieved_Catch==FALSE)
+  {
+    forelist[["ForeCatch"]] <- temp_comb
+    
+    # write out the changed forecast file ----
+    r4ss::SS_writeforecast(mylist = forelist, dir = OM_dir, writeAll = TRUE,
+                           overwrite = TRUE, verbose = FALSE)
+    
+    # Run SS with the new catch set as forecast targets. This will use SS to
+    # calculate the F required in the OM to achieve these catches.
+    run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose,
+                 debug_par_run = TRUE)
+    # Load the SS results
+    outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE,
+                               covar = FALSE, warn = FALSE, readwt = FALSE)
+    # Extract the achieved F and Catch for the forecast period
+    F_list <- get_F(timeseries = outlist$timeseries,
+      fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
+    
+    units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
+    
+    names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
+    
+    ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
+      units_of_catch = units_of_catch)
+    
+    F_achieved <- F_list$F_rate_fcast[,c("year", "seas", "fleet", "F")]
+    
+    
+    # Check that SS created projections with the intended catches before updating model
+    # make sure retained catch is close to the same as the input catch.
+    for(i in 1:length(Fleet_scale[,"catch"])){
+      intended_val <- catch_intended[catch_intended[,"year"]==Fleet_scale[i,"year"] & 
+                                     catch_intended[,"seas"]==Fleet_scale[i,"seas"] & 
+                                     catch_intended[,"fleet"]==Fleet_scale[i,"fleet"],"catch"]
       
-      stop("Forecasted retained catch - ",
-           paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
-           " - don't match those expected - ",
-           paste0(catch_diff_df[, "catch"], collapse = ", "), "
-           : NOTE: This can often occure in scenarios where
-           the stock has collapsed at some point and SS has
-           unintentionally projected with an unrealistic value.")
-      # KD: can we offer any solutions on where to go from here in this error msg?
-      # This check is helpful, though!
-      # NV: My best guess is this will only trip if SS messes up after the catches
-      # crash the stock. In those cases projections can do all sorts of weird things
-      # like put in negative F's and create super stock recoveries. I think we should
-      # have some sort of default max F that overrides the catch the user could modify.
-      # something like apical F can't exceed 2 times the historic maximum or something
-      # under the assumption that in the real world there are effort capacity limits.
-
+      intended_basis <- catch_intended[catch_intended[,"year"]==Fleet_scale[i,"year"] & 
+                                       catch_intended[,"seas"]==Fleet_scale[i,"seas"] & 
+                                       catch_intended[,"fleet"]==Fleet_scale[i,"fleet"],"basis"]
+      
+      achieved_ret <- ret_catch[ret_catch[,"Yr"]==Fleet_scale[i,"year"] & 
+                                ret_catch[,"Seas"]==Fleet_scale[i,"seas"] & 
+                                ret_catch[,"Fleet"]==Fleet_scale[i,"fleet"],"retained_catch"]
+      
+      achieved_F <- F_achieved[F_achieved[,"year"]==Fleet_scale[i,"year"] & 
+                                 F_achieved[,"seas"]==Fleet_scale[i,"seas"] & 
+                                 F_achieved[,"fleet"]==Fleet_scale[i,"fleet"],"F"]
+      if(length(achieved_F)==0){achieved_F<-0}
+      
+      if(length(intended_val)==1){
+        if(intended_basis==3){
+          if(intended_val==0 & achieved_ret==0){
+            ratio <- 1
+          }else if (achieved_ret==0){
+            if(temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                         temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                         temp_comb[,"fleet"]==Fleet_scale[i,"fleet"],"basis"] == 99){
+              stop("For some reason SS refuses to apply catch to this fleet SOMETHING IS VERY WRONG! :(")
+            }else{
+              temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                          temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                          temp_comb[,"fleet"]==Fleet_scale[i,"fleet"],"catch"] <- .4
+              temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                          temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                          temp_comb[,"fleet"]==Fleet_scale[i,"fleet"],"basis"] <- 99
+            }
+          }else{
+            ratio <- intended_val/achieved_ret
+          }
+        }else if(intended_basis==99){
+          if(intended_val==0 & achieved_ret==0){
+            ratio <- 1
+          }else if(length(achieved_F)==0){
+            stop("For some reason SS refuses to apply F to this fleet SOMETHING IS VERY WRONG! :(")
+          }else{
+            ratio <- intended_val/achieved_F
+          }
+        }else{
+          stop("Catch testing is only set up to compare retained catch or F at the moment")
+        }
+      }else{
+        ratio <- 1
+      }
+      
+      if(ratio<0){
+        temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                    temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                    temp_comb[,"fleet"]==Fleet_scale[i,"fleet"],"catch"] <- 1.5
+        temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                    temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                    temp_comb[,"fleet"]==Fleet_scale[i,"fleet"],"basis"] <- 99
+        
+        catch_intended[catch_intended[,"year"]==Fleet_scale[i,"year"] & 
+                       catch_intended[,"seas"]==Fleet_scale[i,"seas"] & 
+                       catch_intended[,"fleet"]==Fleet_scale[i,"fleet"],"catch"] <- 1.5
+        catch_intended[catch_intended[,"year"]==Fleet_scale[i,"year"] & 
+                       catch_intended[,"seas"]==Fleet_scale[i,"seas"] & 
+                       catch_intended[,"fleet"]==Fleet_scale[i,"fleet"],"basis"] <- 99
+      }else{
+        if(achieved_F>=1.45){
+            ratio <- 1
+        }else{
+        temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                  temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                  temp_comb[,"fleet"]==Fleet_scale[i,"fleet"], "catch"] <- temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                                                                                    temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                                                                                   temp_comb[,"fleet"]==Fleet_scale[i,"fleet"],"catch"]*ratio
+      
+        }
+      }
+      Fleet_scale[i,"catch"] <- ratio
+      Fleet_scale[i,"basis"] <- abs(1-ratio)
     }
-  # } else { # a second check when there is 0 catch.This is fairly arbitrary and
-  #   # perhaps should be more stringent.
-  #  if (max(abs(catch_diff)) > 0.1) {
-  #    stop("Forecasted retained catch - ",
-  #         paste0(catch_diff_df[, "retained_catch_fcast"], collapse = ", "),
-  #         " - don't match those expected - ",
-  #         paste0(catch_diff_df[, "catch"], collapse = ", "))
-  #  }
-  # }
-}
+    
+    if(max(Fleet_scale[,"basis"])>0.01){
+      achieved_Catch <- FALSE
+    }else{
+      achieved_Catch <- TRUE
+    }
+  }
   # extend the number of yrs in the model and add in catch ----
   # modify forecast file - do this to make the forecasting elements simpler for
   # the second run of the OM.

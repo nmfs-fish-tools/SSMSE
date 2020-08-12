@@ -21,7 +21,9 @@ run_SSMSE_scen(
   scen_seed = NULL,
   sample_struct = NULL,
   interim_struct = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  run_parallel = FALSE,
+  n_cores = NULL
 )
 }
 \arguments{
@@ -80,8 +82,9 @@ iteration.}
 should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre
-for the number of years to extend the model out.
-@param interim_struct A optional list of parameters to control an interim assessment
+for the number of years to extend the model out.}
+
+\item{interim_struct}{A optional list of parameters to control an interim assessment
 with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
 MA_years= the number of years to average index observations of when calculating deviations, 
 assess_freq=the number of years between full assessments during with an interim assessment will happen
@@ -89,6 +92,10 @@ every year, and Index_weights is a vector of length n indexes that weights all i
 inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
+
+\item{run_parallel}{true false option to use parallel processing or not defaults to FALSE}
+
+\item{n_cores}{how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1)}
 }
 \description{
 High level function to run 1 scenario (but potentially many iterations) for

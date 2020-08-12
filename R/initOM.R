@@ -17,6 +17,7 @@
 #' @param rec_devs Vector of recruitment deviations for simulation.
 #' @param verify_OM Should the model be run without estimation and some basic
 #'  checks done to verify that the OM can run? Defaults to TRUE.
+#' @param seed input seed to allow reproducible SS results.
 #' @template verbose
 #' @return A new datafile as read in for r4ss, but with dummy data added.
 #' @import r4ss
@@ -27,10 +28,12 @@ create_OM <- function(OM_out_dir,
                       verbose = FALSE,
                       nyrs_assess = NULL,
                       rec_devs = NULL,
-                      verify_OM = TRUE) {
+                      verify_OM = TRUE,
+                      seed = NULL) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
                                 verbose = FALSE)
   # modify starter to use as OM ----
+  if(is.null(seed)){seed <- runif(1,1,99999999)}
   start$init_values_src <- 1
   start$detailed_age_structure <- 1
   start$last_estimation_phase <- 0
@@ -40,6 +43,7 @@ create_OM <- function(OM_out_dir,
   start$F_report_units <- 0
   start$F_report_basis <- 0
   start$F_age_range <- NULL
+  start$seed <- seed
   r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE,
                         overwrite = TRUE, warn = FALSE)
   # run model to get standardized output ----
@@ -439,6 +443,7 @@ create_OM <- function(OM_out_dir,
 #'  error_check will be created, and the model will be run from control start
 #'  values instead of ss.par. The 2 par files are then compared to help debug
 #'  the issue with the model run. Defaults to TRUE.
+#' @param seed A random seed for SS to enable reproducible SS results.
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 run_OM <- function(OM_dir,
@@ -446,20 +451,23 @@ run_OM <- function(OM_dir,
                         nboot = 1,
                         init_run = FALSE,
                         verbose = FALSE,
-                        debug_par_run = TRUE) {
+                        debug_par_run = TRUE,
+                        seed = NULL) {
   # make sure OM generates the correct number of data sets.
   if (boot) {
     max_section <- nboot + 2
   } else {
     max_section <- 2
   }
-  if (init_run == TRUE) {
+  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
+  
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                 verbose = FALSE)
   start$N_bootstraps <- max_section
+  start$seed <- seed
   r4ss::SS_writestarter(start, dir = OM_dir, verbose = FALSE, overwrite = TRUE,
                         warn = FALSE)
-  }
+  
   # run SS and get the data set
   run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose,
                debug_par_run = debug_par_run)

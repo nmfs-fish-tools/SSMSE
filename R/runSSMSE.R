@@ -79,6 +79,8 @@
 #' n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
 #' object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
 #' for iteration specific seeds under seed$iter[[1:n_scenarios]].
+#' @param run_parallel true false option to use parallel processing or not defaults to FALSE
+#' @param n_cores how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1) 
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -149,7 +151,9 @@ run_SSMSE <- function(scen_name_vec,
                       sample_struct_list = NULL,
                       interim_struct_list = NULL,
                       verbose = FALSE,
-                      seed = NULL) {
+                      seed = NULL,
+                      run_parallel = FALSE,
+                      n_cores = NULL) {
   # input checks
   scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
   rec_dev_pattern <- match.arg(rec_dev_pattern, 
@@ -220,9 +224,10 @@ run_SSMSE <- function(scen_name_vec,
     }
     
   }
+  
   if(is.null(rec_dev_pars)) {
     # to do: make this a better default value.
-    rec_dev_pars <- c(ceiling(mean(nyrs_assess_vec)), 1)
+    rec_dev_pars <- c(ceiling(mean(nyrs_vec)), 1)
   }
   
   # make sure values are the correct length
@@ -267,7 +272,9 @@ run_SSMSE <- function(scen_name_vec,
                    scen_seed = tmp_scen[["scen_seed"]],
                    sample_struct = tmp_scen[["sample_struct"]], 
                    interim_struct = tmp_scen[["interim_struct"]],
-                   verbose = verbose)
+                   verbose = verbose,
+                   run_parallel = run_parallel,
+                   n_cores = n_cores)
   }
   message("Completed all SSMSE scenarios")
   invisible(scen_list)
@@ -316,17 +323,17 @@ run_SSMSE <- function(scen_name_vec,
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
-#'  @param interim_struct A optional list of parameters to control an interim assessment
+#' @param interim_struct A optional list of parameters to control an interim assessment
 #'  with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
 #'  MA_years= the number of years to average index observations of when calculating deviations, 
 #'  assess_freq=the number of years between full assessments during with an interim assessment will happen
 #'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
 #'  inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+#' @param run_parallel true false option to use parallel processing or not defaults to FALSE
+#' @param n_cores how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1) 
 #' @template verbose
 #' @export
 #' @import parallel
-#' @import foreach
-#' @import doParallel
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -362,7 +369,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            scen_seed = NULL,
                            sample_struct = NULL, 
                            interim_struct = NULL,
-                           verbose = FALSE) {
+                           verbose = FALSE,
+                           run_parallel = FALSE,
+                           n_cores = NULL) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
   assertive.properties::assert_is_atomic(iter)
@@ -399,32 +408,66 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
     max_prev_iter <- 0
   }
   
+  if(run_parallel){
   
-  cl <- makeCluster((detectCores()-1))
-  registerDoParallel(cl, cores = (detectCores()-1))
-  
-  foreach(i=seq_len(iter))%dopar%{ 
-    iter_seed <- vector(mode = "list", length = 3)
-    names(iter_seed) <- c("global", "scenario", "iter")
-    iter_seed$global <- scen_seed$global
-    iter_seed$scenario <- scen_seed$scenario
-    iter_seed$iter <- scen_seed$iter[i]
-    run_SSMSE_iter(out_dir = out_dir_iter,
-                   OM_name = OM_name,
-                   OM_in_dir = OM_in_dir,
-                   EM_name = EM_name,
-                   EM_in_dir = EM_in_dir,
-                   MS = MS,
-                   use_SS_boot = use_SS_boot,
-                   nyrs = nyrs,
-                   nyrs_assess = nyrs_assess,
-                   rec_dev_iter = rec_devs_scen[[i]],
-                   impl_error = impl_error[[i]],
-                   niter = max_prev_iter + i,
-                   iter_seed = iter_seed,
-                   sample_struct = sample_struct, 
-                   interim_struct = interim_struct,
-                   verbose = verbose)
+    if(!is.null(n_cores)){
+      n_cores<-min(max(n_cores,1),(detectCores()-1))
+    cl <- parallel::makeCluster((n_cores))
+    doParallel::registerDoParallel(cl, cores = (n_cores))
+    }else{
+      cl <- parallel::makeCluster((detectCores()-1))
+      doParallel::registerDoParallel(cl, cores = (detectCores()-1))
+    }
+    
+    foreach(i=seq_len(iter))%dopar%{
+      #for(i in seq_len(iter)){
+      iter_seed <- vector(mode = "list", length = 3)
+      names(iter_seed) <- c("global", "scenario", "iter")
+      iter_seed$global <- scen_seed$global
+      iter_seed$scenario <- scen_seed$scenario
+      iter_seed$iter <- scen_seed$iter[i]
+      run_SSMSE_iter(out_dir = out_dir_iter,
+                     OM_name = OM_name,
+                     OM_in_dir = OM_in_dir,
+                     EM_name = EM_name,
+                     EM_in_dir = EM_in_dir,
+                     MS = MS,
+                     use_SS_boot = use_SS_boot,
+                     nyrs = nyrs,
+                     nyrs_assess = nyrs_assess,
+                     rec_dev_iter = rec_devs_scen[[i]],
+                     impl_error = impl_error[[i]],
+                     niter = max_prev_iter + i,
+                     iter_seed = iter_seed,
+                     sample_struct = sample_struct, 
+                     interim_struct = interim_struct,
+                     verbose = verbose)
+    }
+  }else{
+    for(i in seq_len(iter)){
+      #for(i in seq_len(iter)){
+      iter_seed <- vector(mode = "list", length = 3)
+      names(iter_seed) <- c("global", "scenario", "iter")
+      iter_seed$global <- scen_seed$global
+      iter_seed$scenario <- scen_seed$scenario
+      iter_seed$iter <- scen_seed$iter[i]
+      run_SSMSE_iter(out_dir = out_dir_iter,
+                     OM_name = OM_name,
+                     OM_in_dir = OM_in_dir,
+                     EM_name = EM_name,
+                     EM_in_dir = EM_in_dir,
+                     MS = MS,
+                     use_SS_boot = use_SS_boot,
+                     nyrs = nyrs,
+                     nyrs_assess = nyrs_assess,
+                     rec_dev_iter = rec_devs_scen[[i]],
+                     impl_error = impl_error[[i]],
+                     niter = max_prev_iter + i,
+                     iter_seed = iter_seed,
+                     sample_struct = sample_struct, 
+                     interim_struct = interim_struct,
+                     verbose = verbose)
+    }
   }
   message("Completed all iterations for scenario ", scen_name)
   invisible(scen_name)
@@ -599,12 +642,12 @@ run_SSMSE_iter <- function(out_dir = NULL,
   
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
             verbose = verbose, writedat = TRUE, nyrs_assess = nyrs_assess,
-            rec_devs = rec_dev_iter)
+            rec_devs = rec_dev_iter, seed = (iter_seed$iter[1]+1234))
 
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                           verbose = verbose, init_run = TRUE)
+                           verbose = verbose, init_run = TRUE, seed = (iter_seed$iter[1]+12345))
   }
   if (use_SS_boot == FALSE) {
     stop("Currently, only sampling can be done using the bootstrapping ",
@@ -621,7 +664,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
   
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
                            OM_dat = OM_dat, OM_out_dir = OM_out_dir,
-                           verbose = verbose, nyrs_assess = nyrs_assess, interim_struct = interim_struct)
+                           verbose = verbose, nyrs_assess = nyrs_assess, interim_struct = interim_struct,
+                           seed = (iter_seed$iter[1]+123456))
   message("Finished getting catch (years ",
           (OM_dat$endyr + 1), " to ", (OM_dat$endyr + nyrs_assess),
           ") to feed into OM for iteration ", niter, ".")
@@ -658,11 +702,12 @@ run_SSMSE_iter <- function(out_dir = NULL,
               nyrs_extend = nyrs_assess,
               rec_devs = rec_devs_chunk,
               impl_error = impl_error_chunk,
-              verbose = verbose)
+              verbose = verbose,
+              seed = (iter_seed$iter[1]+234567+yr))
     # rerun OM (without estimation), get samples (or expected values)
     if (use_SS_boot == TRUE) {
     new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                           verbose = verbose)
+                           verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
     } else {
       stop("Currently, only sampling can be done using the bootstrapping ",
            "capabilities within SS")
@@ -690,7 +735,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
                                OM_out_dir = OM_out_dir,
                                dat_yrs = (yr + 1):(yr + nyrs_assess),
                                sample_struct = sample_struct, 
-                               interim_struct = interim_struct)
+                               interim_struct = interim_struct, 
+                               seed = (iter_seed$iter[1]+5678901+yr))
   message("Finished getting catch (years ", (yr + 1), " to ",
           (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
   }

@@ -15,7 +15,8 @@ parse_MS(
   nyrs_assess,
   dat_yrs,
   sample_struct = NULL,
-  interim_struct = NULL
+  interim_struct = NULL,
+  seed = NULL
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ datatypes within EM_datfile. Ignored if init_loop is TRUE.}
 fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
 and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
 will stay constant during simulation while relative year will progress with simulation).}
+
+\item{seed}{a random seed to initialize SS runs}
 }
 \description{
 This function matches each management strategy with its correct method. And
