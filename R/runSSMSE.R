@@ -83,6 +83,8 @@
 #' @param n_cores how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1) 
 #' @template verbose
 #' @export
+#' @import parallel
+#' @import doParallel
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #'
@@ -252,6 +254,16 @@ run_SSMSE <- function(scen_name_vec,
     scen_list[[i]][["scen_seed"]] <- scen_seed
   }
     
+  if(run_parallel){
+      if(!is.null(n_cores)){
+        n_cores<-min(max(n_cores,1),(detectCores()-1))
+        cl <- parallel::makeCluster((n_cores))
+        doParallel::registerDoParallel(cl, cores = (n_cores))
+      }else{
+        cl <- parallel::makeCluster((detectCores()-1))
+        doParallel::registerDoParallel(cl, cores = (detectCores()-1))
+      }
+  }
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
@@ -276,6 +288,7 @@ run_SSMSE <- function(scen_name_vec,
                    run_parallel = run_parallel,
                    n_cores = n_cores)
   }
+  stopCluster(cl)
   message("Completed all SSMSE scenarios")
   invisible(scen_list)
 }
@@ -333,7 +346,7 @@ run_SSMSE <- function(scen_name_vec,
 #' @param n_cores how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1) 
 #' @template verbose
 #' @export
-#' @import parallel
+#' @import foreach
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -409,15 +422,15 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   }
   
   if(run_parallel){
-  
-    if(!is.null(n_cores)){
-      n_cores<-min(max(n_cores,1),(detectCores()-1))
-    cl <- parallel::makeCluster((n_cores))
-    doParallel::registerDoParallel(cl, cores = (n_cores))
-    }else{
-      cl <- parallel::makeCluster((detectCores()-1))
-      doParallel::registerDoParallel(cl, cores = (detectCores()-1))
-    }
+    # 
+    # if(!is.null(n_cores)){
+    #   n_cores<-min(max(n_cores,1),(detectCores()-1))
+    # cl <- parallel::makeCluster((n_cores))
+    # doParallel::registerDoParallel(cl, cores = (n_cores))
+    # }else{
+    #   cl <- parallel::makeCluster((detectCores()-1))
+    #   doParallel::registerDoParallel(cl, cores = (detectCores()-1))
+    # }
     
     foreach(i=seq_len(iter))%dopar%{
       #for(i in seq_len(iter)){
