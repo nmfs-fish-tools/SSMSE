@@ -425,16 +425,6 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   # make a dataframe to store dataframes that error
   return_val <- vector(mode = "list", length = iter)
   if(run_parallel){
-    # 
-    # if(!is.null(n_cores)){
-    #   n_cores<-min(max(n_cores,1),(detectCores()-1))
-    # cl <- parallel::makeCluster((n_cores))
-    # doParallel::registerDoParallel(cl, cores = (n_cores))
-    # }else{
-    #   cl <- parallel::makeCluster((detectCores()-1))
-    #   doParallel::registerDoParallel(cl, cores = (detectCores()-1))
-    # }
-    
     foreach(i=seq_len(iter))%dopar%{
       #for(i in seq_len(iter)){
       iter_seed <- vector(mode = "list", length = 3)
