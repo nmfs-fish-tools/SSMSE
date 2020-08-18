@@ -290,11 +290,11 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                                 new_datfile_name = start[["datfile"]],
                                 verbose = verbose)
       
-      # extend forward bias adjustment(if using)
-      new_ctl <- extend_EM_bias_adj(
-        ctlfile = file.path(EM_init_dir, start[["ctlfile"]]), 
-        datlist_new = new_EM_dat,
-        nyrs_assess = nyrs_assess, write_ctl = TRUE)
+      # # extend forward bias adjustment(if using)
+      # new_ctl <- extend_EM_bias_adj(
+      #   ctlfile = file.path(EM_init_dir, start[["ctlfile"]]), 
+      #   datlist_new = new_EM_dat,
+      #   nyrs_assess = nyrs_assess, write_ctl = TRUE)
       
         ref_index <- Reference_dat[["CPUE"]]
         curr_index <- new_EM_dat[["CPUE"]]
@@ -463,10 +463,10 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                                  new_datfile_name = new_datfile_name,
                                  verbose = verbose)
       # extend forward bias adjustment(if using)
-      new_ctl <- extend_EM_bias_adj(
-        ctlfile = file.path(EM_out_dir, start$ctlfile), 
-        datlist_new = new_EM_dat,
-        nyrs_assess = nyrs_assess, write_ctl = TRUE)
+      # new_ctl <- extend_EM_bias_adj(
+      #   ctlfile = file.path(EM_out_dir, start$ctlfile), 
+      #   datlist_new = new_EM_dat,
+      #   nyrs_assess = nyrs_assess, write_ctl = TRUE)
       
     }
     # Update SS random seed

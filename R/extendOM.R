@@ -111,12 +111,13 @@ extend_OM <- function(catch,
     
   parlist[["recdev_forecast"]] <- rbind(old_recs,new_recs)
   
+  # implementation error should always be 0 in the OM
+  parlist[["Fcast_impl_error"]] <-
+    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
+  
   #write new par file
   r4ss::SS_writepar_3.30(parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
                          overwrite = TRUE, verbose = FALSE)  
-  # implementation error should always be 0 in the OM
-  parlist[["Fcast_impl_error"]] <-
-  get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
   
   Fleet_scale <- catch_intended
   Fleet_scale[,"catch"] <- 1
@@ -150,9 +151,8 @@ extend_OM <- function(catch,
     ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
       units_of_catch = units_of_catch)
     
-    F_achieved <- F_list$F_rate_fcast[,c("year", "seas", "fleet", "F")]
-    
-    
+    F_achieved <- F_list$F_df[F_list$F_df[,"Era"]=="FORE",c("Yr", "Seas", "Fleet", "F")]
+    colnames(F_achieved) <- c("year", "seas", "fleet","F")
     # Check that SS created projections with the intended catches before updating model
     # make sure retained catch is close to the same as the input catch.
     for(i in 1:length(Fleet_scale[,"catch"])){
