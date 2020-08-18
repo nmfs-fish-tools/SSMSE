@@ -289,7 +289,7 @@ run_SSMSE <- function(scen_name_vec,
                    n_cores = n_cores)
     scen_list[[i]]$errored_iterations <- return_df
   }
-  stopCluster(cl)
+  if(run_parallel) stopCluster(cl)
   message("Completed all SSMSE scenarios.")
   invisible(scen_list)
 }
