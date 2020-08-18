@@ -118,7 +118,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
           base_yr<-floor(Reference_dat$endyr+interim_struct[["Ref_years"]][i])
         }
         years <- (Reference_dat$styr):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
-        Ref_SE <- stats::median(Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])
+        #Ref_SE <- stats::median(Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])
         for(j in years){
           check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==i,,drop=FALSE]
           if(length(check_vec[,1])>0){
@@ -127,7 +127,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
             if(length(check_vec[,1])==0){
               temp_vec[1,1]<-j
               temp_vec[1,4]<-1
-              temp_vec[1,5]<-Ref_SE
+              temp_vec[1,5]<-interim_struct[["Index_SE"]][i]#Ref_SE
               temp_vec[1,3]<-(-i)
               Reference_dat$CPUE<-rbind(Reference_dat$CPUE,temp_vec)
             }
@@ -300,7 +300,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         curr_index <- new_EM_dat[["CPUE"]]
         
         if(is.null(interim_struct)){
-          interim_struct<-list(MA_years=3,assess_freq=5,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(0,max(ref_index[,3])))
+          interim_struct<-list(MA_years=3,assess_freq=5,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(0,max(ref_index[,3])),control=FALSE)
         }
         
         new_ref_index <- ref_index[0,,drop=FALSE]
@@ -370,8 +370,9 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         #interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.  
         #interim_struct[["Index_weights"]] #vector of length n indices with values summing to 1
         
-        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]][curr_index[,3]]*ref_index[,5]
-        adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]][ref_index[,3]]*ref_index[,5]
+        if(interim_struct[["control"]]==FALSE){
+        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]][curr_index[,3]]*curr_index[,5]
+        adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]][ref_index[,3]]*curr_index[,5]
         adjust_index[,5] <- adjust_index[,3]/adjust_index[,4]
         adjust_index[,6] <- interim_struct[["Index_weights"]][adjust_index[,2]]
         
@@ -386,6 +387,9 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
         catch_scaling_factor <- sum(used_index[,5]*used_index[,6])
         
         catch_scaling_factor <- max(min(catch_scaling_factor,2),0.25)
+        }else{
+          catch_scaling_factor <- 1
+        }
         
         new_catch_list <- get_EM_catch_df(EM_dir = EM_init_dir, dat = Reference_dat)
         
