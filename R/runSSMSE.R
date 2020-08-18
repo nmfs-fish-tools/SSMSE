@@ -84,7 +84,6 @@
 #' @template verbose
 #' @export
 #' @import parallel
-#' @import doParallel
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #'
@@ -289,8 +288,11 @@ run_SSMSE <- function(scen_name_vec,
                    n_cores = n_cores)
     scen_list[[i]]$errored_iterations <- return_df
   }
-  if(run_parallel) stopCluster(cl)
-  message("Completed all SSMSE scenarios.")
+  if(run_parallel){
+    parallel::stopCluster(cl)
+    doParallel::stopImplicitCluster()
+  }
+  message("Completed all SSMSE scenarios")
   invisible(scen_list)
 }
 
@@ -347,7 +349,6 @@ run_SSMSE <- function(scen_name_vec,
 #' @param n_cores how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1) 
 #' @template verbose
 #' @export
-#' @import foreach
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -426,6 +427,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   return_val <- vector(mode = "list", length = iter)
   if(run_parallel){
     return_val <- foreach(i=seq_len(iter), .errorhandling = "pass")%dopar%{
+
       #for(i in seq_len(iter)){
       iter_seed <- vector(mode = "list", length = 3)
       names(iter_seed) <- c("global", "scenario", "iter")
@@ -495,6 +497,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   }
   message("Completed all iterations for scenario ", scen_name)
   invisible(run_failed_df)
+
 }
 
 #' Run one iteration of an MSE using SS OM
@@ -690,9 +693,11 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            OM_dat = OM_dat, OM_out_dir = OM_out_dir,
                            verbose = verbose, nyrs_assess = nyrs_assess, interim_struct = interim_struct,
                            seed = (iter_seed$iter[1]+123456))
+  
   message("Finished getting catch (years ",
           (OM_dat$endyr + 1), " to ", (OM_dat$endyr + nyrs_assess),
           ") to feed into OM for iteration ", niter, ".")
+  
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
@@ -730,8 +735,18 @@ run_SSMSE_iter <- function(out_dir = NULL,
               seed = (iter_seed$iter[1]+234567+yr))
     # rerun OM (without estimation), get samples (or expected values)
     if (use_SS_boot == TRUE) {
-    new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                           verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+      if(!is.null(interim_struct)){
+        if(MS == "Interim" &  !is.null(interim_struct[["auto_corr"]])){
+          new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = FALSE, nboot = 1,
+                               verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+        }else{
+          new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
+                               verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+        }
+      }else{
+        new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
+                              verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+      }
     } else {
       stop("Currently, only sampling can be done using the bootstrapping ",
            "capabilities within SS")

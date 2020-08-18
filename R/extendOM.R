@@ -38,6 +38,7 @@ extend_OM <- function(catch,
                       seed = NULL) {
 
   # input checks
+  
   check_catch_df(catch)
   check_dir(OM_dir)
 
@@ -110,19 +111,22 @@ extend_OM <- function(catch,
     
   parlist[["recdev_forecast"]] <- rbind(old_recs,new_recs)
   
+  # implementation error should always be 0 in the OM
+  parlist[["Fcast_impl_error"]] <-
+    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
+  
   #write new par file
   r4ss::SS_writepar_3.30(parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
                          overwrite = TRUE, verbose = FALSE)  
-  # implementation error should always be 0 in the OM
-  parlist[["Fcast_impl_error"]] <-
-  get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
   
-  Fleet_scale <- catch_intended  
+  Fleet_scale <- catch_intended
   Fleet_scale[,"catch"] <- 1
   Fleet_scale[,"basis"] <- 0
-  
+  Fleet_scale <- Fleet_scale[Fleet_scale[,"year"]==(dat$endyr+1),]
+  search_loops <- 0
   while(achieved_Catch==FALSE)
   {
+    search_loops <- search_loops + 1
     forelist[["ForeCatch"]] <- temp_comb
     
     # write out the changed forecast file ----
@@ -147,12 +151,13 @@ extend_OM <- function(catch,
     ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
       units_of_catch = units_of_catch)
     
-    F_achieved <- F_list$F_rate_fcast[,c("year", "seas", "fleet", "F")]
-    
-    
+    F_achieved <- F_list$F_df[F_list$F_df[,"Era"]=="FORE",c("Yr", "Seas", "Fleet", "F")]
+    colnames(F_achieved) <- c("year", "seas", "fleet","F")
     # Check that SS created projections with the intended catches before updating model
     # make sure retained catch is close to the same as the input catch.
     for(i in 1:length(Fleet_scale[,"catch"])){
+      ratio<-1
+      
       intended_val <- catch_intended[catch_intended[,"year"]==Fleet_scale[i,"year"] & 
                                      catch_intended[,"seas"]==Fleet_scale[i,"seas"] & 
                                      catch_intended[,"fleet"]==Fleet_scale[i,"fleet"],"catch"]
@@ -204,6 +209,16 @@ extend_OM <- function(catch,
       }else{
         ratio <- 1
       }
+      if(is.na(ratio)){
+        ratio<-0.5
+      }
+      if(is.null(ratio)){
+        ratio<-0.5
+      }
+      if(is.nan(ratio)){
+        ratio<-0.5
+      }
+      ratio <- min(ratio,2)
       
       if(ratio<0){
         temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
@@ -220,9 +235,19 @@ extend_OM <- function(catch,
                        catch_intended[,"seas"]==Fleet_scale[i,"seas"] & 
                        catch_intended[,"fleet"]==Fleet_scale[i,"fleet"],"basis"] <- 99
       }else{
-        if(achieved_F>=1.45){
+        if(ratio < 1){
+          ratio<-(0.5*(ratio-1)+1)
+          ratio<-(ratio+Fleet_scale[i,"catch"])/2  
+          temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                      temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                      temp_comb[,"fleet"]==Fleet_scale[i,"fleet"], "catch"] <- temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
+                                                                                           temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
+                                                                                           temp_comb[,"fleet"]==Fleet_scale[i,"fleet"],"catch"]*ratio
+        }else if(achieved_F>=1.45){
             ratio <- 1
-        }else{
+        }else {
+        ratio<-(0.5*(ratio-1)+1)
+        ratio<-(ratio+Fleet_scale[i,"catch"])/2  
         temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
                   temp_comb[,"seas"]==Fleet_scale[i,"seas"] & 
                   temp_comb[,"fleet"]==Fleet_scale[i,"fleet"], "catch"] <- temp_comb[temp_comb[,"year"]==Fleet_scale[i,"year"] & 
@@ -231,16 +256,28 @@ extend_OM <- function(catch,
       
         }
       }
+      
       Fleet_scale[i,"catch"] <- ratio
       Fleet_scale[i,"basis"] <- abs(1-ratio)
     }
     
-    if(max(Fleet_scale[,"basis"])>0.01){
+    if(max(Fleet_scale[,"basis"])>0.05 & search_loops<10){
       achieved_Catch <- FALSE
     }else{
       achieved_Catch <- TRUE
     }
+    if(search_loops==10){
+      write.csv("test to see how long the loop runs",file=file.path(OM_dir, "search_took_too_long.csv"))
+    }
   }
+  temp_1<-catch_intended[,1:4]
+  colnames(temp_1)<-c("year","seas","fleet","catch")
+  temp_2<-ret_catch[ret_catch[,"Yr"]==(dat$endyr+1),c(1,3,5,6)]
+  colnames(temp_2)<-c("year","seas","fleet","catch")
+  temp_3<-F_achieved[,1:4]
+  colnames(temp_3)<-c("year","seas","fleet","catch")
+  result_fit<-rbind(temp_1,temp_2,temp_3)
+  write.csv(result_fit,file=file.path(OM_dir, paste0("intended_catch_search_took_",search_loops,"_loops.csv")))
   # extend the number of yrs in the model and add in catch ----
   # modify forecast file - do this to make the forecasting elements simpler for
   # the second run of the OM.
