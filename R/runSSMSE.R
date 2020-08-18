@@ -425,14 +425,14 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   # make a dataframe to store dataframes that error
   return_val <- vector(mode = "list", length = iter)
   if(run_parallel){
-    foreach(i=seq_len(iter))%dopar%{
+    return_val <- foreach(i=seq_len(iter), .errorhandling = "pass")%dopar%{
       #for(i in seq_len(iter)){
       iter_seed <- vector(mode = "list", length = 3)
       names(iter_seed) <- c("global", "scenario", "iter")
       iter_seed$global <- scen_seed$global
       iter_seed$scenario <- scen_seed$scenario
       iter_seed$iter <- scen_seed$iter[i]
-      return_val[[i]] <- tryCatch(run_SSMSE_iter(out_dir = out_dir_iter,
+      run_SSMSE_iter(out_dir = out_dir_iter,
                      OM_name = OM_name,
                      OM_in_dir = OM_in_dir,
                      EM_name = EM_name,
@@ -447,7 +447,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                      iter_seed = iter_seed,
                      sample_struct = sample_struct, 
                      interim_struct = interim_struct,
-                     verbose = verbose), error = function(e) e)
+                     verbose = verbose)
     }
   }else{
     for(i in seq_len(iter)){
@@ -481,7 +481,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
     if("error" %in% class(return_val[[i]])) {
       message("iteration ", max_prev_iter + i, "failed in directory ",
               out_dir_iter,
-              ". Please delete before running summary functions.")
+              ". Please delete folders before running summary functions.")
       tmp_df <- data.frame(iteration = max_prev_iter + i, 
                            scenario = basename(out_dir_iter),
                            out_dir = out_dir_iter, 
@@ -489,6 +489,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
       # todo: add more info on why the run failed.
       run_failed_df <- rbind(run_failed_df, tmp_df)
     }
+  }
+  if(is.null(run_failed_df)) {
+    run_failed_df <- "No errored iterations"
   }
   message("Completed all iterations for scenario ", scen_name)
   invisible(run_failed_df)
