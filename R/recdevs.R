@@ -114,6 +114,24 @@ build_rec_devs <- function(
       }
     }
   } else if (rec_dev_pattern == "rand") {
+    if (scope == 2) { 
+      if(length(unique(stddev)) != 1) {
+        warning("stddev input to function build_rec_devs is different among ",
+               "scenarios, but scope = 2. Using stddev value from the first ",
+               "scenario.")
+      }
+      # find the scenario that has the longest years
+      set.seed(seed$global) # b/c using the same across scenarios.
+      yrs_max <- max(yrs)
+      iter_max <- max(iter_vec)
+      breaks <- unique(c(seq(0, yrs_max, rec_dev_pars[1]), yrs_max))
+      rec_dev_iter_list <- vector("list", length = iter_max)
+      for(i in seq_len(iter_max)) {
+        rec_dev_iter_list[[i]] <-
+          calc_rec_devs(breaks = breaks, yrs = yrs_max, 
+                        stddev = stddev[1]*rec_dev_pars[2])
+      }
+    }
     for (i in 1:n_scenarios) {
       breaks <- unique(c(seq(0, yrs[i], rec_dev_pars[1]), yrs[i]))
       if (scope == 1) { 
@@ -123,13 +141,13 @@ build_rec_devs <- function(
         rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i]*rec_dev_pars[2])
       }
       rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
-      if (scope == 2) { 
-        
-        set.seed(seed$scenario[i])
-        
-        rec_dev_seq <- calc_rec_devs(breaks, yrs[i], stddev[i]*rec_dev_pars[2])
-      }
       for (j in 1:iter_vec[i]) {
+        if (scope == 2) {
+          # pull the rec dev vector for the iteration,and shortening to the
+          # appropriate length of years for the scenario.
+          # should be the same across scenarios.
+          rec_dev_seq <- rec_dev_iter_list[[j]][seq_len(yrs[i])]
+        }
         if (scope == 3) { 
           
           set.seed(seed$iter[[i]][j])
