@@ -31,8 +31,9 @@ calc_rec_devs <- function(breaks, yrs, stddev) {
   rec_dev_seq <- stats::rnorm(yrs)
   for (k in 1:(length(breaks) - 1)) {
     temp_rec_dev <- rec_dev_seq[(breaks[k] + 1):(breaks[k + 1])]
-    temp_rec_dev <- temp_rec_dev - (sum(temp_rec_dev) / length(temp_rec_dev))
-    temp_rec_dev <- temp_rec_dev / stats::sd(temp_rec_dev)
+    # zscore to mean center and put in stddev units
+    temp_rec_dev <- (temp_rec_dev - mean(temp_rec_dev))/stats::sd(temp_rec_dev)
+    # apply the standard deviation
     rec_dev_seq[(breaks[k] + 1):(breaks[k + 1])] <- temp_rec_dev * stddev
   }
   return(rec_dev_seq)
