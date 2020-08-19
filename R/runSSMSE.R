@@ -267,7 +267,7 @@ run_SSMSE <- function(scen_name_vec,
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
     # run for each scenario
-    run_SSMSE_scen(scen_name = names(scen_list)[i],
+    return_df <- run_SSMSE_scen(scen_name = names(scen_list)[i],
                    out_dir_scen = tmp_scen[["out_dir_scen"]],
                    iter = tmp_scen[["iter"]],
                    OM_name = tmp_scen[["OM_name"]],
@@ -286,6 +286,7 @@ run_SSMSE <- function(scen_name_vec,
                    verbose = verbose,
                    run_parallel = run_parallel,
                    n_cores = n_cores)
+    scen_list[[i]]$errored_iterations <- return_df
   }
   if(run_parallel){
     parallel::stopCluster(cl)
@@ -422,18 +423,11 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
     max_prev_iter <- 0
   }
   
+  # make a dataframe to store dataframes that error
+  return_val <- vector(mode = "list", length = iter)
   if(run_parallel){
-    # 
-    # if(!is.null(n_cores)){
-    #   n_cores<-min(max(n_cores,1),(detectCores()-1))
-    # cl <- parallel::makeCluster((n_cores))
-    # doParallel::registerDoParallel(cl, cores = (n_cores))
-    # }else{
-    #   cl <- parallel::makeCluster((detectCores()-1))
-    #   doParallel::registerDoParallel(cl, cores = (detectCores()-1))
-    # }
-    
-    foreach::foreach(i=seq_len(iter))%dopar%{
+    return_val <- foreach(i=seq_len(iter), .errorhandling = "pass")%dopar%{
+
       #for(i in seq_len(iter)){
       iter_seed <- vector(mode = "list", length = 3)
       names(iter_seed) <- c("global", "scenario", "iter")
@@ -465,7 +459,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
       iter_seed$global <- scen_seed$global
       iter_seed$scenario <- scen_seed$scenario
       iter_seed$iter <- scen_seed$iter[i]
-      run_SSMSE_iter(out_dir = out_dir_iter,
+      return_val[[i]] <- tryCatch(run_SSMSE_iter(out_dir = out_dir_iter,
                      OM_name = OM_name,
                      OM_in_dir = OM_in_dir,
                      EM_name = EM_name,
@@ -480,11 +474,30 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                      iter_seed = iter_seed,
                      sample_struct = sample_struct, 
                      interim_struct = interim_struct,
-                     verbose = verbose)
+                     verbose = verbose), error = function(e) e)
     }
   }
-  message("Completed all iterations for scenario ", scen_name ," at ", Sys.time())
-  invisible(scen_name)
+  # summarize the errors from runs.
+  run_failed_df <- NULL
+  for(i in seq_len(iter)) {
+    if("error" %in% class(return_val[[i]])) {
+      message("iteration ", max_prev_iter + i, "failed in directory ",
+              out_dir_iter,
+              ". Please delete folders before running summary functions.")
+      tmp_df <- data.frame(iteration = max_prev_iter + i, 
+                           scenario = basename(out_dir_iter),
+                           out_dir = out_dir_iter, 
+                           error = paste(return_val[[i]]$message))
+      # todo: add more info on why the run failed.
+      run_failed_df <- rbind(run_failed_df, tmp_df)
+    }
+  }
+  if(is.null(run_failed_df)) {
+    run_failed_df <- "No errored iterations"
+  }
+  message("Completed all iterations for scenario ", scen_name)
+  invisible(run_failed_df)
+
 }
 
 #' Run one iteration of an MSE using SS OM

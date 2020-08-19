@@ -219,8 +219,6 @@ check_scen_list <- function(list, verbose = FALSE) {
   # some columns are required, but others are optional. Check that the required
   # columns are there, and warn if the optional ones arent, if verbose.
   # TODO: write this function. Did not want to write until we decide on input
-  warning("No check for scen_list structure yet implemented. Use at your own ",
-   "risk.")
   assertive.types::assert_is_list(list)
   invisible(list)
 }

@@ -29,6 +29,7 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
                       impl_error_pattern = "none", # Don't use implementation error
                       sample_struct_list = list(sample_struct), # How to sample data for running the EM.
                       seed = 12345) #Set a fixed integer seed that allows replication 
+  expect_equivalent(result$`H-ctl`$errored_iterations, "No errored iterations")
   expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
   expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
   expect_length(result, 1)
