@@ -51,6 +51,49 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   expect_true(length(summary) == 3)
 })
 
+test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs", {
+  # This tests takes a while to run, but is really helpful.
+  new_temp_path <- file.path(temp_path, "mult_scenarios")
+  dir.create(new_temp_path)
+  skip_on_travis()
+  skip_on_cran()
+  skip_on_appveyor()
+  nyrs <- 6
+  datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+  # use sample_struct to determine its structure
+  sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
+  sample_struct$lencomp <- NULL
+  result <- run_SSMSE(scen_name_vec = c("H-ctl", "H-scen-2"), # name of the scenario
+                      out_dir_scen_vec = new_temp_path, # directory in which to run the scenario
+                      iter_vec = c(2,2), # run with 5 iterations each
+                      OM_name_vec = "cod", 
+                      EM_name_vec = "cod", # cod is included in package data
+                      MS_vec = "EM",       # The management strategy is specified in the EM
+                      use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
+                      nyrs_vec = nyrs,        # Years to project OM forward
+                      nyrs_assess_vec = 3, # Years between assessments
+                      rec_dev_pattern = "none", # Don't use recruitment deviations
+                      run_parallel = FALSE,
+                      impl_error_pattern = "none", # Don't use implementation error
+                      sample_struct_list = list(sample_struct, sample_struct), # How to sample data for running the EM.
+                      seed = 12345) #Set a fixed integer seed that allows replication 
+  expect_equivalent(result$`H-ctl`$errored_iterations, "No errored iterations")
+  expect_true(file.exists(
+    file.path(new_temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
+  expect_true(file.exists(
+    file.path(new_temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
+  expect_equivalent(result$`H-scen-2`$errored_iterations,
+                    "No errored iterations")
+  expect_true(file.exists(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new")))
+  expect_true(file.exists(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106", "data.ss_new")))
+  expect_length(result, 2)
+  # summarize results
+  summary <- SSMSE_summary_all(dir = new_temp_path, run_parallel = FALSE)
+  expect_true(length(summary) == 3)
+})
+
 test_that("run_SSMSE_iter runs with no EM", {
   skip_on_cran()
   new_temp_path <- file.path(temp_path, "no_EM")
