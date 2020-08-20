@@ -39,10 +39,11 @@ SSMSE_summary_all <- function(dir = getwd(), scenarios = NULL,
                         directory = dir, 
                         overwrite_files = TRUE)
     ret <- get_results_all(directory = dir, user_scenarios = scenarios, 
-                           overwrite_files = FALSE)
+                           overwrite_files = FALSE, filename_prefix = "SSMSE")
   } else {
    ret <- ss3sim::get_results_all(directory = dir, user_scenarios = scenarios, 
-                                  overwrite_files = FALSE)
+                                  overwrite_files = FALSE, 
+                                  filename_prefix = "SSMSE")
   }
   ret
 }
