@@ -79,8 +79,9 @@
 #' n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
 #' object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
 #' for iteration specific seeds under seed$iter[[1:n_scenarios]].
-#' @param run_parallel true false option to use parallel processing or not defaults to FALSE
-#' @param n_cores how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1) 
+#' @param run_parallel Option to use parallel processing. Defaults to FALSE.
+#' @param n_cores How many cores to use if running in parallel. If is NULL, 
+#'  defaults to n_cores available - 1 (also capped at n_cores available - 1) 
 #' @template verbose
 #' @export
 #' @import parallel
@@ -345,8 +346,11 @@ run_SSMSE <- function(scen_name_vec,
 #'  assess_freq=the number of years between full assessments during with an interim assessment will happen
 #'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
 #'  inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
-#' @param run_parallel true false option to use parallel processing or not defaults to FALSE
-#' @param n_cores how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1) 
+#' @param run_parallel Option to use parallel processing on iterations.
+#'  Defaults to FALSE
+#' @param n_cores how many cores to use if running in parallel defaults to
+#'  n_cores available - 1 (also capped at one less than the number of cores 
+#'  available)
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
