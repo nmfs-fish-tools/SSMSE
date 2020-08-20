@@ -128,9 +128,10 @@ n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds
 object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
 for iteration specific seeds under seed$iter[[1:n_scenarios]].}
 
-\item{run_parallel}{true false option to use parallel processing or not defaults to FALSE}
+\item{run_parallel}{Option to use parallel processing. Defaults to FALSE.}
 
-\item{n_cores}{how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1)}
+\item{n_cores}{How many cores to use if running in parallel. If is NULL, 
+defaults to n_cores available - 1 (also capped at n_cores available - 1)}
 }
 \description{
 High level function to run a management strategy evaluation using Stock

@@ -93,9 +93,12 @@ inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=re
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
-\item{run_parallel}{true false option to use parallel processing or not defaults to FALSE}
+\item{run_parallel}{Option to use parallel processing on iterations.
+Defaults to FALSE}
 
-\item{n_cores}{how many cores to use if running in parallel defaults to n_cores available - 1 (also capped at n_cores available - 1)}
+\item{n_cores}{how many cores to use if running in parallel defaults to
+n_cores available - 1 (also capped at one less than the number of cores 
+available)}
 }
 \description{
 High level function to run 1 scenario (but potentially many iterations) for

@@ -4,7 +4,12 @@
 \alias{SSMSE_summary_all}
 \title{Get results in a list for 1 scenario}
 \usage{
-SSMSE_summary_all(dir = getwd(), scenarios = NULL)
+SSMSE_summary_all(
+  dir = getwd(),
+  scenarios = NULL,
+  run_parallel = FALSE,
+  n_cores = NULL
+)
 }
 \arguments{
 \item{dir}{Path to the directory containing the scenarios, either relative 
@@ -13,6 +18,14 @@ or absolute. Defaults to the working directory.}
 \item{scenarios}{A character vector of scenarios in dir from which to extract
 summaries. If left as NULL, the summaries will be extracted from all folders
 in dir.}
+
+\item{run_parallel}{Option to use parallel processing. Defaults to FALSE.
+Note that running in parallel will only be faster if most of the scenarios
+do not yet have scenario-level summary files .}
+
+\item{n_cores}{How many cores to use if running in parallel. If is NULL, 
+defaults to n_cores available - 1 (also capped at one less than the number
+of cores available - 1)}
 }
 \value{
 A list of 3 data frames called scalar, ts, and
