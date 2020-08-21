@@ -13,6 +13,7 @@
 #' @param n_cores How many cores to use if running in parallel. If is NULL, 
 #'  defaults to n_cores available - 1 (also capped at one less than the number
 #'  of cores available - 1) 
+#' @param overwrite Should existing summary files be overwritten if present
 #' @return A list of 3 data frames called scalar, ts, and
 #'  dq (for derived quantities). These lists contain information for
 #'  multiple model runs (estimation models and operating models) for 1
@@ -23,7 +24,8 @@
 #' @importFrom ss3sim get_results_all
 #' @export
 SSMSE_summary_all <- function(dir = getwd(), scenarios = NULL, 
-                              run_parallel = FALSE, n_cores = NULL) {
+                              run_parallel = FALSE, n_cores = NULL, 
+                              overwrite = FALSE) {
   dir <- normalizePath(dir)
   if(is.null(scenarios)) {
     scenarios <- list.dirs(dir, full.names = FALSE, recursive = FALSE)
@@ -63,7 +65,7 @@ SSMSE_summary_all <- function(dir = getwd(), scenarios = NULL,
     }
   }
   ret <- ss3sim::get_results_all(directory = dir, user_scenarios = scenarios, 
-                                 overwrite_files = FALSE, 
+                                 overwrite_files = overwrite, 
                                  filename_prefix = "SSMSE")
   ret
 }
