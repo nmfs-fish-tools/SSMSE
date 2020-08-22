@@ -122,7 +122,7 @@ extend_OM <- function(catch,
   Fleet_scale <- catch_intended
   Fleet_scale[,"catch"] <- 1
   Fleet_scale[,"basis"] <- 0
-  Fleet_scale <- Fleet_scale[Fleet_scale[,"year"]==(dat$endyr+1),]
+  Fleet_scale <- Fleet_scale[Fleet_scale[,"year"]>=(dat$endyr+1) & Fleet_scale[,"year"]<=(dat$endyr+nyrs_extend),]
   search_loops <- 0
   while(achieved_Catch==FALSE)
   {
