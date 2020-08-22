@@ -4,7 +4,14 @@
 \alias{calc_autoCor_rec_devs}
 \title{calculate a vector of auto-correlated recruitment deviations}
 \usage{
-calc_autoCor_rec_devs(breaks, yrs, rec_autocorr_mean, rec_autocorr_sd, stddev)
+calc_autoCor_rec_devs(
+  breaks,
+  yrs,
+  rec_autocorr_mean,
+  rec_autocorr_sd,
+  target_mean = 0,
+  stddev
+)
 }
 \arguments{
 \item{breaks}{a vector of break-points between year groups rescaled to a mean of zero}
@@ -14,6 +21,8 @@ calc_autoCor_rec_devs(breaks, yrs, rec_autocorr_mean, rec_autocorr_sd, stddev)
 \item{rec_autocorr_mean}{a vector of the mean estimated autocorrelation parameters with length equal to the order of the timelag}
 
 \item{rec_autocorr_sd}{a vector of the standard deviation of estimated autocorrelation parameters with length equal to the order of the timelag}
+
+\item{target_mean}{the target mean of the final achieved recruitment deviations (default=0)}
 
 \item{stddev}{the standard deviation of simulated recruitment deviations}
 }

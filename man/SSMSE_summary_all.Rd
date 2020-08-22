@@ -8,7 +8,8 @@ SSMSE_summary_all(
   dir = getwd(),
   scenarios = NULL,
   run_parallel = FALSE,
-  n_cores = NULL
+  n_cores = NULL,
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ do not yet have scenario-level summary files .}
 \item{n_cores}{How many cores to use if running in parallel. If is NULL, 
 defaults to n_cores available - 1 (also capped at one less than the number
 of cores available - 1)}
+
+\item{overwrite}{Should existing summary files be overwritten if present}
 }
 \value{
 A list of 3 data frames called scalar, ts, and
