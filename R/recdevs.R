@@ -46,7 +46,7 @@ get_inp_mean_recs <- function(target_mean, inp_var) {
 #' @param target_mean the target mean of the final achieved recruitment deviations (default=0)
 #' @param stddev the standard deviation of simulated log recruitment deviations
 #' @return a vector of recruitment deviations.
-calc_rec_devs <- function(breaks, yrs, target_mean=0, stddev=1) {
+calc_rec_devs <- function(breaks, yrs, target_mean=1, stddev=0) {
   rec_dev_seq <- stats::rnorm(yrs)
   input_mean <- get_inp_mean_recs(target_mean=target_mean,inp_var=(stddev^2))
   for (k in 1:(length(breaks) - 1)) {
@@ -85,7 +85,7 @@ check_recdev_error <- function(length_recdev_seq, expected_length) {
 #' @param target_mean the target mean of the final achieved recruitment deviations (default=0)
 #' @param stddev the standard deviation of simulated recruitment deviations
 #' @return a vector of recruitment deviations.
-calc_autoCor_rec_devs <- function(breaks, yrs, rec_autocorr_mean, rec_autocorr_sd, target_mean=0, stddev=1) {
+calc_autoCor_rec_devs <- function(breaks, yrs, rec_autocorr_mean, rec_autocorr_sd, target_mean=1, stddev=0) {
   model_parms<-stats::rnorm(n=length(rec_autocorr_mean),mean=rec_autocorr_mean,sd=rec_autocorr_sd)
   rec_dev_seq <- as.vector(stats::arima.sim(model=list(ma=model_parms), n=yrs))
   input_mean <- get_inp_mean_recs(target_mean=target_mean,inp_var=(stddev^2))
