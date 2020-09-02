@@ -4,14 +4,16 @@
 \alias{calc_rec_devs}
 \title{calculate a vector of recruitment deviations}
 \usage{
-calc_rec_devs(breaks, yrs, stddev)
+calc_rec_devs(breaks, yrs, target_mean = 0, stddev = 1)
 }
 \arguments{
 \item{breaks}{a vector of break-points between year groups rescaled to a mean of zero}
 
 \item{yrs}{the number of years to simulate recruitment deviations for}
 
-\item{stddev}{the standard deviation of simulated recruitment deviations}
+\item{target_mean}{the target mean of the final achieved recruitment deviations (default=0)}
+
+\item{stddev}{the standard deviation of simulated log recruitment deviations}
 }
 \value{
 a vector of recruitment deviations.

@@ -9,6 +9,7 @@
 #' @param EM_out_dir Relative or absolute path to the estimation model, if using a
 #'   model outside of the SSMSE package. Note that this value should be NULL if
 #'   \code{MS} has a value other than \code{"EM"}.
+#' @param EM_init_dir Initialization director that retains the reference files for interim assessments
 #' @param init_loop Logical. If this is the first initialization loop of the
 #'   MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 #'   be FALSE.
@@ -20,43 +21,422 @@
 #'   assessment is conducted every 3 years, put 3 here. A single integer value.
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
-#' @param sample_struct A optional list including which years and fleets should be
+#' @param sample_struct An optional list including which years and fleets should be
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the
 #'  datatypes within EM_datfile. Ignored if init_loop is TRUE.
+#' @param interim_struct An optional including how many years to average over, 
+#'  fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
+#'  and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
+#'  will stay constant during simulation while relative year will progress with simulation).  
+#' @param seed a random seed to initialize SS runs
 #' @author Kathryn Doering & Nathan Vaughan
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 
-parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
+parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE,
                      OM_dat, OM_out_dir = NULL, verbose = FALSE, nyrs_assess, dat_yrs,
-                     sample_struct) {
+                     sample_struct = NULL, interim_struct = NULL, seed = NULL) {
   if (verbose) {
     message("Parsing the management strategy.")
   }
   # input checks ----
-  valid_MS <- c("EM", "no_catch", "last_yr_catch")
+  valid_MS <- c("EM", "no_catch", "last_yr_catch", "Interim")
   if (!MS %in% valid_MS) {
     stop("MS was input as ", MS, ", which is not valid. Valid options: ",
          valid_MS)
   }
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
+  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
   # parsing management strategies ----
+  # Interim Assessment ----
+  if(MS == "Interim") {
+    #check_dir(EM_out_dir)
+    # name for reference data file 
+    ref_datfile_name <- "ref_dat.ss"
+    ref_forecast_name <- "ref_fore.ss"
+    # change the name of data file.
+    # start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
+    #                         verbose = FALSE)
+    Sample_year <- FALSE
+    if (init_loop) {
+      # Read in the starting EM files for data and forecast
+      # this will be the reference data for comparison by the 
+      # interim harvest control rule
+      
+      start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
+                              verbose = FALSE)
+      start$N_bootstraps <- 2
+      start$init_values_src <- 1
+      start$last_estimation_phase <- 0
+      start$seed <- seed
+      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, start[["datfile"]]),
+                                  version = 3.30, verbose = FALSE)  
+      Reference_ctl <- SS_readctl(file = file.path(EM_out_dir, start[["ctlfile"]]), use_datlist = TRUE, datlist = Reference_dat, verbose = FALSE)
+      Reference_forecast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"), verbose = FALSE)
+      Reference_par <- SS_readpar_3.30(parfile=file.path(EM_out_dir, "ss.par"), datsource = Reference_dat, ctlsource = Reference_ctl, verbose = FALSE)
+      SS_writestarter(mylist = start,
+                       dir = EM_out_dir,
+                       file = "starter.ss",
+                       overwrite = TRUE,
+                       verbose = FALSE)
+      ref_index <- Reference_dat[["CPUE"]]
+      if(is.null(interim_struct)){
+        interim_struct<-list(MA_years=3,assess_freq=10,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(1,max(ref_index[,3])))
+      }
+      forecast_adjust<-length(Reference_par$recdev_forecast[,2])-Reference_forecast$Nforecastyrs
+      Reference_forecast$Nforecastyrs <- max(interim_struct[["assess_freq"]],Reference_forecast$Nforecastyrs)
+      temp_forecast<-matrix(0,nrow=(Reference_forecast$Nforecastyrs+forecast_adjust),ncol=2)
+      temp_forecast[,1]<-(Reference_dat$endyr+1-forecast_adjust):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
+      colnames(temp_forecast)<-c("year","recdev")
+      Reference_par$recdev_forecast <- as.data.frame(temp_forecast)
+      temp_impl_error<-matrix(0,nrow=(Reference_forecast$Nforecastyrs),ncol=2)
+      temp_impl_error[,1]<-(Reference_dat$endyr+1):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
+      colnames(temp_impl_error)<-c("year","impl_error")
+      Reference_par$Fcast_impl_error <- as.data.frame(temp_impl_error)
+      
+      SS_writepar_3.30(parlist=Reference_par, outfile = file.path(EM_out_dir, "ss.par"), overwrite = TRUE)
+      
+      SS_writeforecast(mylist = Reference_forecast,
+                       dir = EM_out_dir,
+                       file = ref_forecast_name,
+                       writeAll = TRUE,
+                       overwrite = TRUE,
+                       verbose = FALSE)
+      
+      SS_writeforecast(mylist = Reference_forecast,
+                       dir = EM_out_dir,
+                       file = "forecast.ss",
+                       writeAll = TRUE,
+                       overwrite = TRUE,
+                       verbose = FALSE)
+      
+      indices <- unique(abs(Reference_dat$CPUE$index))
+      for(i in indices){
+        if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=(Reference_dat$endyr+Reference_forecast$Nforecastyrs)){
+          base_yr<-floor(interim_struct[["Ref_years"]][i])
+        }else{
+          base_yr<-floor(Reference_dat$endyr+interim_struct[["Ref_years"]][i])
+        }
+        years <- (Reference_dat$styr):(Reference_dat$endyr+Reference_forecast$Nforecastyrs)
+        #Ref_SE <- stats::median(Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])
+        for(j in years){
+          check_vec<-temp_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==i,,drop=FALSE]
+          if(length(check_vec[,1])>0){
+            check_vec<-check_vec[as.numeric(check_vec$year)==j,,drop=FALSE]
+            temp_vec<-temp_vec[1,,drop=FALSE]
+            if(length(check_vec[,1])==0){
+              temp_vec[1,1]<-j
+              temp_vec[1,4]<-1
+              temp_vec[1,5]<-interim_struct[["Index_SE"]][i]#Ref_SE
+              temp_vec[1,3]<-(-i)
+              Reference_dat$CPUE<-rbind(Reference_dat$CPUE,temp_vec)
+            }
+          }
+        }
+      }
+      
+      SS_writedat(Reference_dat,file.path(EM_out_dir, start[["datfile"]]),
+                       overwrite = TRUE,
+                       verbose = FALSE)
+      
+      SS_writedat(OM_dat,file.path(EM_out_dir, "data_OM_init.dat"),
+                  overwrite = TRUE,
+                  verbose = FALSE)
+      
+      run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
+      
+      
+      Reference_dat <- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"), 
+                                  version = 3.30, section = 2, verbose = FALSE)
+      
+      
+      ### This is test code that calculates the standard error of index residuals that could be 
+      ### an alternative formulation to the median of the standard errors used above.
+      # Ref_obs<- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"), 
+      #                      version = 3.30, section = 1, verbose = FALSE)
+      # 
+      # indices <- unique(abs(Reference_dat$CPUE$index))
+      # for(i in indices){
+      #   if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=Reference_dat$endyr){
+      #     base_yr<-interim_struct[["Ref_years"]][i]
+      #   }else{
+      #     base_yr<-Reference_dat$endyr+interim_struct[["Ref_years"]][i]
+      #   }
+      #   years <- (base_yr-interim_struct[["MA_years"]]+1):(Reference_dat$endyr+interim_struct[["assess_freq"]])
+      #   
+      #   
+      #   Ref_SE <- sqrt(var(Ref_obs$CPUE[Ref_obs$CPUE$index==i,"se_log"] - Reference_dat$CPUE[Reference_dat$CPUE$index==i,"se_log"])/(length(Reference_dat$CPUE[Reference_dat$CPUE$index==i, "se_log"])-1))
+      #   
+      #   for(j in years){
+      #     check_vec<-Reference_dat$CPUE[Reference_dat$CPUE$index==(-i),,drop=FALSE]
+      #     if(length(check_vec[,1])>0){
+      #       check_vec<-check_vec[as.numeric(check_vec$year)==j,,drop=FALSE]
+      #       if(length(check_vec[,1])==1){
+      #         Reference_dat$CPUE[Reference_dat$CPUE$index==(-i) & as.numeric(Reference_dat$CPUE$year==year),"se_log"]<-Ref_SE
+      #       }
+      #     }
+      #   }
+      # }
+      
+      SS_writedat(Reference_dat,file.path(EM_out_dir, ref_datfile_name),
+                  overwrite = TRUE,
+                  verbose = FALSE)
+      new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = Reference_dat)
+      if(!is.null(new_catch_list[["catch"]])){
+      new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),] 
+      }
+      if(!is.null(new_catch_list[["discards"]])){
+      new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+      }
+      if(!is.null(new_catch_list[["catch_bio"]])){
+      new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+      }
+      if(!is.null(new_catch_list[["catch_F"]])){
+      new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
+      }
+      write.csv(new_catch_list[["catch"]],file.path(EM_out_dir,"intended_catch_init.csv"))
+    } else {
+      Reference_dat <- SS_readdat(file = file.path(EM_init_dir, ref_datfile_name), 
+                                  version = 3.30,
+                                  verbose = FALSE)
+      Reference_forecast <- SS_readforecast(file.path(EM_init_dir, ref_forecast_name),
+                                            verbose = FALSE)
+      
+      #TODO: Work on code to run assessments intermitently with interim assessment
+      #Sample_year <- (OM_dat[["endyr"]] == (Reference_dat[["endyr"]] + interim_struct[["assess_freq"]]))
+      Sample_year <- FALSE
+      if(Sample_year){
+      # TODO: fill in code here that will rerun the estimation model to update Reference_dat and Reference_forecast
+      # I have left in some of the run_EM code as a starting point.
+      #
+      #   if (!is.null(sample_struct)) {
+      #     sample_struct_sub <- lapply(sample_struct,
+      #                                 function(df, y) df[df[, 1] %in% y, ],
+      #                                 y = dat_yrs - nyrs_assess)
+      #   } else {
+      #     sample_struct_sub <- NULL
+      #   }
+      #   
+      #   
+      #   new_EM_dat <- add_new_dat(OM_dat = OM_dat,
+      #                             EM_datfile = ref_datfile_name,
+      #                             sample_struct = sample_struct_sub,
+      #                             EM_dir = EM_out_dir,
+      #                             do_checks = TRUE,
+      #                             new_datfile_name = ref_datfile_name,
+      #                             verbose = verbose)
+      #   # extend forward bias adjustment(if using)
+      #   new_ctl <- extend_EM_bias_adj(
+      #     ctlfile = file.path(EM_out_dir, start$ctlfile), 
+      #     datlist_new = new_EM_dat,
+      #     nyrs_assess = nyrs_assess, write_ctl = TRUE)
+      #   # manipulate the forecasting file.
+      #   # make sure enough yrs can be forecasted.
+      #   fcast <- SS_readforecast(file.path(EM_out_dir, ref_forecast_name),
+      #                            readAll = TRUE,
+      #                            verbose = FALSE)
+      #   # check that it can be used in the EM. fleets shoul
+      #   check_EM_forecast(fcast,
+      #                     n_flts_catch = length(which(new_EM_dat[["fleetinfo"]][, "type"] %in%
+      #                                                   c(1, 2))))
+      #   fcast <- change_yrs_fcast(fcast,
+      #                             make_yrs_rel = (init_loop == TRUE),
+      #                             nyrs_fore = nyrs_assess,
+      #                             mod_styr = new_EM_dat[["styr"]],
+      #                             mod_endyr = new_EM_dat[["endyr"]])
+      #   SS_writeforecast(fcast, dir = EM_out_dir, writeAll = TRUE, overwrite = TRUE,
+      #                    verbose = FALSE)
+      #   # given all checks are good, run the EM
+      #   # check convergence (figure out way to error if need convergence)
+      #   # get the future catch using the management strategy used in the SS model.
+      #   run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
+      # 
+      #   SS_writeforecast(mylist = fcast,
+      #   dir = EM_out_dir,
+      #   file = ref_forecast_name,
+      #   writeAll = TRUE,
+      #   overwrite = TRUE,
+      #   verbose = FALSE)
+      #
+      #   SS_writedat(new_EM_dat,file.path(EM_out_dir, ref_datfile_name),
+      #   overwrite = TRUE,
+      #   verbose = FALSE)
+      #
+      #
+      #
+      #   #get the forecasted catch.
+      #   new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
+     
+    }else {
+      
+      start <- SS_readstarter(file.path(EM_init_dir, "starter.ss"),
+                              verbose = FALSE)
+      
+      
+      
+      if (!is.null(sample_struct)) {
+        sample_struct_sub <- lapply(sample_struct,
+                                    function(df, y) df[df[, 1] %in% y, ],
+                                    y = dat_yrs - nyrs_assess)
+      } else {
+        sample_struct_sub <- NULL
+      }
+      
+      new_EM_dat <- add_new_dat(OM_dat = OM_dat,
+                                EM_datfile = start[["datfile"]],
+                                sample_struct = sample_struct_sub,
+                                EM_dir = EM_init_dir,
+                                do_checks = TRUE,
+                                new_datfile_name = start[["datfile"]],
+                                verbose = verbose)
+      
+      # # extend forward bias adjustment(if using)
+      # new_ctl <- extend_EM_bias_adj(
+      #   ctlfile = file.path(EM_init_dir, start[["ctlfile"]]), 
+      #   datlist_new = new_EM_dat,
+      #   nyrs_assess = nyrs_assess, write_ctl = TRUE)
+      
+        ref_index <- Reference_dat[["CPUE"]]
+        curr_index <- new_EM_dat[["CPUE"]]
+        
+        if(is.null(interim_struct)){
+          interim_struct<-list(MA_years=3,assess_freq=5,Beta=rep(1,max(ref_index[,3])),Index_weights=rep(1,max(ref_index[,3])),Ref_years=rep(0,max(ref_index[,3])),control=FALSE)
+        }
+        
+        new_ref_index <- ref_index[0,,drop=FALSE]
+        new_curr_index <- curr_index[0,,drop=FALSE]
+        
+        indices <- unique(abs(Reference_dat$CPUE$index))
+        for(i in indices){
+          for(j in 1:interim_struct[["MA_years"]]){
+            if(interim_struct[["Ref_years"]][i]>=Reference_dat$styr & interim_struct[["Ref_years"]][i]<=(Reference_dat$endyr+Reference_forecast$Nforecastyrs)){
+              base_yr<-interim_struct[["Ref_years"]][i]
+              curr_yr<-(new_EM_dat$endyr-j+1)
+            }else{
+              base_yr<-new_EM_dat$endyr+interim_struct[["Ref_years"]][i]-j+1
+              curr_yr<-(new_EM_dat$endyr+interim_struct[["Ref_years"]][i]-j+1)
+            }
+            
+            temp_ref_index <- ref_index[is.element(ref_index[,"year"],base_yr),,drop=FALSE]
+            temp_ref_index_pos <- temp_ref_index[temp_ref_index[,"index"]==i,,drop=FALSE]
+            temp_ref_index_neg <- temp_ref_index[temp_ref_index[,"index"]==(-i),,drop=FALSE]
+            
+            temp_curr_index <- curr_index[is.element(curr_index[,"year"],curr_yr),,drop=FALSE]
+            temp_curr_index_pos <- temp_curr_index[temp_curr_index[,"index"]==i,,drop=FALSE]
+            temp_curr_index_neg <- temp_curr_index[temp_curr_index[,"index"]==(-i),,drop=FALSE]
+            
+            if(length(temp_ref_index_pos[,1])==1){
+              if(length(temp_curr_index_pos[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_pos)
+                new_curr_index <- rbind(new_curr_index,temp_curr_index_pos)
+              }else if(length(temp_curr_index_neg[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_pos)
+                new_curr_index <- rbind(new_curr_index,temp_ref_index_pos)
+              }
+            }else if(length(temp_ref_index_neg[,1])==1){
+              if(length(temp_curr_index_pos[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_neg)
+                new_curr_index <- rbind(new_curr_index,temp_curr_index_pos)
+              }else if(length(temp_curr_index_neg[,1])==1){
+                new_ref_index <- rbind(new_ref_index,temp_ref_index_neg)
+                new_curr_index <- rbind(new_curr_index,temp_ref_index_neg)
+              }
+            } 
+          }
+        }
+        #browser()
+        ref_index <- new_ref_index
+        curr_index <- new_curr_index
+        
+        ref_index[["index"]]<-abs(ref_index[["index"]])
+        curr_index[["index"]]<-abs(curr_index[["index"]])
+        # curr_index <- curr_index[is.element(curr_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
+        # ref_index <- ref_index[is.element(ref_index[,1],((OM_dat$endyr-interim_struct[["MA_years"]]+1):OM_dat$endyr)),]
+        # new_ref_index <- ref_index[0,,drop=FALSE]
+        # new_curr_index <- curr_index[0,,drop=FALSE]
+        # for(i in 1:length(ref_index[,1])){
+        #   year <- ref_index[i,1]
+        #   index <- ref_index[i,3]
+        #   temp_check <- curr_index[curr_index[,1]==year & curr_index[,3]==index,,drop=FALSE]
+        #   if(length(temp_check[,1]) == 1){
+        #     new_ref_index <- rbind(new_ref_index,ref_index[i,])
+        #     new_curr_index <- rbind(new_curr_index,temp_check[1,])
+        #   }
+        # }
+        # ref_index <- new_ref_index
+        # curr_index <- new_curr_index
+        adjust_index <- ref_index[,c(1,3,4,4,4,4,1)]
+        adjust_index[,7] <- curr_index[,1]
+        #interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.  
+        #interim_struct[["Index_weights"]] #vector of length n indices with values summing to 1
+        
+        if(interim_struct[["control"]]==FALSE){
+        adjust_index[,3] <- curr_index[,4]+interim_struct[["Beta"]][curr_index[,3]]*curr_index[,5]
+        adjust_index[,4] <- ref_index[,4]+interim_struct[["Beta"]][ref_index[,3]]*curr_index[,5]
+        adjust_index[,5] <- adjust_index[,3]/adjust_index[,4]
+        adjust_index[,6] <- interim_struct[["Index_weights"]][adjust_index[,2]]
+        
+        #interim_struct[["MA_years"]] #a value with the number of years over which to calculate a moving average to test indicies
+        
+        used_index <- adjust_index
+        for(i in 1:length(used_index[,5])){
+          used_index[i,5]<-max(min(used_index[i,5],2),0.25)
+        }
+        used_index[,6] <- used_index[,6]/sum(used_index[,6])
+        
+        catch_scaling_factor <- sum(used_index[,5]*used_index[,6])
+        
+        catch_scaling_factor <- max(min(catch_scaling_factor,2),0.25)
+        }else{
+          catch_scaling_factor <- 1
+        }
+        
+        new_catch_list <- get_EM_catch_df(EM_dir = EM_init_dir, dat = Reference_dat)
+        
+        if(!is.null(new_catch_list[["catch"]])){
+          new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),] 
+          new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
+        }
+        if(!is.null(new_catch_list[["discards"]])){
+          new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["discards"]][["Discard"]] <- new_catch_list[["discards"]][["Discard"]]*catch_scaling_factor
+        }
+        if(!is.null(new_catch_list[["catch_bio"]])){
+          new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["catch_bio"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch_bio"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
+        }
+        if(!is.null(new_catch_list[["catch_F"]])){
+          new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(new_EM_dat$endyr+1):(new_EM_dat$endyr+nyrs_assess)),]
+          new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0] <- new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]]>0]*catch_scaling_factor
+        }
+        
+        SS_writedat(new_EM_dat,file.path(EM_init_dir, paste0("data_OM_",new_EM_dat$endyr,".dat")),
+                    overwrite = TRUE,
+                    verbose = FALSE)
+        
+        write.csv(new_catch_list[["catch"]],file.path(EM_init_dir, paste0("intended_catch_",new_EM_dat$endyr,".csv")))
+        write.csv(adjust_index,file.path(EM_init_dir, paste0("scaling_factors_",new_EM_dat$endyr,"_",catch_scaling_factor,".csv")))
+      }
+    }
+  }
+  
   # EM ----
   if (MS == "EM") {
     check_dir(EM_out_dir)
     # TODO: change this name to make it less ambiguous
     new_datfile_name <- "init_dat.ss"
+    # change the name of data file.
+    start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
+                            verbose = FALSE)
     if (init_loop) {
     # copy over raw data file from the OM to EM folder
     SS_writedat(OM_dat,
                       file.path(EM_out_dir, new_datfile_name),
                       overwrite = TRUE,
                       verbose = FALSE)
-    # change the name of data file.
-    start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
-                                  verbose = FALSE)
     orig_datfile_name <- start$datfile # save the original data file name.
     start$datfile <- new_datfile_name
+    start$seed <- seed
     SS_writestarter(start, file.path(EM_out_dir), verbose = FALSE,
                     overwrite = TRUE, warn = FALSE)
     # make sure the data file has the correct formatting (use existing data
@@ -82,9 +462,22 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
                                  do_checks = TRUE,
                                  new_datfile_name = new_datfile_name,
                                  verbose = verbose)
+      # extend forward bias adjustment(if using)
+      # new_ctl <- extend_EM_bias_adj(
+      #   ctlfile = file.path(EM_out_dir, start$ctlfile), 
+      #   datlist_new = new_EM_dat,
+      #   nyrs_assess = nyrs_assess, write_ctl = TRUE)
+      
     }
+    # Update SS random seed
+    start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
+                            verbose = FALSE)
+    start$seed <- seed
+    SS_writestarter(start, file.path(EM_out_dir), verbose = FALSE,
+                    overwrite = TRUE, warn = FALSE)
     # manipulate the forecasting file.
     # make sure enough yrs can be forecasted.
+    
     fcast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"),
                              readAll = TRUE,
                              verbose = FALSE)
@@ -106,6 +499,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
     # get the forecasted catch.
     new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
   }
+  
   # last_yr_catch ----
   # no_catch ----
   if (MS %in% c("last_yr_catch", "no_catch")) {
@@ -125,6 +519,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, init_loop = TRUE,
   new_catch_list
 }
 
+
 #' Get the EM catch data frame
 #'
 #' Get the data frame of catch for the next iterations when using a Stock
@@ -136,7 +531,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
   rpt <- readLines(file.path(EM_dir, "Report.sso"))
   start <- grep("TIME_SERIES", rpt)
   start <- start[length(start)] + 1
-  end <- grep("SPR_series", rpt)
+  end <- grep("SPR_series", rpt, ignore.case = TRUE)
   end <- end[length(end)] - 1
   # sanity checks to catch false assumptions about number of times the
   # expressions occur
@@ -233,6 +628,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
                             fcast_catch_df[, tmp_cols[1]]
       if (tmp_units_code == 2) { # get discard as a fractional value.
         tmp_discard_amount <- tmp_discard_amount / fcast_catch_df[, tmp_cols[2]]
+        tmp_discard_amount[is.na(tmp_discard_amount)] <- 0 # replace any NAs with 0s
       }
       if (sum(tmp_discard_amount) == 0) {
         dis_df_list[[i]] <- NULL
@@ -356,13 +752,12 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
                                   # b/c want biomass in all cases.
                                   units_of_catch = rep(1,
       times = NROW(dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), ])))
-  dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
   catch_bio <- catch_bio[catch_bio$Era == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
   colnames(catch_bio) <- c("year", "seas", "fleet", "catch")
   } else {
     # all should be 0. note for now there is no catch_se column.
     catch_bio <- df_catch[, c("year", "seas", "fleet", "catch")]
-    catch_F <- catch_bio
+    catch_F <- NULL
   }
   # TODO: evaluate if this is the correct way to do it and if it is appropriate to
   # add the standard error here?
@@ -375,4 +770,38 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
                       catch_bio = catch_bio,
                       catch_F = catch_F,
                       discards = NULL) # assume no discards if using simple MS.
+}
+
+
+#' Extend the EM bias adjustment forward in time
+#' 
+#' Extends the EN bias adjustment forward the same amount as the number of
+#' assessment years. A simple default way of doing this.
+#' @param ctlfile Path to the control file.
+#' @param datlist_new A data file read in usint r4ss::SS_readdat that has already
+#'  been extended forward
+#' @param nyrs_assess The number of years between assessments
+#' @param write_ctl Should the new controlfile be written, overwritting the old
+#'  one?
+#' @return The new control file with recdev values extended forward by
+#'  nyrs_assess
+extend_EM_bias_adj <- function(ctlfile, datlist_new, nyrs_assess, write_ctl) {
+  # read the control file
+  ctl <- r4ss::SS_readctl(ctlfile,
+                          use_datlist = TRUE,
+                          datlist = datlist_new,
+                          verbose = FALSE)
+  ctl[["MainRdevYrLast"]] <- ctl[["MainRdevYrLast"]] + nyrs_assess
+  if(!is.null(ctl[["last_yr_fullbias_adj"]])) {
+    ctl[["last_yr_fullbias_adj"]] <- 
+      ctl[["last_yr_fullbias_adj"]] + nyrs_assess
+  }
+  if(!is.null(ctl[["first_recent_yr_nobias_adj"]])) {
+    ctl[["first_recent_yr_nobias_adj"]] <-
+      ctl[["first_recent_yr_nobias_adj"]] + nyrs_assess 
+  }
+  if(write_ctl == TRUE) {
+    r4ss::SS_writectl(ctl, ctlfile, overwrite = TRUE, verbose = FALSE)
+  }
+  ctl
 }

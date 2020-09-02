@@ -30,7 +30,9 @@ Imports:
     tidyr,
     ss3sim
 Suggests: 
-    testthat
+    testthat,
+    doParallel,
+    parallel
 Remotes:
     r4ss/r4ss@development,
     ss3sim/ss3sim@development

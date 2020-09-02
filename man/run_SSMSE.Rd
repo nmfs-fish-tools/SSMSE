@@ -22,8 +22,11 @@ run_SSMSE(
   impl_error_pattern = c("none", "rand", "user"),
   impl_error_pars = NULL,
   sample_struct_list = NULL,
+  interim_struct_list = NULL,
   verbose = FALSE,
-  seed = NULL
+  seed = NULL,
+  run_parallel = FALSE,
+  n_cores = NULL
 )
 }
 \arguments{
@@ -81,7 +84,10 @@ distributed random recruitment deviations. Input a vector of two values to rec_d
 to specify the max number of years over which the sum of rec_devs can diverge from
 zero and a scalar multiplyer of standard deviation relative to the historic OM. if
 rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates 
-random auto-correlated rec-devs based on the distribution of historic deviations. 4) "AutoCorr_Spec" 
+random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars
+to specify the max number of years over which the sum of rec_devs can diverge from
+zero and a scalar multiplyer of standard deviation relative to the historic OM. if
+rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 4) "AutoCorr_Spec" 
 generates auto-correlated recruitment deviations from an MA time-series model with user specified
 parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of 
 length equal nyrs input the vector/matrix to rec_dev-pars.}
@@ -106,6 +112,14 @@ data. If NULL, the data structure will try to be infered from the pattern
 found for each of the datatypes within the EM datafiles. Include this
 strucutre for the number of years to extend the model out.}
 
+\item{interim_struct_list}{A optional list of parameters to control an interim assessment
+with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
+MA_years= the number of years to average index observations of when calculating deviations, 
+assess_freq=the number of years between full assessments during with an interim assessment will happen
+every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
+inference. 
+interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))}
+
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
 \item{seed}{Input a fixed seed to replicate previous simulation runs. seed can be a single value
@@ -113,6 +127,11 @@ for a global seed, n_scenarios+1 length vector for scenario specific and a globa
 n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
 object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
 for iteration specific seeds under seed$iter[[1:n_scenarios]].}
+
+\item{run_parallel}{Option to use parallel processing. Defaults to FALSE.}
+
+\item{n_cores}{How many cores to use if running in parallel. If is NULL, 
+defaults to n_cores available - 1 (also capped at n_cores available - 1)}
 }
 \description{
 High level function to run a management strategy evaluation using Stock
@@ -161,7 +180,7 @@ my_dir <- file.path(tempdir(), "ex-run_SSMSE")
                           impl_error_pattern = c("none", "rand", "user"),
                           impl_error_pars = NULL,
                           verbose = FALSE,
-                          seed=NULL
+                          seed=NULL,
                           sample_struct_list = my_sample_struct_list)
   unlink(my_dir, recursive = TRUE)
 }

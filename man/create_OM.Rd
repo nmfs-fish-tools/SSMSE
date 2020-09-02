@@ -12,7 +12,8 @@ create_OM(
   verbose = FALSE,
   nyrs_assess = NULL,
   rec_devs = NULL,
-  verify_OM = TRUE
+  verify_OM = TRUE,
+  seed = NULL
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ structure the forecast file for use in the OM.}
 
 \item{verify_OM}{Should the model be run without estimation and some basic
 checks done to verify that the OM can run? Defaults to TRUE.}
+
+\item{seed}{input seed to allow reproducible SS results.}
 }
 \value{
 A new datafile as read in for r4ss, but with dummy data added.

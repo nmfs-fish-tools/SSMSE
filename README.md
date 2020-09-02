@@ -85,18 +85,18 @@ through year 106).
 First, we will load the `SSMSE` package and create a folder in which to
 run the example:
 
-    ## Loading SSMSE
 
 ``` r
 library(SSMSE) #load the package
 library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
+library(foreach) #if using run_parallel = TRUE
+library(doParallel) #if using run_parallel = TRUE
 ```
 
 ``` r
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
-## Warning in dir.create(run_SSMSE_dir): 'run_SSMSE-ex' already exists
 ```
 
 The cod model with H = 0.65 is included as external package data.
@@ -109,53 +109,62 @@ cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
 file.copy(from = cod_mod_path, to = run_SSMSE_dir, recursive = TRUE)
 ## [1] TRUE
 file.rename(from = file.path(run_SSMSE_dir, "cod"), to = file.path(run_SSMSE_dir, "cod-1"))
-## Warning in file.rename(from = file.path(run_SSMSE_dir, "cod"), to =
-## file.path(run_SSMSE_dir, : cannot rename file 'run_SSMSE-ex/cod' to 'run_SSMSE-
-## ex/cod-1', reason 'Access is denied'
-## [1] FALSE
+## [1] TRUE
 cod_1_path <- file.path(run_SSMSE_dir, "cod-1")
 # make model read initial values from control file and not ss.par
 start <- r4ss::SS_readstarter(file = file.path(cod_1_path, "starter.ss"), verbose = FALSE)
 start$init_values_src # verify reading from the control file
 ## [1] 0
-# change the natural mortality paramter from 0.2 to 0.1 in the control files
+# change the steepness from 0.2 to 0.1 in the control files
 r4ss::SS_changepars(dir = cod_1_path, ctlfile = "control.ss_new", 
               newctlfile = "control_modified.ss", strings = "SR_BH_steep", newvals = 1)
 ## parameter names in control file matching input vector 'strings' (n=1):
 ## [1] "SR_BH_steep"
 ## These are the ctl file lines as they currently exist:
 ##      LO HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr
-## 107 0.2  1    1   0.7  0.05       0    -4            0        0         0
+## 107 0.2  1 0.65   0.7  0.05       0    -4            0        0         0
 ##     dev_maxyr dev_PH Block Block_Fxn       Label Linenum
 ## 107         0      0     0         0 SR_BH_steep     107
 ## line numbers in control file (n=1):
 ## 107
 ## wrote new file to control_modified.ss with the following changes:
 ##   oldvals newvals oldphase newphase oldlos newlos oldhis newhis oldprior
-## 1       1       1       -4       -4    0.2    0.2      1      1      0.7
+## 1    0.65       1       -4       -4    0.2    0.2      1      1      0.7
 ##   newprior oldprsd newprsd oldprtype newprtype       comment
 ## 1      0.7    0.05    0.05         0         0 # SR_BH_steep
-# remove files with M = 0.2
+parfile <- r4ss::SS_readpar_3.30(parfile = file.path(cod_1_path, "ss.par"),
+                                   datsource = file.path(cod_1_path, "ss3.dat"), 
+                          ctlsource = file.path(cod_1_path, "control.ss_new"), 
+                          verbose = FALSE)
+# remove files with old steepness values
 file.remove(file.path(cod_1_path, "control.ss_new"))
 ## [1] TRUE
 file.remove(file.path(cod_1_path, "control.ss"))
 ## [1] TRUE
 file.remove(file.path(cod_1_path, "ss.par")) # delete control file because no longer need.
 ## [1] TRUE
-# rename file with M = 0.1 to control.ss_new () and make a copy as the control file
+# rename file to control.ss_new () and make a copy as the control file
 file.rename(from = file.path(cod_1_path, "control_modified.ss"),
             to = file.path(cod_1_path, "control.ss"))
 ## [1] TRUE
 ```
 
 Rerun this model with no estimation to get valid ss.par and
-control.ss\_new files:
+control.ss\_new files, then add in the historical recruitment
+deviations:
 
 ``` r
-# run SS with no estimateion
 SSMSE:::run_ss_model(dir = cod_1_path, 
                      admb_options = "-maxfn 0 -phase 50 -nohess",
                      verbose = FALSE)
+# add back original recdevs into the model (b/c not specified through the ctl file)
+new_parfile <- r4ss::SS_readpar_3.30(parfile = file.path(cod_1_path, "ss.par"),
+                 datsource = file.path(cod_1_path, "ss3.dat"), 
+                 ctlsource = file.path(cod_1_path, "control.ss"), verbose = FALSE)
+ # add in the recdevs to new the parfile
+new_parfile$recdev1[, "recdev"] <- parfile$recdev1[, "recdev"]
+r4ss::SS_writepar_3.30(new_parfile, outfile = file.path(cod_1_path, "ss.par"),
+                       verbose = FALSE)
 ```
 
 The argument `sample_struct` specifies the structure for sampling from
@@ -219,8 +228,7 @@ We can now use `run_SSMSE` to run the MSE analysis loop:
 ``` r
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
-# run 1 iteration and 1 scenario of SSMSE using an EM.
-run_SSMSE(scen_name_vec = c("H-ctl", "H-1"), # name of the scenario
+run_SSMSE(scen_name_vec = c("H-ctl", "H-1"),# name of the scenario
           out_dir_scen_vec = run_res_path, # directory in which to run the scenario
           iter_vec = c(5,5), # run with 5 iterations each
           OM_name_vec = NULL, # specify directories instead
@@ -232,6 +240,7 @@ run_SSMSE(scen_name_vec = c("H-ctl", "H-1"), # name of the scenario
           nyrs_assess_vec = c(3, 3), # Years between assessments
           rec_dev_pattern = c("none"), # Don't use recruitment deviations
           impl_error_pattern = c("none"), # Don't use implementation error
+          run_parallel = TRUE,
           sample_struct_list = sample_struct_list, # How to sample data for running the EM.
           seed = 12345) #Set a fixed integer seed that allows replication 
 ```
@@ -249,7 +258,7 @@ should be installed automatically when SSMSE is downloaded.
 
 ``` r
 # Summarize 1 iteration of output
-summary <- SSMSE_summary_all(normalizePath(run_res_path))
+summary <- SSMSE_summary_all(run_res_path)
 ## Extracting results from 2 scenarios
 ## Starting H-1 with 5 iterations
 ## Starting H-ctl with 5 iterations

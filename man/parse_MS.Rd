@@ -7,13 +7,16 @@
 parse_MS(
   MS,
   EM_out_dir = NULL,
+  EM_init_dir = NULL,
   init_loop = TRUE,
   OM_dat,
   OM_out_dir = NULL,
   verbose = FALSE,
   nyrs_assess,
   dat_yrs,
-  sample_struct
+  sample_struct = NULL,
+  interim_struct = NULL,
+  seed = NULL
 )
 }
 \arguments{
@@ -25,6 +28,8 @@ management strategy in the estimation model.}
 \item{EM_out_dir}{Relative or absolute path to the estimation model, if using a
 model outside of the SSMSE package. Note that this value should be NULL if
 \code{MS} has a value other than \code{"EM"}.}
+
+\item{EM_init_dir}{Initialization director that retains the reference files for interim assessments}
 
 \item{init_loop}{Logical. If this is the first initialization loop of the
 MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
@@ -43,10 +48,17 @@ assessment is conducted every 3 years, put 3 here. A single integer value.}
 \item{dat_yrs}{Which years should be added to the new model? Ignored if
 init_loop is TRUE.}
 
-\item{sample_struct}{A optional list including which years and fleets should be
+\item{sample_struct}{An optional list including which years and fleets should be
 added from the OM into the EM for different types of data. If NULL, the data
 structure will try to be infered from the pattern found for each of the
 datatypes within EM_datfile. Ignored if init_loop is TRUE.}
+
+\item{interim_struct}{An optional including how many years to average over, 
+fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
+and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
+will stay constant during simulation while relative year will progress with simulation).}
+
+\item{seed}{a random seed to initialize SS runs}
 }
 \description{
 This function matches each management strategy with its correct method. And

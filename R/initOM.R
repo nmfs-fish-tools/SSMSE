@@ -17,6 +17,7 @@
 #' @param rec_devs Vector of recruitment deviations for simulation.
 #' @param verify_OM Should the model be run without estimation and some basic
 #'  checks done to verify that the OM can run? Defaults to TRUE.
+#' @param seed input seed to allow reproducible SS results.
 #' @template verbose
 #' @return A new datafile as read in for r4ss, but with dummy data added.
 #' @import r4ss
@@ -27,10 +28,12 @@ create_OM <- function(OM_out_dir,
                       verbose = FALSE,
                       nyrs_assess = NULL,
                       rec_devs = NULL,
-                      verify_OM = TRUE) {
+                      verify_OM = TRUE,
+                      seed = NULL) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
                                 verbose = FALSE)
   # modify starter to use as OM ----
+  if(is.null(seed)){seed <- runif(1,1,99999999)}
   start$init_values_src <- 1
   start$detailed_age_structure <- 1
   start$last_estimation_phase <- 0
@@ -40,6 +43,7 @@ create_OM <- function(OM_out_dir,
   start$F_report_units <- 0
   start$F_report_basis <- 0
   start$F_age_range <- NULL
+  start$seed <- seed
   r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE,
                         overwrite = TRUE, warn = FALSE)
   # run model to get standardized output ----
@@ -57,31 +61,122 @@ create_OM <- function(OM_out_dir,
   parlist <- r4ss::SS_readpar_3.30(parfile = file.path(OM_out_dir, "ss.par"),
                                    datsource = dat, ctlsource = ctl,
                                    verbose = FALSE)
+  
   # modify forecast file ----
-  currentNforecast <- forelist$Nforecastyrs
-  # Note that this forecasting is being set up for future runs of the OM. 1
-  # extra yr is added to deal with the fact that recdevs have a sum to 0
-  # constraint, so need an extra yr to deal with this.
-  forelist$Nforecastyrs <- nyrs_assess + 1
-  # I think this is set so it is out of the range of the forecast? Yes exactly
-  forelist$FirstYear_for_caps_and_allocations <- dat$endyr + nyrs_assess + 1
-  forelist$InputBasis <- 3 # I think this is the retained catch option. Why?
-  # I fix it at the retained catch option as an assumption that retained catch is
-  # what the fishery quotas will be based on?? If we don't like that we can change it.
-  # put together a Forecatch dataframe using retained catch
-  # unclear why this is necessary
-  forelist$Flimitfraction <- 1 # TODO: review setting.
+  currentNforecast <- forelist[["Nforecastyrs"]]
+  forelist[["Nforecastyrs"]] <- nyrs_assess
+  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1
+  forelist[["InputBasis"]] <- 3
+  forelist[["ControlRuleMethod"]] <- 1
+  forelist[["BforconstantF"]] <- 0.001
+  forelist[["BfornoF"]] <- 0.0001
+  forelist[["Flimitfraction"]] <- 1 
+  
+  # convert forecast year selectors to absolute form
+  for(i in 1:6) {
+    x <- forelist[["Fcast_years"]][i]
+    if(x <= 0){
+      forelist[["Fcast_years"]][i] <- dat[["endyr"]] + x
+    }else if(x < dat[["styr"]] | x > dat[["endyr"]]){
+      stop("Forecast year should be <=0 or between start year and end year")
+    }
+  }
+  # put together a Forecatch dataframe using retained catch as a starting point for the OM
+  # this would only matter if an EM assessment is not run in the first year. 
+  units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
+  names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
   ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
-        units_of_catch = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"])
+        units_of_catch = units_of_catch)
   temp_fore <- ret_catch[ret_catch$Era == "FORE",
                          c("Yr", "Seas", "Fleet", "retained_catch")]
   row.names(temp_fore) <- NULL
   names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F")
   # only put values in that are in the Fcas year range.
   forelist$ForeCatch <- temp_fore[
-    is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess + 1)), ]
+    is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess)), ]
 
+  # modify ctl file ----
+  # in the context of an OM, do not want to use the bias adjustment ramp, so just
+  # turn off and make the recdevs years always the same.
+  # UPDATE NOTE: For the OM we do not want bias adjustment in the future. However we
+  # do want the historic period to be consistent with the original assessment model.
+  # We therefore need to add advanced options if not already specified. I am also 
+  # updating the extend EM process to fix the main recdevs end year. This way all new
+  # recdevs become late phase/forecast recdevs which are not subject to sum to zero 
+  # constraints or bias adjustment.
+  if(ctl[["recdev_adv"]]==0){
+    ctl[["recdev_adv"]] <- 1
+    ctl[["recdev_early_start"]] <- 0
+    ctl[["recdev_early_phase"]] <- -4
+    ctl[["Fcast_recr_phase"]] <- 0
+    ctl[["lambda4Fcast_recr_like"]] <- 0
+    ctl[["last_early_yr_nobias_adj"]] <- ctl[["MainRdevYrFirst"]]-1
+    ctl[["first_yr_fullbias_adj"]] <- ctl[["MainRdevYrFirst"]]
+    ctl[["last_yr_fullbias_adj"]] <- ctl[["MainRdevYrLast"]]
+    ctl[["first_recent_yr_nobias_adj"]] <- ctl[["MainRdevYrLast"]]+1
+    ctl[["max_bias_adj"]] <- 0.8
+    ctl[["period_of_cycles_in_recr"]] <- 0
+    ctl[["min_rec_dev"]] <- -10
+    ctl[["max_rec_dev"]] <- 10
+    ctl[["N_Read_recdevs"]] <- 0
+    ctl[["recdev_input"]] <- NULL
+  }
+  
+  if(ctl[["recdev_early_start"]]<=0){
+   first_year <- ctl[["MainRdevYrFirst"]] + ctl[["recdev_early_start"]]
+  }else if(ctl[["recdev_early_start"]]<ctl[["MainRdevYrFirst"]]){
+    first_year <- ctl[["recdev_early_start"]]
+  }else(
+    first_year <- ctl[["MainRdevYrFirst"]]
+  )
   # modify par file ----
+  all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
+  # get recdevs for all model yeasrs
+  all_recdevs <- all_recdevs[all_recdevs$year >= first_year & all_recdevs$year <= (dat$endyr + forelist$Nforecastyrs), ]
+  #new_recdevs_df <- data.frame(year = dat$styr:dat$endyr, recdev = NA)
+  new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
+  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]]+1):(dat$endyr + forelist$Nforecastyrs), recdev = NA)
+  for (i in seq_along(first_year:(dat$endyr + forelist$Nforecastyrs))) {
+    
+    tmp_yr <- (first_year:(dat$endyr + forelist$Nforecastyrs))[i]
+    if(tmp_yr<=ctl[["MainRdevYrLast"]]){
+      step<-i
+    if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+      new_recdevs_df[i,"recdev"] <- 0 # just assume no recdevs
+    } else {
+      new_recdevs_df[i,"recdev"] <-
+        all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+    }
+    }else if(tmp_yr<=dat$endyr){
+      if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+        fore_recdevs_df[(i-step),"recdev"] <- 0
+      } else {
+        fore_recdevs_df[(i-step),"recdev"] <-
+          all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+      }
+    }else{
+      temp_recs<-get_rec_devs_matrix(yrs = tmp_yr,
+                                 rec_devs = rec_devs)
+      if (length(temp_recs[,"recdev"])==1)  {
+        fore_recdevs_df[(i-step),"recdev"] <- temp_recs[1, "recdev"]  
+      }else if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+        fore_recdevs_df[(i-step),"recdev"] <- 0
+      } else {
+        fore_recdevs_df[(i-step),"recdev"] <-
+          all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+      }
+    }
+  }
+  new_recdevs_mat <- as.matrix(new_recdevs_df)
+  new_fore_recdevs_mat <- as.matrix(fore_recdevs_df)
+  if(!is.null(parlist[["recdev1"]])) {
+    parlist[["recdev1"]] <- new_recdevs_mat
+  } else if (!is.null(parlist[["recdev2"]])) {
+    parlist[["recdev2"]] <- new_recdevs_mat
+  } else {
+    stop("no recdevs in initial OM model")
+  }
+  
   # use report.sso time series table to find the F's to put into the parlist.
   F_list <- get_F(timeseries = outlist$timeseries,
     fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
@@ -91,23 +186,19 @@ create_OM <- function(OM_out_dir,
   parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")]
   parlist[["init_F"]] <- F_list[["init_F"]]
   # add recdevs to the parlist
-  # TODO: need to use sum_to_zero = TRUE?
-  parlist[["recdev_forecast"]] <-
-    get_rec_devs_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs),
-                        rec_devs = rec_devs)
+  parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
+    # get_rec_devs_matrix(yrs = (ctl[["MainRdevYrLast"]] + 1):(dat$endyr + forelist$Nforecastyrs),
+    #                     rec_devs = rec_devs)
   # want no implementation error for the forecast, so function adds in 0s.
   parlist[["Fcast_impl_error"]] <-
     get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
 
-  # modify ctl file ----
-  ctl$F_Method <- 2 # Want all OMs to use F_Method = 2.
-  # need to specify some starting value Fs, although not used in OM
-  ctl$F_setup <- c(0.05, 1, 0)
-  # make sure list components used by other F methods are NULL:
-  ctl$F_iter <- NULL
-  ctl$F_setup2 <- NULL
-
-
+  
+  ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
+  ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM
+  ctl[["F_iter"]] <- NULL # make sure list components used by other F methods are NULL:
+  ctl[["F_setup2"]] <- NULL # make sure list components used by other F methods are NULL:
+  
   # write all files
   r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_out_dir, start$ctlfile),
                     overwrite = TRUE, verbose = FALSE)
@@ -352,6 +443,7 @@ create_OM <- function(OM_out_dir,
 #'  error_check will be created, and the model will be run from control start
 #'  values instead of ss.par. The 2 par files are then compared to help debug
 #'  the issue with the model run. Defaults to TRUE.
+#' @param seed A random seed for SS to enable reproducible SS results.
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 run_OM <- function(OM_dir,
@@ -359,20 +451,23 @@ run_OM <- function(OM_dir,
                         nboot = 1,
                         init_run = FALSE,
                         verbose = FALSE,
-                        debug_par_run = TRUE) {
+                        debug_par_run = TRUE,
+                        seed = NULL) {
   # make sure OM generates the correct number of data sets.
   if (boot) {
     max_section <- nboot + 2
   } else {
     max_section <- 2
   }
-  if (init_run == TRUE) {
+  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
+  
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                 verbose = FALSE)
   start$N_bootstraps <- max_section
+  start$seed <- seed
   r4ss::SS_writestarter(start, dir = OM_dir, verbose = FALSE, overwrite = TRUE,
                         warn = FALSE)
-  }
+  
   # run SS and get the data set
   run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess", verbose = verbose,
                debug_par_run = debug_par_run)

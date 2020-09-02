@@ -44,7 +44,10 @@
 #' to specify the max number of years over which the sum of rec_devs can diverge from
 #' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
 #' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates 
-#' random auto-correlated rec-devs based on the distribution of historic deviations. 4) "AutoCorr_Spec" 
+#' random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars
+#' to specify the max number of years over which the sum of rec_devs can diverge from
+#' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
+#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 4) "AutoCorr_Spec" 
 #' generates auto-correlated recruitment deviations from an MA time-series model with user specified
 #' parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of 
 #' length equal nyrs input the vector/matrix to rec_dev-pars.
@@ -64,13 +67,24 @@
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
+#' @param interim_struct_list A optional list of parameters to control an interim assessment
+#'  with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
+#'  MA_years= the number of years to average index observations of when calculating deviations, 
+#'  assess_freq=the number of years between full assessments during with an interim assessment will happen
+#'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
+#'  inference. 
+#'  interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
 #' @param seed Input a fixed seed to replicate previous simulation runs. seed can be a single value
 #' for a global seed, n_scenarios+1 length vector for scenario specific and a global seed, 
 #' n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
 #' object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
 #' for iteration specific seeds under seed$iter[[1:n_scenarios]].
+#' @param run_parallel Option to use parallel processing. Defaults to FALSE.
+#' @param n_cores How many cores to use if running in parallel. If is NULL, 
+#'  defaults to n_cores available - 1 (also capped at n_cores available - 1) 
 #' @template verbose
 #' @export
+#' @import parallel
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #'
@@ -115,7 +129,7 @@
 #'                           impl_error_pattern = c("none", "rand", "user"),
 #'                           impl_error_pars = NULL,
 #'                           verbose = FALSE,
-#'                           seed=NULL
+#'                           seed=NULL,
 #'                           sample_struct_list = my_sample_struct_list)
 #'   unlink(my_dir, recursive = TRUE)
 #' }
@@ -137,8 +151,11 @@ run_SSMSE <- function(scen_name_vec,
                       impl_error_pattern = c("none", "rand", "user"),
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
+                      interim_struct_list = NULL,
                       verbose = FALSE,
-                      seed = NULL) {
+                      seed = NULL,
+                      run_parallel = FALSE,
+                      n_cores = NULL) {
   # input checks
   scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
   rec_dev_pattern <- match.arg(rec_dev_pattern, 
@@ -146,8 +163,9 @@ run_SSMSE <- function(scen_name_vec,
                                            "AutoCorr_Spec", "vector"))
   impl_error_pattern <- match.arg(impl_error_pattern, 
                                   choices = c("none", "rand", "user"))
-  MS_vec <- match.arg(MS_vec, 
-                      choices = c("EM", "no_catch"))
+  if(!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
+    stop("MS_vec can only include 'EM', 'no_catch', or 'Interim'.")
+  }
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(scen_name_vec = scen_name_vec,
@@ -161,7 +179,8 @@ run_SSMSE <- function(scen_name_vec,
                                 use_SS_boot_vec = use_SS_boot_vec,
                                 nyrs_vec = nyrs_vec,
                                 nyrs_assess_vec = nyrs_assess_vec,
-                                sample_struct_list = sample_struct_list)
+                                sample_struct_list = sample_struct_list,
+                                interim_struct_list = interim_struct_list)
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)
   #First reset the R random seed
@@ -207,9 +226,10 @@ run_SSMSE <- function(scen_name_vec,
     }
     
   }
+  
   if(is.null(rec_dev_pars)) {
     # to do: make this a better default value.
-    rec_dev_pars <- c(ceiling(mean(nyrs_assess_vec)), 1)
+    rec_dev_pars <- c(ceiling(mean(nyrs_vec)), 1)
   }
   
   # make sure values are the correct length
@@ -234,11 +254,21 @@ run_SSMSE <- function(scen_name_vec,
     scen_list[[i]][["scen_seed"]] <- scen_seed
   }
     
+  if(run_parallel){
+      if(!is.null(n_cores)){
+        n_cores<-min(max(n_cores,1),(detectCores()-1))
+        cl <- parallel::makeCluster((n_cores))
+        doParallel::registerDoParallel(cl, cores = (n_cores))
+      }else{
+        cl <- parallel::makeCluster((detectCores()-1))
+        doParallel::registerDoParallel(cl, cores = (detectCores()-1))
+      }
+  }
   # pass each scenario to run
   for (i in seq_along(scen_list)) {
     tmp_scen <- scen_list[[i]]
     # run for each scenario
-    run_SSMSE_scen(scen_name = names(scen_list)[i],
+    return_df <- run_SSMSE_scen(scen_name = names(scen_list)[i],
                    out_dir_scen = tmp_scen[["out_dir_scen"]],
                    iter = tmp_scen[["iter"]],
                    OM_name = tmp_scen[["OM_name"]],
@@ -252,8 +282,16 @@ run_SSMSE <- function(scen_name_vec,
                    rec_devs_scen = tmp_scen[["rec_devs"]],
                    impl_error = tmp_scen[["impl_error"]],
                    scen_seed = tmp_scen[["scen_seed"]],
-                   sample_struct = tmp_scen[["sample_struct"]],
-                   verbose = verbose)
+                   sample_struct = tmp_scen[["sample_struct"]], 
+                   interim_struct = tmp_scen[["interim_struct"]],
+                   verbose = verbose,
+                   run_parallel = run_parallel,
+                   n_cores = n_cores)
+    scen_list[[i]]$errored_iterations <- return_df
+  }
+  if(run_parallel){
+    parallel::stopCluster(cl)
+    doParallel::stopImplicitCluster()
   }
   message("Completed all SSMSE scenarios")
   invisible(scen_list)
@@ -302,6 +340,17 @@ run_SSMSE <- function(scen_name_vec,
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
+#' @param interim_struct A optional list of parameters to control an interim assessment
+#'  with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
+#'  MA_years= the number of years to average index observations of when calculating deviations, 
+#'  assess_freq=the number of years between full assessments during with an interim assessment will happen
+#'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
+#'  inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+#' @param run_parallel Option to use parallel processing on iterations.
+#'  Defaults to FALSE
+#' @param n_cores how many cores to use if running in parallel defaults to
+#'  n_cores available - 1 (also capped at one less than the number of cores 
+#'  available)
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -337,8 +386,11 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            rec_devs_scen = NULL,
                            impl_error = NULL,
                            scen_seed = NULL,
-                           sample_struct = NULL,
-                           verbose = FALSE) {
+                           sample_struct = NULL, 
+                           interim_struct = NULL,
+                           verbose = FALSE,
+                           run_parallel = FALSE,
+                           n_cores = NULL) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
   assertive.properties::assert_is_atomic(iter)
@@ -375,30 +427,81 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
     max_prev_iter <- 0
   }
   
-  for (i in seq_len(iter)) { # TODO: make work in parallel.
-    iter_seed <- vector(mode = "list", length = 3)
-    names(iter_seed) <- c("global", "scenario", "iter")
-    iter_seed$global <- scen_seed$global
-    iter_seed$scenario <- scen_seed$scenario
-    iter_seed$iter <- scen_seed$iter[i]
-    run_SSMSE_iter(out_dir = out_dir_iter,
-                   OM_name = OM_name,
-                   OM_in_dir = OM_in_dir,
-                   EM_name = EM_name,
-                   EM_in_dir = EM_in_dir,
-                   MS = MS,
-                   use_SS_boot = use_SS_boot,
-                   nyrs = nyrs,
-                   nyrs_assess = nyrs_assess,
-                   rec_dev_iter = rec_devs_scen[[i]],
-                   impl_error = impl_error[[i]],
-                   niter = max_prev_iter + i,
-                   iter_seed = iter_seed,
-                   sample_struct = sample_struct,
-                   verbose = verbose)
+  # make a dataframe to store dataframes that error
+  return_val <- vector(mode = "list", length = iter)
+  if(run_parallel){
+    return_val <- foreach(i=seq_len(iter), .errorhandling = "pass")%dopar%{
+
+      #for(i in seq_len(iter)){
+      iter_seed <- vector(mode = "list", length = 3)
+      names(iter_seed) <- c("global", "scenario", "iter")
+      iter_seed$global <- scen_seed$global
+      iter_seed$scenario <- scen_seed$scenario
+      iter_seed$iter <- scen_seed$iter[i]
+      run_SSMSE_iter(out_dir = out_dir_iter,
+                     OM_name = OM_name,
+                     OM_in_dir = OM_in_dir,
+                     EM_name = EM_name,
+                     EM_in_dir = EM_in_dir,
+                     MS = MS,
+                     use_SS_boot = use_SS_boot,
+                     nyrs = nyrs,
+                     nyrs_assess = nyrs_assess,
+                     rec_dev_iter = rec_devs_scen[[i]],
+                     impl_error = impl_error[[i]],
+                     niter = max_prev_iter + i,
+                     iter_seed = iter_seed,
+                     sample_struct = sample_struct, 
+                     interim_struct = interim_struct,
+                     verbose = verbose)
+    }
+  }else{
+    for(i in seq_len(iter)){
+      #for(i in seq_len(iter)){
+      iter_seed <- vector(mode = "list", length = 3)
+      names(iter_seed) <- c("global", "scenario", "iter")
+      iter_seed$global <- scen_seed$global
+      iter_seed$scenario <- scen_seed$scenario
+      iter_seed$iter <- scen_seed$iter[i]
+      return_val[[i]] <- tryCatch(run_SSMSE_iter(out_dir = out_dir_iter,
+                     OM_name = OM_name,
+                     OM_in_dir = OM_in_dir,
+                     EM_name = EM_name,
+                     EM_in_dir = EM_in_dir,
+                     MS = MS,
+                     use_SS_boot = use_SS_boot,
+                     nyrs = nyrs,
+                     nyrs_assess = nyrs_assess,
+                     rec_dev_iter = rec_devs_scen[[i]],
+                     impl_error = impl_error[[i]],
+                     niter = max_prev_iter + i,
+                     iter_seed = iter_seed,
+                     sample_struct = sample_struct, 
+                     interim_struct = interim_struct,
+                     verbose = verbose), error = function(e) e)
+    }
+  }
+  # summarize the errors from runs.
+  run_failed_df <- NULL
+  for(i in seq_len(iter)) {
+    if("error" %in% class(return_val[[i]])) {
+      message("iteration ", max_prev_iter + i, "failed in directory ",
+              out_dir_iter,
+              ". Please delete folders before running summary functions.")
+      tmp_df <- data.frame(iteration = max_prev_iter + i, 
+                           scenario = basename(out_dir_iter),
+                           out_dir = out_dir_iter, 
+                           error = paste(return_val[[i]]$message))
+      # todo: add more info on why the run failed.
+      run_failed_df <- rbind(run_failed_df, tmp_df)
+    }
+  }
+  if(is.null(run_failed_df)) {
+    run_failed_df <- "No errored iterations"
   }
   message("Completed all iterations for scenario ", scen_name)
-  invisible(scen_name)
+  invisible(run_failed_df)
+
 }
 
 #' Run one iteration of an MSE using SS OM
@@ -448,6 +551,12 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  give an example of what this structure should be. Running the function 
 #'  create_sample_struct() will also produce a sample_struct object in the 
 #'  correct form. Can be NULL only when MS is not EM.
+#'  @param interim_struct A optional list of parameters to control an interim assessment
+#'  with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
+#'  MA_years= the number of years to average index observations of when calculating deviations, 
+#'  assess_freq=the number of years between full assessments during with an interim assessment will happen
+#'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
+#'  inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
@@ -497,7 +606,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            impl_error = NULL,
                            niter = 1,
                            iter_seed = NULL,
-                           sample_struct = NULL,
+                           sample_struct = NULL, 
+                           interim_struct = NULL,
                            verbose = FALSE) {
   # input checks ----
   # checks for out_dir, OM_name, OM_in_dir, EM_name, EM_in_dir done in create_out_dirs
@@ -560,14 +670,15 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # the par file and potentially change F method to 2 to unify results.
   # TODO allow user to decide through this wrapper function to use add dummy data
   # or not.
+  
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
             verbose = verbose, writedat = TRUE, nyrs_assess = nyrs_assess,
-            rec_devs = rec_dev_iter)
+            rec_devs = rec_dev_iter, seed = (iter_seed$iter[1]+1234))
 
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                           verbose = verbose, init_run = TRUE)
+                           verbose = verbose, init_run = TRUE, seed = (iter_seed$iter[1]+12345))
   }
   if (use_SS_boot == FALSE) {
     stop("Currently, only sampling can be done using the bootstrapping ",
@@ -581,13 +692,16 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
 
-
+  
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
                            OM_dat = OM_dat, OM_out_dir = OM_out_dir,
-                           verbose = verbose, nyrs_assess = nyrs_assess)
+                           verbose = verbose, nyrs_assess = nyrs_assess, interim_struct = interim_struct,
+                           seed = (iter_seed$iter[1]+123456))
+  
   message("Finished getting catch (years ",
           (OM_dat$endyr + 1), " to ", (OM_dat$endyr + nyrs_assess),
           ") to feed into OM for iteration ", niter, ".")
+  
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
@@ -612,18 +726,31 @@ run_SSMSE_iter <- function(out_dir = NULL,
     rec_dev_iter <- rec_dev_iter[-(1:nyrs_assess)]
     impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat$nseas * OM_dat$Nfleet)]
     impl_error <- impl_error[-(1:(nyrs_assess * OM_dat$nseas * OM_dat$Nfleet))]
+    
     extend_OM(catch = new_catch_list[["catch"]],
               discards = new_catch_list[["discards"]],
+              harvest_rate = new_catch_list[["catch_F"]],
               OM_dir = OM_out_dir,
-              dummy_dat_scheme = "all",
+              sample_struct = sample_struct,
               nyrs_extend = nyrs_assess,
               rec_devs = rec_devs_chunk,
               impl_error = impl_error_chunk,
-              verbose = verbose)
+              verbose = verbose,
+              seed = (iter_seed$iter[1]+234567+yr))
     # rerun OM (without estimation), get samples (or expected values)
     if (use_SS_boot == TRUE) {
-    new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                           verbose = verbose)
+      if(!is.null(interim_struct)){
+        if(MS == "Interim" &  !is.null(interim_struct[["auto_corr"]])){
+          new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = FALSE, nboot = 1,
+                               verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+        }else{
+          new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
+                               verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+        }
+      }else{
+        new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
+                              verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+      }
     } else {
       stop("Currently, only sampling can be done using the bootstrapping ",
            "capabilities within SS")
@@ -632,7 +759,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
             ".")
 
     # if using an EM, want to save results to a new folder
-    if (!is.null(EM_out_dir)) {
+    if (!is.null(EM_out_dir) & MS!="Interim") {
       new_EM_out_dir <- paste0(EM_out_dir_basename, "_", yr)
       dir.create(new_EM_out_dir)
       success <- copy_model_files(EM_in_dir = EM_out_dir,
@@ -644,12 +771,15 @@ run_SSMSE_iter <- function(out_dir = NULL,
     # loop EM and get management quantities.
     new_catch_list <- parse_MS(MS = MS,
                                EM_out_dir = EM_out_dir,
+                               EM_init_dir = paste0(EM_out_dir_basename, "_init"),
                                OM_dat = new_OM_dat,
                                init_loop = FALSE, verbose = verbose,
                                nyrs_assess = nyrs_assess,
                                OM_out_dir = OM_out_dir,
                                dat_yrs = (yr + 1):(yr + nyrs_assess),
-                               sample_struct = sample_struct)
+                               sample_struct = sample_struct, 
+                               interim_struct = interim_struct, 
+                               seed = (iter_seed$iter[1]+5678901+yr))
   message("Finished getting catch (years ", (yr + 1), " to ",
           (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
   }

@@ -12,7 +12,8 @@ extdat_path <- system.file("extdata", package = "SSMSE")
 cod_mod <- file.path(extdat_path, "test_mod", "cod_initOM_for_tests")
 # copy cod to the temp_path
 file.copy(cod_mod, temp_path, recursive = TRUE)
-dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"))
+dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"),
+                        verbose = FALSE)
 file.rename(file.path(temp_path, "cod_initOM_for_tests"),
             file.path(temp_path, "cod_initOM1"))
 
@@ -26,7 +27,21 @@ new_catch <- data.frame(
               catch = dat$catch$catch[nrow(dat$catch)],
               catch_se = dat$catch$catch_se[nrow(dat$catch)]
              )
+
 new_yrs <- new_catch$year
+
+# create a dataframe here.
+extend_vals <- list(
+                 CPUE = data.frame(year = c(101, 103, 105), seas = 7, index = 2, 
+                                   se_log = c(0.1, 0.2, 0.3)),
+                 lencomp = data.frame(Yr = 101:103, Seas = 1, FltSvy = 1, 
+                                      Gender = 0, Part = 0, 
+                                      Nsamp = c(25, 50, 100)),
+                 agecomp = data.frame(Yr = 101:104, Seas = 1, FltSvy = 2,
+                                      Gender = 0, Part = 0, Ageerr = 1, 
+                                      Lbin_lo = -1, Lbin_hi = -1,
+                                      Nsamp = c(25, 50, 100, 150))
+)
 
 test_that("extend_OM works with simple case", {
   skip_on_cran()
@@ -34,7 +49,7 @@ test_that("extend_OM works with simple case", {
   return_dat <- extend_OM(catch = new_catch,
                             discards = NULL,
                             OM_dir = file.path(temp_path, "cod_initOM1"),
-                            dummy_dat_scheme = "all",
+                            sample_struct = extend_vals,
                             nyrs_extend = 3,
                             rec_devs = rep(0, 4),
                             impl_error = rep(1, 4),
@@ -46,18 +61,18 @@ test_that("extend_OM works with simple case", {
   lapply(colnames(new_catch), function(x) {
     expect_equal(new_rows[, x], new_catch[, x])
   })
-  # check CPUE
+  # check CPUE # wrap first exp. in abs() b/c fleet negative in OM as a switch.
   expect_equivalent(
-    return_dat$CPUE[return_dat$CPUE$year %in% new_yrs, "year"],
-                    new_yrs)
+    abs(return_dat$CPUE[101:102, c("year", "seas", "index", "se_log")]),
+    extend_vals$CPUE[extend_vals$CPUE$year <= return_dat$endyr, ])
   # check lencomp
   expect_equivalent(
-    return_dat$lencomp[return_dat$lencomp$Yr %in% new_yrs, "Yr"],
-                    new_yrs)
+    abs(return_dat$lencomp[101:103, colnames(extend_vals$lencomp)]),
+    extend_vals$lencomp[extend_vals$lencomp$Yr <= return_dat$endyr, ])
   # check agecomp
-  expect_equivalent(
-    return_dat$agecomp[return_dat$agecomp$Yr %in% new_yrs, "Yr"],
-                    new_yrs)
+  expect_equivalent( # wrap both exp. in abs b/c of neg in fleet and in lbin/lbinhi
+    abs(return_dat$agecomp[101:103, colnames(extend_vals$agecomp)]),
+    abs(extend_vals$agecomp[extend_vals$agecomp$Yr <= return_dat$endyr, ]))
 })
 
 # copy cod to the temp_path
@@ -98,7 +113,8 @@ test_that("extend_OM exits on error when it should", {
 
 # copy cod to the temp_path
 file.copy(cod_mod, temp_path, recursive = TRUE)
-dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"))
+dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM_for_tests", "data.ss"),
+                        verbose = FALSE)
 file.rename(file.path(temp_path, "cod_initOM_for_tests"),
             file.path(temp_path, "cod_initOM3"))
 

@@ -45,17 +45,21 @@ test_that("Build recdevs works as expected for option rand", {
   expect_equal(recdevs, second_run)
 
   #test scope = 2
+  #iterations the same across scenarios, but different across iterations.
   recdevs_scope_2 <- build_rec_devs(rec_dev_pattern = "rand",
-                                    yrs = c(3,3),
-                                    iter_vec = iter_vec,
+                                    yrs = c(3,2),
+                                    iter_vec = c(2, 5),
                                     scope = 2,
                                     rec_dev_pars = c(3, 1),
                                     stddev = rep(0.2, 2),
                                     rec_autoCorr = NA,
                                     seed = seed_vals)
-  expect_equal(recdevs_scope_2[[1]][[1]], recdevs_scope_2[[1]][[2]])
-  expect_equal(recdevs_scope_2[[2]][[1]], recdevs_scope_2[[2]][[2]])
-  expect_true(recdevs_scope_2[[1]][[1]][1] != recdevs_scope_2[[2]][[1]][1])
+  #scenario 1, iteration 1 should be equal to scenario 2, iteration 2 first val
+  expect_equal(recdevs_scope_2[[1]][[1]][1], recdevs_scope_2[[2]][[1]][1])
+  # scenario 1, iterations 2 should be equal to scenario 2, iteration 2 first val
+  expect_equal(recdevs_scope_2[[1]][[2]][1], recdevs_scope_2[[2]][[2]][1])
+  # scenario 1, iteration 1 first val should not equal scenario 1, iteration 2 first val
+  expect_true(recdevs_scope_2[[1]][[1]][1] != recdevs_scope_2[[1]][[2]][1])
   expect_true(all(!is.na(unlist(recdevs_scope_2))))
   expect_true(all(!is.na(unlist(recdevs_scope_2))))
   

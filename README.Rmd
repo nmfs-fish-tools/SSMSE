@@ -66,10 +66,15 @@ Note that this is a toy example and not a true MSE, so the OM and EM structures 
 First, we will load the `SSMSE` package and create a folder in which to run the example:
 ```{r, echo=FALSE, results="hide"}
 devtools::load_all(".") # for rendering this readme when it is in the SSMSE pkg
+library(r4ss)
+library(foreach) #if using run_parallel = TRUE
+library(doParallel) #if using run_parallel = TRUE
 ```
 ```{r, eval=FALSE}
 library(SSMSE) #load the package
 library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
+library(foreach) #if using run_parallel = TRUE
+library(doParallel) #if using run_parallel = TRUE
 ```
 ```{r}
 # Create a folder for the output in the working directory.
@@ -87,24 +92,37 @@ cod_1_path <- file.path(run_SSMSE_dir, "cod-1")
 # make model read initial values from control file and not ss.par
 start <- r4ss::SS_readstarter(file = file.path(cod_1_path, "starter.ss"), verbose = FALSE)
 start$init_values_src # verify reading from the control file
-# change the natural mortality paramter from 0.2 to 0.1 in the control files
+# change the steepness from 0.2 to 0.1 in the control files
 r4ss::SS_changepars(dir = cod_1_path, ctlfile = "control.ss_new", 
               newctlfile = "control_modified.ss", strings = "SR_BH_steep", newvals = 1)
-# remove files with M = 0.2
+parfile <- r4ss::SS_readpar_3.30(parfile = file.path(cod_1_path, "ss.par"),
+                                   datsource = file.path(cod_1_path, "ss3.dat"), 
+                          ctlsource = file.path(cod_1_path, "control.ss_new"), 
+                          verbose = FALSE)
+# remove files with old steepness values
 file.remove(file.path(cod_1_path, "control.ss_new"))
 file.remove(file.path(cod_1_path, "control.ss"))
 file.remove(file.path(cod_1_path, "ss.par")) # delete control file because no longer need.
-# rename file with M = 0.1 to control.ss_new () and make a copy as the control file
+# rename file to control.ss_new () and make a copy as the control file
 file.rename(from = file.path(cod_1_path, "control_modified.ss"),
             to = file.path(cod_1_path, "control.ss"))
 ```
 
-Rerun this model with no estimation to get valid ss.par and control.ss_new files:
+Rerun this model with no estimation to get valid ss.par and control.ss_new files,
+then add in the historical recruitment deviations:
 ```{r, results = "hide"}
-# run SS with no estimateion
 SSMSE:::run_ss_model(dir = cod_1_path, 
                      admb_options = "-maxfn 0 -phase 50 -nohess",
                      verbose = FALSE)
+# add back original recdevs into the model (b/c not specified through the ctl file)
+new_parfile <- r4ss::SS_readpar_3.30(parfile = file.path(cod_1_path, "ss.par"),
+                 datsource = file.path(cod_1_path, "ss3.dat"), 
+                 ctlsource = file.path(cod_1_path, "control.ss"), verbose = FALSE)
+ # add in the recdevs to new the parfile
+new_parfile$recdev1[, "recdev"] <- parfile$recdev1[, "recdev"]
+r4ss::SS_writepar_3.30(new_parfile, outfile = file.path(cod_1_path, "ss.par"),
+                       verbose = FALSE)
+
 ```
 
 The argument `sample_struct` specifies the structure for sampling from the OM (and passing to the EM). The function `create_sample_struct` can be used to construct a simple sampling structure consistent with an input data file:
@@ -133,8 +151,7 @@ We can now use `run_SSMSE` to run the MSE analysis loop:
 ```{r, warning = FALSE, message = FALSE}
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
-# run 1 iteration and 1 scenario of SSMSE using an EM.
-run_SSMSE(scen_name_vec = c("H-ctl", "H-1"), # name of the scenario
+run_SSMSE(scen_name_vec = c("H-ctl", "H-1"),# name of the scenario
           out_dir_scen_vec = run_res_path, # directory in which to run the scenario
           iter_vec = c(5,5), # run with 5 iterations each
           OM_name_vec = NULL, # specify directories instead
@@ -146,6 +163,7 @@ run_SSMSE(scen_name_vec = c("H-ctl", "H-1"), # name of the scenario
           nyrs_assess_vec = c(3, 3), # Years between assessments
           rec_dev_pattern = c("none"), # Don't use recruitment deviations
           impl_error_pattern = c("none"), # Don't use implementation error
+          run_parallel = TRUE,
           sample_struct_list = sample_struct_list, # How to sample data for running the EM.
           seed = 12345) #Set a fixed integer seed that allows replication 
 ```
@@ -154,7 +172,7 @@ The function `SSMSE_summary_all` can be used to summarize the model results in a
 
 ```{r}
 # Summarize 1 iteration of output
-summary <- SSMSE_summary_all(normalizePath(run_res_path))
+summary <- SSMSE_summary_all(run_res_path)
 ```
 Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), the EM run with last year of data in year 103 (cod_EM_103), and the EM run with last year of data in 106 (cod_EM_106).
 
