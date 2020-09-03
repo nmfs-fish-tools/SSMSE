@@ -32,7 +32,7 @@ test_that("get_EM_catch_df works with no discards", {
   # note: the following check would need to change if the report file does
   # F forecast could change if this model is rerun.
   expect_true(all(round(catch_list$catch_F$catch, digits = 3) ==
-                  round(0.0496832, digits = 3)))
+                  round(0.100968, digits = 3)))
 })
 
 
