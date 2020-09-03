@@ -352,6 +352,7 @@ run_SSMSE <- function(scen_name_vec,
 #'  n_cores available - 1 (also capped at one less than the number of cores 
 #'  available)
 #' @template verbose
+#' @importFrom foreach `%dopar%`
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
@@ -430,7 +431,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   # make a dataframe to store dataframes that error
   return_val <- vector(mode = "list", length = iter)
   if(run_parallel){
-    return_val <- foreach(i=seq_len(iter), .errorhandling = "pass")%dopar%{
+    return_val <- foreach::foreach(i=seq_len(iter), .errorhandling = "pass")%dopar%{
 
       #for(i in seq_len(iter)){
       iter_seed <- vector(mode = "list", length = 3)
@@ -551,12 +552,17 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  give an example of what this structure should be. Running the function 
 #'  create_sample_struct() will also produce a sample_struct object in the 
 #'  correct form. Can be NULL only when MS is not EM.
-#'  @param interim_struct A optional list of parameters to control an interim assessment
-#'  with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
-#'  MA_years= the number of years to average index observations of when calculating deviations, 
-#'  assess_freq=the number of years between full assessments during with an interim assessment will happen
-#'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
-#'  inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+#' @param interim_struct A optional list of parameters to control an interim 
+#'  assessment with an example structure below, where Beta=a positive value
+#'  that is inversely proportional to risk, MA_years= the number of years to 
+#'  average index observations of when calculating deviations, assess_freq=the
+#'  number of years between full assessments during with an interim assessment
+#'  will happen every year, and Index_weights is a vector of length n indexes
+#'  that weights all indexes for multi index inference. 
+#'  interim_struct<-list(Beta = 1,
+#'                       MA_years = 3,
+#'                       assess_freq = 5,
+#'                       Index_weights = rep(1, max(ref_index[, 3])))
 #' @template verbose
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan

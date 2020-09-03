@@ -67,7 +67,7 @@ extend_OM <- function(catch,
          (dat$endyr + nyrs_extend), ". Please either remove years of catch data or ",
          "the end year of the model longer.")
   }
-  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
+  if(is.null(seed)){seed <- stats::runif(1, 1, 9999999)}
   
   start$seed <- seed
   
@@ -267,7 +267,8 @@ extend_OM <- function(catch,
       achieved_Catch <- TRUE
     }
     if(search_loops==10){
-      write.csv("test to see how long the loop runs",file=file.path(OM_dir, "search_took_too_long.csv"))
+      utils::write.csv("test to see how long the loop runs",
+                       file=file.path(OM_dir, "search_took_too_long.csv"))
     }
   }
   temp_1<-catch_intended[,1:4]
@@ -277,7 +278,9 @@ extend_OM <- function(catch,
   temp_3<-F_achieved[,1:4]
   colnames(temp_3)<-c("year","seas","fleet","catch")
   result_fit<-rbind(temp_1,temp_2,temp_3)
-  write.csv(result_fit,file=file.path(OM_dir, paste0("intended_catch_search_took_",search_loops,"_loops.csv")))
+  utils:: write.csv(result_fit,
+    file=file.path(OM_dir, 
+    paste0("intended_catch_search_took_",search_loops,"_loops.csv")))
   # extend the number of yrs in the model and add in catch ----
   # modify forecast file - do this to make the forecasting elements simpler for
   # the second run of the OM.

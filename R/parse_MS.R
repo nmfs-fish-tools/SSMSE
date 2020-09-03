@@ -46,7 +46,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
          valid_MS)
   }
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
-  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
+  if(is.null(seed)){seed <- stats::runif(1, 1, 9999999)}
   # parsing management strategies ----
   # Interim Assessment ----
   if(MS == "Interim") {
@@ -194,7 +194,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
       if(!is.null(new_catch_list[["catch_F"]])){
       new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]],(OM_dat$endyr+1):(OM_dat$endyr+nyrs_assess)),]
       }
-      write.csv(new_catch_list[["catch"]],file.path(EM_out_dir,"intended_catch_init.csv"))
+      utils::write.csv(new_catch_list[["catch"]],
+                       file.path(EM_out_dir,"intended_catch_init.csv"))
     } else {
       Reference_dat <- SS_readdat(file = file.path(EM_init_dir, ref_datfile_name), 
                                   version = 3.30,
@@ -414,8 +415,13 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                     overwrite = TRUE,
                     verbose = FALSE)
         
-        write.csv(new_catch_list[["catch"]],file.path(EM_init_dir, paste0("intended_catch_",new_EM_dat$endyr,".csv")))
-        write.csv(adjust_index,file.path(EM_init_dir, paste0("scaling_factors_",new_EM_dat$endyr,"_",catch_scaling_factor,".csv")))
+        utils::write.csv(new_catch_list[["catch"]],
+                         file.path(EM_init_dir,
+                         paste0("intended_catch_",new_EM_dat$endyr,".csv")))
+        utils::write.csv(adjust_index,
+                         file.path(EM_init_dir,
+          paste0("scaling_factors_",new_EM_dat$endyr,"_",catch_scaling_factor,
+                 ".csv")))
       }
     }
   }

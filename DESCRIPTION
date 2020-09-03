@@ -28,11 +28,12 @@ Imports:
     assertive.properties,
     assertive.base,
     tidyr,
-    ss3sim
-Suggests: 
-    testthat,
+    ss3sim,
     doParallel,
-    parallel
+    parallel,
+    foreach
+Suggests: 
+    testthat
 Remotes:
     r4ss/r4ss@development,
     ss3sim/ss3sim@development

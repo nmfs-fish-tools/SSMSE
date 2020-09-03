@@ -33,7 +33,7 @@ create_OM <- function(OM_out_dir,
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
                                 verbose = FALSE)
   # modify starter to use as OM ----
-  if(is.null(seed)){seed <- runif(1,1,99999999)}
+  if(is.null(seed)){seed <- stats::runif(1,1,99999999)}
   start$init_values_src <- 1
   start$detailed_age_structure <- 1
   start$last_estimation_phase <- 0
@@ -459,7 +459,7 @@ run_OM <- function(OM_dir,
   } else {
     max_section <- 2
   }
-  if(is.null(seed)){seed <- runif(1, 1, 9999999)}
+  if(is.null(seed)){seed <- stats::runif(1, 1, 9999999)}
   
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                 verbose = FALSE)
