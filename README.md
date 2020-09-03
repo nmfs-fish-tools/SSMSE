@@ -59,7 +59,36 @@ You can read the help files with
 ?SSMSE
 ```
 
-## An SSMSE toy example
+## Troubleshooting Installation
+
+Here are some tips:
+
+  - Make sure you are using the development branch versions of R
+    packages `r4ss` and `ss3sim`. These can be installed separately
+    using `remotes::install_github("r4ss/r4ss", ref = "development")`
+    and `remotes::install_github("ss3sim/ss3sim", ref = "development")`.
+  - If R asks “Would you like to download from sources that need
+    compilation?”, select “no”, as the older compiled versions should
+    work fine.
+  - If R asks which packages you would like to update, select “none.”
+    Although it is good to update to keep packages current, install can
+    sometimes be frustrating when updating many packages and skipping
+    this step can eliminate issues in the short term.
+  - If running into an error during install, try closing out all R
+    sessions open (e.g., other R GUI or R studio windows), restarting
+    the R session and trying
+    `remotes::install_github("nmfs-fish-tools/SSMSE")` again.
+  - If still running into an error during install, and it seems to be a
+    problem installing a particular package, try restarting the R
+    session, using `install.packages()` to download the package that
+    caused the error, restarting the R session, and trying
+    `remotes::install_github("nmfs-fish-tools/SSMSE")` again. This step
+    may need to be done several times for different R packages.
+
+Still having trouble installing SSMSE? Please don’t hesitate to open an
+[issue](https://github.com/nmfs-fish-tools/SSMSE/issues).
+
+## An SSMSE example
 
 Suppose we want to look at 2 scenarios, one where Steepness (H) is
 specified correctly and one where it is specified incorrectly in an
@@ -70,11 +99,12 @@ estimation model (EM):
 2.  **H-1**: Cod operating model (OM; H = 1) with misspecified cod model
     EM (fixed H = 0.65)
 
-Note that this is a toy example and not a true MSE, so the OM and EM
+Note that this is a simple example and not a true MSE, so the OM and EM
 structures for both scenarios are identical, except for different
 steepness between the OM and EM in scenario 2. We will assume we want to
 run the MSE loop for 6 years, with a stock assessment occuring every 3
-years. The cod model’s last year is 100, so the OM is initially
+years (and forecasting catch to maintain 40% of unfished spawning stock
+biomass). The cod model’s last year is 100, so the OM is initially
 conditioned through year 100. Then, after conditioning the operating
 model through year 100, assessments will occur in years 100, 103, and
 106. Note that the assessment run in year 106 will generate future catch
@@ -82,9 +112,10 @@ for years 107, 108, and 109, but the future catch values are not input
 into the operating model because the MSE loop is specified to only run
 through year 106).
 
+### Setup R workspace folders
+
 First, we will load the `SSMSE` package and create a folder in which to
 run the example:
-
 
 ``` r
 library(SSMSE) #load the package
@@ -93,15 +124,21 @@ library(foreach) #if using run_parallel = TRUE
 library(doParallel) #if using run_parallel = TRUE
 ```
 
+    ## Loading SSMSE
+    ## Loading required package: iterators
+    ## Loading required package: parallel
+
 ``` r
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
 ```
 
-The cod model with H = 0.65 is included as external package data.
-However, we will need to modify it to use as an operating model with H =
-1.
+### Create the operating models (OMs)
+
+The cod model with H = 0.65 (as in scenario 1) is included as external
+package data in SSMSE. However, we will need to modify it to use as an
+operating model with H = 1 (as in scenario 2).
 
 ``` r
 cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
@@ -122,16 +159,17 @@ r4ss::SS_changepars(dir = cod_1_path, ctlfile = "control.ss_new",
 ## [1] "SR_BH_steep"
 ## These are the ctl file lines as they currently exist:
 ##      LO HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr
-## 107 0.2  1 0.65   0.7  0.05       0    -4            0        0         0
+## 108 0.2  1 0.65   0.7  0.05       0    -4            0        0         0
 ##     dev_maxyr dev_PH Block Block_Fxn       Label Linenum
-## 107         0      0     0         0 SR_BH_steep     107
+## 108         0      0     0         0 SR_BH_steep     108
 ## line numbers in control file (n=1):
-## 107
+## 108
 ## wrote new file to control_modified.ss with the following changes:
 ##   oldvals newvals oldphase newphase oldlos newlos oldhis newhis oldprior
 ## 1    0.65       1       -4       -4    0.2    0.2      1      1      0.7
 ##   newprior oldprsd newprsd oldprtype newprtype       comment
 ## 1      0.7    0.05    0.05         0         0 # SR_BH_steep
+# read in the par file to save the historic recruitment deviations:
 parfile <- r4ss::SS_readpar_3.30(parfile = file.path(cod_1_path, "ss.par"),
                                    datsource = file.path(cod_1_path, "ss3.dat"), 
                           ctlsource = file.path(cod_1_path, "control.ss_new"), 
@@ -141,9 +179,8 @@ file.remove(file.path(cod_1_path, "control.ss_new"))
 ## [1] TRUE
 file.remove(file.path(cod_1_path, "control.ss"))
 ## [1] TRUE
-file.remove(file.path(cod_1_path, "ss.par")) # delete control file because no longer need.
+file.remove(file.path(cod_1_path, "ss.par"))
 ## [1] TRUE
-# rename file to control.ss_new () and make a copy as the control file
 file.rename(from = file.path(cod_1_path, "control_modified.ss"),
             to = file.path(cod_1_path, "control.ss"))
 ## [1] TRUE
@@ -167,14 +204,81 @@ r4ss::SS_writepar_3.30(new_parfile, outfile = file.path(cod_1_path, "ss.par"),
                        verbose = FALSE)
 ```
 
+### Examine the management procedure used
+
+We will use the same management procedure for both scenarios:
+
+1.  Conduct a stock assessment every 3 years to get stock status.
+2.  Forecast from this stock assessment using the SS forecast file to
+    get future catch.
+3.  Put this forecasted catch (without implementation error, in the case
+    of this example) back into the OM. Extend the OM forward in time to
+    get the true values for the population.
+
+We will now take a look at step 2 in the management procedure, which is
+implemented using the forecasting module in SS. We will examine the
+forecast file for the estimation model to better understand how catches
+will be forecasted from the assessment. We will use the same management
+procedure in both of these scenarios, although for a full MSE analysis,
+it is likely that multiple management procedures would be compared.
+
+``` r
+fore <- r4ss::SS_readforecast(
+  system.file("extdata", "models", "cod", "forecast.ss", package = "SSMSE"),
+  verbose = FALSE)
+fore$Forecast 
+## [1] 3
+fore$Btarget
+## [1] 0.4
+```
+
+`fore$Forecast = 3` means our forecasts from the assessment will use the
+F to achieve a relative (to unfished) spawning stock biomass. Based on
+`fore$Btarget`, the relative biiomass target is 40% of unfished spawning
+stock biomass. Note also that the control rule `fore$BforconstantF` and
+`fore$BfornoF` values are set low to make it unlikely that they will be
+used:
+
+``` r
+fore$BforconstantF
+## [1] 0.03
+fore$BfornoF
+## [1] 0.01
+```
+
+Futhermore, `fore$Flimitfraction` is set to 1 so that the forecasted
+catch is set equal to the overfishing limit (for simplicity):
+
+``` r
+fore$Flimitfraction
+## [1] 1
+```
+
+Note that the number of forecast years is 1:
+
+``` r
+fore$Nforecastyrs
+## [1] 1
+```
+
+However, an assessment will be conducted every 3 years and 3 years of
+forecasting is required. SSMSE will modify this value to the appropriate
+number of forecasting years.
+
+More information on using the forecast module in SS to forecast catches
+is available in the [Stock Synthesis users
+manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
+
+### Adding observation error: Specify how to sample data from the Operating model
+
 The argument `sample_struct` specifies the structure for sampling from
 the OM (and passing to the EM). The function `create_sample_struct` can
 be used to construct a simple sampling structure consistent with an
 input data file:
 
 ``` r
-EM_datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
-sample_struct <- create_sample_struct(dat = EM_datfile, nyrs = 6) # note warning
+datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+sample_struct <- create_sample_struct(dat = datfile, nyrs = 6) # note warning
 ## Warning in FUN(X[[i]], ...): Pattern not found for lencomp: FltSvy 1, Seas 1.
 ## Returning NA for Yr in this dataframe.
 sample_struct
@@ -203,9 +307,11 @@ sample_struct
 The sample structure specifies that catch will be added to the
 estimation model every year (years 101 to 106), but an index of
 abundance (i.e., CPUE) and age composition (i.e., agecomp) will only be
-added in year 105. The user could modify this sampling strategy (for
-example, maybe age composition should also be sampled from FltSvy 2 in
-Yr 102; the user could add another line to the dataframe in
+added in year 105. We will use the same sampling scheme for both
+scenarios, but it is possible to specify different sampling for each
+scenario. The user could modify this sampling strategy (for example,
+maybe age composition should also be sampled from FltSvy 2 in Yr 102;
+the user could add another line to the dataframe in
 `sample_struct$agecomp`).
 
 Note that length comp (lencomp) includes an `NA` value for year. This is
@@ -223,7 +329,19 @@ The same sampling structure will be used for both scenarios:
 sample_struct_list <- list("H-ctl" = sample_struct, "H-1" = sample_struct)
 ```
 
-We can now use `run_SSMSE` to run the MSE analysis loop:
+### Adding process error through recruitment devitations
+
+Process error can be added through the recruitment deviations. In this
+case, `rec_dev_pattern = "rand"` in the call to `run_SSMSE` is used to
+use random recruitment deviations with the same standard deviation as
+the historical recruitment deviation pattern. Set `scope = 2` so that
+the same recruitment deviation patterns are used across scenarios, but
+different patterns are use across iterations in the same scenario.
+
+### Run SSMSE
+
+Now, use `run_SSMSE` to run the MSE analysis loop (note this will take
+some time to run, \~ 20 min):
 
 ``` r
 run_res_path <- file.path(run_SSMSE_dir, "results")
@@ -238,23 +356,23 @@ run_SSMSE(scen_name_vec = c("H-ctl", "H-1"),# name of the scenario
           use_SS_boot_vec = c(TRUE, TRUE), # use the SS bootstrap module for sampling
           nyrs_vec = c(6, 6),        # Years to project OM forward
           nyrs_assess_vec = c(3, 3), # Years between assessments
-          rec_dev_pattern = c("none"), # Don't use recruitment deviations
-          impl_error_pattern = c("none"), # Don't use implementation error
+          rec_dev_pattern = "rand", # Don't use recruitment deviations
+          scope = "2", # to use the same recruitment devs across scenarios.
+          impl_error_pattern = "none", # Don't use implementation error
           run_parallel = TRUE,
           sample_struct_list = sample_struct_list, # How to sample data for running the EM.
           seed = 12345) #Set a fixed integer seed that allows replication 
 ```
 
+Here, only 5 iterations are run per scenario; However, in a real MSE
+analysis, running 100+ iterations would be preferred, so that the full
+range of uncertainty (given observation and process errors) is visible
+in the results.
+
+### Summarize results and view output
+
 The function `SSMSE_summary_all` can be used to summarize the model
-results in a list of dataframes. Note that if you have issues, try
-reinstalling SSMSE using
-`remotes::install_github("nmfs-fish-tools/SSMSE")` and restarting your R
-session. Also, make sure you are using the development branch versions
-of [r4ss](https://github.com/r4ss/r4ss) and
-[ss3sim](https://github.com/ss3sim/ss3sim) (by installing
-`remotes::install_github("r4ss/r4ss@development")` and
-`remotes::install_github("ss3sim/ss3sim@development")`. These versions
-should be installed automatically when SSMSE is downloaded.
+results in a list of dataframes.
 
 ``` r
 # Summarize 1 iteration of output
@@ -355,8 +473,8 @@ unacceptable behavior to <fisheries.toolbox@noaa.gov>.
 SSMSE is still a work in progress, with basic framework in development.
 Some new directions we hope to work on shortly:
 
-  - Expanding on examples to illustrate the package
-  - Improving usability of the wrapper functions that users access
+  - Expanding on examples to illustrate the package (e.g., illustrating
+    how performance metrics can be calculated)
   - Adding more complex sampling options
   - Adding functions to calculate performance metrics
   - Adding functions to make some basic plots of diagonstics and results
