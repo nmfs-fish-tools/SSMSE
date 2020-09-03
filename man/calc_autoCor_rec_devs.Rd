@@ -9,8 +9,8 @@ calc_autoCor_rec_devs(
   yrs,
   rec_autocorr_mean,
   rec_autocorr_sd,
-  target_mean = 0,
-  stddev
+  target_mean = 1,
+  stddev = 0
 )
 }
 \arguments{
