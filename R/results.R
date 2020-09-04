@@ -9,7 +9,8 @@
 #'  in dir.
 #' @param run_parallel Option to use parallel processing. Defaults to FALSE.
 #'  Note that running in parallel will only be faster if most of the scenarios
-#'  do not yet have scenario-level summary files .
+#'  do not yet have scenario-level summary files and the suggested package
+#'  parallel needs to be available for running in parallel to occur.
 #' @param n_cores How many cores to use if running in parallel. If is NULL, 
 #'  defaults to n_cores available - 1 (also capped at one less than the number
 #'  of cores available - 1) 
@@ -52,13 +53,21 @@ SSMSE_summary_all <- function(dir = getwd(), scenarios = NULL,
     } else {
       use_parallel <- TRUE
     }
+    if(!requireNamespace("parallel", quietly = TRUE)) {
+      # this is unlikely to be used, as  parallel is installed with base R.
+      warning("run_parallel is TRUE, but the package parallel is not available.",
+              " Running in serial.")
+      use_parallel <- FALSE
+    }
     if(use_parallel) {
       # setup and run parallel
-      if (is.null(n_cores)) n_cores <- detectCores() - 1
-      if (!is.null(n_cores)) n_cores <- min(max(n_cores, 1), (detectCores() - 1))
+      if (is.null(n_cores)) n_cores <- parallel::detectCores() - 1
+      if (!is.null(n_cores)) {
+        n_cores <- min(max(n_cores, 1), (parallel::detectCores() - 1))
+      }
       cl <- parallel::makeCluster(n_cores)
-      on.exit(stopCluster(cl))
-      result <- parLapply(cl = cl, X = scenarios, 
+      on.exit(parallel::stopCluster(cl))
+      result <- parallel::parLapply(cl = cl, X = scenarios, 
                           fun = get_results_scenario, 
                           directory = dir, 
                           overwrite_files = TRUE)

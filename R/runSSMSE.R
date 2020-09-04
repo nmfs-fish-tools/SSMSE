@@ -255,6 +255,14 @@ run_SSMSE <- function(scen_name_vec,
   }
     
   if(run_parallel){
+    if (!requireNamespace("doParallel", quietly = TRUE)) {
+      stop("Package \"doParallel\" needed if run_parallel = TRUE. Please install it.",
+           call. = FALSE)
+    }
+    if (!requireNamespace("foreach", quietly = TRUE)) {
+      stop("Package \"foreach\" needed if run_parallel = TRUE. Please install it.",
+           call. = FALSE)
+    }
       if(!is.null(n_cores)){
         n_cores<-min(max(n_cores,1),(detectCores()-1))
         cl <- parallel::makeCluster((n_cores))
@@ -352,7 +360,6 @@ run_SSMSE <- function(scen_name_vec,
 #'  n_cores available - 1 (also capped at one less than the number of cores 
 #'  available)
 #' @template verbose
-#' @importFrom foreach `%dopar%`
 #' @export
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
@@ -431,31 +438,31 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   # make a dataframe to store dataframes that error
   return_val <- vector(mode = "list", length = iter)
   if(run_parallel){
-    return_val <- foreach::foreach(i=seq_len(iter), .errorhandling = "pass")%dopar%{
-
-      #for(i in seq_len(iter)){
-      iter_seed <- vector(mode = "list", length = 3)
-      names(iter_seed) <- c("global", "scenario", "iter")
-      iter_seed$global <- scen_seed$global
-      iter_seed$scenario <- scen_seed$scenario
-      iter_seed$iter <- scen_seed$iter[i]
-      run_SSMSE_iter(out_dir = out_dir_iter,
-                     OM_name = OM_name,
-                     OM_in_dir = OM_in_dir,
-                     EM_name = EM_name,
-                     EM_in_dir = EM_in_dir,
-                     MS = MS,
-                     use_SS_boot = use_SS_boot,
-                     nyrs = nyrs,
-                     nyrs_assess = nyrs_assess,
-                     rec_dev_iter = rec_devs_scen[[i]],
-                     impl_error = impl_error[[i]],
-                     niter = max_prev_iter + i,
-                     iter_seed = iter_seed,
-                     sample_struct = sample_struct, 
-                     interim_struct = interim_struct,
-                     verbose = verbose)
-    }
+    return_val <- foreach::`%dopar%`(
+      foreach::foreach(i=seq_len(iter), .errorhandling = "pass"), 
+     {
+       iter_seed <- vector(mode = "list", length = 3)
+       names(iter_seed) <- c("global", "scenario", "iter")
+       iter_seed$global <- scen_seed$global
+       iter_seed$scenario <- scen_seed$scenario
+       iter_seed$iter <- scen_seed$iter[i]
+       run_SSMSE_iter(out_dir = out_dir_iter,
+                      OM_name = OM_name,
+                      OM_in_dir = OM_in_dir,
+                      EM_name = EM_name,
+                      EM_in_dir = EM_in_dir,
+                      MS = MS,
+                      use_SS_boot = use_SS_boot,
+                      nyrs = nyrs,
+                      nyrs_assess = nyrs_assess,
+                      rec_dev_iter = rec_devs_scen[[i]],
+                      impl_error = impl_error[[i]],
+                      niter = max_prev_iter + i,
+                      iter_seed = iter_seed,
+                      sample_struct = sample_struct, 
+                      interim_struct = interim_struct,
+                      verbose = verbose)
+     })
   }else{
     for(i in seq_len(iter)){
       #for(i in seq_len(iter)){
