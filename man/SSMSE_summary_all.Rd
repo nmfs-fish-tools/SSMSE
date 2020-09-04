@@ -22,7 +22,8 @@ in dir.}
 
 \item{run_parallel}{Option to use parallel processing. Defaults to FALSE.
 Note that running in parallel will only be faster if most of the scenarios
-do not yet have scenario-level summary files .}
+do not yet have scenario-level summary files and the suggested package
+parallel needs to be available for running in parallel to occur.}
 
 \item{n_cores}{How many cores to use if running in parallel. If is NULL, 
 defaults to n_cores available - 1 (also capped at one less than the number
