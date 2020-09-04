@@ -360,7 +360,6 @@ run_SSMSE <- function(scen_name_vec,
 #'  n_cores available - 1 (also capped at one less than the number of cores 
 #'  available)
 #' @template verbose
-#' @export
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -571,7 +570,6 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'                       assess_freq = 5,
 #'                       Index_weights = rep(1, max(ref_index[, 3])))
 #' @template verbose
-#' @export
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
