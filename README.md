@@ -1,6 +1,16 @@
 README
 ================
 
+  - [(SSMSE) Management Strategy Evaluation for Stock Synthesis
+    (SS)](#ssmse-management-strategy-evaluation-for-stock-synthesis-ss)
+      - [Installing the SSMSE R
+        package](#installing-the-ssmse-r-package)
+      - [Troubleshooting Installation](#troubleshooting-installation)
+      - [An SSMSE example](#an-ssmse-example)
+      - [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
+      - [Roadmap: Where is SSMSE headed
+        next?](#roadmap-where-is-ssmse-headed-next)
+
 <!-- README.md is generated from README.Rmd. Please edit README.Rmd -->
 
 # (SSMSE) Management Strategy Evaluation for Stock Synthesis (SS)
@@ -17,11 +27,11 @@ status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE
 
 -----
 
-## This is a repository for the Stock Assessment Tool: SSMSE
+**This is a repository for the Stock Assessment Tool: SSMSE**
 
   - Supported by the NOAA Fisheries Integrated Toolbox
 
-## Disclaimer
+**Disclaimer**
 
 “The United States Department of Commerce (DOC) GitHub project code is
 provided on an ‘as is’ basis and the user assumes responsibility for its
@@ -90,9 +100,10 @@ Still having trouble installing SSMSE? Please don’t hesitate to open an
 
 ## An SSMSE example
 
-Suppose we want to look at 2 scenarios, one where Steepness (H) is
-specified correctly and one where it is specified incorrectly in an
-estimation model (EM):
+Suppose we want to look at how well we are able to achieve a specified
+management procedure under uncertainty in the operating model. We will
+look 2 scenarios, one where Steepness (H) is specified correctly and one
+where it is specified incorrectly in an estimation model (EM):
 
 1.  **H-ctl**: Cod operating model (H = 0.65) with correctly specified
     cod model EM (fixed H = 0.65)
@@ -338,6 +349,17 @@ the historical recruitment deviation pattern. Set `scope = 2` so that
 the same recruitment deviation patterns are used across scenarios, but
 different patterns are use across iterations in the same scenario.
 
+### Performance metrics
+
+Quantitative performance metrics should be specified before conducting
+an MSE. Typically, a suite of performance metrics will be examined;
+however, for simplicity in this example, we will only look at what the
+achieved relative biomass was for the last 3 years of projection in the
+MSE to determine how it compares to the intended management target of
+40% of unfished Spawning Stock Biomass. Note that we are only running
+our MSE projectsion for 6 years, but longer projections are typical in
+MSE analyses.
+
 ### Run SSMSE
 
 Now, use `run_SSMSE` to run the MSE analysis loop (note this will take
@@ -369,7 +391,7 @@ analysis, running 100+ iterations would be preferred, so that the full
 range of uncertainty (given observation and process errors) is visible
 in the results.
 
-### Summarize results and view output
+### Summarize results
 
 The function `SSMSE_summary_all` can be used to summarize the model
 results in a list of dataframes.
@@ -445,6 +467,47 @@ ggplot2::ggplot(data = subset(summary$ts, model_run %in% c("cod_OM", "cod-1_OM",
 ```
 
 ![](man/figures/README-plot_SSB-1.png)<!-- -->
+
+Now, calculate and plot the performance metric.
+
+``` r
+get_rel_SSB_avg <- function(summary, min_yr, max_yr) {
+  OM_vals <- unique(summary$ts$model_run)
+  OM_vals <- grep("_OM$", OM_vals, value = TRUE)
+  B_unfished <- summary$scalar %>% 
+                 filter(model_run %in% OM_vals) %>% 
+                 select(iteration, scenario,SSB_Unfished)
+  SSB_yr <- summary$ts %>% 
+              filter(year >= min_yr & year <= max_yr) %>% 
+              select(iteration, scenario, year, SpawnBio)
+  SSB_yr <- left_join(SSB_yr, B_unfished) %>% 
+              mutate(Rel_SSB = SpawnBio/SSB_Unfished) %>% 
+              group_by(iteration, scenario) %>% 
+              summarize(avg_SSB = mean(Rel_SSB), .groups = "keep") %>% 
+              ungroup()
+  SSB_yr
+}
+rel_SSB <- get_rel_SSB_avg(summary, min_yr = 104, max_yr = 106)
+## Joining, by = c("iteration", "scenario")
+
+# function to summarize data in plot
+data_summary <- function(x) {
+  m <- mean(x)
+  ymin <- m-sd(x)
+  ymax <- m+sd(x)
+  return(c(y=m,ymin=ymin,ymax=ymax))
+}
+ggplot(data = rel_SSB, aes(x = scenario, y = avg_SSB)) +
+  geom_hline(yintercept = 0.4, color = "gray") +
+  stat_summary(fun.data = data_summary, 
+               position = position_dodge(width = 0.9), color = "blue") +
+  scale_y_continuous(limits = c(0, 0.8)) +
+  labs(title = "Long-term average relative SSB\n(years 101-106)", 
+       x = "Scenario", y = "SSB/SSB_unfished") +
+  theme_classic()
+```
+
+![](man/figures/README-plot_rel_SSB-1.png)<!-- -->
 
 If you wish to delete the files created from this example, you can use:
 
