@@ -228,6 +228,7 @@ run_SSMSE(scen_name_vec = c("H-ctl", "H-1"),# name of the scenario
           rec_dev_pattern = "rand", # Don't use recruitment deviations
           scope = "2", # to use the same recruitment devs across scenarios.
           impl_error_pattern = "none", # Don't use implementation error
+          run_EM_last_yr = FALSE, # Run the EM in 106
           run_parallel = TRUE,
           sample_struct_list = sample_struct_list, # How to sample data for running the EM.
           seed = 12345) #Set a fixed integer seed that allows replication 
