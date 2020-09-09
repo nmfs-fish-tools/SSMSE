@@ -11,7 +11,7 @@ extdat_path <- system.file("extdata", package = "SSMSE")
 test_that("run_SSMSE runs with an EM, and works with summary funs", {
   skip_on_travis()
   skip_on_cran()
-  nyrs <- 6
+  nyrs <- 7
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to determine its structure
   sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
@@ -49,8 +49,9 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   expect_true(length(summary_scen) == 3)
   summary <- SSMSE_summary_all(temp_path, scenarios = "H-ctl")
   expect_true(length(summary) == 3)
+  # make sure OM ran through the last year.
+  expect_true((100 + nyrs) %in% summary$ts[summary$ts$model_run == "cod_OM", "year"])
 })
-
 test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs", {
   # This tests takes a while to run, but is really helpful.
   new_temp_path <- file.path(temp_path, "mult_scenarios")

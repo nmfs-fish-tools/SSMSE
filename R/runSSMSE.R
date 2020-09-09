@@ -719,6 +719,9 @@ run_SSMSE_iter <- function(out_dir = NULL,
   styr_MSE <- OM_dat$endyr
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
   assess_yrs <- assess_yrs[-1]
+  # calculate years after the last assessment. The OM will need to run
+  # 1 additional time if this is the case.
+  extra_yrs <- nyrs - (assess_yrs[length(assess_yrs)] - styr_MSE)
   # Loop over the assessment years.
   for (yr in assess_yrs) {
     # checks, esp. to make sure future catch is not larger than the population
@@ -793,6 +796,34 @@ run_SSMSE_iter <- function(out_dir = NULL,
                                seed = (iter_seed$iter[1]+5678901+yr))
   message("Finished getting catch (years ", (yr + 1), " to ",
           (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
+  }
+  if(extra_yrs > 0) {
+    message("Running the OM 1 final time, because last year extends past the last 
+    assessment.")
+    yr <- assess_yrs[length(assess_yrs)] + extra_yrs
+    # get recdevs, impl_error
+    rec_devs_chunk <- rec_dev_iter[1:extra_yrs]
+    rec_dev_iter <- rec_dev_iter[-(1:extra_yrs)]
+    impl_error_chunk <- impl_error[1:(extra_yrs * OM_dat$nseas * OM_dat$Nfleet)]
+    impl_error <- impl_error[-(1:(extra_yrs * OM_dat$nseas * OM_dat$Nfleet))]
+    # sanity checks
+    assertive.properties::assert_is_of_length(rec_dev_iter, 0)
+    assertive.properties::assert_is_of_length(impl_error, 0)
+    subset_catch_list <- lapply(new_catch_list, 
+      function(x, yr) new_catch  <- x[x$year <= yr, ], yr = yr)
+    extend_OM(catch = subset_catch_list[["catch"]],
+              discards = subset_catch_list[["discards"]],
+              harvest_rate = subset_catch_list[["catch_F"]],
+              OM_dir = OM_out_dir,
+              sample_struct = sample_struct,
+              nyrs_extend = extra_yrs,
+              rec_devs = rec_devs_chunk,
+              impl_error = impl_error_chunk,
+              verbose = verbose,
+              seed = (iter_seed$iter[1]+6789012))
+    # Don't need bootstrapping, b/c not samplling
+    run_OM(OM_dir = OM_out_dir, boot = FALSE, verbose = verbose,
+           seed = (iter_seed$iter[1]+7890123))
   }
   message("Finished iteration ", niter, ".")
   invisible(TRUE)
