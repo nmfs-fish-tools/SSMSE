@@ -43,6 +43,7 @@ create_OM <- function(OM_out_dir,
   start$F_report_units <- 0
   start$F_report_basis <- 0
   start$F_age_range <- NULL
+  start$ALK_tolerance <- 0
   start$seed <- seed
   r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE,
                         overwrite = TRUE, warn = FALSE)
@@ -207,7 +208,7 @@ create_OM <- function(OM_out_dir,
   r4ss::SS_writepar_3.30(parlist = parlist,
                          outfile = file.path(OM_out_dir, "ss.par"),
                          overwrite = TRUE)
-
+  # modify dat file ----
   if (add_dummy_dat) {
     # TODO: develop code to do this for other types of data (mean length at age)
     # get minimum and maximum years for the model (in dat)
@@ -375,11 +376,24 @@ create_OM <- function(OM_out_dir,
     }
     # overwrite the old lines
     dat$agecomp <- new_agecomp
-    if (writedat) {
-      SS_writedat(dat, file.path(OM_out_dir, start$datfile),
-                  overwrite = overwrite,
-                  verbose = FALSE)
-    }
+  }
+  # make sure tail compression is off.
+  # turn off tail compression
+  if(isTRUE(any(dat$len_info$mintailcomp >= 0)) |
+     isTRUE(any(dat$age_info$mintailcomp >= 0))) {
+    warning("Tail compression was on for some fleets in length comp and/or age ",
+            "comp for the operating model, but needs to be", 
+            "turned off in an operating model. Turning off tail compression.", 
+            " Note that this may change expected values for historical age or ", 
+            " length composition.")
+    if(!is.null(dat$len_info)) dat$len_info$mintailcomp <- -1
+    if(!is.null(dat$age_info)) dat$age_info$mintailcomp <- -1
+  }
+
+  if (writedat) {
+    SS_writedat(dat, file.path(OM_out_dir, start$datfile),
+                overwrite = overwrite,
+                verbose = FALSE)
   }
   if (verify_OM) {
     # check that model runs and produces a control.ss_new file
