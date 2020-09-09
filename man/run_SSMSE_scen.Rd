@@ -12,6 +12,7 @@ run_SSMSE_scen(
   OM_in_dir = NULL,
   EM_name = NULL,
   EM_in_dir = NULL,
+  run_EM_last_yr = FALSE,
   MS = "no_catch",
   use_SS_boot = TRUE,
   nyrs = 100,
@@ -52,6 +53,10 @@ or \code{NULL}.}
 \item{EM_in_dir}{Relative or absolute path to the estimation model, if using a
 model outside of the SSMSE package. Note that this value should be NULL if
 \code{MS} has a value other than "EM".}
+
+\item{run_EM_last_yr}{Should the EM run in the last year if the last year
+is an assessment year? TRUE/FALSE option, so the same for all scenarios and
+iterations. Defaults to FALSE.}
 
 \item{MS}{The management strategy to use. Current options
 are:  \code{"last_yr_catch"} which uses the previous year's catch; 
