@@ -1,0 +1,42 @@
+context("Develop OMs")
+
+# create a temporary location to avoid adding files to the repo.
+temp_path <- file.path(tempdir(), "test-develop_OMs")
+dir.create(temp_path, showWarnings = FALSE)
+on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+
+
+test_that("develop_OMs works as expected", {
+  skip_on_cran()
+  expect_warning(develop_OMs(OM_name = "cod", 
+              out_dir = temp_path,
+              par_name = "SR_BH_steep", 
+              par_vals = c(0.4, 0.8),
+              refit_OMs = FALSE
+              ), "Parameter devs will all be 0")
+  expect_true(file.exists(file.path(temp_path, "cod_SR_BH_steep_0.4", "control.ss_new")))
+  expect_true(file.exists(file.path(temp_path, "cod_SR_BH_steep_0.8", "control.ss_new")))
+  dat <- r4ss::SS_readdat(file.path(temp_path, "cod_SR_BH_steep_0.4", "data.ss_new"), 
+                verbose = FALSE)
+  ctl <- r4ss::SS_readctl(
+    file.path(temp_path, "cod_SR_BH_steep_0.4", "control.ss_new"),
+    use_datlist = TRUE, datlist = dat, verbose = FALSE)
+  expect_true(ctl$SR_parms["SR_BH_steep","INIT"] == 0.4)
+})
+
+new_temp_path <- file.path(temp_path, "refit_OMs")
+dir.create(new_temp_path)
+extdat_path <- system.file("extdata", package = "SSMSE")
+cod_mod <- file.path(extdat_path, "models", "cod")
+
+test_that("develop_OMs works as expected with refiting and specifying directory", {
+  skip_on_cran()
+  skip_on_appveyor()
+  skip_on_travis()
+  develop_OMs(OM_in_dir = cod_mod, 
+              out_dir = new_temp_path,
+              par_name = "SR_BH_steep",
+              par_vals = 0.6,
+              refit_OMs = TRUE)
+  expect_true(file.exists(file.path(new_temp_path, "cod_SR_BH_steep_0.6", "control.ss_new")))
+})
