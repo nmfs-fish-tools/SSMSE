@@ -130,7 +130,8 @@ plot_index_sampling <- function(dir = getwd()) {
   # get the OM data values
   om_name <- grep("OM", list.dirs(file.path(dir, iters[1]), recursive = FALSE,
                                   full.names = FALSE), value = TRUE)
-  tmp_dat_OM <- r4ss::SS_readdat(file.path(dir, as.character(i),
+  assertive.types::assert_is_a_string(om_name)
+  tmp_dat_OM <- r4ss::SS_readdat(file.path(dir, as.character(iters[1]),
                                            om_name, "data.ss_new"),
                                  verbose = FALSE, section = 1)
   tmp_dat_OM$CPUE$iteration <- paste0(om_name, "_observed_values")
@@ -138,7 +139,7 @@ plot_index_sampling <- function(dir = getwd()) {
   tmp_dat_OM$CPUE$model_run <- paste0(om_name, "_observed_values")
   index_dat <- tmp_dat_OM$CPUE
   # get the OM expected values
-  tmp_dat_OM <- r4ss::SS_readdat(file.path(dir, as.character(i),
+  tmp_dat_OM <- r4ss::SS_readdat(file.path(dir, as.character(iters[1]),
                                            om_name, "data.ss_new"),
                                  verbose = FALSE, section = 2)
   tmp_dat_OM$CPUE$iteration <- paste0(om_name, "_exp_values")
@@ -150,6 +151,7 @@ plot_index_sampling <- function(dir = getwd()) {
   em_name <- grep("EM_init$", list.dirs(file.path(dir, iters[1]), 
                              recursive = FALSE, 
                              full.names = FALSE), value = TRUE)
+  assertive.types::assert_is_a_string(em_name)
   for(i in iters) {
     tmp_dat_EM <- r4ss::SS_readdat(file.path(dir, as.character(i),
                                              em_name, "data.ss_new"),
@@ -168,13 +170,13 @@ plot_index_sampling <- function(dir = getwd()) {
             " Returning early with just the dataframe and not the plot.")
     return(list(index_dat = index_dat, index_plot = NA))
   }
-  
-  index_plot <- ggplot2::ggplot(index_dat, aes(x = year, y = obs))+
-    ggplot2::geom_line(aes(linetype = iteration, color = model_run))+
+  index_plot <- ggplot2::ggplot(index_dat, ggplot2::aes(x = year, y = obs))+
+    ggplot2::geom_line(ggplot2::aes(linetype = iteration, color = model_run))+
     ggplot2::scale_linetype_manual(
       values = rep("solid", length(unique(index_dat$iteration))))+
-    ggplot2::facet_wrap(vars(index))+ #by fleet
+    ggplot2::facet_wrap(ggplot2::vars(index))+ #by fleet
     ggplot2::guides(linetype = FALSE) +
     ggplot2::theme_classic()
+  
   index_list <- list(index_dat = index_dat, index_plot = index_plot)
 }

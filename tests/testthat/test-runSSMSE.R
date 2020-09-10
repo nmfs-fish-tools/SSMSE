@@ -9,7 +9,6 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 extdat_path <- system.file("extdata", package = "SSMSE")
 
 test_that("run_SSMSE runs with an EM, and works with summary funs", {
-  skip_on_travis()
   skip_on_cran()
   nyrs <- 7
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
@@ -52,8 +51,12 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   expect_true(length(summary) == 3)
   # make sure OM ran through the last year.
   expect_true((100 + nyrs) %in% summary$ts[summary$ts$model_run == "cod_OM", "year"])
+  # test plotting
+  index_plot_list <- plot_index_sampling(dir = file.path(temp_path, "H-ctl"))
+  expect_length(index_plot_list, 2)
+  expect_length(unique(index_plot_list$index_dat$model_run), 3)
+  #TODO: add plot testing when updating ggplots.
 })
-
 test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs", {
   # This tests takes a while to run, but is really helpful.
   new_temp_path <- file.path(temp_path, "mult_scenarios")
