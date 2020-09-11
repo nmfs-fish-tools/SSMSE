@@ -62,12 +62,10 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
     opts <- "-nohess"
   }
   for (i in par_vals) {
-    tmp_new_dir <- file.path(out_dir, 
-                             paste0(basename(OM_in_dir), "_", par_name, "_", i))
     # copy to a new location and rename to make a new model
     file.copy(from = OM_in_dir, to = out_dir, recursive = TRUE)
     tmp_mod_path <- file.path(out_dir, 
-                              paste0(basename(OM_in_dir), "_", par_name, "_", i))
+                              paste0(basename(OM_in_dir), "_", par_name, "_", as.character(i)))
     file.rename(from = file.path(out_dir, basename(OM_in_dir)), 
                 to = tmp_mod_path)
     r4ss::SS_changepars(dir = tmp_mod_path, ctlfile = "control.ss_new", 
@@ -107,7 +105,7 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
       new_parfile[[recdev_name]][, "recdev"] <- parfile[[recdev_name]][, "recdev"]
       r4ss::SS_writepar_3.30(new_parfile, 
                              outfile = file.path(tmp_mod_path, "ss.par"),
-                             verbose = FALSE)
+                             verbose = FALSE, overwrite = TRUE)
     }
   }
   # TODO add checks that model converged?
