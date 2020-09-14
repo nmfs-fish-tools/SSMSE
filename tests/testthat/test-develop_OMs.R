@@ -8,12 +8,12 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 test_that("develop_OMs works as expected", {
   skip_on_cran()
-  expect_warning(develop_OMs(OM_name = "cod", 
+  develop_OMs(OM_name = "cod", 
               out_dir = temp_path,
               par_name = "SR_BH_steep", 
               par_vals = c(0.4, 0.8),
               refit_OMs = FALSE
-              ), "Parameter devs will all be 0")
+              )
   expect_true(file.exists(file.path(temp_path, "cod_SR_BH_steep_0.4", "control.ss_new")))
   expect_true(file.exists(file.path(temp_path, "cod_SR_BH_steep_0.8", "control.ss_new")))
   dat <- r4ss::SS_readdat(file.path(temp_path, "cod_SR_BH_steep_0.4", "data.ss_new"), 
