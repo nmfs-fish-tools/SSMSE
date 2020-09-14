@@ -5,16 +5,21 @@
 \title{Develop different operating models}
 \usage{
 develop_OMs(
-  OM_dir,
+  OM_name = NULL,
+  OM_in_dir = NULL,
   out_dir = getwd(),
   par_name,
   par_vals,
   refit_OMs = TRUE,
-  hess = TRUE
+  hess = FALSE
 )
 }
 \arguments{
-\item{OM_dir}{Path to the original operating model}
+\item{OM_name}{Name of the original model, as in the SSMSE package. If not
+using a model in the package, please specify its path in \code{OM_in_dir}}
+
+\item{OM_in_dir}{Path to the original operating model. If using a model in
+the SSMSE package, please specify its name in \code{OM_name} instead.}
 
 \item{out_dir}{Path where the new models will be written. Defaults to the
 current working directory.}
@@ -25,6 +30,9 @@ current working directory.}
 will be fixed so phase will be set as negative.}
 
 \item{refit_OMs}{Should the models be refit to data? Defaults to TRUE}
+
+\item{hess}{Should the hessian be estimated if reffiting the OMs? defaults to 
+FALSE}
 }
 \description{
 THis is a utility to help a user create new operating models starting from the
