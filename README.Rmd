@@ -82,18 +82,16 @@ Note that this is a simple example and not a true MSE, so the OM and EM structur
 
 ### Setup R workspace folders
 First, we will load the `SSMSE` package and create a folder in which to run the example:
-```{r, eval=FALSE}
+```{r, echo=FALSE, results="hide"}
+devtools::install_local(".", upgrade = "never", quiet = TRUE)
+```
+```{r, eval=TRUE}
 library(SSMSE) #load the package
 library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
 library(foreach) #if using run_parallel = TRUE
 library(doParallel) #if using run_parallel = TRUE
 ```
-```{r, echo=FALSE, results="hide"}
-devtools::load_all(".") # for rendering this readme when it is in the SSMSE pkg
-library(r4ss)
-library(foreach) #if using run_parallel = TRUE
-library(doParallel) #if using run_parallel = TRUE
-```
+
 ```{r}
 # Create a folder for the output in the working directory.
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
@@ -199,7 +197,7 @@ run_SSMSE(scen_name_vec = c("H-ctl", "H-1"),# name of the scenario
           scope = "2", # to use the same recruitment devs across scenarios.
           impl_error_pattern = "none", # Don't use implementation error
           run_EM_last_yr = FALSE, # Run the EM in 106
-          run_parallel = FALSE,
+          run_parallel = TRUE,
           sample_struct_list = sample_struct_list, # How to sample data for running the EM.
           seed = 12345) #Set a fixed integer seed that allows replication 
 ```

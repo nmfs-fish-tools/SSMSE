@@ -133,11 +133,9 @@ library(SSMSE) #load the package
 library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
 library(foreach) #if using run_parallel = TRUE
 library(doParallel) #if using run_parallel = TRUE
+## Loading required package: iterators
+## Loading required package: parallel
 ```
-
-    ## Loading SSMSE
-    ## Loading required package: iterators
-    ## Loading required package: parallel
 
 ``` r
 # Create a folder for the output in the working directory.
@@ -330,7 +328,7 @@ run_SSMSE(scen_name_vec = c("H-ctl", "H-1"),# name of the scenario
           scope = "2", # to use the same recruitment devs across scenarios.
           impl_error_pattern = "none", # Don't use implementation error
           run_EM_last_yr = FALSE, # Run the EM in 106
-          run_parallel = FALSE,
+          run_parallel = TRUE,
           sample_struct_list = sample_struct_list, # How to sample data for running the EM.
           seed = 12345) #Set a fixed integer seed that allows replication 
 ```
@@ -363,18 +361,9 @@ in year 103 (cod\_EM\_103), and the EM run with last year of data in 106
 ``` r
 library(ggplot2) # use install.packages("ggplot2") to install package if needed
 library(tidyr) # use install.packages("tidyr") to install package if needed
-## 
-## Attaching package: 'tidyr'
-## The following object is masked from 'package:testthat':
-## 
-##     matches
 library(dplyr)
 ## 
 ## Attaching package: 'dplyr'
-## 
-## The following object is masked from 'package:testthat':
-## 
-##     matches
 ## The following objects are masked from 'package:stats':
 ## 
 ##     filter, lag
