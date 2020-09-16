@@ -83,7 +83,7 @@ Note that this is a simple example and not a true MSE, so the OM and EM structur
 ### Setup R workspace folders
 First, we will load the `SSMSE` package and create a folder in which to run the example:
 ```{r, echo=FALSE, results="hide"}
-devtools::install_local(".", upgrade = "never", quiet = TRUE)
+devtools::install_local(".", upgrade = "never", quiet = TRUE, force = TRUE)
 ```
 ```{r, eval=TRUE}
 library(SSMSE) #load the package
