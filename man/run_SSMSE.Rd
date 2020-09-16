@@ -12,6 +12,7 @@ run_SSMSE(
   OM_in_dir_vec = NULL,
   EM_name_vec = NULL,
   EM_in_dir_vec = NULL,
+  run_EM_last_yr = FALSE,
   MS_vec = c("EM", "no_catch"),
   use_SS_boot_vec = TRUE,
   nyrs_vec,
@@ -55,6 +56,10 @@ in the path specified in EM_in_dir. valid inputs for EM_name are: \code{"cod"}
 \item{EM_in_dir_vec}{Relative or absolute path to the estimation model, if using
 model outside of the SSMSE package. Note that this value should be NULL if
 \code{MS} has a value other than "EM".}
+
+\item{run_EM_last_yr}{Should the EM run in the last year if the last year
+is an assessment year? TRUE/FALSE option, so the same for all scenarios and
+iterations. Defaults to FALSE.}
 
 \item{MS_vec}{Vector of management strategies.}
 

@@ -9,9 +9,8 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 extdat_path <- system.file("extdata", package = "SSMSE")
 
 test_that("run_SSMSE runs with an EM, and works with summary funs", {
-  skip_on_travis()
   skip_on_cran()
-  nyrs <- 6
+  nyrs <- 7
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to determine its structure
   sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
@@ -23,6 +22,7 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
                       EM_name_vec = "cod", # cod is included in package data
                       MS_vec = "EM",       # The management strategy is specified in the EM
                       use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
+                      run_EM_last_yr = FALSE,
                       nyrs_vec = nyrs,        # Years to project OM forward
                       nyrs_assess_vec = 3, # Years between assessments
                       rec_dev_pattern = "none", # Don't use recruitment deviations
@@ -49,8 +49,14 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   expect_true(length(summary_scen) == 3)
   summary <- SSMSE_summary_all(temp_path, scenarios = "H-ctl")
   expect_true(length(summary) == 3)
+  # make sure OM ran through the last year.
+  expect_true((100 + nyrs) %in% summary$ts[summary$ts$model_run == "cod_OM", "year"])
+  # test plotting
+  index_plot_list <- plot_index_sampling(dir = file.path(temp_path, "H-ctl"))
+  expect_length(index_plot_list, 2)
+  expect_length(unique(index_plot_list$index_dat$model_run), 3)
+  #TODO: add plot testing when updating ggplots.
 })
-
 test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs", {
   # This tests takes a while to run, but is really helpful.
   new_temp_path <- file.path(temp_path, "mult_scenarios")
@@ -72,6 +78,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
                       use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
                       nyrs_vec = nyrs,        # Years to project OM forward
                       nyrs_assess_vec = 3, # Years between assessments
+                      run_EM_last_yr = FALSE,
                       rec_dev_pattern = "none", # Don't use recruitment deviations
                       run_parallel = FALSE,
                       impl_error_pattern = "none", # Don't use implementation error
@@ -81,12 +88,17 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   expect_true(file.exists(
     file.path(new_temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
   expect_true(file.exists(
+    file.path(new_temp_path, "H-ctl", "1", "cod_EM_103", "data.ss_new")))
+  # this file should not exist b/c run_EM_last_yr is FALSE.
+  expect_true(!file.exists(
     file.path(new_temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
   expect_equivalent(result$`H-scen-2`$errored_iterations,
                     "No errored iterations")
   expect_true(file.exists(
     file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new")))
   expect_true(file.exists(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_EM_103", "data.ss_new")))
+  expect_true(!file.exists(
     file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106", "data.ss_new")))
   expect_length(result, 2)
   # summarize results
@@ -116,7 +128,7 @@ test_that("run_SSMSE_iter runs with no EM", {
 
 OM_path_cod <- file.path(extdat_path, "models", "cod")
 EM_path_cod <- file.path(extdat_path, "models", "cod")
-test_that("cod works when treated as a custom model", {
+test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE works", {
   skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
@@ -130,6 +142,7 @@ test_that("cod works when treated as a custom model", {
                            out_dir = new_temp_path,
                            EM_name = NULL,
                            EM_in_dir = EM_path_cod,
+                           run_EM_last_yr = TRUE,
                            nyrs = 6,
                            rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
                            impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
@@ -146,6 +159,7 @@ test_that("cod works when treated as a custom model", {
                            )
   )
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
+  expect_true(file.exists(file.path(new_temp_path, "1", "cod_EM_106", "data.ss_new")))
   expect_true(result)
 })
 
