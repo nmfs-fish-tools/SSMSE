@@ -14,8 +14,6 @@ jobs:
     os: linux
   - r: devel
     os: linux
-  - r: release
-    os: osx
 sudo: required
 cache: packages
 
