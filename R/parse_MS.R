@@ -6,6 +6,7 @@
 #' This function matches each management strategy with its correct method. And
 #' checks for errors.
 #' @template MS
+#' @template MS_custom_name
 #' @param EM_out_dir Relative or absolute path to the estimation model, if using a
 #'   model outside of the SSMSE package. Note that this value should be NULL if
 #'   \code{MS} has a value other than \code{"EM"}.
@@ -33,14 +34,15 @@
 #' @author Kathryn Doering & Nathan Vaughan
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 
-parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE,
-                     OM_dat, OM_out_dir = NULL, verbose = FALSE, nyrs_assess, dat_yrs,
+parse_MS <- function(MS, MS_custom_name, EM_out_dir = NULL, EM_init_dir = NULL, 
+                     init_loop = TRUE, OM_dat, OM_out_dir = NULL,
+                     verbose = FALSE, nyrs_assess, dat_yrs, 
                      sample_struct = NULL, interim_struct = NULL, seed = NULL) {
   if (verbose) {
     message("Parsing the management strategy.")
   }
   # input checks ----
-  valid_MS <- c("EM", "no_catch", "last_yr_catch", "Interim")
+  valid_MS <- c("EM", "no_catch", "last_yr_catch", "Interim", "custom")
   if (!MS %in% valid_MS) {
     stop("MS was input as ", MS, ", which is not valid. Valid options: ",
          valid_MS)
@@ -518,6 +520,25 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
     new_catch_list <- get_no_EM_catch_df(OM_dir = OM_out_dir,
                       yrs = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess),
                       MS = MS)
+  }
+  # custom ----
+  if(MS == "custom") {
+    warning("MS = custom is still in development. Please report bugs to ",
+            "github.com/nmfs-fish-tools/SSMSE/issues")
+    pars_list <- list(EM_out_dir = EM_out_dir,
+                      EM_init_dir = EM_init_dir, 
+                      init_loop = init_loop, 
+                      OM_dat = OM_dat,
+                      OM_out_dir= OM_out_dir,
+                      verbose = verbose, 
+                      nyrs_assess = nyrs_assess,
+                      dat_yrs = dat_yrs,
+                      sample_struct = sample_struct,
+                      interim_struct = interim_struct,
+                      seed = seed)
+    new_catch_list <- do.call(MS_custom_name, args = pars_list)
+    # to do: need better checks on function name? Maybe be more explicit on
+    # which environment the function is in?
   }
   # check output before returning
   check_catch_df(new_catch_list[["catch"]])
