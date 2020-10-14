@@ -26,7 +26,11 @@ are:  \code{"last_yr_catch"} which uses the previous year's catch;
 synthesis model as the estimation method and the management strategy as 
 defined in the forecast file of the stock synthesis estimation method;
 \code{"Interim"} to modify catch based on survey predictions between
-assessments; and \code{"custom"} to define a custom management stratey.}
+assessments. Users can also specify their own managment strategies as an
+function. To use the function, it must be available in the global
+enviroment and specified by name in MS. For example, if the function is
+called "my_ms" then the user should make it available in the global 
+environment and specify MS = "my_ms".}
 
 \item{EM_out_dir}{Relative or absolute path to the estimation model, if using a
 model outside of the SSMSE package. Note that this value should be NULL if
