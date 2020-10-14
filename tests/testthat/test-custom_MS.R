@@ -4,6 +4,14 @@ context("test that defining a custom Management Strategy will work")
 temp_path <- file.path(tempdir(), "test-custom_MS")
 dir.create(temp_path, showWarnings = FALSE)
 on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
+# make this function in the global environment (so use <<- assignment)
+run_test_custom_MP <<- function(OM_out_dir, OM_dat, nyrs_assess, MS, ...) {
+  new_catch_list <- get_no_EM_catch_df(OM_dir = OM_out_dir,
+                                       yrs = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess),
+                                       MS = 'no_catch')
+}
+# cleanup
+on.exit(rm(run_test_custom_MP, envir = globalenv()), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
 cod_mod <- file.path(extdat_path, "models", "cod")
@@ -19,10 +27,9 @@ cod_EM_path <- file.path(temp_path, "cod_EM", "cod")
 
 OM_dat <- r4ss::SS_readdat(file.path(cod_OM_path, "data.ss"), verbose = FALSE)
 
-test_that("parse_MS works with custom", {
-  source("functions_custom_MS.R")
-  catch_list <- tryCatch(parse_MS(MS = "custom",
-                                  MS_custom_name = "run_test_custom_MP",
+test_that("parse_MS works with custom option", {
+
+  catch_list <- tryCatch(parse_MS(MS = "run_test_custom_MP",
                                   EM_out_dir = cod_EM_path,
                                   OM_dat = OM_dat,
                                   OM_out_dir = cod_OM_path,
@@ -34,3 +41,4 @@ test_that("parse_MS works with custom", {
   expect_equivalent(colnames(catch_df_3),
                     c("year", "seas", "fleet", "catch", "catch_se"))
 })
+

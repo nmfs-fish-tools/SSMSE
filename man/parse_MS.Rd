@@ -6,7 +6,6 @@
 \usage{
 parse_MS(
   MS,
-  MS_custom_name,
   EM_out_dir = NULL,
   EM_init_dir = NULL,
   init_loop = TRUE,
@@ -28,10 +27,6 @@ synthesis model as the estimation method and the management strategy as
 defined in the forecast file of the stock synthesis estimation method;
 \code{"Interim"} to modify catch based on survey predictions between
 assessments; and \code{"custom"} to define a custom management stratey.}
-
-\item{MS_custom_name}{The function name (available in the R envioronment) to
-use if MS = 'custom' is used. Will not be used if a different management
-strategy is used.}
 
 \item{EM_out_dir}{Relative or absolute path to the estimation model, if using a
 model outside of the SSMSE package. Note that this value should be NULL if
