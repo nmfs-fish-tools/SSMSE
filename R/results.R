@@ -170,11 +170,13 @@ plot_index_sampling <- function(dir = getwd()) {
             " Returning early with just the dataframe and not the plot.")
     return(list(index_dat = index_dat, index_plot = NA))
   }
-  index_plot <- ggplot2::ggplot(index_dat, ggplot2::aes(x = year, y = obs))+
-    ggplot2::geom_line(ggplot2::aes(linetype = iteration, color = model_run))+
+  index_plot <- ggplot2::ggplot(index_dat, 
+    ggplot2::aes(x = .data[["year"]], y = .data[["obs"]]))+
+    ggplot2::geom_line(ggplot2::aes(linetype = .data[["iteration"]],
+                                    color = .data[["model_run"]]))+
     ggplot2::scale_linetype_manual(
       values = rep("solid", length(unique(index_dat$iteration))))+
-    ggplot2::facet_wrap(ggplot2::vars(index))+ #by fleet
+    ggplot2::facet_wrap(ggplot2::vars(.data[["index"]]))+ #by fleet
     ggplot2::guides(linetype = FALSE) +
     ggplot2::theme_classic()
   

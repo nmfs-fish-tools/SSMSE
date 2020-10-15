@@ -111,7 +111,7 @@ test_that("parse_MS catches errors when it should", {
   expect_error(parse_MS(MS = "bad_option", EM_out_dir = NULL,
            OM_dat = "fake_2",
            verbose = FALSE, nyrs_assess = 3),
-           "MS was input as", fixed = TRUE)
+           "Invalid management strategy", fixed = TRUE)
   # invalid EM_dir
   expect_error(parse_MS(MS = "EM", EM_out_dir = "other_fake_dir",
            OM_dat = "fake_2",

@@ -33,18 +33,22 @@
 #' @author Kathryn Doering & Nathan Vaughan
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 
-parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE,
-                     OM_dat, OM_out_dir = NULL, verbose = FALSE, nyrs_assess, dat_yrs,
+parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, 
+                     init_loop = TRUE, OM_dat, OM_out_dir = NULL,
+                     verbose = FALSE, nyrs_assess, dat_yrs, 
                      sample_struct = NULL, interim_struct = NULL, seed = NULL) {
   if (verbose) {
     message("Parsing the management strategy.")
   }
   # input checks ----
-  valid_MS <- c("EM", "no_catch", "last_yr_catch", "Interim")
-  if (!MS %in% valid_MS) {
-    stop("MS was input as ", MS, ", which is not valid. Valid options: ",
-         valid_MS)
+  if(!MS %in% c("EM", "no_catch", "last_yr_catch", "Interim")) {
+    if(!exists(MS)) {
+      stop("Invalid management strategy ", MS, ". Please check your function", 
+           " name and make sure it is available in the global ", 
+           "environment, if not built into SSMSE.")
+    }
   }
+  # No
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
   if(is.null(seed)){seed <- stats::runif(1, 1, 9999999)}
   # parsing management strategies ----
@@ -424,10 +428,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
                  ".csv")))
       }
     }
-  }
-  
-  # EM ----
-  if (MS == "EM") {
+    # EM ----
+  } else if (MS == "EM") {
     check_dir(EM_out_dir)
     # TODO: change this name to make it less ambiguous
     new_datfile_name <- "init_dat.ss"
@@ -504,11 +506,9 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
     run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
     # get the forecasted catch.
     new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
-  }
-  
-  # last_yr_catch ----
-  # no_catch ----
-  if (MS %in% c("last_yr_catch", "no_catch")) {
+    # last_yr_catch ----
+    # no_catch ----
+ } else if (MS %in% c("last_yr_catch", "no_catch")) {
     if (OM_dat[["N_discard_fleets"]] > 0) {
       warning("The management strategy used ", MS, " assumes no discards, ",
               "although there are discards included in the OM. Please use ",
@@ -518,6 +518,23 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL, init_loop = TRUE
     new_catch_list <- get_no_EM_catch_df(OM_dir = OM_out_dir,
                       yrs = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess),
                       MS = MS)
+  } else {
+    warning("MS = custom is still in development. Please report bugs to ",
+            "github.com/nmfs-fish-tools/SSMSE/issues")
+    pars_list <- list(EM_out_dir = EM_out_dir,
+                      EM_init_dir = EM_init_dir, 
+                      init_loop = init_loop, 
+                      OM_dat = OM_dat,
+                      OM_out_dir= OM_out_dir,
+                      verbose = verbose, 
+                      nyrs_assess = nyrs_assess,
+                      dat_yrs = dat_yrs,
+                      sample_struct = sample_struct,
+                      interim_struct = interim_struct,
+                      seed = seed)
+    new_catch_list <- do.call(MS, args = pars_list)
+    # to do: need better checks on function name? Maybe be more explicit on
+    # which environment the function is in?
   }
   # check output before returning
   check_catch_df(new_catch_list[["catch"]])
