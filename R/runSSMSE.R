@@ -178,7 +178,7 @@ run_SSMSE <- function(scen_name_vec,
   impl_error_pattern <- match.arg(impl_error_pattern, 
                                   choices = c("none", "rand", "user"))
   if(!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
-    invalid_MS <- MS_vec[unlist(lapply(MS_vec, !exists))]
+    invalid_MS <- MS_vec[unlist(lapply(MS_vec, function(x) !exists(x)))]
     invalid_MS <- invalid_MS[!invalid_MS %in% c("EM", "no_catch", "Interim")]
     if(length(invalid_MS) > 0) {
       stop("Invalid management strategies in MS_vec: ",
@@ -687,6 +687,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
   EM_out_dir <- out_loc[["EM_out_dir"]]
   if (!is.null(EM_out_dir)) {
     EM_out_dir_basename <- strsplit(EM_out_dir, "_init$")[[1]][1]
+  } else {
+    EM_out_dir_basename <- NULL
   }
   copy_model_files(OM_in_dir = OM_in_dir, OM_out_dir = OM_out_dir,
                    EM_in_dir = EM_in_dir, EM_out_dir = EM_out_dir)
@@ -738,7 +740,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   new_catch_list <- parse_MS(MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
                            OM_dat = OM_dat, OM_out_dir = OM_out_dir,
                            verbose = verbose, nyrs_assess = nyrs_assess,
-                           interim_struct = interim_struct,
+                           interim_struct = interim_struct, dat_yrs = NA,
                            seed = (iter_seed$iter[1]+123456))
   
   message("Finished getting catch (years ",
@@ -825,9 +827,14 @@ run_SSMSE_iter <- function(out_dir = NULL,
       # Only want data for the new years: (yr+nyrs_assess):yr
       # create the new dataset to input into the EM
       # loop EM and get management quantities.
+      if(!is.null(EM_out_dir_basename)) {
+        tmp_EM_init_dir <- paste0(EM_out_dir_basename, "_init")
+      } else {
+        tmp_EM_init_dir <- NULL
+      }
       new_catch_list <- parse_MS(MS = MS,
                                  EM_out_dir = EM_out_dir,
-                                 EM_init_dir = paste0(EM_out_dir_basename, "_init"),
+                                 EM_init_dir = tmp_EM_init_dir,
                                  OM_dat = new_OM_dat,
                                  init_loop = FALSE, verbose = verbose,
                                  nyrs_assess = nyrs_assess,

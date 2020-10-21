@@ -519,8 +519,6 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
                       yrs = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess),
                       MS = MS)
   } else {
-    warning("MS = custom is still in development. Please report bugs to ",
-            "github.com/nmfs-fish-tools/SSMSE/issues")
     pars_list <- list(EM_out_dir = EM_out_dir,
                       EM_init_dir = EM_init_dir, 
                       init_loop = init_loop, 
