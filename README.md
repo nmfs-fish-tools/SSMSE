@@ -9,6 +9,8 @@ README
         package](#installing-the-ssmse-r-package)
       - [Troubleshooting Installation](#troubleshooting-installation)
       - [An SSMSE example](#an-ssmse-example)
+      - [Advanced options: use a custom management
+        strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure)
       - [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
       - [Roadmap: Where is SSMSE headed
         next?](#roadmap-where-is-ssmse-headed-next)
@@ -121,6 +123,7 @@ and one where it is specified incorrectly in an estimation model (EM):
 
 Scenario 1. **h-ctl**: Cod operating model (h = 0.65) with correctly
 specified cod model EM (fixed h = 0.65). The OM is the same as the EM.
+
 Scenario 2. **h-1**: Cod operating model (h = 1) with misspecified cod
 model EM (fixed h = 0.65); The OM is not the same as the EM.
 
@@ -331,22 +334,22 @@ min):
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
 run_SSMSE(scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
-        out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-        iter_vec = c(5,5), # run with 5 iterations each
-        OM_name_vec = NULL, # specify directories instead
-        OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
-        EM_name_vec = c("cod", "cod"), # cod is included in package data
-        MS_vec = c("EM","EM"),       # The management strategy is specified in the EM
-        use_SS_boot_vec = c(TRUE, TRUE), # use the SS bootstrap module for sampling
-        nyrs_vec = c(6, 6),        # Years to project OM forward
-        nyrs_assess_vec = c(3, 3), # Years between assessments
-        rec_dev_pattern = "rand", # Use random recruitment devs
-        scope = "2", # to use the same recruitment devs across scenarios.
-        impl_error_pattern = "none", # Don't use implementation error
-        run_EM_last_yr = FALSE, # Run the EM in 106
-        run_parallel = TRUE, # Run iterations in parallel
-        sample_struct_list = sample_struct_list, # How to sample data for running the EM.
-        seed = 12345) #Set a fixed integer seed that allows replication 
+          out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+          iter_vec = c(5,5), # run with 5 iterations each
+          OM_name_vec = NULL, # specify directories instead
+          OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
+          EM_name_vec = c("cod", "cod"), # cod is included in package data
+          MS_vec = c("EM","EM"),       # The management strategy is specified in the EM
+          use_SS_boot_vec = c(TRUE, TRUE), # use the SS bootstrap module for sampling
+          nyrs_vec = c(6, 6),        # Years to project OM forward
+          nyrs_assess_vec = c(3, 3), # Years between assessments
+          rec_dev_pattern = "rand", # Use random recruitment devs
+          scope = "2", # to use the same recruitment devs across scenarios.
+          impl_error_pattern = "none", # Don't use implementation error
+          run_EM_last_yr = FALSE, # Run the EM in 106
+          run_parallel = TRUE, # Run iterations in parallel
+          sample_struct_list = sample_struct_list, # How to sample data for running the EM.
+          seed = 12345) #Set a fixed integer seed that allows replication 
 ```
 
 See `?run_SSMSE` for more details on function arguments. In a real MSE
@@ -531,6 +534,66 @@ If you wish to delete the files created from this example, you can use:
 
 ``` r
 unlink(run_SSMSE_dir, recursive = TRUE)
+```
+
+## Advanced options: use a custom management strategy/procedure
+
+Users can outline a custom managment strategy as an R function to use.
+As long as the correct inputs and outputs are used, any estimation
+method and management procedure can be used. For example, here is a
+simple function that just sets future catches as half the sampled
+catches in a specified year:
+
+``` r
+constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100, 
+                              frac_catch = 0.5, ...) { # need to include ... to allow function to work
+  # set catch the same as the previous year (sampled catch).
+  # catch is in the same units as the operating model, in this case it is in
+  # biomass.
+  catch <- data.frame(
+    year = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess), # the years to project the model forward
+    seas = 1, # hard coded from looking at model 
+    fleet = 1,  # hard coded from looking at model
+    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"]*frac_catch,
+    catch_se = 0.05) # hard coded from looking at model
+  catch_bio <- catch # catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL
+  catch_F <- NULL # catch in terms of F, can be left as NULL.
+  discards <- NULL # discards can be left as NULL if there are no discards
+  catch_list <- list(catch = catch,
+                     catch_bio = catch_bio, 
+                     catch_F = catch_F,
+                     discards = discards)
+}
+```
+
+This function can then be used in a call to `run_SSMSE`:
+
+``` r
+run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the scenario
+                out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+                iter_vec = 1,
+                OM_name_vec = "cod", # specify directories instead
+                OM_in_dir_vec = NULL,
+                MS_vec = "constant_catch_MS", # use the custom function
+                use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling, the only option
+                nyrs_vec = 6,        # Years to project OM forward
+                nyrs_assess_vec = 3, # Years between assessments
+                rec_dev_pattern = "rand", # Use random recruitment devs
+                scope = "2", # to use the same recruitment devs across scenarios, but not iterations
+                impl_error_pattern = "none", # Don't use implementation error
+                run_EM_last_yr = FALSE, # Don't run the EM in the last year
+                run_parallel = FALSE, # Run iterations in parallel
+                sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
+                seed = 12345) #Set a fixed integer seed that allows replication 
+## Starting iteration 1.
+## Finished running and sampling OM for the historical period for iteration 1.
+## Finished getting catch (years 101 to 103) to feed into OM for iteration 1.
+## Finished running and sampling OM through year 103.
+## Finished getting catch (years 104 to 106) to feed into OM for iteration 1.
+## Finished running and sampling OM through year 106.
+## Finished iteration 1.
+## Completed all iterations for scenario constant-catch
+## Completed all SSMSE scenarios
 ```
 
 ## How can I contribute to SSMSE?
