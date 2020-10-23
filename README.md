@@ -1,23 +1,38 @@
-README
+SSMSE: Management Strategy Evaluation for Stock Synthesis (SS)
 ================
 
-  - [(SSMSE) Management Strategy Evaluation for Stock Synthesis
-    (SS)](#ssmse-management-strategy-evaluation-for-stock-synthesis-ss)
-      - [Motivation for developing
-        SSMSE](#motivation-for-developing-ssmse)
-      - [Installing the SSMSE R
-        package](#installing-the-ssmse-r-package)
-      - [Troubleshooting Installation](#troubleshooting-installation)
-      - [An SSMSE example](#an-ssmse-example)
-      - [Advanced options: use a custom management
-        strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure)
-      - [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
-      - [Roadmap: Where is SSMSE headed
-        next?](#roadmap-where-is-ssmse-headed-next)
+  - [SSMSE build status](#ssmse-build-status)
+  - [Motivation for developing SSMSE](#motivation-for-developing-ssmse)
+  - [Installing the SSMSE R package](#installing-the-ssmse-r-package)
+  - [Troubleshooting Installation](#troubleshooting-installation)
+  - [An SSMSE example](#an-ssmse-example)
+      - [Setup R workspace folders](#setup-r-workspace-folders)
+      - [Create the operating models
+        (OMs)](#create-the-operating-models-oms)
+      - [Examine the management procedure
+        used](#examine-the-management-procedure-used)
+      - [Adding observation error: Specify how to sample data from the
+        Operating
+        model](#adding-observation-error-specify-how-to-sample-data-from-the-operating-model)
+      - [Adding process error through recruitment
+        deviations](#adding-process-error-through-recruitment-deviations)
+      - [Run SSMSE](#run-ssmse)
+      - [run\_SSMSE output](#run_ssmse-output)
+      - [Performance metrics](#performance-metrics)
+      - [Summarize results](#summarize-results)
+      - [Example MSE Results](#example-mse-results)
+      - [Delete the files](#delete-the-files)
+  - [Advanced options: use a custom management
+    strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure)
+  - [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
+  - [Roadmap: Where is SSMSE headed
+    next?](#roadmap-where-is-ssmse-headed-next)
 
 <!-- README.md is generated from README.Rmd. Please edit README.Rmd -->
 
-# (SSMSE) Management Strategy Evaluation for Stock Synthesis (SS)
+![](man/figures/ssmse_icon_small.png)
+
+# SSMSE build status
 
 master: [![Build
 Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
@@ -55,7 +70,7 @@ commercial product or activity by DOC or the United States Government.”
 
 -----
 
-## Motivation for developing SSMSE
+# Motivation for developing SSMSE
 
 This package was developed to increase the ease of using SS directly as
 an operating model in an Management Strategy evaluation. The approach
@@ -68,7 +83,7 @@ of estimation method and management procedure more flexible.
 Below, we’ll work through a simple example MSE as a way of introducing
 the SSMSE package.
 
-## Installing the SSMSE R package
+# Installing the SSMSE R package
 
 Note that the SSMSE is a work in progress and not yet a minimum viable
 product.
@@ -85,7 +100,7 @@ You can read the help files with
 ?SSMSE
 ```
 
-## Troubleshooting Installation
+# Troubleshooting Installation
 
 Here are some tips:
 
@@ -114,7 +129,7 @@ Here are some tips:
 Still having trouble installing SSMSE? Please don’t hesitate to open an
 [issue](https://github.com/nmfs-fish-tools/SSMSE/issues).
 
-## An SSMSE example
+# An SSMSE example
 
 Suppose we want to look at how well we are able to achieve a specified
 management procedure under uncertainty in the operating model (OM). We
@@ -138,7 +153,7 @@ assessments will occur in years 100 and 103. The operating model runs
 through year 106. We chose not to run the assessment in year 106, as
 there was no need for its output in this example.
 
-### Setup R workspace folders
+## Setup R workspace folders
 
 First, we will load the `SSMSE` package and create a folder in which to
 run the example:
@@ -158,7 +173,7 @@ run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
 ```
 
-### Create the operating models (OMs)
+## Create the operating models (OMs)
 
 The cod model with h = 0.65 (as in scenario 1) is included as external
 package data in SSMSE. However, we will need to modify it to use as an
@@ -181,7 +196,7 @@ develop_OMs(OM_name = "cod", out_dir = run_SSMSE_dir, par_name = "SR_BH_steep",
 cod_1_path <- file.path(run_SSMSE_dir, "cod_SR_BH_steep_1")
 ```
 
-### Examine the management procedure used
+## Examine the management procedure used
 
 We will use the same management procedure for both scenarios:
 
@@ -247,7 +262,7 @@ More information on using the forecast module in SS to forecast catches
 is available in the [Stock Synthesis users
 manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
-### Adding observation error: Specify how to sample data from the Operating model
+## Adding observation error: Specify how to sample data from the Operating model
 
 The argument `sample_struct` specifies the structure for sampling from
 the OM (and passing to the EM). The function `create_sample_struct` can
@@ -310,7 +325,7 @@ define in a list below:
 sample_struct_list <- list("h-ctl" = sample_struct, "h-1" = sample_struct)
 ```
 
-### Adding process error through recruitment deviations
+## Adding process error through recruitment deviations
 
 Process error can be added through the recruitment deviations. In this
 case, `rec_dev_pattern = "rand"` in the call to `run_SSMSE` is used to
@@ -324,7 +339,7 @@ more information on the available options for `rec_dev_pattern` and
 
 <!-- TODO suggestion from CP: might be nice to introduce the other recruitment deviations options and scope options here, too. I don't really understand what the scope means.   -->
 
-### Run SSMSE
+## Run SSMSE
 
 Now, we create a directory to store our results, and use `run_SSMSE` to
 run the MSE analysis loop (note this will take some time to run, \~ 20
@@ -358,7 +373,7 @@ uncertainty (given observation and process errors) in the results would
 be preferred. However, we are only running 5 iterations per scenario in
 this demonstration to reduce computing time.
 
-### run\_SSMSE output
+## run\_SSMSE output
 
 `run_SSMSE` will create new folders in the folders specified in
 `out_dir_scen_vec` (note that in this case, we are running both
@@ -401,7 +416,7 @@ assessment after is named for the updated end year of the model.
 With many iterations, the number of files adds up; in the future, we
 hope to add options to save less output.
 
-### Performance metrics
+## Performance metrics
 
 Quantitative performance metrics should be specified before conducting
 an MSE. Typically, a suite of performance metrics will be examined;
@@ -412,7 +427,7 @@ MSE to determine how it compares to the intended management target of
 our MSE projection for 6 years, but longer projections are typical in
 MSE analyses.
 
-### Summarize results
+## Summarize results
 
 The function `SSMSE_summary_all` can be used to summarize the model
 results in a list of 3 dataframes, one for scalar outputs (named
@@ -521,14 +536,14 @@ ggplot(data = rel_SSB, aes(x = scenario, y = avg_SSB)) +
 From the above plot, we see that the realized Spawning stock Biomass is
 higher than the target that was intended for both scenarios.
 
-### Example MSE Results
+## Example MSE Results
 
 We can see from the performance metric that mis-specifying the value of
 steepness will results in higher realized relative spawning stock
 biomass than correctly specifying it. This gives us some idea of the
 consequences of misspecifying steepness in the stock assessment.
 
-### Delete the files
+## Delete the files
 
 If you wish to delete the files created from this example, you can use:
 
@@ -536,7 +551,7 @@ If you wish to delete the files created from this example, you can use:
 unlink(run_SSMSE_dir, recursive = TRUE)
 ```
 
-## Advanced options: use a custom management strategy/procedure
+# Advanced options: use a custom management strategy/procedure
 
 Users can outline a custom managment strategy as an R function to use.
 As long as the correct inputs and outputs are used, any estimation
@@ -596,7 +611,7 @@ run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the s
 ## Completed all SSMSE scenarios
 ```
 
-## How can I contribute to SSMSE?
+# How can I contribute to SSMSE?
 
 If you have thoughts about how to implement the [upcoming
 work](#roadmap-where-is-ssmse-headed-next) or are interested in helping
@@ -612,7 +627,7 @@ Conduct](https://github.com/nmfs-fish-tools/Resources/blob/master/CODE_OF_CONDUC
 By participating, you are expected to uphold this code. Please report
 unacceptable behavior to <fisheries.toolbox@noaa.gov>.
 
-## Roadmap: Where is SSMSE headed next?
+# Roadmap: Where is SSMSE headed next?
 
 SSMSE is still a work in progress, with basic framework in development.
 Some new directions we hope to work on shortly:
