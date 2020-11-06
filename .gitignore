@@ -4,3 +4,4 @@
 .Ruserdata
 *.Rproj
 ss.log
+inst/bookdown/_bookdown_files
