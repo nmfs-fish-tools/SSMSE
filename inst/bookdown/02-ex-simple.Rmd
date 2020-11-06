@@ -12,10 +12,10 @@ Note that this is a simple example where the OM and EM structures for both scena
 
 ## Setup R workspace folders
 First, we will load the `SSMSE` package and create a folder in which to run the example:
-```{r, echo=FALSE, results="hide", eval=FALSE}
+```{r, echo=FALSE, results="hide"}
 # This is needed to run the .rmd locally with the updated version of SSMSE for
 # the developers. Users will not see this chunk.
-devtools::install_local("../..", upgrade = "never", quiet = TRUE, force = TRUE)
+devtools::install_local("../..", upgrade = "never", quiet = TRUE, force = FALSE)
 ```
 
 ```{r, eval=TRUE}
@@ -121,7 +121,7 @@ Process error can be added through the recruitment deviations. In this case, `re
 
 Now, we create a directory to store our results, and use `run_SSMSE` to run the MSE analysis loop (note this will take some time to run, ~ 20 min):
   
-```{r, warning = FALSE, message = FALSE}
+```{r, warning = FALSE, message = FALSE, eval=FALSE}
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
 run_SSMSE(scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
@@ -149,21 +149,28 @@ See `?run_SSMSE` for more details on function arguments. In a real MSE analysis,
 
 `run_SSMSE` will create new folders in the folders specified in `out_dir_scen_vec` (note that in this case, we are running both scenarios in the same folder). After is complete, there will be a folder for each scenario in `run_res_path` (since `out_dir_scen_vec = run_res_path` in this example):
 
-```{r}
+```{r, eval=FALSE}
 list.dirs(run_res_path, recursive = FALSE)
+## [1] "run_SSMSE-ex/results/h-1"   "run_SSMSE-ex/results/h-ctl"
 ```
 
 Within each scenario is a folder for each scenario:
 
-```{r}
+```{r, eval=FALSE}
 # See folders for scenario 1.
 list.dirs(file.path(run_res_path, "h-ctl"), recursive = FALSE)
+## [1] "run_SSMSE-ex/results/h-ctl/1" "run_SSMSE-ex/results/h-ctl/2"
+## [3] "run_SSMSE-ex/results/h-ctl/3" "run_SSMSE-ex/results/h-ctl/4"
+## [5] "run_SSMSE-ex/results/h-ctl/5"
 ```
 
 And within each scenario folder, there are folders containing the SS models that were run by `run_SSMSE`.
-```{r}
+```{r, eval=FALSE}
 # see folders for the first iteration of scenario 1
 list.dirs(file.path(run_res_path, "h-ctl", "1"), recursive = FALSE)
+## [1] "run_SSMSE-ex/results/h-ctl/1/cod_EM_103" 
+## [2] "run_SSMSE-ex/results/h-ctl/1/cod_EM_init"
+## [3] "run_SSMSE-ex/results/h-ctl/1/cod_OM"
 ```
 There should be 1 folder for the OM, which is run multiple times in this same folder during the MSE analysis. There are multiple folders for the EMs, as a new folder is created each time an assessment is done. The first run is the folder with a name ending in `init`; then, each assessment after is named for the updated end year of the model.
 
@@ -177,9 +184,19 @@ Quantitative performance metrics should be specified before conducting an MSE. T
 
 The function `SSMSE_summary_all` can be used to summarize the model results in a list of 3 dataframes, one for scalar outputs (named `scalar`), one for timeseries outputs (`ts`), one for derived quantities (`dq`). This function also creates summary csv files in the folder where the results are stored.
 
-```{r}
+```{r eval=FALSE}
 # Summarize 1 iteration of output
 summary <- SSMSE_summary_all(run_res_path)
+## Extracting results from 2 scenarios
+## Starting h-1 with 5 iterations
+## Starting h-ctl with 5 iterations
+```
+
+```{r echo=FALSE, results="hide"}
+summary <- vector(mode = "list", length = 1)
+summary[[1]] <- read.csv(file.path("data", "SSMSE_ts.csv"))
+summary[[2]] <- read.csv(file.path("data", "SSMSE_scalar.csv"))
+names(summary) <- c("ts", "scalar")
 ```
 
 Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), and the EM run with last year of data in year 103 (cod_EM_103). The operating models are shown in blue or black (depending on the scenario), and the estimation model runs are shown in orange, and the scenarios are shown on different subplots:
@@ -260,6 +277,6 @@ We can see from the performance metric that mis-specifying the value of steepnes
 
 If you wish to delete the files created from this example, you can use:
 
-```{r, eval = FALSE}
+```{r}
 unlink(run_SSMSE_dir, recursive = TRUE)
 ```
