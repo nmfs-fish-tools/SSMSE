@@ -1,0 +1,13 @@
+# Options for runSSMSE {#SSMSE}
+
+*This page is still a work in progress!*
+
+## Operating model
+
+## Estimation method
+
+## Sampling options
+
+## Recruitment deviations
+
+## Implementation error

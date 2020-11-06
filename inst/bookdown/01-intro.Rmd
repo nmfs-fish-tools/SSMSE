@@ -1,4 +1,16 @@
 # Introduction {#intro}
 
-This package was developed to increase the ease of using [Stock Synthesis](https://vlab.ncep.noaa.gov/web/stock-synthesis) (SS) directly as an operating model in an Management Strategy evaluation. The approach requires a conditioned Stock Synthesis model, which is treated as the Operating Model and a Stock Synthesis model to use as the Estimation Model (EM) and to specify the Management procedure through the Stock Synthesis forecasting model. 
-*Add some background information about SSMSE here*
+## Purpose
+
+SSMSE was developed to increase the ease of using [Stock Synthesis](https://vlab.ncep.noaa.gov/web/stock-synthesis) (SS) directly as an operating model in an Management Strategy evaluation. The approach requires a conditioned Stock Synthesis model, which is treated as the Operating Model and a Stock Synthesis model to use as the Estimation Model (EM) and to specify the Management procedure through the Stock Synthesis forecasting model. 
+
+## Functions in SSMSE {#funs}
+
+The functions users can call in SSMSE are:
+
+Function               | Description
+---------------------- | ------------------
+`run_SSMSE`            | Run the MSE simulations
+`create_sample_struct`  | Helper function to create a list for future sampling from a model to use as input in `run_SSMSE`
+`develop_OMs`          | Helper function to turn one OM into many
+`SSMSE_summary_all`    | Summarize MSE output

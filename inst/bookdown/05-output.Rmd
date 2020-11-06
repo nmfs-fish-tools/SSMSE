@@ -1,0 +1,37 @@
+# Output and Plots {#output}
+
+## Summarizing output
+
+Output is summarized using `SSMSE_summary_all`:
+
+```{r, eval=FALSE}
+summary_list <- SSMSE_summary_all(dir = "path/to/scenario/dir",
+                  scenarios = c("sample_low", "sample_high"),
+                  run_parallel = TRUE)
+```
+
+Relying on `ss3sim::get_results_all`, this function creates:
+
+- For each scenario, 3 scenario level .csv files
+- For all scenarios, 2 cross-scenario .csv files named by default to `SSMSE_ts`and `SSMSE_scalar`.
+- For all scenarios, the function returns a list object containing data frames of timeseries (ts), scalar, and derived quantities (dq) summaries.
+
+Note that `run_parallel = TRUE` is only useful when there is more than once scenario and none of the scenario-level .csv files have been created yet. 
+
+By default, if a user doesn't specify `scenarios`, all scenarios in `dir` will be summarized.
+
+## Checking estimation model convergence
+
+One of the first checks to do if using an estimation model after running an MSE analysis is to check that the estimation model has convereged. A number of checks could be done, but a  pretty basic one is checking the gradients for the estimation model (not the Operating models), which are added to the `SSMSE_scalar` summary sheet. 
+
+## Calculating performance metrics
+
+Typically, a suite of performance metrics are used in MSE. [Punt et al. (2016)](https://doi.org/10.1111/faf.12104) recommends at least using metrics related to:
+
+- average catch
+- variation in catch over time
+- population size
+
+# Plotting output and performance metrics
+
+*to be added*

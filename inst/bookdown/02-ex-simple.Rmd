@@ -87,7 +87,8 @@ However, an assessment will be conducted every 3 years and 3 years of forecastin
 More information on using the forecast module in SS to forecast catches is available in the [Stock Synthesis users manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
 
-## Adding observation error: Specify how to sample data from the Operating model
+## Adding observation error: Specify how to sample data from the Operating model (#sample)
+
 The argument `sample_struct` specifies the structure for sampling from the OM (and passing to the EM). The function `create_sample_struct` can be used to construct a simple sampling structure consistent with an input data file:
 
 ```{r}
