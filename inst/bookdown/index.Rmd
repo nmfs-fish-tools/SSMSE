@@ -2,6 +2,7 @@
 title: "SSMSE user manual"
 author: Kathryn Doering and Nathan Vaughan
 date: "`r Sys.Date()`"
+url: 'https://nmfs-fish-tools.github.io/SSMSE/manual/'
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
@@ -10,31 +11,32 @@ biblio-style: apalike
 link-citations: yes
 github-repo: nmfs-fish-tools/SSMSE
 description: "This is a user manual for the SSMSE package. It includes documentation and examples."
-cover-image: images/ssmse_icon_small.png
 ---
 
 # Preface {-}
+
+![](images/ssmse_icon_small.png)
 
 This is the user manual for SSMSE, an R package for Management Strategy Evaluation with Stock Synthesis Operating models.
 
 *Note this documentation is still a work in progress!*
 
-## R session information {-}
+# R session information {-}
 
 *to add*
-<!-- ```{r include=FALSE} -->
-<!-- # only show versions of very relevant packages -->
-<!-- sessionInfo = function() { -->
-<!--   lapply(c('r4ss', 'ss3sim'), loadNamespace) -->
-<!--   res = utils::sessionInfo() -->
-<!--   loaded = res$loadedOnly -->
-<!--   res$loadedOnly = loaded[intersect(names(loaded), c('r4ss', 'ss3sim' -->
-<!--   ))] -->
-<!--   res$BLAS = res$LAPACK = NULL -->
-<!--   res -->
-<!-- } -->
-<!-- ``` -->
+```{r include=FALSE}
+# only show versions of very relevant packages
+sessionInfo = function() {
+  lapply(c('r4ss', 'ss3sim'), loadNamespace)
+  res = utils::sessionInfo()
+  loaded = res$loadedOnly
+  res$loadedOnly = loaded[intersect(names(loaded), c('r4ss', 'ss3sim'
+  ))]
+  res$BLAS = res$LAPACK = NULL
+  res
+}
+```
 
-<!-- ```{r} -->
-<!-- sessionInfo() -->
-<!-- ``` -->
+```{r}
+sessionInfo()
+```
