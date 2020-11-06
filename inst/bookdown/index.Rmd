@@ -21,9 +21,8 @@ This is the user manual for SSMSE, an R package for Management Strategy Evaluati
 
 *Note this documentation is still a work in progress!*
 
-# R session information {-}
+## R session information {-}
 
-*to add*
 ```{r include=FALSE}
 # only show versions of very relevant packages
 sessionInfo = function() {

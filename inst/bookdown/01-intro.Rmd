@@ -1,3 +1,4 @@
 # Introduction {#intro}
 
+This package was developed to increase the ease of using [Stock Synthesis](https://vlab.ncep.noaa.gov/web/stock-synthesis) (SS) directly as an operating model in an Management Strategy evaluation. The approach requires a conditioned Stock Synthesis model, which is treated as the Operating Model and a Stock Synthesis model to use as the Estimation Model (EM) and to specify the Management procedure through the Stock Synthesis forecasting model. 
 *Add some background information about SSMSE here*
