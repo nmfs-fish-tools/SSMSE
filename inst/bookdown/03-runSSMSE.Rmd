@@ -1,13 +1,111 @@
-# Options for runSSMSE {#SSMSE}
+# Options for run_SSMSE {#SSMSE}
 
-*This page is still a work in progress!*
+Many inputs are possible for the `run_SSMSE` option. Here, we will describe some of the options available. For detailed documentation, type `?SSMSE::run_SSMSE` into the R console.
+
+## Scenarios in SSMSE
+
+Note that multiple scenarios can be called in `run_SSMSE`, often through vector inputs to `run_SSMSE`. Below, we will describe inputs needed to run 1 scenario.
 
 ## Operating model
 
-## Estimation method
+The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock dSynthesis model. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
+
+## The Management Strategy/procedure, including estimation method (EM)
+
+The management strategy (and EM) can be specified in one of two ways:
+
+1. Using an SS model
+2. Using a custom procedure via a function in R
+
+In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches.
+
+### Specify the Management Strategy in a SS model
+
+A stock synthesis model can be set up as the Estimation Method for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS model as the EM, specify the path in `EM_in_dir_vec`.
+
+Future catches will be determined from the forecasting file settings of the Stock Sythesis model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
+
+
+### Using a custom management strategy/procedure
+
+Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:
+
+```{r eval=FALSE}
+constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100, 
+                              frac_catch = 0.5, ...) { # need to include ... to allow function to work
+  # set catch the same as the previous year (sampled catch).
+  # catch is in the same units as the operating model, in this case it is in
+  # biomass.
+  catch <- data.frame(
+    year = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess), # the years to project the model forward
+    seas = 1, # hard coded from looking at model 
+    fleet = 1,  # hard coded from looking at model
+    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"]*frac_catch,
+    catch_se = 0.05) # hard coded from looking at model
+  catch_bio <- catch # catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL
+  catch_F <- NULL # catch in terms of F, can be left as NULL.
+  discards <- NULL # discards can be left as NULL if there are no discards
+  catch_list <- list(catch = catch,
+                     catch_bio = catch_bio, 
+                     catch_F = catch_F,
+                     discards = discards)
+}
+```
+
+This function can then be used in a call to `run_SSMSE`:
+
+```{r eval=FALSE}
+# define sample structure
+datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+sample_struct <- create_sample_struct(dat = datfile, nyrs = 6) # note warning
+sample_struct$lencomp <- NULL # don't use length sampling
+
+# run the SSMSE routine
+run_result_custom <- run_SSMSE(
+                              scen_name_vec = "constant-catch",
+                              out_dir_scen_vec = "my_results",
+                              iter_vec = 1,
+                              OM_name_vec = "cod",
+                              OM_in_dir_vec = NULL,
+                              MS_vec = "constant_catch_MS", # use custom fun
+                              use_SS_boot_vec = TRUE,
+                              nyrs_vec = 6,
+                              nyrs_assess_vec = 3,
+                              rec_dev_pattern = "rand", 
+                              scope = "2",
+                              impl_error_pattern = "none", 
+                              run_EM_last_yr = FALSE,
+                              run_parallel = FALSE,
+                              sample_struct_list = list(sample_struct),
+                              seed = 12345)
+```
 
 ## Sampling options
 
+Currently, the only available sampling option is to use the bootstrapping module within SS itself. This means specifying `use_SS_boot_vec = TRUE`. Details on how sampling is done using the bootstrapping module in SS is available in the "Bootstrap Data Files" section of the [SS user manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231).
+
+Users also need to specify how and which data types should be sampled for each future year in the simulation in `sample_struct_list`. `sample_struct_list` is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.
+
+The helper function `create_sample_struct` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#sample) or by typing `?SSMSE::create_sample_struct` into the R console.
+
 ## Recruitment deviations
 
+Future recruitment deviations to use in the simulation needs to be specified by the user. SSMSE can generate the recruitment deviations or users can specify them. The recruitment deviation pattern options (specified through `rec_dev_pattern`) are:
+
+- `"none"`: All future deviations set to 0.
+- `"rand"`: Assign normally distributed random recruitment deviations. `rec_dev_pars` needs to be considered as well when using this option. If `rec_dev_pars = NULL`, then SSMSE will default to using the same standard deviation as the historic operating model and the sum of the recruitment deviations is allowed to diverge from zero is the nyrs_assess (rec_dev_pars = NULL is the same as specifying rec_dev_pars = c(nyrs_assess, 1), If other settings are deisred, the user can input a vector of two values to rec_dev_pars to specify the max number of years over which the sum of rec_devs can diverge from zero and a scalar multiplyer of standard deviation relative to the historic OM.
+- `"AutoCorr_rand"`: Automatically calculates random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars to specify the max number of years over which the sum of rec_devs can diverge from zero and a scalar multiplyer of standard deviation relative to the historic OM. if rec_dev_pars=NULL defaults to c(nyrs_assess, 1)
+- `"AutoCorr_Spec"`: Generates auto-correlated recruitment deviations from an MA time-series model with user specified parameters.
+- `"user"`: The user can specify a vector or (for multiple scenarios or iterations) matrix of recruitement deviations. This input should have the same length as `nyrs` for the scenario. The vector or matrix is specified in `rec_dev_pars`.
+
+*In the future, some example specifications will be shown here to better illustrate the options*
+
 ## Implementation error
+
+Management strategies that specify a total allowable catch are not always implemented perfectly. Thus, there are options in SSMSE to specify implementation error, where the true catch does not perfectly match the catch forecasted from the management strategy. The user can specify the future implementation error by using `impl_error_pattern`. Options are:
+
+- `"none"` (the default) - Assume there is no implementation error.
+- `"rand"` -  automatically assign achieved catch relative to expected catch as log normally distributed. Input a vector of `((nseas x nfleet x 2)+ 1)` values to impl_error_pars to specify the max number of years over which the achieved mean catch can diverge from the mean specified, the mean (default 1 such that achieved=expected), and the standard devation. If `impl_error__pars = NULL`, defaults to `c(nyrs_assess, rep(1,(nfleetxnseas)), rep(0,(nfleetxnseas)))`.
+- `"user"` - applys a user input vector or matrix of implementation errors of length/columns equal to nyrs x nseas x Nfleets and rows based on assigned scope. Input the vector/matrix to `impl_error_pars`.
+
+*In the future, some example specifications will be shown here to better illustrate the options*

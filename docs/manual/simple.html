@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2020-11-06" />
+<meta name="date" content="2020-11-09" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -133,6 +133,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
 <li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#purpose"><i class="fa fa-check"></i><b>1.1</b> Purpose</a></li>
 <li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#funs"><i class="fa fa-check"></i><b>1.2</b> Functions in SSMSE</a></li>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure</a><ul>
+<li class="chapter" data-level="1.3.1" data-path="intro.html"><a href="intro.html#conditioning-the-om-and-sampling-from-the-om"><i class="fa fa-check"></i><b>1.3.1</b> Conditioning the OM and sampling from the OM</a></li>
+<li class="chapter" data-level="1.3.2" data-path="intro.html"><a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation"><i class="fa fa-check"></i><b>1.3.2</b> First run of the management strategy in the MSE simulation</a></li>
+<li class="chapter" data-level="1.3.3" data-path="intro.html"><a href="intro.html#feedback-from-managment-strategy-into-om-extending-model-years"><i class="fa fa-check"></i><b>1.3.3</b> Feedback from Managment Strategy into OM: extending model years</a></li>
+<li class="chapter" data-level="1.3.4" data-path="intro.html"><a href="intro.html#subsequent-runs-of-the-management-strategy"><i class="fa fa-check"></i><b>1.3.4</b> Subsequent runs of the management strategy</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a><ul>
 <li class="chapter" data-level="2.1" data-path="simple.html"><a href="simple.html#setup-r-workspace-folders"><i class="fa fa-check"></i><b>2.1</b> Setup R workspace folders</a></li>
@@ -147,12 +153,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.10" data-path="simple.html"><a href="simple.html#example-mse-results"><i class="fa fa-check"></i><b>2.10</b> Example MSE Results</a></li>
 <li class="chapter" data-level="2.11" data-path="simple.html"><a href="simple.html#delete-the-files"><i class="fa fa-check"></i><b>2.11</b> Delete the files</a></li>
 </ul></li>
-<li class="chapter" data-level="3" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>3</b> Options for runSSMSE</a><ul>
-<li class="chapter" data-level="3.1" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>3.1</b> Operating model</a></li>
-<li class="chapter" data-level="3.2" data-path="SSMSE.html"><a href="SSMSE.html#estimation-method"><i class="fa fa-check"></i><b>3.2</b> Estimation method</a></li>
-<li class="chapter" data-level="3.3" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>3.3</b> Sampling options</a></li>
-<li class="chapter" data-level="3.4" data-path="SSMSE.html"><a href="SSMSE.html#recruitment-deviations"><i class="fa fa-check"></i><b>3.4</b> Recruitment deviations</a></li>
-<li class="chapter" data-level="3.5" data-path="SSMSE.html"><a href="SSMSE.html#implementation-error"><i class="fa fa-check"></i><b>3.5</b> Implementation error</a></li>
+<li class="chapter" data-level="3" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>3</b> Options for run_SSMSE</a><ul>
+<li class="chapter" data-level="3.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>3.1</b> Scenarios in SSMSE</a></li>
+<li class="chapter" data-level="3.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>3.2</b> Operating model</a></li>
+<li class="chapter" data-level="3.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-including-estimation-method-em"><i class="fa fa-check"></i><b>3.3</b> The Management Strategy/procedure, including estimation method (EM)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss-model"><i class="fa fa-check"></i><b>3.3.1</b> Specify the Management Strategy in a SS model</a></li>
+<li class="chapter" data-level="3.3.2" data-path="SSMSE.html"><a href="SSMSE.html#using-a-custom-management-strategyprocedure"><i class="fa fa-check"></i><b>3.3.2</b> Using a custom management strategy/procedure</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>3.4</b> Sampling options</a></li>
+<li class="chapter" data-level="3.5" data-path="SSMSE.html"><a href="SSMSE.html#recruitment-deviations"><i class="fa fa-check"></i><b>3.5</b> Recruitment deviations</a></li>
+<li class="chapter" data-level="3.6" data-path="SSMSE.html"><a href="SSMSE.html#implementation-error"><i class="fa fa-check"></i><b>3.6</b> Implementation error</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>4</b> Helper functions in SSMSE</a><ul>
 <li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs</code></a></li>
@@ -249,8 +259,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The argument <code>sample_struct</code> specifies the structure for sampling from the OM (and passing to the EM). The function <code>create_sample_struct</code> can be used to construct a simple sampling structure consistent with an input data file:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">datfile &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</a>
 <a class="sourceLine" id="cb22-2" title="2">sample_struct &lt;-<span class="st"> </span><span class="kw">create_sample_struct</span>(<span class="dt">dat =</span> datfile, <span class="dt">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></a></code></pre></div>
-<pre><code>## Warning in FUN(X[[i]], ...): Pattern not found for lencomp: FltSvy 1, Seas 1. Returning NA for Yr in
-## this dataframe.</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): Pattern not found for lencomp: FltSvy 1, Seas 1. Returning NA for Yr in this
+## dataframe.</code></pre>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">sample_struct</a></code></pre></div>
 <pre><code>## $catch
 ##    Yr Seas FltSvy    SE
@@ -342,10 +352,9 @@ In this case, we will remove sampling length comps all together:</p>
 <a class="sourceLine" id="cb32-4" title="4"><span class="co">## Starting h-1 with 5 iterations</span></a>
 <a class="sourceLine" id="cb32-5" title="5"><span class="co">## Starting h-ctl with 5 iterations</span></a></code></pre></div>
 <p>Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), and the EM run with last year of data in year 103 (cod_EM_103). The operating models are shown in blue or black (depending on the scenario), and the estimation model runs are shown in orange, and the scenarios are shown on different subplots:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">library</span>(ggplot2) <span class="co"># use install.packages(&quot;ggplot2&quot;) to install package if needed</span></a></code></pre></div>
-<pre><code>## RStudio Community is a great place to get help: https://community.rstudio.com/c/tidyverse</code></pre>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">library</span>(tidyr) <span class="co"># use install.packages(&quot;tidyr&quot;) to install package if needed</span></a>
-<a class="sourceLine" id="cb35-2" title="2"><span class="kw">library</span>(dplyr) <span class="co"># use install.packages(&quot;dplyr&quot;) to install package if needed</span></a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">library</span>(ggplot2) <span class="co"># use install.packages(&quot;ggplot2&quot;) to install package if needed</span></a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="kw">library</span>(tidyr) <span class="co"># use install.packages(&quot;tidyr&quot;) to install package if needed</span></a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="kw">library</span>(dplyr) <span class="co"># use install.packages(&quot;dplyr&quot;) to install package if needed</span></a></code></pre></div>
 <pre><code>## 
 ## Attaching package: &#39;dplyr&#39;</code></pre>
 <pre><code>## The following objects are masked from &#39;package:stats&#39;:
@@ -354,62 +363,62 @@ In this case, we will remove sampling length comps all together:</p>
 <pre><code>## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="co"># plot SSB by year and model run</span></a>
-<a class="sourceLine" id="cb39-2" title="2">ggplot2<span class="op">::</span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(summary<span class="op">$</span>ts, model_run <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;cod_OM&quot;</span>, <span class="st">&quot;cod_SR_BH_steep_1_OM&quot;</span>, <span class="st">&quot;cod_EM_103&quot;</span>)), </a>
-<a class="sourceLine" id="cb39-3" title="3">                ggplot2<span class="op">::</span><span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> SpawnBio)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-4" title="4"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">100</span>, <span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-5" title="5"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">geom_line</span>(ggplot2<span class="op">::</span><span class="kw">aes</span>(<span class="dt">linetype =</span> <span class="kw">as.character</span>(iteration), <span class="dt">color =</span> model_run))<span class="op">+</span></a>
-<a class="sourceLine" id="cb39-6" title="6"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;#D65F00&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;blue&quot;</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-7" title="7"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">scale_linetype_manual</span>(<span class="dt">values =</span> <span class="kw">rep</span>(<span class="st">&quot;solid&quot;</span>, <span class="dv">50</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-8" title="8"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">guides</span>(<span class="dt">linetype =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-9" title="9"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">facet_wrap</span>(. <span class="op">~</span><span class="st"> </span>scenario) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-10" title="10"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">theme_classic</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1"><span class="co"># plot SSB by year and model run</span></a>
+<a class="sourceLine" id="cb37-2" title="2">ggplot2<span class="op">::</span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(summary<span class="op">$</span>ts, model_run <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;cod_OM&quot;</span>, <span class="st">&quot;cod_SR_BH_steep_1_OM&quot;</span>, <span class="st">&quot;cod_EM_103&quot;</span>)), </a>
+<a class="sourceLine" id="cb37-3" title="3">                ggplot2<span class="op">::</span><span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> SpawnBio)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-4" title="4"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">100</span>, <span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-5" title="5"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">geom_line</span>(ggplot2<span class="op">::</span><span class="kw">aes</span>(<span class="dt">linetype =</span> <span class="kw">as.character</span>(iteration), <span class="dt">color =</span> model_run))<span class="op">+</span></a>
+<a class="sourceLine" id="cb37-6" title="6"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;#D65F00&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;blue&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-7" title="7"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">scale_linetype_manual</span>(<span class="dt">values =</span> <span class="kw">rep</span>(<span class="st">&quot;solid&quot;</span>, <span class="dv">50</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-8" title="8"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">guides</span>(<span class="dt">linetype =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-9" title="9"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">facet_wrap</span>(. <span class="op">~</span><span class="st"> </span>scenario) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-10" title="10"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">theme_classic</span>()</a></code></pre></div>
 <p><img src="manual_files/figure-html/plot_SSB-1.png" width="672" />
 This plot shows that SSB estimated does not match perfectly with the operating model. A similar plot could be made for anu parameter of interest.</p>
 <p>Now, we calculate and plot the performance metric.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="co"># The get_rel_SSB_avg calculates the relative SSB in each year for each</span></a>
-<a class="sourceLine" id="cb40-2" title="2"><span class="co"># iteration of the operating model, then takes the average over the years from</span></a>
-<a class="sourceLine" id="cb40-3" title="3"><span class="co"># min_yr, to max_year. It uses the summary object as input to do these</span></a>
-<a class="sourceLine" id="cb40-4" title="4"><span class="co"># calculations.</span></a>
-<a class="sourceLine" id="cb40-5" title="5">get_rel_SSB_avg &lt;-<span class="st"> </span><span class="cf">function</span>(summary, min_yr, max_yr) {</a>
-<a class="sourceLine" id="cb40-6" title="6">  <span class="co"># Get just the result for the OMs and not for the EMs.</span></a>
-<a class="sourceLine" id="cb40-7" title="7">  OM_vals &lt;-<span class="st"> </span><span class="kw">unique</span>(summary<span class="op">$</span>ts<span class="op">$</span>model_run)</a>
-<a class="sourceLine" id="cb40-8" title="8">  OM_vals &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="st">&quot;_OM$&quot;</span>, OM_vals, <span class="dt">value =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb40-9" title="9">  <span class="co"># find the unfished biomass fr the OMs</span></a>
-<a class="sourceLine" id="cb40-10" title="10">  B_unfished &lt;-<span class="st"> </span>summary<span class="op">$</span>scalar <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-11" title="11"><span class="st">    </span><span class="kw">filter</span>(model_run <span class="op">%in%</span><span class="st"> </span>OM_vals) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-12" title="12"><span class="st">    </span><span class="kw">select</span>(iteration, scenario,SSB_Unfished)</a>
-<a class="sourceLine" id="cb40-13" title="13">  <span class="co">#  find the spawning stock biomass for the years of interest</span></a>
-<a class="sourceLine" id="cb40-14" title="14">  SSB_yr &lt;-<span class="st"> </span>summary<span class="op">$</span>ts <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-15" title="15"><span class="st">    </span><span class="kw">filter</span>(year <span class="op">&gt;=</span><span class="st"> </span>min_yr <span class="op">&amp;</span><span class="st"> </span>year <span class="op">&lt;=</span><span class="st"> </span>max_yr) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-16" title="16"><span class="st">    </span><span class="kw">select</span>(iteration, scenario, year, SpawnBio)</a>
-<a class="sourceLine" id="cb40-17" title="17">  <span class="co"># Calculated the relative spawning stock biomass using B_unfished and SSB_yr</span></a>
-<a class="sourceLine" id="cb40-18" title="18">  <span class="co"># dataframes, then take an average over years.</span></a>
-<a class="sourceLine" id="cb40-19" title="19">  SSB_yr &lt;-<span class="st"> </span><span class="kw">left_join</span>(SSB_yr, B_unfished) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-20" title="20"><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">Rel_SSB =</span> SpawnBio<span class="op">/</span>SSB_Unfished) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-21" title="21"><span class="st">    </span><span class="kw">group_by</span>(iteration, scenario) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-22" title="22"><span class="st">    </span><span class="kw">summarize</span>(<span class="dt">avg_SSB =</span> <span class="kw">mean</span>(Rel_SSB), <span class="dt">.groups =</span> <span class="st">&quot;keep&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb40-23" title="23"><span class="st">    </span><span class="kw">ungroup</span>()</a>
-<a class="sourceLine" id="cb40-24" title="24">  SSB_yr <span class="co"># return SSB averaged over yrs for each iteration and each scenario.</span></a>
-<a class="sourceLine" id="cb40-25" title="25">}</a>
-<a class="sourceLine" id="cb40-26" title="26">rel_SSB &lt;-<span class="st"> </span><span class="kw">get_rel_SSB_avg</span>(summary, <span class="dt">min_yr =</span> <span class="dv">104</span>, <span class="dt">max_yr =</span> <span class="dv">106</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="co"># The get_rel_SSB_avg calculates the relative SSB in each year for each</span></a>
+<a class="sourceLine" id="cb38-2" title="2"><span class="co"># iteration of the operating model, then takes the average over the years from</span></a>
+<a class="sourceLine" id="cb38-3" title="3"><span class="co"># min_yr, to max_year. It uses the summary object as input to do these</span></a>
+<a class="sourceLine" id="cb38-4" title="4"><span class="co"># calculations.</span></a>
+<a class="sourceLine" id="cb38-5" title="5">get_rel_SSB_avg &lt;-<span class="st"> </span><span class="cf">function</span>(summary, min_yr, max_yr) {</a>
+<a class="sourceLine" id="cb38-6" title="6">  <span class="co"># Get just the result for the OMs and not for the EMs.</span></a>
+<a class="sourceLine" id="cb38-7" title="7">  OM_vals &lt;-<span class="st"> </span><span class="kw">unique</span>(summary<span class="op">$</span>ts<span class="op">$</span>model_run)</a>
+<a class="sourceLine" id="cb38-8" title="8">  OM_vals &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="st">&quot;_OM$&quot;</span>, OM_vals, <span class="dt">value =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb38-9" title="9">  <span class="co"># find the unfished biomass fr the OMs</span></a>
+<a class="sourceLine" id="cb38-10" title="10">  B_unfished &lt;-<span class="st"> </span>summary<span class="op">$</span>scalar <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-11" title="11"><span class="st">    </span><span class="kw">filter</span>(model_run <span class="op">%in%</span><span class="st"> </span>OM_vals) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-12" title="12"><span class="st">    </span><span class="kw">select</span>(iteration, scenario,SSB_Unfished)</a>
+<a class="sourceLine" id="cb38-13" title="13">  <span class="co">#  find the spawning stock biomass for the years of interest</span></a>
+<a class="sourceLine" id="cb38-14" title="14">  SSB_yr &lt;-<span class="st"> </span>summary<span class="op">$</span>ts <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-15" title="15"><span class="st">    </span><span class="kw">filter</span>(year <span class="op">&gt;=</span><span class="st"> </span>min_yr <span class="op">&amp;</span><span class="st"> </span>year <span class="op">&lt;=</span><span class="st"> </span>max_yr) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-16" title="16"><span class="st">    </span><span class="kw">select</span>(iteration, scenario, year, SpawnBio)</a>
+<a class="sourceLine" id="cb38-17" title="17">  <span class="co"># Calculated the relative spawning stock biomass using B_unfished and SSB_yr</span></a>
+<a class="sourceLine" id="cb38-18" title="18">  <span class="co"># dataframes, then take an average over years.</span></a>
+<a class="sourceLine" id="cb38-19" title="19">  SSB_yr &lt;-<span class="st"> </span><span class="kw">left_join</span>(SSB_yr, B_unfished) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-20" title="20"><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">Rel_SSB =</span> SpawnBio<span class="op">/</span>SSB_Unfished) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-21" title="21"><span class="st">    </span><span class="kw">group_by</span>(iteration, scenario) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-22" title="22"><span class="st">    </span><span class="kw">summarize</span>(<span class="dt">avg_SSB =</span> <span class="kw">mean</span>(Rel_SSB), <span class="dt">.groups =</span> <span class="st">&quot;keep&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-23" title="23"><span class="st">    </span><span class="kw">ungroup</span>()</a>
+<a class="sourceLine" id="cb38-24" title="24">  SSB_yr <span class="co"># return SSB averaged over yrs for each iteration and each scenario.</span></a>
+<a class="sourceLine" id="cb38-25" title="25">}</a>
+<a class="sourceLine" id="cb38-26" title="26">rel_SSB &lt;-<span class="st"> </span><span class="kw">get_rel_SSB_avg</span>(summary, <span class="dt">min_yr =</span> <span class="dv">104</span>, <span class="dt">max_yr =</span> <span class="dv">106</span>)</a></code></pre></div>
 <pre><code>## Joining, by = c(&quot;iteration&quot;, &quot;scenario&quot;)</code></pre>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="co"># function to summarize data in plot</span></a>
-<a class="sourceLine" id="cb42-2" title="2">data_summary &lt;-<span class="st"> </span><span class="cf">function</span>(x) {</a>
-<a class="sourceLine" id="cb42-3" title="3">  m &lt;-<span class="st"> </span><span class="kw">mean</span>(x)</a>
-<a class="sourceLine" id="cb42-4" title="4">  ymin &lt;-<span class="st"> </span>m <span class="op">-</span><span class="st"> </span><span class="kw">sd</span>(x)</a>
-<a class="sourceLine" id="cb42-5" title="5">  ymax &lt;-<span class="st"> </span>m <span class="op">+</span><span class="st"> </span><span class="kw">sd</span>(x)</a>
-<a class="sourceLine" id="cb42-6" title="6">  <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">y =</span> m, <span class="dt">ymin =</span> ymin, <span class="dt">ymax =</span> ymax))</a>
-<a class="sourceLine" id="cb42-7" title="7">}</a>
-<a class="sourceLine" id="cb42-8" title="8"><span class="co"># Now, plot the average relative spawning stock biomass for years 104 - 106</span></a>
-<a class="sourceLine" id="cb42-9" title="9"><span class="kw">ggplot</span>(<span class="dt">data =</span> rel_SSB, <span class="kw">aes</span>(<span class="dt">x =</span> scenario, <span class="dt">y =</span> avg_SSB)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb42-10" title="10"><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="fl">0.4</span>, <span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb42-11" title="11"><span class="st">  </span><span class="kw">stat_summary</span>(<span class="dt">fun.data =</span> data_summary, </a>
-<a class="sourceLine" id="cb42-12" title="12">               <span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.9</span>), <span class="dt">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb42-13" title="13"><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.8</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb42-14" title="14"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Long-term average relative SSB</span><span class="ch">\n</span><span class="st">(years 104-106)&quot;</span>, </a>
-<a class="sourceLine" id="cb42-15" title="15">       <span class="dt">x =</span> <span class="st">&quot;Scenario&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;SSB/SSB_unfished&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb42-16" title="16"><span class="st">  </span><span class="kw">theme_classic</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="co"># function to summarize data in plot</span></a>
+<a class="sourceLine" id="cb40-2" title="2">data_summary &lt;-<span class="st"> </span><span class="cf">function</span>(x) {</a>
+<a class="sourceLine" id="cb40-3" title="3">  m &lt;-<span class="st"> </span><span class="kw">mean</span>(x)</a>
+<a class="sourceLine" id="cb40-4" title="4">  ymin &lt;-<span class="st"> </span>m <span class="op">-</span><span class="st"> </span><span class="kw">sd</span>(x)</a>
+<a class="sourceLine" id="cb40-5" title="5">  ymax &lt;-<span class="st"> </span>m <span class="op">+</span><span class="st"> </span><span class="kw">sd</span>(x)</a>
+<a class="sourceLine" id="cb40-6" title="6">  <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">y =</span> m, <span class="dt">ymin =</span> ymin, <span class="dt">ymax =</span> ymax))</a>
+<a class="sourceLine" id="cb40-7" title="7">}</a>
+<a class="sourceLine" id="cb40-8" title="8"><span class="co"># Now, plot the average relative spawning stock biomass for years 104 - 106</span></a>
+<a class="sourceLine" id="cb40-9" title="9"><span class="kw">ggplot</span>(<span class="dt">data =</span> rel_SSB, <span class="kw">aes</span>(<span class="dt">x =</span> scenario, <span class="dt">y =</span> avg_SSB)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-10" title="10"><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="fl">0.4</span>, <span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-11" title="11"><span class="st">  </span><span class="kw">stat_summary</span>(<span class="dt">fun.data =</span> data_summary, </a>
+<a class="sourceLine" id="cb40-12" title="12">               <span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.9</span>), <span class="dt">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-13" title="13"><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.8</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-14" title="14"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Long-term average relative SSB</span><span class="ch">\n</span><span class="st">(years 104-106)&quot;</span>, </a>
+<a class="sourceLine" id="cb40-15" title="15">       <span class="dt">x =</span> <span class="st">&quot;Scenario&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;SSB/SSB_unfished&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-16" title="16"><span class="st">  </span><span class="kw">theme_classic</span>()</a></code></pre></div>
 <p><img src="manual_files/figure-html/plot_rel_SSB-1.png" width="672" /></p>
 <p>From the above plot, we see that the realized Spawning stock Biomass is higher than the target that was intended for both scenarios.</p>
 </div>
@@ -420,7 +429,7 @@ This plot shows that SSB estimated does not match perfectly with the operating m
 <div id="delete-the-files" class="section level2">
 <h2><span class="header-section-number">2.11</span> Delete the files</h2>
 <p>If you wish to delete the files created from this example, you can use:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">unlink</span>(run_SSMSE_dir, <span class="dt">recursive =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">unlink</span>(run_SSMSE_dir, <span class="dt">recursive =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 
 </div>
 </div>

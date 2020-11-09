@@ -14,3 +14,24 @@ Function               | Description
 `create_sample_struct`  | Helper function to create a list for future sampling from a model to use as input in `run_SSMSE`
 `develop_OMs`          | Helper function to turn one OM into many
 `SSMSE_summary_all`    | Summarize MSE output
+
+
+## Brief description of the SSMSE MSE simulation procedure
+
+### Conditioning the OM and sampling from the OM
+
+For each scenario, SSMSE starts with the user providing a fitted Stock Synthesis model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the "true" values and a bootstrapped data set from SS.
+
+### First run of the management strategy in the MSE simulation
+
+The bootstrapped dataset is then used in a Management strategy to forecast catch for the next *n* years.
+
+### Feedback from Managment Strategy into OM: extending model years
+
+The catch for the next *n* years before the next assessment is then added to the OM, as well as any recruitment or time varying parameter deviations. The OM is then projected forward *n* years and run with no estimation where it can be used to produce sampled data for the next *n* years. These new data values are appended to the original dataset.
+
+### Subsequent runs of the management strategy
+
+The appended data set is then used in the managment strategy again. New forecasts are produced, and are fed back to the OM.
+
+
