@@ -1,4 +1,4 @@
-on: [workflow-dispatch]
+on: [workflow_dispatch]
 
 name: calc-coverage
 
