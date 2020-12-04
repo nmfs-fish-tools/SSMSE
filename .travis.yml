@@ -35,9 +35,6 @@ notifications:
 
 r_packages:
   - devtools
-  - covr
 
 warnings_are_errors: false
 
-after_success:
-  - Rscript -e 'library(covr); codecov()'
