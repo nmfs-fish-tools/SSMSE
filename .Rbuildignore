@@ -9,6 +9,7 @@
 ^README\.md$
 ^README\.Rmd$
 ^\.travis\.yml$
+^\.github/*
 ^appveyor\.yml$
 ^codecov\.yml$
 ^man/figures/README*
