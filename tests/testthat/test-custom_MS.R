@@ -6,9 +6,11 @@ dir.create(temp_path, showWarnings = FALSE)
 on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 # make this function in the global environment (so use <<- assignment)
 run_test_custom_MP <<- function(OM_out_dir, OM_dat, nyrs_assess, MS, ...) {
-  new_catch_list <- get_no_EM_catch_df(OM_dir = OM_out_dir,
-                                       yrs = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess),
-                                       MS = 'no_catch')
+  new_catch_list <- get_no_EM_catch_df(
+    OM_dir = OM_out_dir,
+    yrs = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess),
+    MS = "no_catch"
+  )
 }
 # cleanup
 on.exit(rm(run_test_custom_MP, envir = globalenv()), add = TRUE)
@@ -28,17 +30,19 @@ cod_EM_path <- file.path(temp_path, "cod_EM", "cod")
 OM_dat <- r4ss::SS_readdat(file.path(cod_OM_path, "data.ss"), verbose = FALSE)
 
 test_that("parse_MS works with custom option", {
-
-  catch_list <- tryCatch(parse_MS(MS = "run_test_custom_MP",
-                                  EM_out_dir = cod_EM_path,
-                                  OM_dat = OM_dat,
-                                  OM_out_dir = cod_OM_path,
-                                  dat_yrs = 2010,
-                                  nyrs_assess = 3), error = function(e) e)
+  catch_list <- tryCatch(parse_MS(
+    MS = "run_test_custom_MP",
+    EM_out_dir = cod_EM_path,
+    OM_dat = OM_dat,
+    OM_out_dir = cod_OM_path,
+    dat_yrs = 2010,
+    nyrs_assess = 3
+  ), error = function(e) e)
   catch_df_3 <- catch_list[["catch"]]
   expect_true(nrow(catch_df_3) == 3)
   expect_true(ncol(catch_df_3) == 5)
-  expect_equivalent(colnames(catch_df_3),
-                    c("year", "seas", "fleet", "catch", "catch_se"))
+  expect_equivalent(
+    colnames(catch_df_3),
+    c("year", "seas", "fleet", "catch", "catch_se")
+  )
 })
-
