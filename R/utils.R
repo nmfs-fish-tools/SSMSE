@@ -50,33 +50,33 @@
 #'  for the number of years to extend the model out.
 #' @param interim_struct_list A optional list of lists including the parameters
 #'  for an interim assessment that modify the number of years to average over
-#'  for index deviations (MA_years: single value), the Beta sensitity parameters 
-#'  that quantifies how rapidly an observed deviation for an index is translated 
+#'  for index deviations (MA_years: single value), the Beta sensitity parameters
+#'  that quantifies how rapidly an observed deviation for an index is translated
 #'  to a future catch deviation (Beta: vector length n indices),the weight
 #'  each index is given for use in the model allowing multiple index deviations to
 #'  be used in combination (Index_weights: vector length n indices), The reference
-#'  years for which to compare index deviations where for absolute year values 
-#'  greater than zero all observed index values will be compared to that specific 
+#'  years for which to compare index deviations where for absolute year values
+#'  greater than zero all observed index values will be compared to that specific
 #'  year while for values <=0 the observed index values will be compared to their
-#'  expected value with the reference value identifying the lag in years for availability 
-#'  of the index (Ref_years: vector length n indices). 
+#'  expected value with the reference value identifying the lag in years for availability
+#'  of the index (Ref_years: vector length n indices).
 #' @export
 #' @author Kathryn Doering
 #' @examples
 #' scen_list <- create_scen_list(
-#'                scen_name_vec = c("scen 1", "scen_2"),
-#'                out_dir_scen_vec = file.path("path", "to", "dir"),
-#'                iter_vec = list(1:2, 5:7),
-#'                OM_name_vec = "cod",
-#'                OM_in_dir_vec = NULL,
-#'                EM_name_vec = "cod",
-#'                EM_in_dir_vec = NULL,
-#'                MS_vec = "EM",
-#'                use_SS_boot_vec = TRUE,
-#'                nyrs_vec = 6,
-#'                nyrs_assess_vec = 3,
-#'                sample_struct_list = NULL
-#'                 )
+#'   scen_name_vec = c("scen 1", "scen_2"),
+#'   out_dir_scen_vec = file.path("path", "to", "dir"),
+#'   iter_vec = list(1:2, 5:7),
+#'   OM_name_vec = "cod",
+#'   OM_in_dir_vec = NULL,
+#'   EM_name_vec = "cod",
+#'   EM_in_dir_vec = NULL,
+#'   MS_vec = "EM",
+#'   use_SS_boot_vec = TRUE,
+#'   nyrs_vec = 6,
+#'   nyrs_assess_vec = 3,
+#'   sample_struct_list = NULL
+#' )
 create_scen_list <- function(scen_name_vec,
                              out_dir_scen_vec = NULL,
                              iter_vec = NULL,
@@ -120,31 +120,39 @@ create_scen_list <- function(scen_name_vec,
         } else if (length(var) == len_scen_name_vec) {
           return_val <- var[[num_scen]]
         } else {
-          stop(var_name, " has length ", length(var), "but should either have ",
-               "length 1 or equal to the number of scenarios , (i.e., ",
-               len_scen_name_vec, ".")
+          stop(
+            var_name, " has length ", length(var), "but should either have ",
+            "length 1 or equal to the number of scenarios , (i.e., ",
+            len_scen_name_vec, "."
+          )
         }
       } else if (length(grep("vec", var_name)) == 1) {
-      if (!is.vector(var)) {
-        stop(var_name, " should be a vector, but is not. It currently looks ",
-             "like ", var, ". Please make it a vector.")
+        if (!is.vector(var)) {
+          stop(
+            var_name, " should be a vector, but is not. It currently looks ",
+            "like ", var, ". Please make it a vector."
+          )
+        }
+        if (length(var) == 1) {
+          return_val <- var[1]
+        } else if (length(var) == len_scen_name_vec) {
+          return_val <- var[num_scen]
+        } else {
+          stop(
+            var_name, " has length ", length(var), "but should either have ",
+            "length 1 or equal to the number of scenarios , (i.e., ",
+            len_scen_name_vec, "."
+          )
+        }
       }
-      if (length(var) == 1) {
-        return_val <- var[1]
-      } else if (length(var) == len_scen_name_vec) {
-        return_val <- var[num_scen]
-      } else {
-        stop(var_name, " has length ", length(var), "but should either have ",
-             "length 1 or equal to the number of scenarios , (i.e., ",
-             len_scen_name_vec, ".")
+      else {
+        stop(
+          "var_name should have 'vec' as part of its name to indicate it is ",
+          "a vector or 'list' to indicate it is a list, but did not have ",
+          "either terms. Please add this to the var name depending on its ",
+          "structure."
+        )
       }
-    }
-    else {
-    stop("var_name should have 'vec' as part of its name to indicate it is ",
-         "a vector or 'list' to indicate it is a list, but did not have ",
-         "either terms. Please add this to the var name depending on its ",
-         "structure.")
-    }
       # use short circuiting && to avioid testing the second statement if legth
       # isn't 1. want to change NAs to NULLs to be consistent with what the
       # function expects.
@@ -161,13 +169,15 @@ create_scen_list <- function(scen_name_vec,
   scen_list <- vector(mode = "list", length = length(scen_name_vec))
   for (i in seq_along(scen_name_vec)) {
     tmp_vals <- lapply(all_vars,
-                      function(x, var_name, num_scen, len_scen_name_vec) {
-                        get_scen_list_val(get(x),
-                                          var_name = x,
-                                          num_scen,
-                                          len_scen_name_vec)
-                      },
-                      num_scen = i, len_scen_name_vec = length(scen_name_vec))
+      function(x, var_name, num_scen, len_scen_name_vec) {
+        get_scen_list_val(get(x),
+          var_name = x,
+          num_scen,
+          len_scen_name_vec
+        )
+      },
+      num_scen = i, len_scen_name_vec = length(scen_name_vec)
+    )
     scen_list[[i]] <- tmp_vals
     # add names
     names(scen_list[[i]]) <- all_vars_new_names
@@ -189,13 +199,17 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
                                  overwrite = FALSE) {
   # read in files
   OM_start <- SS_readstarter(file.path(OM_out_dir, "starter.ss"),
-                             verbose = FALSE)
-  OM_dat <- SS_readdat(file.path(OM_out_dir, OM_start[["datfile"]]), verbose = FALSE,
-                       section = 1)
+    verbose = FALSE
+  )
+  OM_dat <- SS_readdat(file.path(OM_out_dir, OM_start[["datfile"]]),
+    verbose = FALSE,
+    section = 1
+  )
   if (!is.null(EM_out_dir)) {
-  EM_start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
-                             verbose = FALSE)
-  EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start[["datfile"]]), verbose = FALSE)
+    EM_start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
+      verbose = FALSE
+    )
+    EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start[["datfile"]]), verbose = FALSE)
   } else {
     EM_start <- NULL
     EM_dat <- NULL
@@ -211,9 +225,11 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       # find the year col name
       yr_name <- grep("^[yY]e?a?[r]$", colnames(df), value = TRUE)
       if (length(yr_name) != 1) {
-        stop("Problem in clean_init_mod_files function: looking for year col",
-             " in the data file matched multiple values. Please contact the ",
-             "developers for assistance.")
+        stop(
+          "Problem in clean_init_mod_files function: looking for year col",
+          " in the data file matched multiple values. Please contact the ",
+          "developers for assistance."
+        )
       }
       # subset to only values in model range
       df_new <- df[(df[, yr_name] >= styr & df[, yr_name] <= endyr), ]
@@ -227,41 +243,54 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
   # remove any year observations not in the range of the model yrs
   clean_dat <- lapply(list(OM_dat = OM_dat, EM_dat = EM_dat),
     function(dat, styr, endyr) {
-      list_names <- c("CPUE", "lencomp", "agecomp", "meanbodywt",
-                      "MeanSize_at_Age_obs")
-      new_dfs <- lapply(list_names, get_yrs_in_range, dat = dat, styr = styr,
-                        endyr = endyr)
+      list_names <- c(
+        "CPUE", "lencomp", "agecomp", "meanbodywt",
+        "MeanSize_at_Age_obs"
+      )
+      new_dfs <- lapply(list_names, get_yrs_in_range,
+        dat = dat, styr = styr,
+        endyr = endyr
+      )
 
-        for (i in seq_along(list_names)) {
-          dat[[list_names[i]]] <- new_dfs[[i]]
-        }
-        dat
-     }, styr = styr, endyr = endyr)
-  
-  if(!is.null(EM_dat)) {
-    if(EM_start[["init_values_src"]] == 1) {
-      warning("Original EM model files read initial values from ss.par, but ",
-              "SSMSE can only read initial values from control. Changing EM to",
-              "read initial values from control file.")
+      for (i in seq_along(list_names)) {
+        dat[[list_names[i]]] <- new_dfs[[i]]
+      }
+      dat
+    },
+    styr = styr, endyr = endyr
+  )
+
+  if (!is.null(EM_dat)) {
+    if (EM_start[["init_values_src"]] == 1) {
+      warning(
+        "Original EM model files read initial values from ss.par, but ",
+        "SSMSE can only read initial values from control. Changing EM to",
+        "read initial values from control file."
+      )
       EM_start[["init_values_src"]] <- 0
     }
   }
 
   if (overwrite) {
-    SS_writedat(datlist = clean_dat[["OM_dat"]],
-                outfile = file.path(OM_out_dir, OM_start[["datfile"]]),
-                verbose = FALSE,
-                overwrite = TRUE)
+    SS_writedat(
+      datlist = clean_dat[["OM_dat"]],
+      outfile = file.path(OM_out_dir, OM_start[["datfile"]]),
+      verbose = FALSE,
+      overwrite = TRUE
+    )
     if (!is.null(EM_dat)) {
-      SS_writedat(datlist = clean_dat[["EM_dat"]],
-                  outfile = file.path(EM_out_dir, EM_start[["datfile"]]),
-                  verbose = FALSE,
-                  overwrite = TRUE)
-      r4ss::SS_writestarter(EM_start, 
-                      dir = EM_out_dir, 
-                      overwrite = TRUE, 
-                      verbose = FALSE,
-                      warn = FALSE)
+      SS_writedat(
+        datlist = clean_dat[["EM_dat"]],
+        outfile = file.path(EM_out_dir, EM_start[["datfile"]]),
+        verbose = FALSE,
+        overwrite = TRUE
+      )
+      r4ss::SS_writestarter(EM_start,
+        dir = EM_out_dir,
+        overwrite = TRUE,
+        verbose = FALSE,
+        warn = FALSE
+      )
     }
   }
   clean_dat[["EM_start"]] <- EM_start
@@ -290,19 +319,23 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
 #'  value from a column in any data frame using the method specified.
 #' @export
 #' @examples
-#' dfr <- data.frame("year" = 1:5,
-#'                    "value" = c(2, 2, 2, 3, 3),
-#'                     "se_log" = 0.2)
-#'  get_input_value(data = dfr, method = "most_common_value", colname = "se_log",
-#'                  group = "value")
-#'  get_input_value(data = dfr, method = "most_common_value", colname = "value")
-#'  get_input_value(data = dfr, method = "only_value", colname = "se_log")
-#'  # generates an error:
-#'  # get_input_value(data = dfr, method = "only_value", colname = "value")
+#' dfr <- data.frame(
+#'   "year" = 1:5,
+#'   "value" = c(2, 2, 2, 3, 3),
+#'   "se_log" = 0.2
+#' )
+#' get_input_value(
+#'   data = dfr, method = "most_common_value", colname = "se_log",
+#'   group = "value"
+#' )
+#' get_input_value(data = dfr, method = "most_common_value", colname = "value")
+#' get_input_value(data = dfr, method = "only_value", colname = "se_log")
+#' # generates an error:
+#' # get_input_value(data = dfr, method = "only_value", colname = "value")
 get_input_value <- function(data,
-                               method = "most_common_value",
-                               colname,
-                               group = NULL) {
+                            method = "most_common_value",
+                            colname,
+                            group = NULL) {
   # input checks
   assertive.types::assert_is_data.frame(data)
   assertive.properties::assert_has_colnames(data)
@@ -311,8 +344,10 @@ get_input_value <- function(data,
   if (!is.null(group)) assertive.types::assert_is_a_string(group)
   method_values <- c("most_common_value", "only_value")
   if (!method %in% method_values) {
-    stop("method possible values are: ", paste0(method_values, collapse = ", "),
-         "; method was specified as ", method)
+    stop(
+      "method possible values are: ", paste0(method_values, collapse = ", "),
+      "; method was specified as ", method
+    )
   }
   selected_col <- grep(colname, colnames(data))
   selected_colname <- colnames(data)[selected_col]
@@ -321,11 +356,13 @@ get_input_value <- function(data,
     stop("column ", colname, " not found in data.")
   }
   if (length(selected_col) > 1) {
-    stop("The value specified for colname ", colname, " selected more than 1",
-         " column in data (columns matched: ",
-         paste0(selected_colname, collapse = ", "),
-         "). Note that partial matching and regular expressions",
-         " are used to find the column(s) that match with colname.")
+    stop(
+      "The value specified for colname ", colname, " selected more than 1",
+      " column in data (columns matched: ",
+      paste0(selected_colname, collapse = ", "),
+      "). Note that partial matching and regular expressions",
+      " are used to find the column(s) that match with colname."
+    )
   }
   if (!is.null(group)) {
     group_orig <- group
@@ -335,15 +372,19 @@ get_input_value <- function(data,
       stop("column ", group_orig, " not found in data.")
     }
     if (length(group) > 1) {
-      stop("The value specified for colname ", group_orig, " selected more than 1",
-           " column in data (columns matched: ",
-           paste0(group, collapse = ", "),
-           "). Note that partial matching and regular expressions",
-           " are used to find the column(s) that match with colname.")
+      stop(
+        "The value specified for colname ", group_orig, " selected more than 1",
+        " column in data (columns matched: ",
+        paste0(group, collapse = ", "),
+        "). Note that partial matching and regular expressions",
+        " are used to find the column(s) that match with colname."
+      )
     }
     if (group == selected_colname) {
-      stop("group and colname cannot be the same. Both selected column",
-           group)
+      stop(
+        "group and colname cannot be the same. Both selected column",
+        group
+      )
     }
   }
   # get the value
@@ -354,12 +395,12 @@ get_input_value <- function(data,
       assertive.properties::assert_is_of_length(val, 1)
     } else {
       val <- stats::aggregate(data[, selected_colname],
-                       by = list("group" = data[, group]),
-                       # find the most common value (mode)
-                       FUN = function(x) {
-                         unique(x)[which.max(tabulate(match(x, unique(x))))]
-                       }, drop = FALSE
-                       )
+        by = list("group" = data[, group]),
+        # find the most common value (mode)
+        FUN = function(x) {
+          unique(x)[which.max(tabulate(match(x, unique(x))))]
+        }, drop = FALSE
+      )
       assertive.types::assert_is_data.frame(val) # sanity check
       colnames(val) <- c(group, selected_colname)
     }
@@ -369,10 +410,12 @@ get_input_value <- function(data,
       val <- unique(data[, selected_col])
       # check return value
       if (length(val) > 1) {
-        stop("Multiple unique values were found in data with colname ",
-             selected_colname,
-             ". Because method is only_value, this function only works if all ",
-             "values in the column are the same.")
+        stop(
+          "Multiple unique values were found in data with colname ",
+          selected_colname,
+          ". Because method is only_value, this function only works if all ",
+          "values in the column are the same."
+        )
       }
       if (length(val) == 0) {
         stop("No value found in ", selected_colname, ".")
@@ -381,31 +424,34 @@ get_input_value <- function(data,
       assertive.properties::assert_is_of_length(val, 1)
     } else {
       n_vals <- stats::aggregate(data[, selected_colname],
-                              by = list("group" = data[, group]),
-                              # find the most common value (mode)
-                              FUN = function(x) {
-                                length(unique(x))
-                              }, drop = FALSE
+        by = list("group" = data[, group]),
+        # find the most common value (mode)
+        FUN = function(x) {
+          length(unique(x))
+        }, drop = FALSE
       )
       if (any(unlist(n_vals[, "x"]) > 1)) {
-        stop("Multiple unique values were found in data with colname ",
-             selected_colname,
-             "after grouping by ", group, ". Because method is only_value, ",
-             "this function only works if all values in the column within the ",
-             "same grouping are the same.")
+        stop(
+          "Multiple unique values were found in data with colname ",
+          selected_colname,
+          "after grouping by ", group, ". Because method is only_value, ",
+          "this function only works if all values in the column within the ",
+          "same grouping are the same."
+        )
       }
       # TODO: need check if any are length 0??? or check outside function?
       # get the value
       val <- stats::aggregate(data[, selected_colname],
-       by = list("group" = data[, group]),
-       # find the most common value (mode)
-       FUN = function(x) {
-         return <- unique(x)
-         if (length(return) > 1) {
-           stop("Problem calculating.")
-         }
-         return
-       }, drop = FALSE)
+        by = list("group" = data[, group]),
+        # find the most common value (mode)
+        FUN = function(x) {
+          return <- unique(x)
+          if (length(return) > 1) {
+            stop("Problem calculating.")
+          }
+          return
+        }, drop = FALSE
+      )
       assertive.types::assert_is_data.frame(val) # sanity check
       colnames(val) <- c(group, selected_colname)
     }
@@ -437,8 +483,10 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
   if (!is.null(out_dir)) assertive.types::assert_is_a_string(out_dir)
   if (!is.null(OM_name)) assertive.types::assert_is_a_string(OM_name)
   if (is.null(OM_name) & is.null(OM_in_dir)) {
-    stop("OM_name and OM_in_dir are both NULL. Please specify an OM_name, ",
-         "OM_in_dir, or both.")
+    stop(
+      "OM_name and OM_in_dir are both NULL. Please specify an OM_name, ",
+      "OM_in_dir, or both."
+    )
   }
   if (!is.null(EM_name)) assertive.types::assert_is_a_string(EM_name)
   if (!is.null(EM_in_dir)) assertive.types::assert_is_a_string(EM_in_dir)
@@ -457,11 +505,13 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
   if (!is.null(OM_name) & is.null(OM_in_dir)) {
     OM_in_dir <- pkg_dirs[grep(OM_name, pkg_dirs)]
     if (length(OM_in_dir) != 1) {
-      stop("OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
-           "SSMSE external package data, but should match 1. Please ",
-           "change OM_name to match (or partially match unambiguously) with 1 ",
-           "model in the models folder of the SSMSE external package data. ",
-           "Model options are: ", paste0(basename(pkg_dirs), collapse = ", "))
+      stop(
+        "OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
+        "SSMSE external package data, but should match 1. Please ",
+        "change OM_name to match (or partially match unambiguously) with 1 ",
+        "model in the models folder of the SSMSE external package data. ",
+        "Model options are: ", paste0(basename(pkg_dirs), collapse = ", ")
+      )
     }
   }
   # figure out the OM_name and create the directory within the one just created
@@ -475,19 +525,23 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
   # Add the EM dir, if necessary
   if (MS == "EM" || MS == "Interim") {
     if (is.null(EM_name) & is.null(EM_in_dir)) {
-      stop("Management Strategy (MS) is EM (estimation model), but both EM_name",
-           " and EM_in_dir are null. Please specify either EM_name or EM_in_dir, or ",
-           "change the management strategy.")
+      stop(
+        "Management Strategy (MS) is EM (estimation model), but both EM_name",
+        " and EM_in_dir are null. Please specify either EM_name or EM_in_dir, or ",
+        "change the management strategy."
+      )
     }
     if (is.null(EM_name) & !is.null(EM_in_dir)) EM_name <- basename(EM_in_dir)
     if (!is.null(EM_name) & is.null(EM_in_dir)) {
       EM_in_dir <- pkg_dirs[grep(EM_name, pkg_dirs)]
       if (length(EM_in_dir) != 1) {
-        stop("OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
-             "SSMSE external package data, but should match 1. Please ",
-             "change OM_name to match (or partially match unambiguously) with 1 ",
-             "model in the models folder of the SSMSE external package data. ",
-             "Model options are: ", paste0(basename(pkg_dirs), collapse = ", "))
+        stop(
+          "OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
+          "SSMSE external package data, but should match 1. Please ",
+          "change OM_name to match (or partially match unambiguously) with 1 ",
+          "model in the models folder of the SSMSE external package data. ",
+          "Model options are: ", paste0(basename(pkg_dirs), collapse = ", ")
+        )
       }
     }
     EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM_init"))
@@ -496,16 +550,18 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
     EM_out_dir <- NULL
     EM_in_dir <- NULL
   }
-  OM_mod_loc <- list(OM_in_dir = OM_in_dir, OM_out_dir = OM_out_dir,
-                     EM_in_dir = EM_in_dir, EM_out_dir = EM_out_dir)
+  OM_mod_loc <- list(
+    OM_in_dir = OM_in_dir, OM_out_dir = OM_out_dir,
+    EM_in_dir = EM_in_dir, EM_out_dir = EM_out_dir
+  )
 }
 
 #' Locate the OM model files
 #'
-#' @param OM_name Name of OM model.Defaults to NULL. OM_name should be a string 
+#' @param OM_name Name of OM model.Defaults to NULL. OM_name should be a string
 #'  of length 1.
 #' @param OM_in_dir Relative or absolute path to the operating model. NULL if
-#'  using SSMSE package model. Defaults to NULL. OM_in dir should be a string 
+#'  using SSMSE package model. Defaults to NULL. OM_in dir should be a string
 #'  of length 1.
 #' @return A list with on comonent, OM_in_dir, which contains the model location
 locate_in_dirs <- function(OM_name = NULL, OM_in_dir = NULL) {
@@ -513,8 +569,10 @@ locate_in_dirs <- function(OM_name = NULL, OM_in_dir = NULL) {
   if (!is.null(OM_name)) assertive.types::assert_is_a_string(OM_name)
   if (!is.null(OM_in_dir)) assertive.types::assert_is_a_string(OM_in_dir)
   if (is.null(OM_name) & is.null(OM_in_dir)) {
-    stop("OM_name and OM_in_dir are both NULL. Please specify an OM_name, ",
-         "OM_in_dir, or both.")
+    stop(
+      "OM_name and OM_in_dir are both NULL. Please specify an OM_name, ",
+      "OM_in_dir, or both."
+    )
   }
   # specify the OM_in_dir if only specified OM by name.
   pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
@@ -523,11 +581,13 @@ locate_in_dirs <- function(OM_name = NULL, OM_in_dir = NULL) {
   if (!is.null(OM_name) & is.null(OM_in_dir)) {
     OM_in_dir <- pkg_dirs[grep(OM_name, pkg_dirs)]
     if (length(OM_in_dir) != 1) {
-      stop("OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
-           "SSMSE external package data, but should match 1. Please ",
-           "change OM_name to match (or partially match unambiguously) with 1 ",
-           "model in the models folder of the SSMSE external package data. ",
-           "Model options are: ", paste0(basename(pkg_dirs), collapse = ", "))
+      stop(
+        "OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
+        "SSMSE external package data, but should match 1. Please ",
+        "change OM_name to match (or partially match unambiguously) with 1 ",
+        "model in the models folder of the SSMSE external package data. ",
+        "Model options are: ", paste0(basename(pkg_dirs), collapse = ", ")
+      )
     }
   }
   OM_mod_loc <- list(OM_in_dir = OM_in_dir)
@@ -550,43 +610,61 @@ copy_model_files <- function(OM_in_dir = NULL,
                              verbose = FALSE) {
   # checks
   if (!is.null(OM_in_dir)) {
-    if (!all(c("control.ss_new", "data.ss_new", "starter.ss_new",
-              "forecast.ss_new", "ss.par") %in% list.files(OM_in_dir))) {
-      stop(".ss_new files not found in the original OM directory ",
-           OM_in_dir, ". Please run the model to make the .ss_new files available.")
+    if (!all(c(
+      "control.ss_new", "data.ss_new", "starter.ss_new",
+      "forecast.ss_new", "ss.par"
+    ) %in% list.files(OM_in_dir))) {
+      stop(
+        ".ss_new files not found in the original OM directory ",
+        OM_in_dir, ". Please run the model to make the .ss_new files available."
+      )
     }
   }
   # copy over OM ----
   if (!is.null(OM_in_dir) & !is.null(OM_out_dir)) {
     if (verbose == TRUE) {
-      message("Copying over .ss_new model files in ", OM_in_dir,
-              " to ", OM_out_dir, ".")
+      message(
+        "Copying over .ss_new model files in ", OM_in_dir,
+        " to ", OM_out_dir, "."
+      )
     }
-    success_OM <- r4ss::copy_SS_inputs(dir.old = OM_in_dir,
-                   dir.new = OM_out_dir,
-                   overwrite = FALSE,
-                   use_ss_new = TRUE, # will rename the ss new files, also.
-                   copy_par = TRUE,
-                   verbose = FALSE)
+    success_OM <- r4ss::copy_SS_inputs(
+      dir.old = OM_in_dir,
+      dir.new = OM_out_dir,
+      overwrite = FALSE,
+      use_ss_new = TRUE, # will rename the ss new files, also.
+      copy_par = TRUE,
+      verbose = FALSE
+    )
     if (success_OM == FALSE) {
-      stop("Problem copying SS OM .ss_new files from ", OM_in_dir, " to ",
-           OM_out_dir, ".")
+      stop(
+        "Problem copying SS OM .ss_new files from ", OM_in_dir, " to ",
+        OM_out_dir, "."
+      )
     }
   } else {
     success_OM <- TRUE
   }
   # copy over EM ----
   if (!is.null(EM_in_dir) & !is.null(EM_out_dir)) {
-    if (verbose) message("Copying over input model files in ", EM_in_dir, " to ",
-                        EM_out_dir, ".")
-    success_EM <- r4ss::copy_SS_inputs(dir.old = EM_in_dir,
-                   dir.new = EM_out_dir,
-                   overwrite = FALSE,
-                   copy_par = TRUE,
-                   verbose = FALSE)
+    if (verbose) {
+      message(
+        "Copying over input model files in ", EM_in_dir, " to ",
+        EM_out_dir, "."
+      )
+    }
+    success_EM <- r4ss::copy_SS_inputs(
+      dir.old = EM_in_dir,
+      dir.new = EM_out_dir,
+      overwrite = FALSE,
+      copy_par = TRUE,
+      verbose = FALSE
+    )
     if (success_EM == FALSE) {
-      stop("Problem copying SS EM files from ", EM_in_dir, "to",
-           EM_out_dir, ".")
+      stop(
+        "Problem copying SS EM files from ", EM_in_dir, "to",
+        EM_out_dir, "."
+      )
     }
   } else {
     success_EM <- TRUE
@@ -610,162 +688,165 @@ combine_cols <- function(dat_list, list_item, colnames) {
   tmp
 }
 
-#' Set the initial global, scenario, and iteration seeds 
+#' Set the initial global, scenario, and iteration seeds
 #'
 #' @param seed reads in the user specified seeds if any to allow replication of runs. Defaults to NULL.
 #' Can be 1) NULL (default); 2) An integer vector of length 1, length 1+length(scen_name_vec), or length 1 + length(scen_name_vec)+sum(iter_vec); 3) A list with 3 components the same as teh output of set_MSE_seeds
 #' @param iter_vec The number of iterations per scenario. A vector of integers
 #'  in the same order as scen_name_vec.
 #' @returns A list of length 3 with 1) the global seed value; 2) the scenario seed values; and 3) the iteration seed values.
-#' @examples  seeds <- set_MSE_seeds(seed = seq(10, 80, by = 10), iter_vec = c(2, 3))
+#' @examples
+#' seeds <- set_MSE_seeds(seed = seq(10, 80, by = 10), iter_vec = c(2, 3))
 #' @export
-set_MSE_seeds<-function(seed = NULL, iter_vec)
-{
-  if(is.null(seed)){
-    seed<-list()
-    seed[["global"]]<-floor(stats::runif(1,1000000,9999999))
-    set.seed(seed=seed[["global"]])
-    seed[["scenario"]]<-floor(stats::runif(length(iter_vec),1000000,9999999))
-    seed[["iter"]]<-list()
-    for(i in 1:length(iter_vec)){
-      set.seed(seed=seed[["scenario"]][i])
-      seed[["iter"]][[i]]<-floor(stats::runif(iter_vec[i],1000000,9999999))
+set_MSE_seeds <- function(seed = NULL, iter_vec) {
+  if (is.null(seed)) {
+    seed <- list()
+    seed[["global"]] <- floor(stats::runif(1, 1000000, 9999999))
+    set.seed(seed = seed[["global"]])
+    seed[["scenario"]] <- floor(stats::runif(length(iter_vec), 1000000, 9999999))
+    seed[["iter"]] <- list()
+    for (i in 1:length(iter_vec)) {
+      set.seed(seed = seed[["scenario"]][i])
+      seed[["iter"]][[i]] <- floor(stats::runif(iter_vec[i], 1000000, 9999999))
     }
-  }else if(!is.list(seed)){
-    if(length(seed)==1){
-      input.seed<-seed
-      seed<-list()
-      seed[["global"]]<-input.seed[1]
-      set.seed(seed=seed[["global"]])
-      seed[["scenario"]]<-floor(stats::runif(length(iter_vec),1000000,9999999))
-      seed[["iter"]]<-list()
-      for(i in 1:length(iter_vec)){
-        set.seed(seed=seed[["scenario"]][i])
-        seed[["iter"]][[i]]<-floor(stats::runif(iter_vec[i],1000000,9999999))
+  } else if (!is.list(seed)) {
+    if (length(seed) == 1) {
+      input.seed <- seed
+      seed <- list()
+      seed[["global"]] <- input.seed[1]
+      set.seed(seed = seed[["global"]])
+      seed[["scenario"]] <- floor(stats::runif(length(iter_vec), 1000000, 9999999))
+      seed[["iter"]] <- list()
+      for (i in 1:length(iter_vec)) {
+        set.seed(seed = seed[["scenario"]][i])
+        seed[["iter"]][[i]] <- floor(stats::runif(iter_vec[i], 1000000, 9999999))
       }
-    }else if(length(seed)==(length(iter_vec)+1)){
-      input.seed<-seed
+    } else if (length(seed) == (length(iter_vec) + 1)) {
+      input.seed <- seed
       seed <- vector(mode = "list", length = 3)
       names(seed) <- c("global", "scenario", "iter")
-      seed[["global"]]<-input.seed[1]
-      input.seed<-input.seed[-1]
-      seed[["scenario"]]<-input.seed
-      seed[["iter"]]<-list()
-      for(i in 1:length(iter_vec)){
-        set.seed(seed=seed[["scenario"]][i])
-        seed[["iter"]][[i]]<-floor(stats::runif(iter_vec[i],1000000,9999999))
+      seed[["global"]] <- input.seed[1]
+      input.seed <- input.seed[-1]
+      seed[["scenario"]] <- input.seed
+      seed[["iter"]] <- list()
+      for (i in 1:length(iter_vec)) {
+        set.seed(seed = seed[["scenario"]][i])
+        seed[["iter"]][[i]] <- floor(stats::runif(iter_vec[i], 1000000, 9999999))
       }
-    }else if(length(iter_vec)==length(iter_vec)){
-      if(length(seed)==(iter_vec[1]+length(iter_vec)+1)){
-        if(length(unique(iter_vec)==1)){
-          input.seed<-seed
+    } else if (length(iter_vec) == length(iter_vec)) {
+      if (length(seed) == (iter_vec[1] + length(iter_vec) + 1)) {
+        if (length(unique(iter_vec) == 1)) {
+          input.seed <- seed
           seed <- vector(mode = "list", length = 3)
           names(seed) <- c("global", "scenario", "iter")
-          seed[["global"]]<-input.seed[1]
-          input.seed<-input.seed[-1]
-          seed[["scenario"]]<-input.seed[1:length(iter_vec)]
-          input.seed<-input.seed[-c(1:length(iter_vec))]
-          seed[["iter"]]<-list()
-          for(i in 1:length(iter_vec)){
-            seed[["iter"]][[i]]<-input.seed
+          seed[["global"]] <- input.seed[1]
+          input.seed <- input.seed[-1]
+          seed[["scenario"]] <- input.seed[1:length(iter_vec)]
+          input.seed <- input.seed[-c(1:length(iter_vec))]
+          seed[["iter"]] <- list()
+          for (i in 1:length(iter_vec)) {
+            seed[["iter"]][[i]] <- input.seed
           }
-        }else{
+        } else {
           stop("Error: All scenarios must have same number of iterations to use a single input of seeds")
         }
-      }else if(length(seed)==(sum(iter_vec)+length(iter_vec)+1)){
-        input.seed<-seed
+      } else if (length(seed) == (sum(iter_vec) + length(iter_vec) + 1)) {
+        input.seed <- seed
         seed <- vector(mode = "list", length = 3)
         names(seed) <- c("global", "scenario", "iter")
-        seed[["global"]]<-input.seed[1]
-        input.seed<-input.seed[-1]
-        seed[["scenario"]]<-input.seed[1:length(iter_vec)]
-        input.seed<-input.seed[-c(1:length(iter_vec))]
-        seed[["iter"]]<-list()
-        for(i in 1:length(iter_vec)){
-          seed[["iter"]][[i]]<-input.seed[1:iter_vec[i]]
-          input.seed<-input.seed[-c(1:iter_vec[i])]
+        seed[["global"]] <- input.seed[1]
+        input.seed <- input.seed[-1]
+        seed[["scenario"]] <- input.seed[1:length(iter_vec)]
+        input.seed <- input.seed[-c(1:length(iter_vec))]
+        seed[["iter"]] <- list()
+        for (i in 1:length(iter_vec)) {
+          seed[["iter"]][[i]] <- input.seed[1:iter_vec[i]]
+          input.seed <- input.seed[-c(1:iter_vec[i])]
         }
-      }else{
+      } else {
         stop("The length of your seed vector doesn't match either 
           (1, 1+n_scenarios, 1+n_scenarios+n_iterations_single_scenario, 
           or 1+n_scenarios+n_iterations_all_scenarios)")
       }
-    }else if(length(iter_vec)==1){
-      if(length(seed)==(iter_vec[1]+length(iter_vec)+1)){
-        input.seed<-seed
+    } else if (length(iter_vec) == 1) {
+      if (length(seed) == (iter_vec[1] + length(iter_vec) + 1)) {
+        input.seed <- seed
         seed <- vector(mode = "list", length = 3)
         names(seed) <- c("global", "scenario", "iter")
-        seed[["global"]]<-input.seed[1]
-        input.seed<-input.seed[-1]
-        seed[["scenario"]]<-input.seed[1:length(iter_vec)]
-        input.seed<-input.seed[-c(1:length(iter_vec))]
-        seed[["iter"]]<-list()
-        for(i in 1:length(iter_vec)){
-          seed[["iter"]][[i]]<-input.seed
+        seed[["global"]] <- input.seed[1]
+        input.seed <- input.seed[-1]
+        seed[["scenario"]] <- input.seed[1:length(iter_vec)]
+        input.seed <- input.seed[-c(1:length(iter_vec))]
+        seed[["iter"]] <- list()
+        for (i in 1:length(iter_vec)) {
+          seed[["iter"]][[i]] <- input.seed
         }
-        
-      }else if(length(seed)==((iter_vec[1]*length(iter_vec))+length(iter_vec)+1)){
-        input.seed<-seed
+      } else if (length(seed) == ((iter_vec[1] * length(iter_vec)) + length(iter_vec) + 1)) {
+        input.seed <- seed
         seed <- vector(mode = "list", length = 3)
         names(seed) <- c("global", "scenario", "iter")
-        seed[["global"]]<-input.seed[1]
-        input.seed<-input.seed[-1]
-        seed[["scenario"]]<-input.seed[1:length(iter_vec)]
-        input.seed<-input.seed[-c(1:length(iter_vec))]
-        seed[["iter"]]<-list()
-        for(i in 1:length(iter_vec)){
-          seed[["iter"]][[i]]<-input.seed[1:iter_vec[i]]
-          input.seed<-input.seed[-c(1:iter_vec[i])]
+        seed[["global"]] <- input.seed[1]
+        input.seed <- input.seed[-1]
+        seed[["scenario"]] <- input.seed[1:length(iter_vec)]
+        input.seed <- input.seed[-c(1:length(iter_vec))]
+        seed[["iter"]] <- list()
+        for (i in 1:length(iter_vec)) {
+          seed[["iter"]][[i]] <- input.seed[1:iter_vec[i]]
+          input.seed <- input.seed[-c(1:iter_vec[i])]
         }
-      }else{
+      } else {
         stop("The length of your seed vector doesn't match either 
           (1, 1+n_scenarios, 1+n_scenarios+n_iterations_single_scenario, 
           or 1+n_scenarios+n_iterations_all_scenarios)")
       }
     }
-  }else{
-    input.seed<-seed
+  } else {
+    input.seed <- seed
     seed <- vector(mode = "list", length = 3)
     names(seed) <- c("global", "scenario", "iter")
-    if(length(input.seed[["global"]])==1){
-      seed[["global"]]<-input.seed[["global"]]
-    }else if(length(input.seed[[1]])==1){
-      seed[["global"]]<-input.seed[[1]]
-    }else{
-      stop("seed entered as list but no seed[["global"]] and first element more that 1 value")
+    if (length(input.seed[["global"]]) == 1) {
+      seed[["global"]] <- input.seed[["global"]]
+    } else if (length(input.seed[[1]]) == 1) {
+      seed[["global"]] <- input.seed[[1]]
+    } else {
+      stop("seed entered as list but no seed[['global']] and first element more that 1 value")
     }
-    
-    if(length(input.seed[["scenario"]])==length(iter_vec)){
-      seed[["scenario"]]<-input.seed[["scenario"]]
-    }else if(length(input.seed[[2]])==length(iter_vec)){
-      seed[["scenario"]]<-input.seed[[2]]
-    }else{
-      stop("seed entered as list but no seed[["scenario"]] and second element not the same 
+
+    if (length(input.seed[["scenario"]]) == length(iter_vec)) {
+      seed[["scenario"]] <- input.seed[["scenario"]]
+    } else if (length(input.seed[[2]]) == length(iter_vec)) {
+      seed[["scenario"]] <- input.seed[[2]]
+    } else {
+      stop("seed entered as list but no seed[['scenario']] and second element not the same 
              length as the number of scenarios")
     }
-    
-    if(length(input.seed[["iter"]])==length(iter_vec) & is.list(input.seed[["iter"]])){
-      seed[["iter"]]<-input.seed[["iter"]]
-      for(i in 1:length(seed[["iter"]])){
-        if(length(iter_vec)==1){
-          loc<-1
-        }else{loc<-i}
-        if(length(seed[["iter"]][[i]])!=iter_vec[loc]){
+
+    if (length(input.seed[["iter"]]) == length(iter_vec) & is.list(input.seed[["iter"]])) {
+      seed[["iter"]] <- input.seed[["iter"]]
+      for (i in 1:length(seed[["iter"]])) {
+        if (length(iter_vec) == 1) {
+          loc <- 1
+        } else {
+          loc <- i
+        }
+        if (length(seed[["iter"]][[i]]) != iter_vec[loc]) {
           stop("wrong number of seeds for iterations")
         }
       }
-    }else if(length(input.seed[["iter"]])==length(iter_vec)){
-      seed[["iter"]]<-input.seed[["iter"]]
-      for(i in 1:length(seed[["iter"]])){
-        if(length(iter_vec)==1){
-          loc<-1
-        }else{loc<-i}
-        if(length(seed[["iter"]][[i]])!=iter_vec[loc]){
+    } else if (length(input.seed[["iter"]]) == length(iter_vec)) {
+      seed[["iter"]] <- input.seed[["iter"]]
+      for (i in 1:length(seed[["iter"]])) {
+        if (length(iter_vec) == 1) {
+          loc <- 1
+        } else {
+          loc <- i
+        }
+        if (length(seed[["iter"]][[i]]) != iter_vec[loc]) {
           stop("wrong number of seeds for iterations")
         }
       }
-    }else{
-      stop("seed entered as list but no seed[["iter"]] and third element not the same 
+    } else {
+      stop("seed entered as list but no seed[['iter']] and third element not the same 
              length as the number of scenarios")
     }
   }

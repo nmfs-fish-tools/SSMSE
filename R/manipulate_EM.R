@@ -32,12 +32,16 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
   OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = FALSE)
 
   # remove extra years of data in the OM data file.
-  new_EM_dat <- get_EM_dat(OM_dat = OM_dat, EM_dat = EM_dat,
-                           do_checks = do_checks)
+  new_EM_dat <- get_EM_dat(
+    OM_dat = OM_dat, EM_dat = EM_dat,
+    do_checks = do_checks
+  )
 
   # write out the modified files that can be used in future EM run
-  SS_writedat(new_EM_dat, file.path(EM_dir, OM_datfile), verbose = FALSE,
-              overwrite = TRUE)
+  SS_writedat(new_EM_dat, file.path(EM_dir, OM_datfile),
+    verbose = FALSE,
+    overwrite = TRUE
+  )
   new_EM_dat
 }
 
@@ -71,17 +75,21 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   # add in lcomps
   if (OM_dat[["use_lencomp"]] == 1) {
     lcomps <- lapply(dat, function(x) {
-    tmp <- combine_cols(x, "lencomp",
-                        c("Yr", "Seas", "FltSvy", "Gender", "Part"))
+      tmp <- combine_cols(
+        x, "lencomp",
+        c("Yr", "Seas", "FltSvy", "Gender", "Part")
+      )
     })
     matches_l <- which(lcomps[[1]][, "combo"] %in% lcomps[[2]][, "combo"])
     new_dat[["lencomp"]] <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
   }
   # add in age comps
-  if(!is.null(dat[["agecomp"]])) {
+  if (!is.null(dat[["agecomp"]])) {
     acomps <- lapply(dat, function(x) {
-      tmp <- combine_cols(x, "agecomp",
-               c("Yr", "Seas", "FltSvy", "Gender", "Part", "Lbin_lo", "Lbin_hi"))
+      tmp <- combine_cols(
+        x, "agecomp",
+        c("Yr", "Seas", "FltSvy", "Gender", "Part", "Lbin_lo", "Lbin_hi")
+      )
     })
     matches_a <- which(acomps[[1]][, "combo"] %in% acomps[[2]][, "combo"])
     new_dat[["agecomp"]] <- acomps[[1]][matches_a, -ncol(acomps[[1]])]
@@ -123,13 +131,15 @@ run_EM <- function(EM_dir,
   if (set_use_par == TRUE) {
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = FALSE)
     start[["init_values_src"]] <- 1
-    SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = FALSE,
-                    warn = FALSE)
+    SS_writestarter(start,
+      dir = EM_dir, overwrite = TRUE, verbose = FALSE,
+      warn = FALSE
+    )
   }
   if (hess == TRUE) {
     options <- ""
   } else {
-   options <- "-nohess"
+    options <- "-nohess"
   }
   run_ss_model(EM_dir, options, verbose = verbose)
   if (check_converged == TRUE) {
@@ -138,8 +148,10 @@ run_EM <- function(EM_dir,
     warn <- readLines(file.path(EM_dir, "warning.sso"))
     grad_warn <- grep("^Final gradient\\:\\s+\\d*\\.\\d*\\sis larger than final_conv\\:", warn)
     if (length(grad_warn) > 0) {
-      warning("Estimation model did not converge this iteration based on the",
-              " convergence criterion set in the starter.ss file.")
+      warning(
+        "Estimation model did not converge this iteration based on the",
+        " convergence criterion set in the starter.ss file."
+      )
     }
   }
 }
@@ -172,7 +184,6 @@ add_new_dat <- function(OM_dat,
                         do_checks = TRUE,
                         new_datfile_name = NULL,
                         verbose = FALSE) {
-
   if (do_checks) {
     # TODO: do input checks: check OM_dat is valid r4ss list, check data. only do if
     # do_checks = TRUE?
@@ -194,52 +205,58 @@ add_new_dat <- function(OM_dat,
         OM_df <- OM_dat[[df_name]]
         OM_df[, 3] <- abs(OM_df[, 3]) # get rid of negative fleet values from OM
 
-        by_val <- switch(df_name, 
-               "catch" = c("year", "seas", "fleet"), 
-               "CPUE" = c("year", "seas", "index"), 
-               "lencomp" = c("Yr", "Seas", "FltSvy", "Gender", "Part"),
-               "agecomp" = c("Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", 
-                             "Lbin_lo", "Lbin_hi")
-               )
+        by_val <- switch(df_name,
+          "catch" = c("year", "seas", "fleet"),
+          "CPUE" = c("year", "seas", "index"),
+          "lencomp" = c("Yr", "Seas", "FltSvy", "Gender", "Part"),
+          "agecomp" = c(
+            "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr",
+            "Lbin_lo", "Lbin_hi"
+          )
+        )
         new_dat <- merge(df, OM_df, by = by_val, all.x = TRUE, all.y = FALSE)
-        # Sample sizes are likely different from user inputs if there is 
+        # Sample sizes are likely different from user inputs if there is
         # variance adjustment values or extra SD. Keep the Nsamp.y value
         # (from the bootstrap sample) To be consistent with other bootstrap
         # model values
-        if("catch_se.y" %in% colnames(new_dat)) {
+        if ("catch_se.y" %in% colnames(new_dat)) {
           new_dat[["catch_se.x"]] <- NULL
           colnames(new_dat)[which(colnames(new_dat) == "catch_se.y")] <- "catch_se"
         }
-        if("se_log.y" %in% colnames(new_dat)) {
+        if ("se_log.y" %in% colnames(new_dat)) {
           new_dat[["se_log.x"]] <- NULL
           colnames(new_dat)[which(colnames(new_dat) == "se_log.y")] <- "se_log"
         }
-        if("Nsamp.y" %in% colnames(new_dat)) {
+        if ("Nsamp.y" %in% colnames(new_dat)) {
           new_dat[["Nsamp.x"]] <- NULL
           colnames(new_dat)[which(colnames(new_dat) == "Nsamp.y")] <- "Nsamp"
         }
         # warn if there were matches not found for OM_df, but remove to continue
         if (any(is.na(new_dat))) {
-          warning("Some values specified in sample_struct (list component ", df_name,
-                  ") were not found in OM_dat, so they will not be added to ",
-                  "the EM_dat.")
+          warning(
+            "Some values specified in sample_struct (list component ", df_name,
+            ") were not found in OM_dat, so they will not be added to ",
+            "the EM_dat."
+          )
           new_dat <- na.omit(new_dat)
         }
         new_dat
       },
-    df = sample_struct, df_name = names(sample_struct),
-    MoreArgs = list(OM_dat = OM_dat),
-    SIMPLIFY = FALSE, USE.NAMES = TRUE)
+      df = sample_struct, df_name = names(sample_struct),
+      MoreArgs = list(OM_dat = OM_dat),
+      SIMPLIFY = FALSE, USE.NAMES = TRUE
+    )
   # insert this data into the EM_datfile
   for (n in names(extracted_dat)) {
     new_EM_dat[[n]] <- rbind(new_EM_dat[[n]], extracted_dat[[n]])
   }
-# write the new datafile if new_datfile_name isn't NULL
+  # write the new datafile if new_datfile_name isn't NULL
   if (!is.null(new_datfile_name)) {
     SS_writedat(new_EM_dat,
-                file.path(EM_dir, new_datfile_name),
-                overwrite = TRUE,
-                verbose = FALSE)
+      file.path(EM_dir, new_datfile_name),
+      overwrite = TRUE,
+      verbose = FALSE
+    )
   }
   new_EM_dat
 }
@@ -281,25 +298,29 @@ change_yrs_fcast <- function(fore,
         } else if (x > styr & x < endyr) {
           x <- x - endyr # make it relative to endyr
         } else {
-          stop("Year in fcast file out of range. Please change to be within ",
-               "start and end yrs. Check Bmark_years, Fcast_years")
+          stop(
+            "Year in fcast file out of range. Please change to be within ",
+            "start and end yrs. Check Bmark_years, Fcast_years"
+          )
         }
       }
       x
     }
     # change benchmark years
     new_bmark_yrs <- lapply(fore[["Bmark_years"]],
-                        make_yrs_rel,
-                        styr = mod_styr,
-                        endyr = mod_endyr)
+      make_yrs_rel,
+      styr = mod_styr,
+      endyr = mod_endyr
+    )
     new_bmark_yrs <- unlist(new_bmark_yrs)
     names(new_bmark_yrs) <- names(fore[["Bmark_years"]])
     fore[["Bmark_years"]] <- new_bmark_yrs
     # change forecast years
     new_fcast_yrs <- lapply(fore[["Fcast_years"]],
-                            make_yrs_rel,
-                            styr = mod_styr,
-                            endyr = mod_endyr)
+      make_yrs_rel,
+      styr = mod_styr,
+      endyr = mod_endyr
+    )
     new_fcast_yrs <- unlist(new_fcast_yrs)
     names(new_fcast_yrs) <- names(fore[["Fcast_years"]])
     fore[["Fcast_years"]] <- new_fcast_yrs
@@ -309,7 +330,8 @@ change_yrs_fcast <- function(fore,
     fore[["FirstYear_for_caps_and_allocations"]] <-
       fore[["FirstYear_for_caps_and_allocations"]] + nyrs_increment
     assert_is_identical_to_true(
-      fore[["FirstYear_for_caps_and_allocations"]] > mod_endyr)
+      fore[["FirstYear_for_caps_and_allocations"]] > mod_endyr
+    )
     # deal with allocation
     if (fore[["N_allocation_groups"]] > 0) {
       tmp_allocation <- fore[["allocation_among_groups"]]
@@ -319,8 +341,10 @@ change_yrs_fcast <- function(fore,
             fore[["allocation_among_groups"]][["Year"]] + nyrs_increment
         } else {
           # TODO: develop smarter ways to deal with Time varying allocation
-          stop("Time-varying allocation in the forecasting file cannot yet be",
-               " used in SSMSE. Please request development of this feature.")
+          stop(
+            "Time-varying allocation in the forecasting file cannot yet be",
+            " used in SSMSE. Please request development of this feature."
+          )
         }
       }
     }
