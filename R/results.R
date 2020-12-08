@@ -216,3 +216,68 @@ plot_index_sampling <- function(dir = getwd()) {
 
   index_list <- list(index_dat = index_dat, index_plot = index_plot)
 }
+
+#' get basic data to calculate performance metrics
+#' @param dir Path to the directory containing the scenarios, either relative 
+#'  or absolute. Defaults to the working directory.
+#' @param use_SSMSE_summary_all If it exists, should the summmary files generated
+#'  by SSMSE_summary_all be used? Defaults to TRUE.
+#' @param quantities Quantites from the operating model to add
+get_performance_metrics <- function(dir = getwd(), 
+                                    use_SSMSE_summary_all = TRUE,
+                                    quantities = c("catch", "SpawnBio")) {
+  quantities <- match.arg(quantities, choices = c("catch", "SpawnBio"),
+                          several.ok = TRUE)
+  perf_metrics_df <- NULL
+  if("catch" %in% quantities) {
+    scens <- list.dirs(dir, full.names = TRUE, recursive = FALSE)
+    catch <- lapply(scens, function (x) {
+      iters <- list.dirs(x, full.names = TRUE, recursive = FALSE)
+      tmp_catch_df <- NULL
+      for (i in iters) {
+        tmp_mods <- list.dirs(i, full.names = TRUE, recursive = FALSE)
+        tmp_mods_basename <- list.dirs(i, full.names = FALSE, recursive = FALSE)
+        om_mod <- grep("OM$", tmp_mods_basename, ignore.case = TRUE)
+        if(length(om_mod) != 1) {
+          stop("The regular expression 'OM$' (not case sensitive) did not match 1 model in the ", 
+               "directory ", i , "; it matched ", length(om_mod), " models.", 
+               "Please make sure only the OM will match this expression to use", 
+               "get_performance_metrics.")
+        }
+        om_mod_path <- tmp_mods[om_mod]
+        dat <- r4ss::SS_readdat(file.path(om_mod_path, "data.ss_new"),
+                                section = 1, verbose = FALSE)
+        tmp_catch <- dat[["catch"]]
+        tmp_catch <- tmp_catch[,c("year", "fleet", "catch")]
+        colnames(tmp_catch) <- c("year", "fleet", "value")
+        tmp_catch[["quantity"]] <- "catch"
+        tmp_catch[["model_run"]] <- tmp_mods_basename[om_mod]
+        tmp_catch[["model_type"]] <- "OM"
+        tmp_catch[["iteration"]] <- basename(i)
+        tmp_catch_df <- rbind(tmp_catch_df, tmp_catch)
+      }
+      tmp_catch_df[["scenario"]] <- basename(x)
+      tmp_catch_df
+    })
+    catch_df <- do.call("rbind", catch)
+    perf_metrics_df <- rbind(perf_metrics_df, catch_df)
+  }
+  if("SpawnBio" %in% quantities) {
+    if(use_SSMSE_summary_all == TRUE) {
+      ts_df <- read.csv(file.path(dir, "SSMSE_ts.csv"))
+      keep_rows <- grep("OM$", ts_df[["model_run"]], ignore.case = TRUE)
+      ts_df <- ts_df[keep_rows, ]
+      ts_df[["fleet"]] <- NA
+      ts_df[["quantity"]] <- "SpawnBio"
+      ts_df[["model_type"]] <- "OM"
+      ts_df <- ts_df[ , c("year", "fleet", "SpawnBio", "quantity", "model_run",
+                          "model_type", "iteration", "scenario")]
+      colnames(ts_df) <- c("year", "fleet", "value", "quantity", "model_run",
+                           "model_type", "iteration", "scenario")
+      perf_metrics_df <- rbind(perf_metrics_df, ts_df)
+    } else {
+      warning("use_SSMSE_summary_all needs to be TRUE to read in SSB")
+    }
+  }
+  perf_metrics_df
+}
