@@ -130,10 +130,12 @@ SSMSE_summary_iter <- function(dir) {
 
 #' Plot index data, expected values, and sampled data for 1 scenario
 #'
-#' To see how sampling lines up with data and expected values for the index of
-#' abundance
-#' @param dir Path to the directory containing 1 scenario
+#' Creates a plot that can be used to see how sampling lines up with 
+#' data and expected values for the index of abundance
+#' @param dir Path to the directory containing 1 scenario. Defaults to
+#'  the current working directory.
 #' @export
+#' @author Kathryn Doering
 #' @return A list containing 2 components: 1) the ggplot object and 2) the
 #'  dataframe used to make the ggplot object
 plot_index_sampling <- function(dir = getwd()) {
