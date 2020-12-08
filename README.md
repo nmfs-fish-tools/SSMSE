@@ -34,10 +34,7 @@ SSMSE: Management Strategy Evaluation for Stock Synthesis (SS)
 
 # SSMSE build status
 
-master: [![Build
-Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE?branch=master&svg=true)](https://ci.appveyor.com/project/nmfs-fish-tools/SSMSE)
+![R-CMD-check](https://github.com/r4ss/r4ss/workflows/R-CMD-check/badge.svg)
 [![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
 
 -----
