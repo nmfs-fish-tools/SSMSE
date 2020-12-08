@@ -211,16 +211,16 @@ get_performance_metrics <- function(dir = getwd(),
         om_mod_path <- tmp_mods[om_mod]
         dat <- r4ss::SS_readdat(file.path(om_mod_path, "data.ss_new"),
                                 section = 1, verbose = FALSE)
-        tmp_catch <- dat$catch
+        tmp_catch <- dat[["catch"]]
         tmp_catch <- tmp_catch[,c("year", "fleet", "catch")]
         colnames(tmp_catch) <- c("year", "fleet", "value")
-        tmp_catch$quantity <- "catch"
-        tmp_catch$model_run <- tmp_mods_basename[om_mod]
-        tmp_catch$model_type <- "OM"
-        tmp_catch$iteration <- basename(i)
+        tmp_catch[["quantity"]] <- "catch"
+        tmp_catch[["model_run"]] <- tmp_mods_basename[om_mod]
+        tmp_catch[["model_type"]] <- "OM"
+        tmp_catch[["iteration"]] <- basename(i)
         tmp_catch_df <- rbind(tmp_catch_df, tmp_catch)
       }
-      tmp_catch_df$scenario <- basename(x)
+      tmp_catch_df[["scenario"]] <- basename(x)
       tmp_catch_df
     })
     catch_df <- do.call("rbind", catch)
@@ -229,11 +229,11 @@ get_performance_metrics <- function(dir = getwd(),
   if("SpawnBio" %in% quantities) {
     if(use_SSMSE_summary_all == TRUE) {
       ts_df <- read.csv(file.path(dir, "SSMSE_ts.csv"))
-      keep_rows <- grep("OM$", ts_df$model_run, ignore.case = TRUE)
+      keep_rows <- grep("OM$", ts_df[["model_run"]], ignore.case = TRUE)
       ts_df <- ts_df[keep_rows, ]
-      ts_df$fleet <- NA
-      ts_df$quantity <- "SpawnBio"
-      ts_df$model_type <- "OM"
+      ts_df[["fleet"]] <- NA
+      ts_df[["quantity"]] <- "SpawnBio"
+      ts_df[["model_type"]] <- "OM"
       ts_df <- ts_df[ , c("year", "fleet", "SpawnBio", "quantity", "model_run",
                           "model_type", "iteration", "scenario")]
       colnames(ts_df) <- c("year", "fleet", "value", "quantity", "model_run",
