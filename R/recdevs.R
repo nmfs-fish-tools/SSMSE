@@ -156,7 +156,7 @@ build_rec_devs <- function(
                "scenario.")
       }
       # find the scenario that has the longest years
-      set.seed(seed$global) # b/c using the same across scenarios.
+      set.seed(seed[["global"]]) # b/c using the same across scenarios.
       yrs_max <- max(yrs)
       iter_max <- max(iter_vec)
       breaks <- unique(c(seq(0, yrs_max, rec_dev_pars[1]), yrs_max))
@@ -171,7 +171,7 @@ build_rec_devs <- function(
       breaks <- unique(c(seq(0, yrs[i], rec_dev_pars[1]), yrs[i]))
       if (scope == 1) { 
         
-        set.seed(seed$global)
+        set.seed(seed[["global"]])
         
         rec_dev_seq <- calc_rec_devs(breaks = breaks, yrs = yrs[i], 
                                      stddev = stddev[i]*rec_dev_pars[2])
@@ -186,7 +186,7 @@ build_rec_devs <- function(
         }
         if (scope == 3) { 
           
-          set.seed(seed$iter[[i]][j])
+          set.seed(seed[["iter"]][[i]][j])
           
           rec_dev_seq <- calc_rec_devs(breaks = breaks, yrs = yrs[i], 
                                        stddev = stddev[i]*rec_dev_pars[2])
@@ -196,13 +196,13 @@ build_rec_devs <- function(
     }
   } else if (rec_dev_pattern == "AutoCorr_rand") {
     for (i in 1:n_scenarios) {
-      rec_autocorr_mean<-rec_autoCorr[[i]]$coef[1:4]
-      rec_autocorr_sd<-sqrt(c(rec_autoCorr[[i]]$var.coef[1,1],rec_autoCorr[[i]]$var.coef[2,2], rec_autoCorr[[i]]$var.coef[3,3], rec_autoCorr[[i]]$var.coef[4,4]))
+      rec_autocorr_mean<-rec_autoCorr[[i]][["coef"]][1:4]
+      rec_autocorr_sd<-sqrt(c(rec_autoCorr[[i]][["var.coef"]][1,1],rec_autoCorr[[i]][["var.coef"]][2,2], rec_autoCorr[[i]][["var.coef"]][3,3], rec_autoCorr[[i]][["var.coef"]][4,4]))
       rec_autocorr_mean<-ifelse(abs(rec_autocorr_mean)<(1.96*abs(rec_autocorr_sd)), 0, rec_autocorr_mean)  
       breaks <- unique(c(seq(0, yrs[i], rec_dev_pars[1]), yrs[i]))
       if (scope == 1) { 
         
-        set.seed(seed$global)
+        set.seed(seed[["global"]])
         
         rec_dev_seq <- calc_autoCor_rec_devs(breaks = breaks, yrs = yrs[i], 
                                              rec_autocorr_mean = rec_autocorr_mean, 
@@ -212,7 +212,7 @@ build_rec_devs <- function(
       rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) { 
         
-        set.seed(seed$scenario[i])
+        set.seed(seed[["scenario"]][i])
         
         rec_dev_seq <- calc_autoCor_rec_devs(breaks = breaks,  yrs = yrs[i],
                                              rec_autocorr_mean = rec_autocorr_mean, 
@@ -222,7 +222,7 @@ build_rec_devs <- function(
       for (j in 1:iter_vec[i]) {
         if (scope == 3) { 
           
-          set.seed(seed$iter[[i]][j])
+          set.seed(seed[["iter"]][[i]][j])
           
           rec_dev_seq <- calc_autoCor_rec_devs(breaks = breaks,  yrs = yrs[i],
                                                rec_autocorr_mean = rec_autocorr_mean, 
@@ -237,31 +237,31 @@ build_rec_devs <- function(
       breaks <- unique(c(seq(0, yrs[i], rec_dev_pars[1]), yrs[i]))
       if (scope == 1) { 
         
-        set.seed(seed$global)
+        set.seed(seed[["global"]])
         
         rec_dev_seq <- calc_autoCor_rec_devs(breaks = breaks, yrs = yrs[i], 
-                                             rec_autocorr_mean = rec_autoCorr[[i]]$mean, 
-                                             rec_autocorr_sd = rec_autoCorr[[i]]$sd, 
+                                             rec_autocorr_mean = rec_autoCorr[[i]][["mean"]], 
+                                             rec_autocorr_sd = rec_autoCorr[[i]][["sd"]], 
                                              stddev = stddev[i])
       }
       rec_dev_list[[i]] <- vector(mode = "list", length = length(iter_vec))
       if (scope == 2) { 
         
-        set.seed(seed$scenario[i])
+        set.seed(seed[["scenario"]][i])
         
         rec_dev_seq <- calc_autoCor_rec_devs(breaks = breaks, yrs = yrs[i], 
-                                             rec_autocorr_mean = rec_autoCorr[[i]]$mean, 
-                                             rec_autocorr_sd = rec_autoCorr[[i]]$sd, 
+                                             rec_autocorr_mean = rec_autoCorr[[i]][["mean"]], 
+                                             rec_autocorr_sd = rec_autoCorr[[i]][["sd"]], 
                                              stddev = stddev[i])
       }
       for (j in 1:iter_vec[i]) {
         if (scope == 3) { 
           
-          set.seed(seed$iter[[i]][j])
+          set.seed(seed[["iter"]][[i]][j])
           
           rec_dev_seq <- calc_autoCor_rec_devs(breaks = breaks, yrs = yrs[i], 
-                                               rec_autocorr_mean = rec_autoCorr[[i]]$mean, 
-                                               rec_autocorr_sd = rec_autoCorr[[i]]$sd, 
+                                               rec_autocorr_mean = rec_autoCorr[[i]][["mean"]], 
+                                               rec_autocorr_sd = rec_autoCorr[[i]][["sd"]], 
                                                stddev = stddev[i])
         }
         rec_dev_list[[i]][[j]] <- rec_dev_seq

@@ -17,7 +17,7 @@ test_no_par <- function(orig_mod_dir, new_mod_dir) {
   r4ss::copy_SS_inputs(orig_mod_dir, new_mod_dir, verbose = FALSE)
   start <- r4ss::SS_readstarter(file.path(new_mod_dir, "starter.ss"),
                                 verbose = FALSE)
-  start$init_values_src <- 0 # read inits from ctl instead of par.
+  start[["init_values_src"]] <- 0 # read inits from ctl instead of par.
   r4ss::SS_writestarter(start, dir = file.path(new_mod_dir), overwrite = TRUE,
                         verbose = FALSE, warn = FALSE)
   try(run_ss_model(new_mod_dir, "-maxfn 0 -phase 50 -nohess", verbose = FALSE))

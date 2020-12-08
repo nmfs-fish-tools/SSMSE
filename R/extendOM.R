@@ -47,10 +47,10 @@ extend_OM <- function(catch,
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                 verbose = FALSE)
   # extend the number of yrs in the model and add in catch
-  dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile), verbose = FALSE,
+  dat <- r4ss::SS_readdat(file.path(OM_dir, start[["datfile"]]), verbose = FALSE,
                           section = 1)
   # read in control file
-  ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start$ctlfile),
+  ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start[["ctlfile"]]),
                           version = '3.30', use_datlist = TRUE, datlist = dat,
                           verbose = FALSE)
   # read in parameter file
@@ -61,15 +61,15 @@ extend_OM <- function(catch,
   forelist <- r4ss::SS_readforecast(file = file.path(OM_dir, "forecast.ss"),
                                     readAll = TRUE, verbose = FALSE)
 
-  if (max(catch$year) > (dat$endyr + nyrs_extend)) {
-    stop("The maximum year input for catch is ", max(catch$year), ", but the ",
+  if (max(catch[["year"]]) > (dat[["endyr"]] + nyrs_extend)) {
+    stop("The maximum year input for catch is ", max(catch[["year"]]), ", but the ",
          " nyrs_extend used in function extend_OM only extends the model to the year ",
-         (dat$endyr + nyrs_extend), ". Please either remove years of catch data or ",
+         (dat[["endyr"]] + nyrs_extend), ". Please either remove years of catch data or ",
          "the end year of the model longer.")
   }
   if(is.null(seed)){seed <- stats::runif(1, 1, 9999999)}
   
-  start$seed <- seed
+  start[["seed"]] <- seed
   
   r4ss::SS_writestarter(start, dir = OM_dir, verbose = FALSE, overwrite = TRUE,
                         warn = FALSE)
@@ -122,7 +122,7 @@ extend_OM <- function(catch,
   Fleet_scale <- catch_intended
   Fleet_scale[,"catch"] <- 1
   Fleet_scale[,"basis"] <- 0
-  Fleet_scale <- Fleet_scale[Fleet_scale[,"year"]>=(dat$endyr+1) & Fleet_scale[,"year"]<=(dat$endyr+nyrs_extend),]
+  Fleet_scale <- Fleet_scale[Fleet_scale[,"year"]>=(dat[["endyr"]]+1) & Fleet_scale[,"year"]<=(dat[["endyr"]]+nyrs_extend),]
   search_loops <- 0
   while(achieved_Catch==FALSE)
   {
@@ -141,17 +141,17 @@ extend_OM <- function(catch,
     outlist <- r4ss::SS_output(OM_dir, verbose = FALSE, printstats = FALSE,
                                covar = FALSE, warn = FALSE, readwt = FALSE)
     # Extract the achieved F and Catch for the forecast period
-    F_list <- get_F(timeseries = outlist$timeseries,
-      fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
+    F_list <- get_F(timeseries = outlist[["timeseries"]],
+      fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"])
     
-    units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
+    units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"]
     
-    names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
+    names(units_of_catch) <- as.character(which(dat[["fleetinfo"]][["type"]] %in% c(1, 2)))
     
-    ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
+    ret_catch <- get_retained_catch(timeseries = outlist[["timeseries"]],
       units_of_catch = units_of_catch)
     
-    F_achieved <- F_list$F_df[F_list$F_df[,"Era"]=="FORE",c("Yr", "Seas", "Fleet", "F")]
+    F_achieved <- F_list[["F_df"]][F_list[["F_df"]][,"Era"]=="FORE",c("Yr", "Seas", "Fleet", "F")]
     colnames(F_achieved) <- c("year", "seas", "fleet","F")
     # Check that SS created projections with the intended catches before updating model
     # make sure retained catch is close to the same as the input catch.
@@ -273,7 +273,7 @@ extend_OM <- function(catch,
   }
   temp_1<-catch_intended[,1:4]
   colnames(temp_1)<-c("year","seas","fleet","catch")
-  temp_2<-ret_catch[ret_catch[,"Yr"]==(dat$endyr+1),c(1,3,5,6)]
+  temp_2<-ret_catch[ret_catch[,"Yr"]==(dat[["endyr"]]+1),c(1,3,5,6)]
   colnames(temp_2)<-c("year","seas","fleet","catch")
   temp_3<-F_achieved[,1:4]
   colnames(temp_3)<-c("year","seas","fleet","catch")
@@ -290,48 +290,48 @@ extend_OM <- function(catch,
   # recdevs
   # recdev1 is created when using do_rec_devs method 1; recdev2 is created when
   # using do_rec_devs method 2,3,or 4;
-  dummy_rec<- get_rec_devs_matrix(yrs = (dat$endyr + nyrs_extend + 1),
+  dummy_rec<- get_rec_devs_matrix(yrs = (dat[["endyr"]] + nyrs_extend + 1),
                                   rec_devs = 0)
   parlist[["recdev_forecast"]] <- rbind(parlist[["recdev_forecast"]],dummy_rec)
   # 
-  # if (!is.null(parlist$recdev1)) {
-  #   parlist$recdev1 <- rbind(parlist$recdev1,
-  #                            parlist$recdev_forecast[seq_len(nyrs_extend+length(temp_recs[,1])), ])
-  # } else if (!is.null(parlist$recdev2)) {
-  #   parlist$recdev2 <- rbind(parlist$recdev2,
-  #                            parlist$recdev_forecast[seq_len(nyrs_extend), ])
+  # if (!is.null(parlist[["recdev1"]])) {
+  #   parlist[["recdev1"]] <- rbind(parlist[["recdev1"]],
+  #                            parlist[["recdev_forecast"]][seq_len(nyrs_extend+length(temp_recs[,1])), ])
+  # } else if (!is.null(parlist[["recdev2"]])) {
+  #   parlist[["recdev2"]] <- rbind(parlist[["recdev2"]],
+  #                            parlist[["recdev_forecast"]][seq_len(nyrs_extend), ])
   # }
   # implementation error
-  parlist$Fcast_impl_error <- get_impl_error_matrix(
-    yrs = (dat$endyr + nyrs_extend + 1))
+  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(
+    yrs = (dat[["endyr"]] + nyrs_extend + 1))
   # recdevs
-  # parlist$recdev_forecast <-
-  #   get_rec_devs_matrix(yrs = (dat$endyr + nyrs_extend + 1),
+  # parlist[["recdev_forecast"]] <-
+  #   get_rec_devs_matrix(yrs = (dat[["endyr"]] + nyrs_extend + 1),
   #                       rec_devs = 0)
   
   # F values
   add_F_rate <- F_list[["F_rate_fcast"]][,
                     setdiff(colnames(F_list[["F_rate_fcast"]]), "name")]
-  add_F_rate <- add_F_rate[add_F_rate$year %in%
-                             (dat$endyr + 1):(dat$endyr + nyrs_extend), ]
-  parlist$F_rate <- rbind(parlist$F_rate, add_F_rate)
+  add_F_rate <- add_F_rate[add_F_rate[["year"]] %in%
+                             (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs_extend), ]
+  parlist[["F_rate"]] <- rbind(parlist[["F_rate"]], add_F_rate)
 
-  parlist$F_rate <- parlist$F_rate[order(parlist$F_rate$fleet,parlist$F_rate$year,parlist$F_rate$seas),]
+  parlist[["F_rate"]] <- parlist[["F_rate"]][order(parlist[["F_rate"]][["fleet"]],parlist[["F_rate"]][["year"]],parlist[["F_rate"]][["seas"]]),]
   # change data file
   
-  dat$catch <- rbind(dat$catch, mod_catch)
-  if (dat$N_discard_fleets > 0) {
-    dat$discard_data <- rbind(dat$discard_data, discards)
+  dat[["catch"]] <- rbind(dat[["catch"]], mod_catch)
+  if (dat[["N_discard_fleets"]] > 0) {
+    dat[["discard_data"]] <- rbind(dat[["discard_data"]], discards)
   }
-  dat$endyr <- dat$endyr + nyrs_extend
+  dat[["endyr"]] <- dat[["endyr"]] + nyrs_extend
 
   # modify ctl file ----
-  #ctl[["MainRdevYrLast"]] <- dat$endyr
-  #ctl[["last_yr_fullbias_adj"]] <- dat$endyr
-  #ctl[["first_recent_yr_nobias_adj"]] <- dat$endyr
+  #ctl[["MainRdevYrLast"]] <- dat[["endyr"]]
+  #ctl[["last_yr_fullbias_adj"]] <- dat[["endyr"]]
+  #ctl[["first_recent_yr_nobias_adj"]] <- dat[["endyr"]]
 
   # write out the changed files, except for dat.
-  r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_dir, start$ctlfile),
+  r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_dir, start[["ctlfile"]]),
                     overwrite = TRUE, verbose = FALSE)
   r4ss::SS_writeforecast(mylist = forelist, dir = OM_dir, writeAll = TRUE,
                          overwrite = TRUE, verbose = FALSE)
@@ -341,68 +341,68 @@ extend_OM <- function(catch,
   if (!is.null(sample_struct)) {
     tmp_CPUE <- sample_struct[["CPUE"]]
     if(!is.null(tmp_CPUE)) {
-      tmp_CPUE <- tmp_CPUE[tmp_CPUE$year >= (dat$endyr - nyrs_extend + 1) &
-                           tmp_CPUE$year <= dat$endyr, ]
+      tmp_CPUE <- tmp_CPUE[tmp_CPUE[["year"]] >= (dat[["endyr"]] - nyrs_extend + 1) &
+                           tmp_CPUE[["year"]] <= dat[["endyr"]], ]
       if(nrow(tmp_CPUE) > 0) {
-        tmp_CPUE$obs <- 1 #dummy observation
+        tmp_CPUE[["obs"]] <- 1 #dummy observation
         tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
-        tmp_CPUE$index <- -abs(tmp_CPUE$index)
-        dat$CPUE <- rbind(dat$CPUE, tmp_CPUE)
+        tmp_CPUE[["index"]] <- -abs(tmp_CPUE[["index"]])
+        dat[["CPUE"]] <- rbind(dat[["CPUE"]], tmp_CPUE)
       }
     }
 
     # This method of adding new data doesn't work if len comp is not already 
     # turned on. Add warninig for now, but could potentially turn on len comp 
     # for the user in the OM?
-    if (dat$use_lencomp == 0 & !is.null(sample_struct[["lencomp"]])) {
+    if (dat[["use_lencomp"]] == 0 & !is.null(sample_struct[["lencomp"]])) {
       warning("Length composition is not specified in the OM, but the lencomp ",
               "sampling was requested through sample_struct. Please turn on ",
               "length comp in the OM to allow lencomp sampling.")
     }
-    if (dat$use_lencomp == 1 & !is.null(sample_struct[["lencomp"]])) {
+    if (dat[["use_lencomp"]] == 1 & !is.null(sample_struct[["lencomp"]])) {
       tmp_lencomp <- sample_struct[["lencomp"]]
-      tmp_lencomp <- tmp_lencomp[tmp_lencomp$Yr >= (dat$endyr - nyrs_extend + 1) &
-                             tmp_lencomp$Yr <= dat$endyr, ]
+      tmp_lencomp <- tmp_lencomp[tmp_lencomp[["Yr"]] >= (dat[["endyr"]] - nyrs_extend + 1) &
+                             tmp_lencomp[["Yr"]] <= dat[["endyr"]], ]
       if(nrow(tmp_lencomp) > 0 ) {
         # get col names
-        lencomp_dat_colnames <- colnames(dat$lencomp)[7:ncol(dat$lencomp)]
+        lencomp_dat_colnames <- colnames(dat[["lencomp"]])[7:ncol(dat[["lencomp"]])]
         tmp_df_dat <- matrix(1,
                              nrow = nrow(tmp_lencomp),
                              ncol = length(lencomp_dat_colnames))
         colnames(tmp_df_dat) <- lencomp_dat_colnames
         tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
-        tmp_lencomp$FltSvy <- -abs(tmp_lencomp$FltSvy) # make sure negative
-        dat$lencomp <- rbind(dat$lencomp, tmp_lencomp)
+        tmp_lencomp[["FltSvy"]] <- -abs(tmp_lencomp[["FltSvy"]]) # make sure negative
+        dat[["lencomp"]] <- rbind(dat[["lencomp"]], tmp_lencomp)
       }
     }
-    # TODO: can write code that adds age comp obs when dat$agecomp is NULL.
-    if(is.null(dat$agecomp) & !is.null(sample_struct[["agecomp"]])) {
+    # TODO: can write code that adds age comp obs when dat[["agecomp"]] is NULL.
+    if(is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
       warning("Age composition is not specified in the OM, but the agecomp ",
               "sampling was requested through sample_struct. Please turn on ",
               "age comp in the OM by adding at least  to allow agecomp ", 
               "sampling.")
     }
-    if(!is.null(dat$agecomp) & !is.null(sample_struct[["agecomp"]])) {
+    if(!is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
       tmp_agecomp <- sample_struct[["agecomp"]]
-      tmp_agecomp <- tmp_agecomp[tmp_agecomp$Yr >= (dat$endyr - nyrs_extend + 1) &
-                                   tmp_agecomp$Yr <= dat$endyr, ]
+      tmp_agecomp <- tmp_agecomp[tmp_agecomp[["Yr"]] >= (dat[["endyr"]] - nyrs_extend + 1) &
+                                   tmp_agecomp[["Yr"]] <= dat[["endyr"]], ]
       if(nrow(tmp_agecomp) > 0) {
         # get col names
-        agecomp_dat_colnames <- colnames(dat$agecomp)[10:ncol(dat$agecomp)]
+        agecomp_dat_colnames <- colnames(dat[["agecomp"]])[10:ncol(dat[["agecomp"]])]
         tmp_df_dat <- matrix(1,
                              nrow = nrow(tmp_agecomp),
                              ncol = length(agecomp_dat_colnames))
         colnames(tmp_df_dat) <- agecomp_dat_colnames
         tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
-        tmp_agecomp$FltSvy <- -abs(tmp_agecomp$FltSvy) # make sure negative
-        dat$agecomp <- rbind(dat$agecomp, tmp_agecomp)
+        tmp_agecomp[["FltSvy"]] <- -abs(tmp_agecomp[["FltSvy"]]) # make sure negative
+        dat[["agecomp"]] <- rbind(dat[["agecomp"]], tmp_agecomp)
       }
     }
   }
   # write the new data file
   if (write_dat) {
     r4ss::SS_writedat(dat,
-                      outfile = file.path(OM_dir, start$datfile),
+                      outfile = file.path(OM_dir, start[["datfile"]]),
                       overwrite = TRUE,
                       verbose = FALSE)
   }
@@ -436,7 +436,7 @@ check_future_catch <- function(catch, OM_dir, catch_units = "bio",
   summary <- r4ss::SS_read_summary(file.path(OM_dir, "ss_summary.sso"))
   if (is.null(datfile)) {
     start <- SS_readstarter(file.path(OM_dir, "starter.ss"), verbose = FALSE)
-    dat <- SS_readdat(file.path(OM_dir, start$datfile), verbose = FALSE,
+    dat <- SS_readdat(file.path(OM_dir, start[["datfile"]]), verbose = FALSE,
                         section = 1)
   } else {
     dat <- SS_readdat(file.path(OM_dir, datfile), verbose = FALSE,
@@ -456,20 +456,20 @@ check_future_catch <- function(catch, OM_dir, catch_units = "bio",
   # catch units are in numbers. Any other scenarios when this is true?
   if (catch_units == "bio") {
     tot_bio_lyear <-
-      summary$biomass[
-        grep(paste0("TotBio_", dat$endyr), rownames(summary$biomass)), ]
-    if (dat$endyr >= min(catch$year)) {
+      summary[["biomass"]][
+        grep(paste0("TotBio_", dat[["endyr"]]), rownames(summary[["biomass"]])), ]
+    if (dat[["endyr"]] >= min(catch[["year"]])) {
       stop("The highest year for which TotBio in ss_summary.sso is available (in",
-          " the dir ", OM_dir, " is ", dat$endyr, " which is equal to or higher than ",
-          "the minimum year value in catch, which is ", min(catch$year), ". ",
+          " the dir ", OM_dir, " is ", dat[["endyr"]], " which is equal to or higher than ",
+          "the minimum year value in catch, which is ", min(catch[["year"]]), ". ",
           "The catch should only contain values in the future compared to the ",
           "model summary.")
     }
-    if (any(catch$catch > tot_bio_lyear$Value)) {
+    if (any(catch[["catch"]] > tot_bio_lyear[["Value"]])) {
       stop("Some input values for future catch are higher than the most recent",
            " year's total biomass. Recent total biomass: ",
-           tot_bio_lyear$Value, "; future catch: ",
-           paste0(catch$catch, collapse = ", "))
+           tot_bio_lyear[["Value"]], "; future catch: ",
+           paste0(catch[["catch"]], collapse = ", "))
       # TODO: Maybe write a warning and work around instead of stop?
     }
   } else {

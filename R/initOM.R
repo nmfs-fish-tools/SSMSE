@@ -34,28 +34,28 @@ create_OM <- function(OM_out_dir,
                                 verbose = FALSE)
   # modify starter to use as OM ----
   if(is.null(seed)){seed <- stats::runif(1,1,99999999)}
-  start$init_values_src <- 1
-  start$detailed_age_structure <- 1
-  start$last_estimation_phase <- 0
-  start$depl_basis <- 0
-  start$depl_denom_frac <- 1
-  start$SPR_basis <- 0
-  start$F_report_units <- 0
-  start$F_report_basis <- 0
-  start$F_age_range <- NULL
-  start$ALK_tolerance <- 0
-  start$seed <- seed
+  start[["init_values_src"]] <- 1
+  start[["detailed_age_structure"]] <- 1
+  start[["last_estimation_phase"]] <- 0
+  start[["depl_basis"]] <- 0
+  start[["depl_denom_frac"]] <- 1
+  start[["SPR_basis"]] <- 0
+  start[["F_report_units"]] <- 0
+  start[["F_report_basis"]] <- 0
+  start[["F_age_range"]] <- NULL
+  start[["ALK_tolerance"]] <- 0
+  start[["seed"]] <- seed
   r4ss::SS_writestarter(start, dir = OM_out_dir, verbose = FALSE,
                         overwrite = TRUE, warn = FALSE)
   # run model to get standardized output ----
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess", debug_par_run = TRUE,
                verbose = verbose)
   # read in files to use ----
-  dat <- r4ss::SS_readdat(file = file.path(OM_out_dir, start$datfile),
+  dat <- r4ss::SS_readdat(file = file.path(OM_out_dir, start[["datfile"]]),
                           verbose = FALSE, section = 1)
   forelist <- r4ss::SS_readforecast(file = file.path(OM_out_dir, "forecast.ss"),
                                     readAll = TRUE, verbose = FALSE)
-  ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start$ctlfile), verbose = FALSE,
+  ctl <- r4ss::SS_readctl(file.path(OM_out_dir, start[["ctlfile"]]), verbose = FALSE,
                           use_datlist = TRUE, datlist = dat)
   outlist <- r4ss::SS_output(OM_out_dir, verbose = FALSE, printstats = FALSE,
                              covar = FALSE)
@@ -84,17 +84,17 @@ create_OM <- function(OM_out_dir,
   }
   # put together a Forecatch dataframe using retained catch as a starting point for the OM
   # this would only matter if an EM assessment is not run in the first year. 
-  units_of_catch <- dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "units"]
-  names(units_of_catch) <- as.character(which(dat$fleetinfo$type %in% c(1, 2)))
-  ret_catch <- get_retained_catch(timeseries = outlist$timeseries,
+  units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"]
+  names(units_of_catch) <- as.character(which(dat[["fleetinfo"]][["type"]] %in% c(1, 2)))
+  ret_catch <- get_retained_catch(timeseries = outlist[["timeseries"]],
         units_of_catch = units_of_catch)
-  temp_fore <- ret_catch[ret_catch$Era == "FORE",
+  temp_fore <- ret_catch[ret_catch[["Era"]] == "FORE",
                          c("Yr", "Seas", "Fleet", "retained_catch")]
   row.names(temp_fore) <- NULL
   names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F")
   # only put values in that are in the Fcas year range.
-  forelist$ForeCatch <- temp_fore[
-    is.element(temp_fore$Year, (dat$endyr + 1):(dat$endyr + nyrs_assess)), ]
+  forelist[["ForeCatch"]] <- temp_fore[
+    is.element(temp_fore[["Year"]], (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs_assess)), ]
 
   # modify ctl file ----
   # in the context of an OM, do not want to use the bias adjustment ramp, so just
@@ -133,38 +133,38 @@ create_OM <- function(OM_out_dir,
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
   # get recdevs for all model yeasrs
-  all_recdevs <- all_recdevs[all_recdevs$year >= first_year & all_recdevs$year <= (dat$endyr + forelist$Nforecastyrs), ]
-  #new_recdevs_df <- data.frame(year = dat$styr:dat$endyr, recdev = NA)
+  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ]
+  #new_recdevs_df <- data.frame(year = dat[["styr"]]:dat[["endyr"]], recdev = NA)
   new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
-  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]]+1):(dat$endyr + forelist$Nforecastyrs), recdev = NA)
-  for (i in seq_along(first_year:(dat$endyr + forelist$Nforecastyrs))) {
+  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]]+1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]), recdev = NA)
+  for (i in seq_along(first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))) {
     
-    tmp_yr <- (first_year:(dat$endyr + forelist$Nforecastyrs))[i]
+    tmp_yr <- (first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))[i]
     if(tmp_yr<=ctl[["MainRdevYrLast"]]){
       step<-i
-    if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+    if(length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
       new_recdevs_df[i,"recdev"] <- 0 # just assume no recdevs
     } else {
       new_recdevs_df[i,"recdev"] <-
-        all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+        all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
     }
-    }else if(tmp_yr<=dat$endyr){
-      if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+    }else if(tmp_yr<=dat[["endyr"]]){
+      if(length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
         fore_recdevs_df[(i-step),"recdev"] <- 0
       } else {
         fore_recdevs_df[(i-step),"recdev"] <-
-          all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+          all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
       }
     }else{
       temp_recs<-get_rec_devs_matrix(yrs = tmp_yr,
                                  rec_devs = rec_devs)
       if (length(temp_recs[,"recdev"])==1)  {
         fore_recdevs_df[(i-step),"recdev"] <- temp_recs[1, "recdev"]  
-      }else if(length(all_recdevs[all_recdevs$year == tmp_yr, "year"]) == 0) {
+      }else if(length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
         fore_recdevs_df[(i-step),"recdev"] <- 0
       } else {
         fore_recdevs_df[(i-step),"recdev"] <-
-          all_recdevs[all_recdevs$year == tmp_yr, "recdev"]
+          all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
       }
     }
   }
@@ -179,8 +179,8 @@ create_OM <- function(OM_out_dir,
   }
   
   # use report.sso time series table to find the F's to put into the parlist.
-  F_list <- get_F(timeseries = outlist$timeseries,
-    fleetnames = dat$fleetinfo[dat$fleetinfo$type %in% c(1, 2), "fleetname"])
+  F_list <- get_F(timeseries = outlist[["timeseries"]],
+    fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"])
   # modify the init_F and F_rate in parlist if used.
   # note that F_list[["F_rate"]] and F_list[["F_init]] are NULL if they had 0
   # rows.
@@ -188,11 +188,11 @@ create_OM <- function(OM_out_dir,
   parlist[["init_F"]] <- F_list[["init_F"]]
   # add recdevs to the parlist
   parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
-    # get_rec_devs_matrix(yrs = (ctl[["MainRdevYrLast"]] + 1):(dat$endyr + forelist$Nforecastyrs),
+    # get_rec_devs_matrix(yrs = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]),
     #                     rec_devs = rec_devs)
   # want no implementation error for the forecast, so function adds in 0s.
   parlist[["Fcast_impl_error"]] <-
-    get_impl_error_matrix(yrs = (dat$endyr + 1):(dat$endyr + forelist$Nforecastyrs))
+    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
 
   
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
@@ -201,7 +201,7 @@ create_OM <- function(OM_out_dir,
   ctl[["F_setup2"]] <- NULL # make sure list components used by other F methods are NULL:
   
   # write all files
-  r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_out_dir, start$ctlfile),
+  r4ss::SS_writectl(ctllist = ctl, outfile = file.path(OM_out_dir, start[["ctlfile"]]),
                     overwrite = TRUE, verbose = FALSE)
   r4ss::SS_writeforecast(mylist = forelist, dir = OM_out_dir, writeAll = TRUE,
                          overwrite = TRUE, verbose = FALSE)
@@ -215,10 +215,10 @@ create_OM <- function(OM_out_dir,
     # add in dummy values to CPUE, length comp, age comp by using -fleet.
     # CPUE
     # TODO: refactor and write a function.
-    old_CPUE <- dat$CPUE
+    old_CPUE <- dat[["CPUE"]]
     new_CPUE <- old_CPUE # initialize, because want all old values, plus some new ones
-    CPUE_seas_flt <- unique(dat$CPUE[, c("seas", "index")])
-    dat_yrs <- dat$styr:dat$endyr
+    CPUE_seas_flt <- unique(dat[["CPUE"]][, c("seas", "index")])
+    dat_yrs <- dat[["styr"]]:dat[["endyr"]]
     # get a df of the se values to use.
     se_log_val <- get_input_value(data = old_CPUE,
                                   method = "most_common_value",
@@ -234,13 +234,13 @@ create_OM <- function(OM_out_dir,
       tmp_seas <- CPUE_seas_flt[i, "seas"]
       tmp_flt <- CPUE_seas_flt[i, "index"]
       # below is the data for the season and fleet combo that already in the OM.
-      tmp_CPUE <- old_CPUE[(old_CPUE$seas == tmp_seas & old_CPUE$index == tmp_flt), ]
+      tmp_CPUE <- old_CPUE[(old_CPUE[["seas"]] == tmp_seas & old_CPUE[["index"]] == tmp_flt), ]
       # find which years need to be added
-      tmp_miss_yrs <- dat_yrs[!dat_yrs %in% tmp_CPUE$year]
+      tmp_miss_yrs <- dat_yrs[!dat_yrs %in% tmp_CPUE[["year"]]]
       # get the standard error from the old CPUE. For now, just use the
       # most common method (hard coded)
       # tmp_se_log_val should be a single value
-      tmp_se_log_val <- se_log_val[se_log_val$index == tmp_flt, "se_log"]
+      tmp_se_log_val <- se_log_val[se_log_val[["index"]] == tmp_flt, "se_log"]
       assertive.properties::assert_is_atomic(tmp_se_log_val)
       assertive.properties::assert_is_of_length(tmp_se_log_val, 1)
       # TODO: make se_log more general by allowing more options for "method: (
@@ -255,13 +255,13 @@ create_OM <- function(OM_out_dir,
       new_CPUE <- rbind(new_CPUE, tmp_df)
     }
     # overwrite the old lines
-    dat$CPUE <- new_CPUE
+    dat[["CPUE"]] <- new_CPUE
     # length comp
-    if (dat$use_lencomp == 1) {
-      old_lencomp <- dat$lencomp
+    if (dat[["use_lencomp"]] == 1) {
+      old_lencomp <- dat[["lencomp"]]
       new_lencomp <- old_lencomp
       meta_cols <- c("Seas", "FltSvy", "Gender", "Part")
-      lcomp_combo <- unique(dat$lencomp[, meta_cols])
+      lcomp_combo <- unique(dat[["lencomp"]][, meta_cols])
       len_Nsamp_val <- get_input_value(data = old_lencomp,
                                        method = "most_common_value",
                                        colname = "Nsamp",
@@ -279,16 +279,16 @@ create_OM <- function(OM_out_dir,
                                FUN.VALUE = 1,
                                i = i, lcomp_combo = lcomp_combo,
                                USE.NAMES = TRUE)
-        tmp_lencomp <- old_lencomp[old_lencomp$Seas == tmp_metacols["Seas"] &
-                                 old_lencomp$FltSvy == tmp_metacols["FltSvy"] &
-                                 old_lencomp$Gender == tmp_metacols["Gender"] &
-                                 old_lencomp$Part == tmp_metacols["Part"], ]
+        tmp_lencomp <- old_lencomp[old_lencomp[["Seas"]] == tmp_metacols["Seas"] &
+                                 old_lencomp[["FltSvy"]] == tmp_metacols["FltSvy"] &
+                                 old_lencomp[["Gender"]] == tmp_metacols["Gender"] &
+                                 old_lencomp[["Part"]] == tmp_metacols["Part"], ]
         # find which years need to be added
-        tmp_miss_yrs_lencomp <- dat_yrs[!dat_yrs %in% tmp_lencomp$Yr]
+        tmp_miss_yrs_lencomp <- dat_yrs[!dat_yrs %in% tmp_lencomp[["Yr"]]]
         # get the Nsamp
         # TODO: add more options for getting sample size.
         tmp_len_Nsamp_val <- len_Nsamp_val[
-          len_Nsamp_val$FltSvy == tmp_metacols["FltSvy"], "Nsamp"]
+          len_Nsamp_val[["FltSvy"]] == tmp_metacols["FltSvy"], "Nsamp"]
         assertive.properties::assert_is_atomic(tmp_len_Nsamp_val)
         assertive.properties::assert_is_of_length(tmp_len_Nsamp_val, 1)
         # used suppressWarning because creates an unwanted warning that can be
@@ -310,14 +310,14 @@ create_OM <- function(OM_out_dir,
         new_lencomp <- rbind(new_lencomp, tmp_df_lencomp)
       }
       # overwrite the old lines
-      dat$lencomp <- new_lencomp
+      dat[["lencomp"]] <- new_lencomp
     }
     # agecomp
-    old_agecomp <- dat$agecomp
+    old_agecomp <- dat[["agecomp"]]
     new_agecomp <- old_agecomp
     meta_cols_agecomp <- c("Seas", "FltSvy", "Gender", "Part", "Ageerr",
                            "Lbin_lo", "Lbin_hi")
-    agecomp_combo <- unique(dat$agecomp[, meta_cols_agecomp])
+    agecomp_combo <- unique(dat[["agecomp"]][, meta_cols_agecomp])
     # get the Nsamp
     # TODO: add more options for getting sample size.
     age_Nsamp_val <- get_input_value(data = old_agecomp,
@@ -338,18 +338,18 @@ create_OM <- function(OM_out_dir,
                              i = i, agecomp_combo = agecomp_combo,
                              USE.NAMES = TRUE)
       tmp_agecomp <- old_agecomp[
-                        old_agecomp$Seas == tmp_metacols["Seas"] &
-                        old_agecomp$FltSvy == tmp_metacols["FltSvy"] &
-                        old_agecomp$Gender == tmp_metacols["Gender"] &
-                        old_agecomp$Part == tmp_metacols["Part"] &
-                        old_agecomp$Ageerr == tmp_metacols["Ageerr"] &
-                        old_agecomp$Lbin_lo == tmp_metacols["Lbin_lo"] &
-                        old_agecomp$Lbin_hi == tmp_metacols["Lbin_hi"],
+                        old_agecomp[["Seas"]] == tmp_metacols["Seas"] &
+                        old_agecomp[["FltSvy"]] == tmp_metacols["FltSvy"] &
+                        old_agecomp[["Gender"]] == tmp_metacols["Gender"] &
+                        old_agecomp[["Part"]] == tmp_metacols["Part"] &
+                        old_agecomp[["Ageerr"]] == tmp_metacols["Ageerr"] &
+                        old_agecomp[["Lbin_lo"]] == tmp_metacols["Lbin_lo"] &
+                        old_agecomp[["Lbin_hi"]] == tmp_metacols["Lbin_hi"],
                         ]
       # find which years need to be added
-      tmp_miss_yrs_agecomp <- dat_yrs[!dat_yrs %in% tmp_agecomp$Yr]
+      tmp_miss_yrs_agecomp <- dat_yrs[!dat_yrs %in% tmp_agecomp[["Yr"]]]
       tmp_age_Nsamp_val <- age_Nsamp_val[
-        age_Nsamp_val$FltSvy == tmp_metacols["FltSvy"], "Nsamp"]
+        age_Nsamp_val[["FltSvy"]] == tmp_metacols["FltSvy"], "Nsamp"]
       assertive.properties::assert_is_atomic(tmp_age_Nsamp_val)
       assertive.properties::assert_is_of_length(tmp_age_Nsamp_val, 1)
 
@@ -375,23 +375,23 @@ create_OM <- function(OM_out_dir,
       new_agecomp <- rbind(new_agecomp, tmp_df_agecomp)
     }
     # overwrite the old lines
-    dat$agecomp <- new_agecomp
+    dat[["agecomp"]] <- new_agecomp
   }
   # make sure tail compression is off.
   # turn off tail compression
-  if(isTRUE(any(dat$len_info$mintailcomp >= 0)) |
-     isTRUE(any(dat$age_info$mintailcomp >= 0))) {
+  if(isTRUE(any(dat[["len_info"]][["mintailcomp"]] >= 0)) |
+     isTRUE(any(dat[["age_info"]][["mintailcomp"]] >= 0))) {
     warning("Tail compression was on for some fleets in length comp and/or age ",
             "comp for the operating model, but needs to be", 
             "turned off in an operating model. Turning off tail compression.", 
             " Note that this may change expected values for historical age or ", 
             " length composition.")
-    if(!is.null(dat$len_info)) dat$len_info$mintailcomp <- -1
-    if(!is.null(dat$age_info)) dat$age_info$mintailcomp <- -1
+    if(!is.null(dat[["len_info"]])) dat[["len_info"]][["mintailcomp"]] <- -1
+    if(!is.null(dat[["age_info"]])) dat[["age_info"]][["mintailcomp"]] <- -1
   }
 
   if (writedat) {
-    SS_writedat(dat, file.path(OM_out_dir, start$datfile),
+    SS_writedat(dat, file.path(OM_out_dir, start[["datfile"]]),
                 overwrite = overwrite,
                 verbose = FALSE)
   }
@@ -414,23 +414,23 @@ create_OM <- function(OM_out_dir,
                              warn = FALSE, covar = FALSE, readwt = FALSE,
                              printstats = FALSE)
     # check F's in the assumed order.
-    par_df <- test_output$parameters
-    init_F_pars <- par_df[grep("^InitF_", par_df$Label), ]
+    par_df <- test_output[["parameters"]]
+    init_F_pars <- par_df[grep("^InitF_", par_df[["Label"]]), ]
     if (NROW(init_F_pars) != length(F_list[["init_F"]])) {
       stop("Wrong number of init_F parameters assumed by create_OM function.")
     }
     if (NROW(init_F_pars) > 0) {
-      if (!all(init_F_pars$Label == names(F_list[["init_F"]]))) {
+      if (!all(init_F_pars[["Label"]] == names(F_list[["init_F"]]))) {
        stop("Names of init_F parameters assumed by create_OM function and in\n",
             "the PARAMETERS table of Report.sso function do not match.")
       }
     }
-    F_rate_pars <- par_df[grep("^F_fleet_", par_df$Label), ]
+    F_rate_pars <- par_df[grep("^F_fleet_", par_df[["Label"]]), ]
     if (NROW(F_rate_pars) != NROW(F_list[["F_rate"]])) {
       stop("Wrong number of F_rate parameters assumed by create_OM function.")
     }
     if (NROW(F_rate_pars) > 0) {
-      if (!all(F_rate_pars$Label == F_list$F_rate$name)) {
+      if (!all(F_rate_pars[["Label"]] == F_list[["F_rate"]][["name"]])) {
         stop("Names of F_rate parameters assumed by create_OM function and in\n",
              "the PARAMETERS table of Report.sso function do not match.")
       }
@@ -477,8 +477,8 @@ run_OM <- function(OM_dir,
   
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                 verbose = FALSE)
-  start$N_bootstraps <- max_section
-  start$seed <- seed
+  start[["N_bootstraps"]] <- max_section
+  start[["seed"]] <- seed
   r4ss::SS_writestarter(start, dir = OM_dir, verbose = FALSE, overwrite = TRUE,
                         warn = FALSE)
   
@@ -498,7 +498,7 @@ run_OM <- function(OM_dir,
     exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
                                  section = 2,
                                  verbose = FALSE)
-    dat$catch <- exp_vals$catch
+    dat[["catch"]] <- exp_vals[["catch"]]
   }
   return(dat)
 }

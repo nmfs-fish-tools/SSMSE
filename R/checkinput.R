@@ -57,11 +57,11 @@ check_dir <- function(dir) {
 #' @author Kathryn Doering
 check_OM_dat <- function(OM_dat, EM_dat) {
   # check start and end years match
-  if (OM_dat$styr != EM_dat$styr | OM_dat$endyr != EM_dat$endyr) {
+  if (OM_dat[["styr"]] != EM_dat[["styr"]] | OM_dat[["endyr"]] != EM_dat[["endyr"]]) {
     stop("OM_dat and EM_dat should have the same start and end years. However, ",
-         "OM_dat has styr = ", OM_dat$styr, " and endyr = ", OM_dat$endyr,
-         ", while EM_dat has styr = ", EM_dat$styr, " and endyr = ",
-         EM_dat$endyr)
+         "OM_dat has styr = ", OM_dat[["styr"]], " and endyr = ", OM_dat[["endyr"]],
+         ", while EM_dat has styr = ", EM_dat[["styr"]], " and endyr = ",
+         EM_dat[["endyr"]])
   }
   check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "catch",
                   colnames = c("year", "seas", "fleet"))
@@ -69,24 +69,24 @@ check_OM_dat <- function(OM_dat, EM_dat) {
                   colnames = c("year", "seas", "index"))
   # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
   # TODO: add in capabilities to deal with this type of data and remove stop msgs
-  if (OM_dat$use_meanbodywt == 1 | EM_dat$use_meanbodywt == 1) {
+  if (OM_dat[["use_meanbodywt"]] == 1 | EM_dat[["use_meanbodywt"]] == 1) {
     stop("Models with mean body size observations cannot yet be used as OMs ",
          "or EMs in SSMSE")
   }
-  # if (OM_dat$use_MeanSize_at_Age_obs == 1 | EM_dat$use_meanbodywt == 1) {
+  # if (OM_dat[["use_MeanSize_at_Age_obs"]] == 1 | EM_dat[["use_meanbodywt"]] == 1) {
   #   stop("Models with mean size-at-age observations cannot yet be used as OMs ",
   #        "or EMs in SSMSE")
   # }
   # check population length bins
   # check lcomp bins and lcomp bins (if exists)
-  if (EM_dat$use_lencomp == 1) {
-    if (OM_dat$use_lencomp != 1) {
+  if (EM_dat[["use_lencomp"]] == 1) {
+    if (OM_dat[["use_lencomp"]] != 1) {
       stop("The EM expects length composition data, but the OM does not have ",
            "any. Please add length composition to the ")
     }
     # check there are the correct number of columns and same names
-    if (paste0(colnames(OM_dat$lencomp), collapse = "") !=
-       paste0(colnames(EM_dat$lencomp), collapse = "")) {
+    if (paste0(colnames(OM_dat[["lencomp"]]), collapse = "") !=
+       paste0(colnames(EM_dat[["lencomp"]]), collapse = "")) {
       stop("Column names for length composition were not the same for the OM ",
            "and EM. Please make the length comp bins the same.")
     }
@@ -97,8 +97,8 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     # is the same?
   }
   # check age comp
-  if (paste0(colnames(OM_dat$agecomp), collapse = "") !=
-     paste0(colnames(EM_dat$agecomp), collapse = "")) {
+  if (paste0(colnames(OM_dat[["agecomp"]]), collapse = "") !=
+     paste0(colnames(EM_dat[["agecomp"]]), collapse = "")) {
     stop("Column names for age composition were not the same for the OM ",
          "and EM. Please make the age comp bins the same.")
   }

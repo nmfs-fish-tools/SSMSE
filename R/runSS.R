@@ -56,7 +56,7 @@ run_ss_model <- function(dir,
   check_dir(dir)
   wd_orig <- getwd()
   on.exit(setwd(wd_orig))
-  os <- .Platform$OS.type
+  os <- .Platform[["OS.type"]]
   bin <- get_bin(ss_bin)
   if (check_run == TRUE) {
     ss_new_path <- file.path(dir, "data.ss_new")
@@ -111,7 +111,7 @@ run_ss_model <- function(dir,
 #' }
 get_bin <- function(bin_name = "ss") {
   # code inspiration from glmmADMB package:
-  if (.Platform$OS.type == "windows") {
+  if (.Platform[["OS.type"]] == "windows") {
     platform <- "Windows64"
     bin_name <- paste0(bin_name, ".exe")
     bit <- gsub("\\/", "", Sys.getenv("R_ARCH"))
@@ -119,18 +119,18 @@ get_bin <- function(bin_name = "ss") {
       if (!grepl("86", bit)) {
         platform <- "Windows32"
         warning("SS3 binary is not available for 32-bit ",
-                .Platform$OS.type, " within the package. ",
+                .Platform[["OS.type"]], " within the package. ",
                 "You must have an appropriate SS3 binary in your path. ",
                 "See the ss3sim vignette.")
       }}
   } else {
-    if (substr(R.version$os, 1, 6) == "darwin") {
+    if (substr(R.version[["os"]], 1, 6) == "darwin") {
       platform <- "MacOS"
     } else {
-      if (R.version$os == "linux-gnu") {
+      if (R.version[["os"]] == "linux-gnu") {
         platform <- "Linux64"
       } else {
-        warning("SS3 binary is not available for OS ", R.version$os,
+        warning("SS3 binary is not available for OS ", R.version[["os"]],
                " within the package. You must have an appropriate SS3 binary in your ",
                 "path. See the ss3sim vignette.")
       }

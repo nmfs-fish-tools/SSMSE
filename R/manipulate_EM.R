@@ -67,15 +67,15 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   # match 1 way: match each EM obs with an OM obs. extract only these OM obs.
   matches <- which(CPUEs[[1]][, "combo"] %in% CPUEs[[2]][, "combo"])
   # extract only the rows of interest and get rid of the "combo" column
-  new_dat$CPUE <- CPUEs[[1]][matches, -ncol(CPUEs[[1]])]
+  new_dat[["CPUE"]] <- CPUEs[[1]][matches, -ncol(CPUEs[[1]])]
   # add in lcomps
-  if (OM_dat$use_lencomp == 1) {
+  if (OM_dat[["use_lencomp"]] == 1) {
     lcomps <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "lencomp",
                         c("Yr", "Seas", "FltSvy", "Gender", "Part"))
     })
     matches_l <- which(lcomps[[1]][, "combo"] %in% lcomps[[2]][, "combo"])
-    new_dat$lencomp <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
+    new_dat[["lencomp"]] <- lcomps[[1]][matches_l, -ncol(lcomps[[1]])]
   }
   # add in age comps
   if(!is.null(dat[["agecomp"]])) {
@@ -84,7 +84,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
                c("Yr", "Seas", "FltSvy", "Gender", "Part", "Lbin_lo", "Lbin_hi"))
     })
     matches_a <- which(acomps[[1]][, "combo"] %in% acomps[[2]][, "combo"])
-    new_dat$agecomp <- acomps[[1]][matches_a, -ncol(acomps[[1]])]
+    new_dat[["agecomp"]] <- acomps[[1]][matches_a, -ncol(acomps[[1]])]
   }
   # TODO: check this for other types of data, esp. mean size at age, k
   # and mean size.
@@ -122,7 +122,7 @@ run_EM <- function(EM_dir,
   # set up to run the EM
   if (set_use_par == TRUE) {
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = FALSE)
-    start$init_values_src <- 1
+    start[["init_values_src"]] <- 1
     SS_writestarter(start, dir = EM_dir, overwrite = TRUE, verbose = FALSE,
                     warn = FALSE)
   }
@@ -176,14 +176,14 @@ add_new_dat <- function(OM_dat,
   if (do_checks) {
     # TODO: do input checks: check OM_dat is valid r4ss list, check data. only do if
     # do_checks = TRUE?
-    if (OM_dat$type != "Stock_Synthesis_data_file") {
+    if (OM_dat[["type"]] != "Stock_Synthesis_data_file") {
       r4ss_obj_err("OM_dat", "data list")
     }
   }
   # Read in EM_datfile
   EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = FALSE)
   new_EM_dat <- EM_dat
-  new_EM_dat$endyr <- OM_dat$endyr # want to be the same as the OM
+  new_EM_dat[["endyr"]] <- OM_dat[["endyr"]] # want to be the same as the OM
   # add the data from OM_dat into EM_dat
   # checks in relation to OM_dat: check that years, fleets, etc. ar valid
 
@@ -313,10 +313,10 @@ change_yrs_fcast <- function(fore,
     # deal with allocation
     if (fore[["N_allocation_groups"]] > 0) {
       tmp_allocation <- fore[["allocation_among_groups"]]
-      if (any(tmp_allocation$Year < mod_endyr)) {
-        if (length(tmp_allocation$Year) == 1) { # increment forward if only one assignment
-          fore$allocation_among_groups$Year <-
-            fore$allocation_among_groups$Year + nyrs_increment
+      if (any(tmp_allocation[["Year"]] < mod_endyr)) {
+        if (length(tmp_allocation[["Year"]]) == 1) { # increment forward if only one assignment
+          fore[["allocation_among_groups"]][["Year"]] <-
+            fore[["allocation_among_groups"]][["Year"]] + nyrs_increment
         } else {
           # TODO: develop smarter ways to deal with Time varying allocation
           stop("Time-varying allocation in the forecasting file cannot yet be",

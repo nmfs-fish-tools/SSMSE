@@ -37,7 +37,7 @@ get_F <- function(timeseries, fleetnames) {
 
   # get the F_rate, if any, by finding only the values during the model period
   # and that are greater than 0 (need to make sure there is retained catch?)
-  F_rate <- F_df[F_df$F > 0 & F_df$Era == "TIME",
+  F_rate <- F_df[F_df[["F"]] > 0 & F_df[["Era"]] == "TIME",
                  setdiff(colnames(F_df), c("Era"))]
   # the following should work, but this sanity check added to avoid assigning
   # the wrong column names. May not work if order of df col changes.
@@ -51,15 +51,15 @@ get_F <- function(timeseries, fleetnames) {
   # looking at order of F_rate in the PARAMETERS section of the report file.
   F_rate <- F_rate[order(F_rate[, "fleet"], F_rate[, "year"], F_rate[, "seas"]), ]
   # add a name col that is the same as naming in the Report.sso
-  F_rate$name <- paste0("F_fleet_", F_rate$fleet, "_YR_", F_rate$year, "_s_",
-                        F_rate$seas)
+  F_rate[["name"]] <- paste0("F_fleet_", F_rate[["fleet"]], "_YR_", F_rate[["year"]], "_s_",
+                        F_rate[["seas"]])
   if (nrow(F_rate) == 0) {
     F_rate <- NULL
   }
   # form init_F
   # Report.sso PARAMETERS implies there can be 1 init F per fleet and season
   # (if there is initial catch for that fleet and season)
-  init_F <- F_df[F_df$F > 0 & F_df$Era == "INIT", c("Seas", "Fleet", "F")]
+  init_F <- F_df[F_df[["F"]] > 0 & F_df[["Era"]] == "INIT", c("Seas", "Fleet", "F")]
   if (nrow(init_F) == 0) {
     init_F <- NULL
   } else {
@@ -69,14 +69,14 @@ get_F <- function(timeseries, fleetnames) {
     fleetnames_df <- data.frame(Fleet = seq_along(fleetnames),
                                 fleetname = fleetnames)
     init_F <- merge(init_F, fleetnames_df)
-    init_F_names <- paste0("InitF_seas_", init_F$Seas, "_flt_", init_F$Fleet,
-                           init_F$fleetname)
+    init_F_names <- paste0("InitF_seas_", init_F[["Seas"]], "_flt_", init_F[["Fleet"]],
+                           init_F[["fleetname"]])
     init_F <- init_F[, "F", drop = TRUE]
     names(init_F) <- init_F_names
   }
   # get the F_rate_fcast, if any, by finding only the values during the model period
   # and that are greater than 0 (need to make sure there is retained catch?)
-  F_rate_fcast <- F_df[F_df$F > 0 & F_df$Era == "FORE",
+  F_rate_fcast <- F_df[F_df[["F"]] > 0 & F_df[["Era"]] == "FORE",
                  setdiff(colnames(F_df), c("Era"))]
   # the following should work, but this sanity check added to avoid assigning
   # the wrong column names. May not work if order of df col changes.
@@ -96,9 +96,9 @@ get_F <- function(timeseries, fleetnames) {
                                        F_rate_fcast[, "year"],
                                        F_rate_fcast[, "seas"]), ]
     # add a name col that is the same as naming in the Report.sso
-    F_rate_fcast$name <- paste0("F_fleet_", F_rate_fcast$fleet,
-                                "_YR_", F_rate_fcast$year,
-                                "_s_", F_rate_fcast$seas)
+    F_rate_fcast[["name"]] <- paste0("F_fleet_", F_rate_fcast[["fleet"]],
+                                "_YR_", F_rate_fcast[["year"]],
+                                "_s_", F_rate_fcast[["seas"]])
   }
 
   F_list <- list(F_df = F_df, F_rate = F_rate, init_F = init_F,

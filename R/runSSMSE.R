@@ -90,8 +90,8 @@
 #' @param seed Input a fixed seed to replicate previous simulation runs. seed can be a single value
 #' for a global seed, n_scenarios+1 length vector for scenario specific and a global seed, 
 #' n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
-#' object with a single value under seed$global, a vector under seed$scenario, and a multiple vectors 
-#' for iteration specific seeds under seed$iter[[1:n_scenarios]].
+#' object with a single value under seed[["global"]], a vector under seed[["scenario"]], and a multiple vectors 
+#' for iteration specific seeds under seed[["iter"]][[1:n_scenarios]].
 #' @param run_parallel Option to use parallel processing. Defaults to FALSE.
 #' @param n_cores How many cores to use if running in parallel. If is NULL, 
 #'  defaults to n_cores available - 1 (also capped at n_cores available - 1) 
@@ -225,11 +225,11 @@ run_SSMSE <- function(scen_name_vec,
     start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
                                   verbose = FALSE)
     # Read in data file
-    dat <- r4ss::SS_readdat(file.path(OM_dir, start$datfile),
+    dat <- r4ss::SS_readdat(file.path(OM_dir, start[["datfile"]]),
                             section = 1,
                             verbose = FALSE)
     # Read in control file
-    ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start$ctlfile),
+    ctl <- r4ss::SS_readctl(file = file.path(OM_dir, start[["ctlfile"]]),
                             use_datlist = TRUE, datlist = dat,
                             verbose = FALSE)
     # Read in parameter file
@@ -238,9 +238,9 @@ run_SSMSE <- function(scen_name_vec,
                                      verbose = FALSE)
     
     # Calculate the standard deviation and autocorrelation of historic recruitment deviations
-    rec_dev_comb <- rbind(parlist$recdev1, parlist$recdev2)
+    rec_dev_comb <- rbind(parlist[["recdev1"]], parlist[["recdev2"]])
     rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
-    n_impl_error_groups[i] <- dat$nseas * dat$Nfleet
+    n_impl_error_groups[i] <- dat[["nseas"]] * dat[["Nfleet"]]
     
     if(rec_dev_pattern=="AutoCorr_rand" | rec_dev_pattern=="AutoCorr_Spec"){
       rec_autoCorr[[i]] <- stats::arima(x=rec_dev_comb[,2],order=c(0,0,4))
@@ -317,7 +317,7 @@ run_SSMSE <- function(scen_name_vec,
                    verbose = verbose,
                    run_parallel = run_parallel,
                    n_cores = n_cores)
-    scen_list[[i]]$errored_iterations <- return_df
+    scen_list[[i]][["errored_iterations"]] <- return_df
   }
   if(run_parallel){
     parallel::stopCluster(cl)
@@ -468,9 +468,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
      {
        iter_seed <- vector(mode = "list", length = 3)
        names(iter_seed) <- c("global", "scenario", "iter")
-       iter_seed$global <- scen_seed$global
-       iter_seed$scenario <- scen_seed$scenario
-       iter_seed$iter <- scen_seed$iter[i]
+       iter_seed[["global"]] <- scen_seed[["global"]]
+       iter_seed[["scenario"]] <- scen_seed[["scenario"]]
+       iter_seed[["iter"]] <- scen_seed[["iter"]][i]
        run_SSMSE_iter(out_dir = out_dir_iter,
                       OM_name = OM_name,
                       OM_in_dir = OM_in_dir,
@@ -494,9 +494,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
       #for(i in seq_len(iter)){
       iter_seed <- vector(mode = "list", length = 3)
       names(iter_seed) <- c("global", "scenario", "iter")
-      iter_seed$global <- scen_seed$global
-      iter_seed$scenario <- scen_seed$scenario
-      iter_seed$iter <- scen_seed$iter[i]
+      iter_seed[["global"]] <- scen_seed[["global"]]
+      iter_seed[["scenario"]] <- scen_seed[["scenario"]]
+      iter_seed[["iter"]] <- scen_seed[["iter"]][i]
       return_val[[i]] <- tryCatch(run_SSMSE_iter(out_dir = out_dir_iter,
                      OM_name = OM_name,
                      OM_in_dir = OM_in_dir,
@@ -526,7 +526,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
       tmp_df <- data.frame(iteration = max_prev_iter + i, 
                            scenario = basename(out_dir_iter),
                            out_dir = out_dir_iter, 
-                           error = paste(return_val[[i]]$message))
+                           error = paste(return_val[[i]][["message"]]))
       # todo: add more info on why the run failed.
       run_failed_df <- rbind(run_failed_df, tmp_df)
     }
@@ -671,7 +671,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
 
   message("Starting iteration ", niter, ".")
 
-  set.seed((iter_seed$iter[1]+123))
+  set.seed((iter_seed[["iter"]][1]+123))
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
   # as inputs
@@ -717,12 +717,12 @@ run_SSMSE_iter <- function(out_dir = NULL,
   
   create_OM(OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
             verbose = verbose, writedat = TRUE, nyrs_assess = nyrs_assess,
-            rec_devs = rec_dev_iter, seed = (iter_seed$iter[1]+1234))
+            rec_devs = rec_dev_iter, seed = (iter_seed[["iter"]][1]+1234))
 
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                           verbose = verbose, init_run = TRUE, seed = (iter_seed$iter[1]+12345))
+                           verbose = verbose, init_run = TRUE, seed = (iter_seed[["iter"]][1]+12345))
   }
   if (use_SS_boot == FALSE) {
     stop("Currently, only sampling can be done using the bootstrapping ",
@@ -741,16 +741,16 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            OM_dat = OM_dat, OM_out_dir = OM_out_dir,
                            verbose = verbose, nyrs_assess = nyrs_assess,
                            interim_struct = interim_struct, dat_yrs = NA,
-                           seed = (iter_seed$iter[1]+123456))
+                           seed = (iter_seed[["iter"]][1]+123456))
   
   message("Finished getting catch (years ",
-          (OM_dat$endyr + 1), " to ", (OM_dat$endyr + nyrs_assess),
+          (OM_dat[["endyr"]] + 1), " to ", (OM_dat[["endyr"]] + nyrs_assess),
           ") to feed into OM for iteration ", niter, ".")
   
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
-  styr_MSE <- OM_dat$endyr
+  styr_MSE <- OM_dat[["endyr"]]
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
   assess_yrs <- assess_yrs[-1]
   # calculate years after the last assessment. The OM will need to run
@@ -777,8 +777,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
     }
     rec_devs_chunk <- rec_dev_iter[1:nyrs_assess]
     rec_dev_iter <- rec_dev_iter[-(1:nyrs_assess)]
-    impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat$nseas * OM_dat$Nfleet)]
-    impl_error <- impl_error[-(1:(nyrs_assess * OM_dat$nseas * OM_dat$Nfleet))]
+    impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
+    impl_error <- impl_error[-(1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
     
     extend_OM(catch = new_catch_list[["catch"]],
               discards = new_catch_list[["discards"]],
@@ -789,26 +789,26 @@ run_SSMSE_iter <- function(out_dir = NULL,
               rec_devs = rec_devs_chunk,
               impl_error = impl_error_chunk,
               verbose = verbose,
-              seed = (iter_seed$iter[1]+234567+yr))
+              seed = (iter_seed[["iter"]][1]+234567+yr))
     # rerun OM (without estimation), get samples (or expected values)
     if (use_SS_boot == TRUE) {
       if(!is.null(interim_struct)){
         if(MS == "Interim" &  !is.null(interim_struct[["auto_corr"]])){
           new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = FALSE, nboot = 1,
-                               verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+                               verbose = verbose, seed = (iter_seed[["iter"]][1]+345678+yr))
         }else{
           new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                               verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+                               verbose = verbose, seed = (iter_seed[["iter"]][1]+345678+yr))
         }
       }else{
         new_OM_dat <- run_OM(OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
-                              verbose = verbose, seed = (iter_seed$iter[1]+345678+yr))
+                              verbose = verbose, seed = (iter_seed[["iter"]][1]+345678+yr))
       }
     } else {
       stop("Currently, only sampling can be done using the bootstrapping ",
            "capabilities within SS")
     }
-    message("Finished running and sampling OM through year ", new_OM_dat$endyr,
+    message("Finished running and sampling OM through year ", new_OM_dat[["endyr"]],
             ".")
     if(run_EM_last_yr == FALSE && isTRUE(yr == test_run_EM_yr)) {
       skip_EM_run <- TRUE
@@ -842,7 +842,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                                  dat_yrs = (yr + 1):(yr + nyrs_assess),
                                  sample_struct = sample_struct, 
                                  interim_struct = interim_struct, 
-                                 seed = (iter_seed$iter[1]+5678901+yr))
+                                 seed = (iter_seed[["iter"]][1]+5678901+yr))
     message("Finished getting catch (years ", (yr + 1), " to ",
             (yr + nyrs_assess), ") to feed into OM for iteration ", niter, ".")
     }
@@ -854,13 +854,13 @@ run_SSMSE_iter <- function(out_dir = NULL,
     # get recdevs, impl_error
     rec_devs_chunk <- rec_dev_iter[1:extra_yrs]
     rec_dev_iter <- rec_dev_iter[-(1:extra_yrs)]
-    impl_error_chunk <- impl_error[1:(extra_yrs * OM_dat$nseas * OM_dat$Nfleet)]
-    impl_error <- impl_error[-(1:(extra_yrs * OM_dat$nseas * OM_dat$Nfleet))]
+    impl_error_chunk <- impl_error[1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
+    impl_error <- impl_error[-(1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
     # sanity checks
     assertive.properties::assert_is_of_length(rec_dev_iter, 0)
     assertive.properties::assert_is_of_length(impl_error, 0)
     subset_catch_list <- lapply(new_catch_list, 
-      function(x, yr) new_catch  <- x[x$year <= yr, ], yr = yr)
+      function(x, yr) new_catch  <- x[x[["year"]] <= yr, ], yr = yr)
     extend_OM(catch = subset_catch_list[["catch"]],
               discards = subset_catch_list[["discards"]],
               harvest_rate = subset_catch_list[["catch_F"]],
@@ -870,10 +870,10 @@ run_SSMSE_iter <- function(out_dir = NULL,
               rec_devs = rec_devs_chunk,
               impl_error = impl_error_chunk,
               verbose = verbose,
-              seed = (iter_seed$iter[1]+6789012))
+              seed = (iter_seed[["iter"]][1]+6789012))
     # Don't need bootstrapping, b/c not samplling
     run_OM(OM_dir = OM_out_dir, boot = FALSE, verbose = verbose,
-           seed = (iter_seed$iter[1]+7890123))
+           seed = (iter_seed[["iter"]][1]+7890123))
   }
   message("Finished iteration ", niter, ".")
   invisible(TRUE)

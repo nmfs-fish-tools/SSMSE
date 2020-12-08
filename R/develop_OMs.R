@@ -51,8 +51,8 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
     # read in parfile to save the recdevs.
     parfile <- r4ss::SS_readpar_3.30(
       parfile = file.path(OM_in_dir, "ss.par"),
-      datsource = file.path(OM_in_dir, start$datfile), 
-      ctlsource = file.path(OM_in_dir, start$ctlfile), 
+      datsource = file.path(OM_in_dir, start[["datfile"]]), 
+      ctlsource = file.path(OM_in_dir, start[["ctlfile"]]), 
       verbose = FALSE)
     #note: may want to save  forecast recdevs also?
   }
@@ -73,10 +73,10 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
                         newvals = i, verbose = FALSE)
     # remove files with old values
     file.remove(file.path(tmp_mod_path, "control.ss_new"))
-    file.remove(file.path(tmp_mod_path, start$ctlfile))
+    file.remove(file.path(tmp_mod_path, start[["ctlfile"]]))
     file.remove(file.path(tmp_mod_path, "ss.par"))
     file.rename(from = file.path(tmp_mod_path, "control_modified.ss"),
-                to = file.path(tmp_mod_path, start$ctlfile))
+                to = file.path(tmp_mod_path, start[["ctlfile"]]))
     if(refit_OMs == TRUE) {
       run_ss_model(dir = tmp_mod_path, 
                            admb_options = opts,
@@ -95,8 +95,8 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
       # add back original recdevs into the model (b/c not specified through the ctl file)
       new_parfile <- r4ss::SS_readpar_3.30(
         parfile = file.path(tmp_mod_path, "ss.par"),
-        datsource = file.path(tmp_mod_path, start$datfile), 
-        ctlsource = file.path(tmp_mod_path, start$ctlfile), verbose = FALSE)
+        datsource = file.path(tmp_mod_path, start[["datfile"]]), 
+        ctlsource = file.path(tmp_mod_path, start[["ctlfile"]]), verbose = FALSE)
       if(!is.null(new_parfile[["recdev1"]])) {
         recdev_name <- "recdev1"
       } else {

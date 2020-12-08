@@ -105,21 +105,21 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
                          (yrs[i] * n_impl_error_groups[i])))
       if (scope == 1) {
         
-        set.seed((seed$global+999))
+        set.seed((seed[["global"]]+999))
         
         impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
       }
       impl_error[[i]] <- list()
       if (scope == 2) {
         
-        set.seed((seed$scenario[i]+999))
+        set.seed((seed[["scenario"]][i]+999))
         
         impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
       }
       for (j in 1:iter_vec[i]) {
         if (scope == 3) {
           
-          set.seed((seed$iter[[i]][j]+999))
+          set.seed((seed[["iter"]][[i]][j]+999))
           
           impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
         }
