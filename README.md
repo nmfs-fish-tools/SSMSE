@@ -34,7 +34,7 @@ SSMSE: Management Strategy Evaluation for Stock Synthesis (SS)
 
 # SSMSE build status
 
-![R-CMD-check](https://github.com/r4ss/r4ss/workflows/R-CMD-check/badge.svg)
+[![R-CMD-check](https://github.com/r4ss/r4ss/workflows/R-CMD-check/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions?query=workflow%3AR-CMD-check)
 [![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
 
 -----
