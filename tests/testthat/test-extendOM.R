@@ -200,3 +200,42 @@ test_that("check_future_catch works", {
     "Function not yet implemented when catch is not in biomass"
   )
 })
+
+test_that(" add_sample_struct works for adding data during model years and for future years", {
+  init_dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM1", "data.ss"),
+                               verbose = FALSE)
+  # no change
+  no_change_dat <- add_sample_struct(sample_struct = NULL, dat = init_dat, nyrs_extend = 4)
+  expect_equal(init_dat, no_change_dat)
+  # for future years
+  future_dat <- add_sample_struct(sample_struct = extend_vals, 
+                                     dat = init_dat, nyrs_extend = 4)
+  expect_true(length(future_dat[["CPUE"]][future_dat[["CPUE"]][["year"]] > 
+                                           future_dat[["endyr"]], "year"]) == 2)
+  expect_true(length(future_dat[["lencomp"]][future_dat[["lencomp"]][["Yr"]] > 
+                                            future_dat[["endyr"]], "Yr"]) == 3)
+  expect_true(length(future_dat[["agecomp"]][future_dat[["agecomp"]][["Yr"]] > 
+                                            future_dat[["endyr"]], "Yr"]) == 4)
+  no_neg_dat <- init_dat
+  no_neg_dat[["CPUE"]] <- no_neg_dat[["CPUE"]][no_neg_dat[["CPUE"]][["index"]] > 0, ]
+  no_neg_dat[["lencomp"]] <- no_neg_dat[["lencomp"]][no_neg_dat[["lencomp"]][["FltSvy"]] > 0,]
+  no_neg_dat[["agecomp"]] <- no_neg_dat[["agecomp"]][no_neg_dat[["agecomp"]][["FltSvy"]] > 0,]
+  hist_samples <- extend_vals
+  hist_samples[["CPUE"]][["year"]] <- 31:33
+  hist_samples[["lencomp"]][["Yr"]] <- 27:29
+  hist_samples[["agecomp"]][["Yr"]] <- 31:34
+  # for historical years
+  hist_dat <- add_sample_struct(sample_struct = hist_samples, 
+                                  dat = no_neg_dat, nyrs_extend = 0)
+  expect_true(
+    length(hist_dat[["CPUE"]][hist_dat[["CPUE"]][["index"]] < 0, "index"]) == 
+      length(31:33))
+  expect_true(
+    length(hist_dat[["lencomp"]][hist_dat[["lencomp"]][["FltSvy"]] < 0, 
+                                 "FltSvy"]) == 
+      length(27:29))
+  expect_true(
+    length(hist_dat[["agecomp"]][hist_dat[["agecomp"]][["FltSvy"]] < 0,
+                                 "FltSvy"]) == 
+      length(31:34))
+})
