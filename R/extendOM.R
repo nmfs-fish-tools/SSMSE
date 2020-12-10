@@ -41,8 +41,7 @@ extend_OM <- function(catch,
 
   check_catch_df(catch)
   check_dir(OM_dir)
-
-  # TODO: add function to check dummy_dat_scheme (if has more detailed input)
+  
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
     verbose = FALSE

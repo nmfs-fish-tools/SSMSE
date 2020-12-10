@@ -20,6 +20,7 @@ test_that("create_scen_list works as expected", {
         nyrs = 6,
         nyrs_assess = 3,
         sample_struct = NULL,
+        sample_struct_hist = NULL,
         interim_struct = NULL
       ),
     scen_2 =
@@ -35,6 +36,7 @@ test_that("create_scen_list works as expected", {
         nyrs = 3,
         nyrs_assess = 2,
         sample_struct = NULL,
+        sample_struct_hist = NULL,
         interim_struct = NULL
       )
   )
@@ -73,6 +75,7 @@ test_that("create_scen_list works with NAs", {
         nyrs = 6,
         nyrs_assess = 3,
         sample_struct = NULL,
+        sample_struct_hist = NULL,
         interim_struct = NULL
       ),
     scen_2 =
@@ -88,6 +91,7 @@ test_that("create_scen_list works with NAs", {
         nyrs = 3,
         nyrs_assess = 2,
         sample_struct = NULL,
+        sample_struct_hist = NULL,
         interim_struct = NULL
       )
   )
