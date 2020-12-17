@@ -41,8 +41,7 @@ extend_OM <- function(catch,
 
   check_catch_df(catch)
   check_dir(OM_dir)
-
-  # TODO: add function to check dummy_dat_scheme (if has more detailed input)
+  
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
     verbose = FALSE
@@ -359,8 +358,19 @@ extend_OM <- function(catch,
   if (dat[["N_discard_fleets"]] > 0) {
     dat[["discard_data"]] <- rbind(dat[["discard_data"]], discards)
   }
+  
+  # add in future years data that the EM will need.
+    dat <- add_sample_struct(sample_struct = sample_struct, dat = dat, 
+                      nyrs_extend = nyrs_extend)
   dat[["endyr"]] <- dat[["endyr"]] + nyrs_extend
-
+  # write the new data file
+  if (write_dat) {
+    r4ss::SS_writedat(dat,
+                      outfile = file.path(OM_dir, start[["datfile"]]),
+                      overwrite = TRUE,
+                      verbose = FALSE
+    )
+  }
   # modify ctl file ----
   # ctl[["MainRdevYrLast"]] <- dat[["endyr"]]
   # ctl[["last_yr_fullbias_adj"]] <- dat[["endyr"]]
@@ -379,86 +389,98 @@ extend_OM <- function(catch,
     parlist = parlist,
     outfile = file.path(OM_dir, "ss.par"), overwrite = TRUE
   )
-  # add in future years data that the EM will need.
-  if (!is.null(sample_struct)) {
-    tmp_CPUE <- sample_struct[["CPUE"]]
-    if (!is.null(tmp_CPUE)) {
-      tmp_CPUE <- tmp_CPUE[tmp_CPUE[["year"]] >= (dat[["endyr"]] - nyrs_extend + 1) &
-        tmp_CPUE[["year"]] <= dat[["endyr"]], ]
-      if (nrow(tmp_CPUE) > 0) {
-        tmp_CPUE[["obs"]] <- 1 # dummy observation
-        tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
-        tmp_CPUE[["index"]] <- -abs(tmp_CPUE[["index"]])
-        dat[["CPUE"]] <- rbind(dat[["CPUE"]], tmp_CPUE)
-      }
-    }
-
-    # This method of adding new data doesn't work if len comp is not already
-    # turned on. Add warninig for now, but could potentially turn on len comp
-    # for the user in the OM?
-    if (dat[["use_lencomp"]] == 0 & !is.null(sample_struct[["lencomp"]])) {
-      warning(
-        "Length composition is not specified in the OM, but the lencomp ",
-        "sampling was requested through sample_struct. Please turn on ",
-        "length comp in the OM to allow lencomp sampling."
-      )
-    }
-    if (dat[["use_lencomp"]] == 1 & !is.null(sample_struct[["lencomp"]])) {
-      tmp_lencomp <- sample_struct[["lencomp"]]
-      tmp_lencomp <- tmp_lencomp[tmp_lencomp[["Yr"]] >= (dat[["endyr"]] - nyrs_extend + 1) &
-        tmp_lencomp[["Yr"]] <= dat[["endyr"]], ]
-      if (nrow(tmp_lencomp) > 0) {
-        # get col names
-        lencomp_dat_colnames <- colnames(dat[["lencomp"]])[7:ncol(dat[["lencomp"]])]
-        tmp_df_dat <- matrix(1,
-          nrow = nrow(tmp_lencomp),
-          ncol = length(lencomp_dat_colnames)
-        )
-        colnames(tmp_df_dat) <- lencomp_dat_colnames
-        tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
-        tmp_lencomp[["FltSvy"]] <- -abs(tmp_lencomp[["FltSvy"]]) # make sure negative
-        dat[["lencomp"]] <- rbind(dat[["lencomp"]], tmp_lencomp)
-      }
-    }
-    # TODO: can write code that adds age comp obs when dat[["agecomp"]] is NULL.
-    if (is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
-      warning(
-        "Age composition is not specified in the OM, but the agecomp ",
-        "sampling was requested through sample_struct. Please turn on ",
-        "age comp in the OM by adding at least  to allow agecomp ",
-        "sampling."
-      )
-    }
-    if (!is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
-      tmp_agecomp <- sample_struct[["agecomp"]]
-      tmp_agecomp <- tmp_agecomp[tmp_agecomp[["Yr"]] >= (dat[["endyr"]] - nyrs_extend + 1) &
-        tmp_agecomp[["Yr"]] <= dat[["endyr"]], ]
-      if (nrow(tmp_agecomp) > 0) {
-        # get col names
-        agecomp_dat_colnames <- colnames(dat[["agecomp"]])[10:ncol(dat[["agecomp"]])]
-        tmp_df_dat <- matrix(1,
-          nrow = nrow(tmp_agecomp),
-          ncol = length(agecomp_dat_colnames)
-        )
-        colnames(tmp_df_dat) <- agecomp_dat_colnames
-        tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
-        tmp_agecomp[["FltSvy"]] <- -abs(tmp_agecomp[["FltSvy"]]) # make sure negative
-        dat[["agecomp"]] <- rbind(dat[["agecomp"]], tmp_agecomp)
-      }
-    }
-  }
-  # write the new data file
-  if (write_dat) {
-    r4ss::SS_writedat(dat,
-      outfile = file.path(OM_dir, start[["datfile"]]),
-      overwrite = TRUE,
-      verbose = FALSE
-    )
-  }
   invisible(dat)
   # maybe should just move the final run of the OM here, since we can no longer
   # isolate this function to prevent it from running SS?
 }
+
+#' Add in years of sampling data needed
+#' 
+#' @param sample_struct The sampling structure, as specified by the user.
+#' @param dat A datafile as read in by r4ss::SS_readdat
+#' @param nyrs_extend Number of years to extend the OM forward. Use 0 if using
+#'  this function on the initial (historical) run of the OM.
+add_sample_struct <- function(sample_struct, dat, nyrs_extend) {
+  if (is.null(sample_struct)) {
+    return(dat)
+  }
+  if(nyrs_extend > 0) {
+    subset_yr_start <- dat[["endyr"]] + 1
+    subset_yr_end <- dat[["endyr"]] + nyrs_extend
+  }
+  if (nyrs_extend == 0) {
+    subset_yr_start <- dat[["styr"]]
+    subset_yr_end <- dat[["endyr"]]
+  }
+  
+  tmp_CPUE <- sample_struct[["CPUE"]]
+  if (!is.null(tmp_CPUE)) {
+    tmp_CPUE <- tmp_CPUE[tmp_CPUE[["year"]] >= subset_yr_start &
+                           tmp_CPUE[["year"]] <= subset_yr_end, ]
+    if (nrow(tmp_CPUE) > 0) {
+      tmp_CPUE[["obs"]] <- 1 # dummy observation
+      tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
+      tmp_CPUE[["index"]] <- -abs(tmp_CPUE[["index"]])
+      dat[["CPUE"]] <- rbind(dat[["CPUE"]], tmp_CPUE)
+    }
+  }
+  
+  # This method of adding new data doesn't work if len comp is not already
+  # turned on. Add warninig for now, but could potentially turn on len comp
+  # for the user in the OM?
+  if (dat[["use_lencomp"]] == 0 & !is.null(sample_struct[["lencomp"]])) {
+    warning(
+      "Length composition is not specified in the OM, but the lencomp ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "length comp in the OM to allow lencomp sampling."
+    )
+  }
+  if (dat[["use_lencomp"]] == 1 & !is.null(sample_struct[["lencomp"]])) {
+    tmp_lencomp <- sample_struct[["lencomp"]]
+    tmp_lencomp <- tmp_lencomp[tmp_lencomp[["Yr"]] >= subset_yr_start &
+                                 tmp_lencomp[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_lencomp) > 0) {
+      # get col names
+      lencomp_dat_colnames <- colnames(dat[["lencomp"]])[7:ncol(dat[["lencomp"]])]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_lencomp),
+                           ncol = length(lencomp_dat_colnames)
+      )
+      colnames(tmp_df_dat) <- lencomp_dat_colnames
+      tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
+      tmp_lencomp[["FltSvy"]] <- -abs(tmp_lencomp[["FltSvy"]]) # make sure negative
+      dat[["lencomp"]] <- rbind(dat[["lencomp"]], tmp_lencomp)
+    }
+  }
+  # TODO: can write code that adds age comp obs when dat[["agecomp"]] is NULL.
+  if (is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
+    warning(
+      "Age composition is not specified in the OM, but the agecomp ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "age comp in the OM by adding at least  to allow agecomp ",
+      "sampling."
+    )
+  }
+  if (!is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
+    tmp_agecomp <- sample_struct[["agecomp"]]
+    tmp_agecomp <- tmp_agecomp[tmp_agecomp[["Yr"]] >= subset_yr_start &
+                                 tmp_agecomp[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_agecomp) > 0) {
+      # get col names
+      agecomp_dat_colnames <- colnames(dat[["agecomp"]])[10:ncol(dat[["agecomp"]])]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_agecomp),
+                           ncol = length(agecomp_dat_colnames)
+      )
+      colnames(tmp_df_dat) <- agecomp_dat_colnames
+      tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
+      tmp_agecomp[["FltSvy"]] <- -abs(tmp_agecomp[["FltSvy"]]) # make sure negative
+      dat[["agecomp"]] <- rbind(dat[["agecomp"]], tmp_agecomp)
+    }
+  }
+  dat
+}
+
 
 #' Check future catch smaller than the last year's population size.
 #'

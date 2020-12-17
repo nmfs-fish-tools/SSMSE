@@ -89,6 +89,7 @@ create_scen_list <- function(scen_name_vec,
                              nyrs_vec = NULL,
                              nyrs_assess_vec = NULL,
                              sample_struct_list = NULL,
+                             sample_struct_hist_list = NULL,
                              interim_struct_list = NULL) {
   # note that input checking
   scen_name_vec <- as.character(scen_name_vec)

@@ -80,6 +80,10 @@
 #'  data. If NULL, the data structure will try to be infered from the pattern
 #'  found for each of the datatypes within the EM datafiles. Include this
 #'  strucutre for the number of years to extend the model out.
+#' @param sample_struct_hist_list An optional list of lists including which years should be
+#'  sampled for the historical period for the data generated from the OM. If 
+#'  this is left as NULL, then the same sampling scheme will be used as in the
+#'  OM's data file. If it is not NULL, then each year 
 #' @param interim_struct_list A optional list of parameters to control an interim assessment
 #'  with an example structure below, where Beta=a positive value that is inversely proportional to risk,
 #'  MA_years= the number of years to average index observations of when calculating deviations,
@@ -177,6 +181,7 @@ run_SSMSE <- function(scen_name_vec,
                       impl_error_pattern = c("none", "rand", "user"),
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
+                      sample_struct_hist_list = NULL,
                       interim_struct_list = NULL,
                       verbose = FALSE,
                       seed = NULL,
@@ -220,6 +225,7 @@ run_SSMSE <- function(scen_name_vec,
     nyrs_vec = nyrs_vec,
     nyrs_assess_vec = nyrs_assess_vec,
     sample_struct_list = sample_struct_list,
+    sample_struct_hist_list = sample_struct_hist_list,
     interim_struct_list = interim_struct_list
   )
   # check list and change if need to duplicate values.
@@ -342,6 +348,7 @@ run_SSMSE <- function(scen_name_vec,
       impl_error = tmp_scen[["impl_error"]],
       scen_seed = tmp_scen[["scen_seed"]],
       sample_struct = tmp_scen[["sample_struct"]],
+      sample_struct_hist = tmp_scen[["sample_struct_hist"]],
       interim_struct = tmp_scen[["interim_struct"]],
       run_EM_last_yr = run_EM_last_yr,
       verbose = verbose,
@@ -404,6 +411,10 @@ run_SSMSE <- function(scen_name_vec,
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
+#' @param sample_struct_hist An optional list including which years should be
+#'  sampled for the historical period for the data generated from the OM. If 
+#'  this is left as NULL, then the same sampling scheme will be used as in the
+#'  OM's data file. If it is not NULL, then each year 
 #' @param interim_struct A optional list of parameters to control an interim assessment
 #'  with an example structure below, where Beta=a positive value that is inversely proportional to risk,
 #'  MA_years= the number of years to average index observations of when calculating deviations,
@@ -452,6 +463,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            impl_error = NULL,
                            scen_seed = NULL,
                            sample_struct = NULL,
+                           sample_struct_hist = NULL,
                            interim_struct = NULL,
                            verbose = FALSE,
                            run_parallel = FALSE,
@@ -471,6 +483,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   assertive.types::assert_is_any_of(nyrs_assess, classes = c("numeric", "integer"))
   assertive.properties::assert_is_of_length(nyrs_assess, 1)
   if (!is.null(sample_struct)) assertive.types::assert_is_list(sample_struct)
+  if (!is.null(sample_struct_hist)) assertive.types::assert_is_list(sample_struct_hist)
   assertive.types::assert_is_a_bool(verbose)
 
   # create the out_dir to store all files for all iter in the scenario.
@@ -521,6 +534,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           run_EM_last_yr = run_EM_last_yr,
           iter_seed = iter_seed,
           sample_struct = sample_struct,
+          sample_struct_hist = sample_struct_hist,
           interim_struct = interim_struct,
           verbose = verbose
         )
@@ -550,6 +564,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         run_EM_last_yr = run_EM_last_yr,
         iter_seed = iter_seed,
         sample_struct = sample_struct,
+        sample_struct_hist = sample_struct_hist,
         interim_struct = interim_struct,
         verbose = verbose
       ), error = function(e) e)
@@ -630,6 +645,10 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  give an example of what this structure should be. Running the function
 #'  create_sample_struct() will also produce a sample_struct object in the
 #'  correct form. Can be NULL only when MS is not EM.
+#' @param sample_struct_hist An optional list including which years should be
+#'  sampled for the historical period for the data generated from the OM. If 
+#'  this is left as NULL, then the same sampling scheme will be used as in the
+#'  OM's data file. If it is not NULL, then each year 
 #' @param interim_struct A optional list of parameters to control an interim
 #'  assessment with an example structure below, where Beta=a positive value
 #'  that is inversely proportional to risk, MA_years= the number of years to
@@ -697,6 +716,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            niter = 1,
                            iter_seed = NULL,
                            sample_struct = NULL,
+                           sample_struct_hist = NULL,
                            interim_struct = NULL,
                            verbose = FALSE) {
   # input checks ----
@@ -765,18 +785,18 @@ run_SSMSE_iter <- function(out_dir = NULL,
     )
     # convert to r4ss names
     sample_struct <- convert_to_r4ss_names(sample_struct)
+    sample_struct_hist <- convert_to_r4ss_names(sample_struct_hist)
   }
   # MSE first iteration ----
   # turn the stock assessment model into an OM
   # This function is now needed in order to make changes such as run from
   # the par file and potentially change F method to 2 to unify results.
-  # TODO allow user to decide through this wrapper function to use add dummy data
-  # or not.
 
   create_OM(
-    OM_out_dir = OM_out_dir, overwrite = TRUE, add_dummy_dat = FALSE,
-    verbose = verbose, writedat = TRUE, nyrs_assess = nyrs_assess,
-    rec_devs = rec_dev_iter, seed = (iter_seed[["iter"]][1] + 1234)
+    OM_out_dir = OM_out_dir, overwrite = TRUE,
+    sample_struct_hist = sample_struct_hist, verbose = verbose, writedat = TRUE,
+    nyrs_assess = nyrs_assess, rec_devs = rec_dev_iter,
+    seed = (iter_seed[["iter"]][1] + 1234)
   )
 
   # Complete the OM run so it can be use for expect values or bootstrap
@@ -840,7 +860,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
     # check_future_catch(catch = new_catch_list[["catch_bio"]],
     #                    OM_dir = OM_out_dir,
     #                    catch_units = "bio")
-    # add new years of catch to the OM and add dummy values where necessary.
     if (verbose) {
       message(
         "Extending, running, and sampling from the OM though year ", yr,
