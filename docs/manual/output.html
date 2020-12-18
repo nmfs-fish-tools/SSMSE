@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="" xml:lang="">
+<html lang="en" xml:lang="en">
 <head>
 
   <meta charset="utf-8" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2020-11-09" />
+<meta name="date" content="2020-12-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -165,8 +165,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.6" data-path="SSMSE.html"><a href="SSMSE.html#implementation-error"><i class="fa fa-check"></i><b>3.6</b> Implementation error</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>4</b> Helper functions in SSMSE</a><ul>
-<li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs</code></a></li>
-<li class="chapter" data-level="4.2" data-path="helper.html"><a href="helper.html#scenlist"><i class="fa fa-check"></i><b>4.2</b> Set up sampling for a scenario with <code>create_sample_struct</code></a></li>
+<li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
+<li class="chapter" data-level="4.2" data-path="helper.html"><a href="helper.html#scenlist"><i class="fa fa-check"></i><b>4.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Output and Plots</a><ul>
 <li class="chapter" data-level="5.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>5.1</b> Summarizing output</a></li>
@@ -195,11 +195,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">5</span> Output and Plots</h1>
 <div id="summarizing-output" class="section level2">
 <h2><span class="header-section-number">5.1</span> Summarizing output</h2>
-<p>Output is summarized using <code>SSMSE_summary_all</code>:</p>
+<p>Output is summarized using <code>SSMSE_summary_all()</code>:</p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1">summary_list &lt;-<span class="st"> </span><span class="kw">SSMSE_summary_all</span>(<span class="dt">dir =</span> <span class="st">&quot;path/to/scenario/dir&quot;</span>,</a>
 <a class="sourceLine" id="cb44-2" title="2">                  <span class="dt">scenarios =</span> <span class="kw">c</span>(<span class="st">&quot;sample_low&quot;</span>, <span class="st">&quot;sample_high&quot;</span>),</a>
 <a class="sourceLine" id="cb44-3" title="3">                  <span class="dt">run_parallel =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
-<p>Relying on <code>ss3sim::get_results_all</code>, this function creates:</p>
+<p>Relying on <code>ss3sim::get_results_all()</code>, this function creates:</p>
 <ul>
 <li>For each scenario, 3 scenario level .csv files</li>
 <li>For all scenarios, 2 cross-scenario .csv files named by default to <code>SSMSE_ts</code>and <code>SSMSE_scalar</code>.</li>

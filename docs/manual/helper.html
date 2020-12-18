@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="" xml:lang="">
+<html lang="en" xml:lang="en">
 <head>
 
   <meta charset="utf-8" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2020-11-09" />
+<meta name="date" content="2020-12-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -165,8 +165,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.6" data-path="SSMSE.html"><a href="SSMSE.html#implementation-error"><i class="fa fa-check"></i><b>3.6</b> Implementation error</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>4</b> Helper functions in SSMSE</a><ul>
-<li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs</code></a></li>
-<li class="chapter" data-level="4.2" data-path="helper.html"><a href="helper.html#scenlist"><i class="fa fa-check"></i><b>4.2</b> Set up sampling for a scenario with <code>create_sample_struct</code></a></li>
+<li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
+<li class="chapter" data-level="4.2" data-path="helper.html"><a href="helper.html#scenlist"><i class="fa fa-check"></i><b>4.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Output and Plots</a><ul>
 <li class="chapter" data-level="5.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>5.1</b> Summarizing output</a></li>
@@ -193,15 +193,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="helper" class="section level1">
 <h1><span class="header-section-number">4</span> Helper functions in SSMSE</h1>
-<p><code>run_SSMSE</code> requires some detailed inputs that are time consuming to make. In the interest of automating routines as much as possible, helper functions are available in SSMSE.</p>
+<p><code>run_SSMSE()</code> requires some detailed inputs that are time consuming to make. In the interest of automating routines as much as possible, helper functions are available in SSMSE.</p>
 <div id="devOM" class="section level2">
-<h2><span class="header-section-number">4.1</span> Creating multiple operating models with <code>develop_OMs</code></h2>
+<h2><span class="header-section-number">4.1</span> Creating multiple operating models with <code>develop_OMs()</code></h2>
 <p>This function allows users to change a parameter in a Stock Synthesis OM and, if desired, refit the operating model to data. Typically, users will want to create multiple operating models to use in different scenarios in order to account for uncertainties in parameter values, such as biological parameters relating to natural mortality or growth.</p>
 </div>
 <div id="scenlist" class="section level2">
-<h2><span class="header-section-number">4.2</span> Set up sampling for a scenario with <code>create_sample_struct</code></h2>
-<p><code>run_SSMSE</code> requires the input <code>sample_struct</code>, which outlines the future sampling structure to use to generate data sets. This object could be difficult to create manually and users may want to just continue sampling as previously done in an existing SS model. <code>create_sample_struct</code> will use the time patterns in sampling for different data types found in an SS data file and extend it forward in time. If no pattern is found, the function will return NAs and provide a warning to the user.</p>
-<p>See <a href="#sample">use of <code>create_sample_struct</code> in simple example</a>.</p>
+<h2><span class="header-section-number">4.2</span> Set up sampling for a scenario with <code>create_sample_struct()</code></h2>
+<p><code>run_SSMSE()</code> requires the input <code>sample_struct()</code>, which outlines the future sampling structure to use to generate data sets. This object could be difficult to create manually and users may want to just continue sampling as previously done in an existing SS model. <code>create_sample_struct()</code> will use the time patterns in sampling for different data types found in an SS data file and extend it forward in time. If no pattern is found, the function will return NAs and provide a warning to the user.</p>
+<p>See <a href="#sample">use of <code>create_sample_struct()</code> in simple example</a>.</p>
 
 </div>
 </div>

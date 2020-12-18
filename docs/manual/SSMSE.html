@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="" xml:lang="">
+<html lang="en" xml:lang="en">
 <head>
 
   <meta charset="utf-8" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2020-11-09" />
+<meta name="date" content="2020-12-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -165,8 +165,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.6" data-path="SSMSE.html"><a href="SSMSE.html#implementation-error"><i class="fa fa-check"></i><b>3.6</b> Implementation error</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>4</b> Helper functions in SSMSE</a><ul>
-<li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs</code></a></li>
-<li class="chapter" data-level="4.2" data-path="helper.html"><a href="helper.html#scenlist"><i class="fa fa-check"></i><b>4.2</b> Set up sampling for a scenario with <code>create_sample_struct</code></a></li>
+<li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
+<li class="chapter" data-level="4.2" data-path="helper.html"><a href="helper.html#scenlist"><i class="fa fa-check"></i><b>4.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Output and Plots</a><ul>
 <li class="chapter" data-level="5.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>5.1</b> Summarizing output</a></li>
@@ -193,14 +193,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="SSMSE" class="section level1">
 <h1><span class="header-section-number">3</span> Options for run_SSMSE</h1>
-<p>Many inputs are possible for the <code>run_SSMSE</code> option. Here, we will describe some of the options available. For detailed documentation, type <code>?SSMSE::run_SSMSE</code> into the R console.</p>
+<p>Many inputs are possible for the <code>run_SSMSE()</code> option. Here, we will describe some of the options available. For detailed documentation, type <code>?SSMSE::run_SSMSE()</code> into the R console.</p>
 <div id="scenarios-in-ssmse" class="section level2">
 <h2><span class="header-section-number">3.1</span> Scenarios in SSMSE</h2>
-<p>Note that multiple scenarios can be called in <code>run_SSMSE</code>, often through vector inputs to <code>run_SSMSE</code>. Below, we will describe inputs needed to run 1 scenario.</p>
+<p>Note that multiple scenarios can be called in <code>run_SSMSE()</code>, often through vector inputs to <code>run_SSMSE()</code>. Below, we will describe inputs needed to run 1 scenario.</p>
 </div>
 <div id="operating-model" class="section level2">
 <h2><span class="header-section-number">3.2</span> Operating model</h2>
-<p>The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock dSynthesis model. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set <code>OM_name_vec = "cod"</code>. Otherwise, the path to the OM model should be specified in <code>OM_in_dir_vec</code>.</p>
+<p>The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set <code>OM_name_vec = "cod"</code>. Otherwise, the path to the OM model should be specified in <code>OM_in_dir_vec</code>.</p>
 </div>
 <div id="the-management-strategyprocedure-including-estimation-method-em" class="section level2">
 <h2><span class="header-section-number">3.3</span> The Management Strategy/procedure, including estimation method (EM)</h2>
@@ -237,7 +237,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb42-17" title="17">                     <span class="dt">catch_F =</span> catch_F,</a>
 <a class="sourceLine" id="cb42-18" title="18">                     <span class="dt">discards =</span> discards)</a>
 <a class="sourceLine" id="cb42-19" title="19">}</a></code></pre></div>
-<p>This function can then be used in a call to <code>run_SSMSE</code>:</p>
+<p>This function can then be used in a call to <code>run_SSMSE()</code>:</p>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="co"># define sample structure</span></a>
 <a class="sourceLine" id="cb43-2" title="2">datfile &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</a>
 <a class="sourceLine" id="cb43-3" title="3">sample_struct &lt;-<span class="st"> </span><span class="kw">create_sample_struct</span>(<span class="dt">dat =</span> datfile, <span class="dt">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></a>
@@ -267,7 +267,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">3.4</span> Sampling options</h2>
 <p>Currently, the only available sampling option is to use the bootstrapping module within SS itself. This means specifying <code>use_SS_boot_vec = TRUE</code>. Details on how sampling is done using the bootstrapping module in SS is available in the “Bootstrap Data Files” section of the <a href="https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231">SS user manual</a>.</p>
 <p>Users also need to specify how and which data types should be sampled for each future year in the simulation in <code>sample_struct_list</code>. <code>sample_struct_list</code> is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.</p>
-<p>The helper function <code>create_sample_struct</code> can be used to help users generate the list of dataframes for a scenario. See an example of this function’s use in the <a href="#sample">simple example</a> or by typing <code>?SSMSE::create_sample_struct</code> into the R console.</p>
+<p>The helper function <code>create_sample_struct()</code> can be used to help users generate the list of dataframes for a scenario. See an example of this function’s use in the <a href="#sample">simple example</a> or by typing <code>?SSMSE::create_sample_struct()</code> into the R console.</p>
 </div>
 <div id="recruitment-deviations" class="section level2">
 <h2><span class="header-section-number">3.5</span> Recruitment deviations</h2>
