@@ -89,7 +89,7 @@ More information on using the forecast module in SS to forecast catches is avail
 
 ## Adding observation error: Specify how to sample data from the Operating model (#sample)
 
-The argument `sample_struct` specifies the structure for sampling from the OM (and passing to the EM). The function `create_sample_struct` can be used to construct a simple sampling structure consistent with an input data file:
+The argument `sample_struct()` specifies the structure for sampling from the OM (and passing to the EM). The function `create_sample_struct()` can be used to construct a simple sampling structure consistent with an input data file:
 
 ```{r}
 datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
@@ -97,7 +97,7 @@ sample_struct <- create_sample_struct(dat = datfile, nyrs = 6) # note warning
 sample_struct
 ```
 
-By default, `create_sample_struct` identifies sampling patterns from the historical period of the OM and replicates those patterns in the projection period. In our cod example, the sample structure specifies that catch will be added to the estimation model every year (years 101 to 106), but an index of abundance (i.e., CPUE) and age composition (i.e., agecomp) will only be added in year 105. We will use the same sampling scheme for both scenarios, but it is possible to specify different sampling for each scenario. The user could modify this sampling strategy (for example, maybe age composition should also be sampled from FltSvy 2 in Yr 102; the user could add another line to the dataframe in `sample_struct$agecomp`).
+By default, `create_sample_struct()` identifies sampling patterns from the historical period of the OM and replicates those patterns in the projection period. In our cod example, the sample structure specifies that catch will be added to the estimation model every year (years 101 to 106), but an index of abundance (i.e., CPUE) and age composition (i.e., agecomp) will only be added in year 105. We will use the same sampling scheme for both scenarios, but it is possible to specify different sampling for each scenario. The user could modify this sampling strategy (for example, maybe age composition should also be sampled from FltSvy 2 in Yr 102; the user could add another line to the dataframe in `sample_struct$agecomp`).
 
 Note that length comp (lencomp) includes an `NA` value for year. This is because
 no consistent pattern was identified, so the user must define their own input.
@@ -114,13 +114,13 @@ sample_struct_list <- list("h-ctl" = sample_struct, "h-1" = sample_struct)
 ```
 ## Adding process error through recruitment deviations
 
-Process error can be added through the recruitment deviations. In this case, `rec_dev_pattern = "rand"` in the call to `run_SSMSE` is used to use random recruitment deviations with the same standard deviation as the historical recruitment deviation pattern. Set `scope = 2` so that the same recruitment deviation patterns are used across scenarios, but different patterns are use across iterations in the same scenario. For more information on the available options for `rec_dev_pattern` and `scope` please see the documentation for the `run_SSMSE` function (`?SSMSE::run_SSMSE`).
+Process error can be added through the recruitment deviations. In this case, `rec_dev_pattern = "rand"` in the call to `run_SSMSE()` is used to use random recruitment deviations with the same standard deviation as the historical recruitment deviation pattern. Set `scope = 2` so that the same recruitment deviation patterns are used across scenarios, but different patterns are use across iterations in the same scenario. For more information on the available options for `rec_dev_pattern` and `scope` please see the documentation for the `run_SSMSE()` function (`?SSMSE::run_SSMSE()`).
 
 <!-- TODO suggestion from CP: might be nice to introduce the other recruitment deviations options and scope options here, too. I don't really understand what the scope means.   -->
 
 ## Run SSMSE
 
-Now, we create a directory to store our results, and use `run_SSMSE` to run the MSE analysis loop (note this will take some time to run, ~ 20 min):
+Now, we create a directory to store our results, and use `run_SSMSE()` to run the MSE analysis loop (note this will take some time to run, ~ 20 min):
   
 ```{r, warning = FALSE, message = FALSE, eval=FALSE}
 run_res_path <- file.path(run_SSMSE_dir, "results")
@@ -143,12 +143,12 @@ run_SSMSE(scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
           sample_struct_list = sample_struct_list, # How to sample data for running the EM.
           seed = 12345) #Set a fixed integer seed that allows replication 
 ```
-See `?run_SSMSE` for more details on function arguments. In a real MSE analysis, running 100+ iterations to reflect the full range of uncertainty (given observation and process errors) in the results would be preferred. However, we are only running 5 iterations per scenario in this demonstration to reduce computing time.
+See `?run_SSMSE()` for more details on function arguments. In a real MSE analysis, running 100+ iterations to reflect the full range of uncertainty (given observation and process errors) in the results would be preferred. However, we are only running 5 iterations per scenario in this demonstration to reduce computing time.
 
 
 ## run_SSMSE output
 
-`run_SSMSE` will create new folders in the folders specified in `out_dir_scen_vec` (note that in this case, we are running both scenarios in the same folder). After is complete, there will be a folder for each scenario in `run_res_path` (since `out_dir_scen_vec = run_res_path` in this example):
+`run_SSMSE()` will create new folders in the folders specified in `out_dir_scen_vec` (note that in this case, we are running both scenarios in the same folder). After is complete, there will be a folder for each scenario in `run_res_path` (since `out_dir_scen_vec = run_res_path` in this example):
 
 ```{r, eval=FALSE}
 list.dirs(run_res_path, recursive = FALSE)
@@ -165,7 +165,7 @@ list.dirs(file.path(run_res_path, "h-ctl"), recursive = FALSE)
 ## [5] "run_SSMSE-ex/results/h-ctl/5"
 ```
 
-And within each scenario folder, there are folders containing the SS models that were run by `run_SSMSE`.
+And within each scenario folder, there are folders containing the SS models that were run by `run_SSMSE()`.
 ```{r, eval=FALSE}
 # see folders for the first iteration of scenario 1
 list.dirs(file.path(run_res_path, "h-ctl", "1"), recursive = FALSE)
@@ -183,7 +183,7 @@ Quantitative performance metrics should be specified before conducting an MSE. T
 
 ## Summarize results
 
-The function `SSMSE_summary_all` can be used to summarize the model results in a list of 3 dataframes, one for scalar outputs (named `scalar`), one for timeseries outputs (`ts`), one for derived quantities (`dq`). This function also creates summary csv files in the folder where the results are stored.
+The function `SSMSE_summary_all()` can be used to summarize the model results in a list of 3 dataframes, one for scalar outputs (named `scalar`), one for timeseries outputs (`ts`), one for derived quantities (`dq`). This function also creates summary csv files in the folder where the results are stored.
 
 ```{r eval=FALSE}
 # Summarize 1 iteration of output

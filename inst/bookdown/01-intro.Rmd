@@ -10,10 +10,10 @@ The functions users can call in SSMSE are:
 
 Function               | Description
 ---------------------- | ------------------
-`run_SSMSE`            | Run the MSE simulations
-`create_sample_struct`  | Helper function to create a list for future sampling from a model to use as input in `run_SSMSE`
-`develop_OMs`          | Helper function to turn one OM into many
-`SSMSE_summary_all`    | Summarize MSE output
+`run_SSMSE()`            | Run the MSE simulations
+`create_sample_struct()`  | Helper function to create a list for future sampling from a model to use as input in `run_SSMSE()`
+`develop_OMs()`          | Helper function to turn one OM into many
+`SSMSE_summary_all()`    | Summarize MSE output
 
 
 ## Brief description of the SSMSE MSE simulation procedure

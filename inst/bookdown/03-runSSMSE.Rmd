@@ -1,14 +1,14 @@
 # Options for run_SSMSE {#SSMSE}
 
-Many inputs are possible for the `run_SSMSE` option. Here, we will describe some of the options available. For detailed documentation, type `?SSMSE::run_SSMSE` into the R console.
+Many inputs are possible for the `run_SSMSE()` option. Here, we will describe some of the options available. For detailed documentation, type `?SSMSE::run_SSMSE()` into the R console.
 
 ## Scenarios in SSMSE
 
-Note that multiple scenarios can be called in `run_SSMSE`, often through vector inputs to `run_SSMSE`. Below, we will describe inputs needed to run 1 scenario.
+Note that multiple scenarios can be called in `run_SSMSE()`, often through vector inputs to `run_SSMSE()`. Below, we will describe inputs needed to run 1 scenario.
 
 ## Operating model
 
-The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock dSynthesis model. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
+The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
 
 ## The Management Strategy/procedure, including estimation method (EM)
 
@@ -52,7 +52,7 @@ constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100,
 }
 ```
 
-This function can then be used in a call to `run_SSMSE`:
+This function can then be used in a call to `run_SSMSE()`:
 
 ```{r eval=FALSE}
 # define sample structure
@@ -86,7 +86,7 @@ Currently, the only available sampling option is to use the bootstrapping module
 
 Users also need to specify how and which data types should be sampled for each future year in the simulation in `sample_struct_list`. `sample_struct_list` is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.
 
-The helper function `create_sample_struct` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#sample) or by typing `?SSMSE::create_sample_struct` into the R console.
+The helper function `create_sample_struct()` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#sample) or by typing `?SSMSE::create_sample_struct()` into the R console.
 
 ## Recruitment deviations
 

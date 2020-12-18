@@ -2,7 +2,7 @@
 
 ## Summarizing output
 
-Output is summarized using `SSMSE_summary_all`:
+Output is summarized using `SSMSE_summary_all()`:
 
 ```{r, eval=FALSE}
 summary_list <- SSMSE_summary_all(dir = "path/to/scenario/dir",
@@ -10,7 +10,7 @@ summary_list <- SSMSE_summary_all(dir = "path/to/scenario/dir",
                   run_parallel = TRUE)
 ```
 
-Relying on `ss3sim::get_results_all`, this function creates:
+Relying on `ss3sim::get_results_all()`, this function creates:
 
 - For each scenario, 3 scenario level .csv files
 - For all scenarios, 2 cross-scenario .csv files named by default to `SSMSE_ts`and `SSMSE_scalar`.
