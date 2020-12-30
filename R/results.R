@@ -142,7 +142,7 @@ plot_index_sampling <- function(dir = getwd()) {
   # get the iterations
   iters <- list.dirs(dir, recursive = FALSE, full.names = FALSE)
   scenario <- basename(dir)
-  # get the OM data values
+  # get the OM data values, which are the same across iterations.
   om_name <- grep("OM", list.dirs(file.path(dir, iters[1]),
     recursive = FALSE,
     full.names = FALSE
@@ -154,9 +154,9 @@ plot_index_sampling <- function(dir = getwd()) {
   ),
   verbose = FALSE, section = 1
   )
-  tmp_dat_OM[["CPUE"]][["iteration"]] <- paste0(om_name, "_observed_values")
+  tmp_dat_OM[["CPUE"]][["iteration"]] <- as.character(iters[1])
   tmp_dat_OM[["CPUE"]][["scenario"]] <- scenario
-  tmp_dat_OM[["CPUE"]][["model_run"]] <- paste0(om_name, "_observed_values")
+  tmp_dat_OM[["CPUE"]][["model_run"]] <- "historical_values"
   index_dat <- tmp_dat_OM[["CPUE"]]
   # get the OM expected values
   tmp_dat_OM <- r4ss::SS_readdat(file.path(
@@ -165,9 +165,9 @@ plot_index_sampling <- function(dir = getwd()) {
   ),
   verbose = FALSE, section = 2
   )
-  tmp_dat_OM[["CPUE"]][["iteration"]] <- paste0(om_name, "_exp_values")
+  tmp_dat_OM[["CPUE"]][["iteration"]] <- as.character(iters[1])
   tmp_dat_OM[["CPUE"]][["scenario"]] <- scenario
-  tmp_dat_OM[["CPUE"]][["model_run"]] <- paste0(om_name, "_exp_values")
+  tmp_dat_OM[["CPUE"]][["model_run"]] <- "OM_expected_values"
   index_dat <- rbind(index_dat, tmp_dat_OM[["CPUE"]])
   # get the EM init values
   # em name is the same across iterations
@@ -185,7 +185,7 @@ plot_index_sampling <- function(dir = getwd()) {
     )
     tmp_dat_EM[["CPUE"]][["iteration"]] <- i
     tmp_dat_EM[["CPUE"]][["scenario"]] <- scenario
-    tmp_dat_EM[["CPUE"]][["model_run"]] <- em_name
+    tmp_dat_EM[["CPUE"]][["model_run"]] <- "sampled_dataset"
     index_dat <- rbind(index_dat, tmp_dat_EM[["CPUE"]])
   }
   # get rid of negative index values
