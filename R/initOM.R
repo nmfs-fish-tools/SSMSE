@@ -92,7 +92,9 @@ create_OM <- function(OM_out_dir,
   # convert forecast year selectors to absolute form
   for (i in 1:6) {
     x <- forelist[["Fcast_years"]][i]
-    if (x <= 0) {
+    if (x == -999) {
+      forelist[["Fcast_years"]][i] <- dat[["styr"]]
+    } else if (x <= 0) {
       forelist[["Fcast_years"]][i] <- dat[["endyr"]] + x
     } else if (x < dat[["styr"]] | x > dat[["endyr"]]) {
       stop("Forecast year should be <=0 or between start year and end year")
