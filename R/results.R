@@ -248,12 +248,11 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
                             hidewarn = TRUE)
   
   if(comp_type == "agecomp") comp_dbase <- out_OM[["agedbase"]]
-  if(comp_type == "lencomp") comp_dbase <- out_OM[["lenbase"]]
+  if(comp_type == "lencomp") comp_dbase <- out_OM[["lendbase"]]
   comp_dbase <- type.convert(comp_dbase)
   comp_dbase[["iteration"]] <- 1
   comp_dbase[["scenario"]] <- scenario
   comp_dbase[["model_run"]] <- "om"
-  
   # Get the EM data ----
   # get the EM init values
   # em name is the same across iterations
@@ -273,18 +272,17 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
     
     tmp_comp_dbase[["iteration"]] <- i
     tmp_comp_dbase[["scenario"]] <- scenario
-    tmp_comp_dbase[["model_run"]] <- em_name
+    tmp_comp_dbase[["model_run"]] <- "em"
     comp_dbase <- rbind(comp_dbase, tmp_comp_dbase)
   }
   # get expected and observations in the same column
   comp_dbase <- tidyr::gather(comp_dbase, "type_obs", "obs_value", 17:18) %>% 
-             dplyr::filter(model_run == "om" | (model_run == em_name & type_obs == "Obs"))
+             dplyr::filter(model_run == "om" | (model_run == "em" & type_obs == "Obs"))
   comp_dbase[["model_type_obs"]] <- paste0(comp_dbase[["model_run"]], "_", 
                                            comp_dbase[["type_obs"]])
   comp_dbase <- tidyr::spread(comp_dbase, model_type_obs, obs_value)
   # Make the plot ----
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    # this is unlikely to be used, as  parallel is installed with base R.
     warning(
       "The package ggplot2 is not available.",
       " Returning early with just the dataframe and not the plot."
@@ -295,16 +293,22 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
   if(comp_type == "lencomp") xlab_val <- "Size Bins"
   # need a loop for multiple fleets (I think we just want a plot per fleet)
   # Need to add in better labels for sex
-  comp_plot <-  ggplot(comp_dbase, aes(x = Bin, y = om_Exp))+
-    geom_area(fill = "grey")+
-    geom_point(aes(y = om_Obs), color = "red", size = 4)+
-    geom_point(aes(y = cod_EM_init_Obs, shape = iteration), color = "black")+
-    facet_wrap(vars(Yr))+
-     scale_shape_manual(values = 
-       rep(15, length(unique(comp_dbase[["iteration"]]))))+
-    ylab("Proportion")+
-    xlab(xlab_val)+
-    theme_classic()
+  comp_plot <- vector(mode = "list", length = length(unique(comp_dbase[["Fleet"]])))
+  for(f in unique(comp_dbase[["Fleet"]])) {
+    ind <- which(unique(comp_dbase[["Fleet"]]) == f)
+    tmp_dbase_subset <- comp_dbase[comp_dbase[["Fleet"]] == f, ]
+    comp_plot[[ind]] <-  ggplot(tmp_dbase_subset, aes(x = Bin, y = om_Exp)) +
+      geom_area(fill = "grey")+
+      geom_point(aes(y = om_Obs), color = "red", size = 4)+
+      geom_point(aes(y = em_Obs, shape = iteration), color = "black")+
+      facet_wrap(vars(Yr))+
+       scale_shape_manual(values = 
+         rep(15, length(unique(comp_dbase[["iteration"]]))))+
+      ylab("Proportion")+
+      xlab(xlab_val)+
+      ggtitle(paste0("Fleet ", f ))+
+      theme_classic()
+  }
 
   comp_list <- list(comp_dat = comp_dbase, plot = comp_plot)
 }
