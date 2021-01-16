@@ -122,9 +122,9 @@ create_scen_list <- function(scen_name_vec,
           return_val <- var[[num_scen]]
         } else {
           stop(
-            var_name, " has length ", length(var), "but should either have ",
-            "length 1 or equal to the number of scenarios , (i.e., ",
-            len_scen_name_vec, "."
+            var_name, " has length ", length(var), ", but should either have ",
+            "length of 1 or length equal to the number of scenarios (i.e., ",
+            len_scen_name_vec, ")."
           )
         }
       } else if (length(grep("vec", var_name)) == 1) {
