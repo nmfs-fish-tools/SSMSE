@@ -63,9 +63,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   # This tests takes a while to run, but is really helpful.
   new_temp_path <- file.path(temp_path, "mult_scenarios")
   dir.create(new_temp_path)
-  skip_on_travis()
   skip_on_cran()
-  skip_on_appveyor()
   nyrs <- 6
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to determine its structure
@@ -143,8 +141,6 @@ OM_path_cod <- file.path(extdat_path, "models", "cod")
 EM_path_cod <- file.path(extdat_path, "models", "cod")
 test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE works", {
   skip_on_cran()
-  skip_on_travis()
-  skip_on_appveyor()
   new_temp_path <- file.path(temp_path, "custom_cod")
   dir.create(new_temp_path)
   catch_add_yrs <- 101:106

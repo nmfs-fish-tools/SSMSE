@@ -34,8 +34,6 @@ cod_mod <- file.path(extdat_path, "models", "cod")
 
 test_that("develop_OMs works as expected with refiting and specifying directory", {
   skip_on_cran()
-  skip_on_appveyor()
-  skip_on_travis()
   develop_OMs(
     OM_in_dir = cod_mod,
     out_dir = new_temp_path,
