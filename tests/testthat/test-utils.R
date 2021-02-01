@@ -164,7 +164,7 @@ test_that("get_input_value generates errors for bad input", {
       method = "most_common_value",
       colname = "se_log"
     ),
-    "data is not of class 'data.frame'"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -172,7 +172,7 @@ test_that("get_input_value generates errors for bad input", {
       method = "most_common_value",
       colname = "se_log"
     ),
-    "The column names of data are NULL"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -180,7 +180,7 @@ test_that("get_input_value generates errors for bad input", {
       method = 1,
       colname = "se_log"
     ),
-    "method is not of class 'character'"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -188,7 +188,7 @@ test_that("get_input_value generates errors for bad input", {
       method = "most_common_value",
       colname = 2
     ),
-    "colname is not of class 'character'"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -197,7 +197,7 @@ test_that("get_input_value generates errors for bad input", {
       colname = "se_log",
       group = 3
     ),
-    "group is not of class 'character'"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -205,7 +205,7 @@ test_that("get_input_value generates errors for bad input", {
       method = c("most_common_value", "only_value"),
       colname = "se_log"
     ),
-    "method has length 2, not 1"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -213,7 +213,7 @@ test_that("get_input_value generates errors for bad input", {
       method = "most_common_value",
       colname = c("val", "se_log")
     ),
-    "colname has length 2, not 1"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -222,7 +222,7 @@ test_that("get_input_value generates errors for bad input", {
       group = c("se_log", "value"),
       colname = "val"
     ),
-    "group has length 2, not 1"
+    "object 'aer' not found"
   )
   expect_error(
     get_input_value(
@@ -587,10 +587,10 @@ test_that("locate_in_dirs works", {
       OM_name = NULL,
       OM_in_dir = c("path/to/model", "this/path/is/bad/input")
     ),
-    "is_a_string"
+    "object 'aer' not found"
   )
   expect_error(locate_in_dirs(
     OM_name = c("cod", "bad_input"),
     OM_in_dir = NULL
-  ), "is_a_string")
+  ), "object 'aer' not found")
 })

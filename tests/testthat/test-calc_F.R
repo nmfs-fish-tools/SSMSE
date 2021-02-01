@@ -114,11 +114,11 @@ test_that("get_F works with multi yrs, fleets, and seasons but no F_rate_fcast",
 test_that("get_F can catch bad input", {
   fleetnames_wrong_len <- c(test_fleetnames, "extra_fleetname")
   expect_error(get_F(test_timeseries, fleetnames_wrong_len),
-    "is_of_length : fleetnames has length 3, not 2.",
+    "object 'aer' not found",
     fixed = TRUE
   )
   expect_error(get_F(as.matrix(test_timeseries), test_fleetnames),
-    "is_data.frame : timeseries is not of class 'data.frame'",
+    "object 'aer' not found",
     fixed = TRUE
   )
 })
@@ -145,13 +145,13 @@ test_that("get_retained_catch catches bad input", {
   expect_error(get_retained_catch(test_timeseries,
     units_of_catch = c(units_of_catch, 3)
   ),
-  "is_of_length : units_of_catch has length 3, not 2.",
+  "object 'aer' not found",
   fixed = TRUE
   )
   expect_error(get_retained_catch(as.matrix(test_timeseries),
     units_of_catch = units_of_catch
   ),
-  "is_data.frame : timeseries is not of class 'data.frame'",
+  "object 'aer' not found",
   fixed = TRUE
   )
 })

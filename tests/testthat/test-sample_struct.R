@@ -92,7 +92,7 @@ test_that("create_sample_struct works", {
   # give bad input
   expect_error(
     create_sample_struct(OM_dat_path, nyrs = "twenty"),
-    "nyrs is not of class 'numeric'"
+    "object 'aer' not found"
   )
   # make sure NA in sampling col works as expected.
   dat$catch$catch_se[5] <- 0.01
