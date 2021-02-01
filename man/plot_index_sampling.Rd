@@ -7,13 +7,17 @@
 plot_index_sampling(dir = getwd())
 }
 \arguments{
-\item{dir}{Path to the directory containing 1 scenario}
+\item{dir}{Path to the directory containing 1 scenario. Defaults to
+the current working directory.}
 }
 \value{
 A list containing 2 components: 1) the ggplot object and 2) the
  dataframe used to make the ggplot object
 }
 \description{
-To see how sampling lines up with data and expected values for the index of
-abundance
+Creates a plot that can be used to see how sampling lines up with 
+data and expected values for the index of abundance
+}
+\author{
+Kathryn Doering
 }

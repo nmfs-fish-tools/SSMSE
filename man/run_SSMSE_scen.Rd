@@ -21,6 +21,7 @@ run_SSMSE_scen(
   impl_error = NULL,
   scen_seed = NULL,
   sample_struct = NULL,
+  sample_struct_hist = NULL,
   interim_struct = NULL,
   verbose = FALSE,
   run_parallel = FALSE,
@@ -96,9 +97,14 @@ If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre
 for the number of years to extend the model out.}
 
+\item{sample_struct_hist}{An optional list including which years should be
+sampled for the historical period for the data generated from the OM. If 
+this is left as NULL, then the same sampling scheme will be used as in the
+OM's data file. If it is not NULL, then each year}
+
 \item{interim_struct}{A optional list of parameters to control an interim assessment
-with an example structure below, where Beta=a positive value that is inversely proportional to risk, 
-MA_years= the number of years to average index observations of when calculating deviations, 
+with an example structure below, where Beta=a positive value that is inversely proportional to risk,
+MA_years= the number of years to average index observations of when calculating deviations,
 assess_freq=the number of years between full assessments during with an interim assessment will happen
 every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
 inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))}
@@ -109,7 +115,7 @@ inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=re
 Defaults to FALSE}
 
 \item{n_cores}{how many cores to use if running in parallel defaults to
-n_cores available - 1 (also capped at one less than the number of cores 
+n_cores available - 1 (also capped at one less than the number of cores
 available)}
 }
 \description{
@@ -119,19 +125,20 @@ a management strategy evaluation using Stock Synthesis as the Operating Model
 \examples{
 \dontrun{
 # Create a temporary folder for the output and set the working directory:
-  temp_path <- file.path(tempdir(), "run_SSMSE_scen-example")
-  dir.create(temp_path, showWarnings = FALSE)
+temp_path <- file.path(tempdir(), "run_SSMSE_scen-example")
+dir.create(temp_path, showWarnings = FALSE)
 
-  # run 2 iteration and 1 scenario of SSMSE
-  run_SSMSE_scen(scen_name = "no_catch",
-                 iter = 1:2,
-                 OM_name = "cod",
-                 MS = "no_catch",
-                 out_dir_scen = temp_path,
-                 nyrs = 6,
-                 nyrs_assess = 3
-                 )
-  unlink(temp_path, recursive = TRUE)
+# run 2 iteration and 1 scenario of SSMSE
+run_SSMSE_scen(
+  scen_name = "no_catch",
+  iter = 1:2,
+  OM_name = "cod",
+  MS = "no_catch",
+  out_dir_scen = temp_path,
+  nyrs = 6,
+  nyrs_assess = 3
+)
+unlink(temp_path, recursive = TRUE)
 }
 
 }

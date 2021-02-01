@@ -13,7 +13,7 @@ SSMSE_summary_all(
 )
 }
 \arguments{
-\item{dir}{Path to the directory containing the scenarios, either relative 
+\item{dir}{Path to the directory containing the scenarios, either relative
 or absolute. Defaults to the working directory.}
 
 \item{scenarios}{A character vector of scenarios in dir from which to extract
@@ -25,7 +25,7 @@ Note that running in parallel will only be faster if most of the scenarios
 do not yet have scenario-level summary files and the suggested package
 parallel needs to be available for running in parallel to occur.}
 
-\item{n_cores}{How many cores to use if running in parallel. If is NULL, 
+\item{n_cores}{How many cores to use if running in parallel. If is NULL,
 defaults to n_cores available - 1 (also capped at one less than the number
 of cores available - 1)}
 

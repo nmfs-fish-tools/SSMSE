@@ -17,6 +17,7 @@ create_scen_list(
   nyrs_vec = NULL,
   nyrs_assess_vec = NULL,
   sample_struct_list = NULL,
+  sample_struct_hist_list = NULL,
   interim_struct_list = NULL
 )
 }
@@ -75,15 +76,15 @@ for the number of years to extend the model out.}
 
 \item{interim_struct_list}{A optional list of lists including the parameters
 for an interim assessment that modify the number of years to average over
-for index deviations (MA_years: single value), the Beta sensitity parameters 
-that quantifies how rapidly an observed deviation for an index is translated 
+for index deviations (MA_years: single value), the Beta sensitity parameters
+that quantifies how rapidly an observed deviation for an index is translated
 to a future catch deviation (Beta: vector length n indices),the weight
 each index is given for use in the model allowing multiple index deviations to
 be used in combination (Index_weights: vector length n indices), The reference
-years for which to compare index deviations where for absolute year values 
-greater than zero all observed index values will be compared to that specific 
+years for which to compare index deviations where for absolute year values
+greater than zero all observed index values will be compared to that specific
 year while for values <=0 the observed index values will be compared to their
-expected value with the reference value identifying the lag in years for availability 
+expected value with the reference value identifying the lag in years for availability
 of the index (Ref_years: vector length n indices).}
 }
 \description{
@@ -95,19 +96,19 @@ can be used as input to run_SSMSE.
 }
 \examples{
 scen_list <- create_scen_list(
-               scen_name_vec = c("scen 1", "scen_2"),
-               out_dir_scen_vec = file.path("path", "to", "dir"),
-               iter_vec = list(1:2, 5:7),
-               OM_name_vec = "cod",
-               OM_in_dir_vec = NULL,
-               EM_name_vec = "cod",
-               EM_in_dir_vec = NULL,
-               MS_vec = "EM",
-               use_SS_boot_vec = TRUE,
-               nyrs_vec = 6,
-               nyrs_assess_vec = 3,
-               sample_struct_list = NULL
-                )
+  scen_name_vec = c("scen 1", "scen_2"),
+  out_dir_scen_vec = file.path("path", "to", "dir"),
+  iter_vec = list(1:2, 5:7),
+  OM_name_vec = "cod",
+  OM_in_dir_vec = NULL,
+  EM_name_vec = "cod",
+  EM_in_dir_vec = NULL,
+  MS_vec = "EM",
+  use_SS_boot_vec = TRUE,
+  nyrs_vec = 6,
+  nyrs_assess_vec = 3,
+  sample_struct_list = NULL
+)
 }
 \author{
 Kathryn Doering

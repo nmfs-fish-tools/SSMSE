@@ -31,7 +31,7 @@ will be fixed so phase will be set as negative.}
 
 \item{refit_OMs}{Should the models be refit to data? Defaults to TRUE}
 
-\item{hess}{Should the hessian be estimated if reffiting the OMs? defaults to 
+\item{hess}{Should the hessian be estimated if reffiting the OMs? defaults to
 FALSE}
 }
 \description{
