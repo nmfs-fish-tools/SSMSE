@@ -575,9 +575,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   for (i in seq_len(iter)) {
     if ("error" %in% class(return_val[[i]])) {
       message(
-        "iteration ", max_prev_iter + i, "failed in directory ",
+        "Iteration ", max_prev_iter + i, " failed in directory ",
         out_dir_iter,
-        ". Please delete folders before running summary functions."
+        ". Please delete folders with failed runs before running summary functions."
       )
       tmp_df <- data.frame(
         iteration = max_prev_iter + i,

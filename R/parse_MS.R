@@ -374,7 +374,6 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
             }
           }
         }
-        # browser()
         ref_index <- new_ref_index
         curr_index <- new_curr_index
 
