@@ -17,7 +17,7 @@ names(future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
 future_om_list[[1]][["pars"]] <- "NatM_p_1_Fem_GP_1"
 future_om_list[[1]][["scen"]] <- c("replicate", "scen2", "scen3")
 future_om_list[[1]][["pattern"]] <- "historic"
-future_om_list[[1]][["input"]] <- 0.1 # not clear exactly what this value is. 
+future_om_list[[1]][["input"]] <- 0.1 # not clear exactly what this value is. So in this case this would jitter with a standard deviation of 0.1 times the historic standard deviation
 
 # add values for selectivity curve param
 future_om_list[[2]][["pars"]] <- "SizeSel_P_3_Fishery(1)" # had to figure this out from reading in the par file.
