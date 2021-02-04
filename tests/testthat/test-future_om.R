@@ -27,5 +27,8 @@ future_om_list[[2]][["input"]] <- data.frame(start_yr = 103,
                                              end_yr = 106, 
                                              mod_method = 
                                                "absolute", 
-                                             value = 4.5) # step change? or does this gradually change up to 4.5?
+                                             value = 4.5) # step change? or does this gradually change up to 4.5? The way I envisaged it your definition would cause a slope
+                                                          # change where 103 was exactly the old value, 106 would be exactly 4.5,  104 would have transitioned a third of the way 
+                                                          # and 105 would have transitioned two thirds. if you set start_yr=103 and end_yr=104 it would be a step with 103 at the 
+                                                          # original value and 104 at 4.5.
 
