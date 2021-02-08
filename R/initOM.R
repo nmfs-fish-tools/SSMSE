@@ -78,6 +78,13 @@ create_OM <- function(OM_out_dir,
     datsource = dat, ctlsource = ctl,
     verbose = FALSE
   )
+  # model checks ----
+  if(ctl[["F_Method"]] == 1) {
+    stop("SSMSE cannot work with models that use F method 1 (Pope's ",
+         "approximation). Please use F method 2 or 3 instead (3 is ",  
+         "recommended over method 1).")
+  }
+  
 
   # modify forecast file ----
   currentNforecast <- forelist[["Nforecastyrs"]]
