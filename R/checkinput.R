@@ -80,16 +80,12 @@ check_OM_dat <- function(OM_dat, EM_dat) {
   )
   # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
   # TODO: add in capabilities to deal with this type of data and remove stop msgs
-  if (OM_dat[["use_meanbodywt"]] == 1 | EM_dat[["use_meanbodywt"]] == 1) {
-    stop(
-      "Models with mean body size observations cannot yet be used as OMs ",
-      "or EMs in SSMSE"
-    )
+  if (OM_dat[["use_meanbodywt"]] == 1) {
+    warning("Mean body size observations are not yet sampled in SSMSE")
   }
-  # if (OM_dat[["use_MeanSize_at_Age_obs"]] == 1 | EM_dat[["use_meanbodywt"]] == 1) {
-  #   stop("Models with mean size-at-age observations cannot yet be used as OMs ",
-  #        "or EMs in SSMSE")
-  # }
+  if (OM_dat[["use_MeanSize_at_Age_obs"]] == 1) {
+    warning("Mean size-at-age observations are not yet sampled in SSMSE")
+  }
   # check population length bins
   # check lcomp bins and lcomp bins (if exists)
   if (EM_dat[["use_lencomp"]] == 1) {
