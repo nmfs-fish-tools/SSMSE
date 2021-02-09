@@ -249,6 +249,10 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
   
   if(comp_type == "agecomp") comp_dbase <- out_OM[["agedbase"]]
   if(comp_type == "lencomp") comp_dbase <- out_OM[["lendbase"]]
+  if(isTRUE(nrow(comp_dbase) == 0)) {
+    stop("The comp database from the operating model has no rows, so must not ", 
+    "have been any historical data in the OM.")
+  }
   comp_dbase <- type.convert(comp_dbase)
   comp_dbase[["iteration"]] <- 1
   comp_dbase[["scenario"]] <- scenario
@@ -280,7 +284,10 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
              dplyr::filter(model_run == "om" | (model_run == "em" & type_obs == "Obs"))
   comp_dbase[["model_type_obs"]] <- paste0(comp_dbase[["model_run"]], "_", 
                                            comp_dbase[["type_obs"]])
-  comp_dbase <- tidyr::spread(comp_dbase, model_type_obs, obs_value)
+  comp_dbase <- tidyr::spread(comp_dbase, model_type_obs, obs_value) %>% 
+                  dplyr::mutate(Yr_lab = paste0("Yr: ", Yr)) %>%
+                  dplyr::mutate(Seas_lab = paste0("Seas: ", Seas)) %>% 
+                  dplyr::mutate(Sex_lab = paste0("Sex: ", Sex))
   # Make the plot ----
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     warning(
@@ -299,9 +306,9 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
     tmp_dbase_subset <- comp_dbase[comp_dbase[["Fleet"]] == f, ]
     comp_plot[[ind]] <-  ggplot(tmp_dbase_subset, aes(x = Bin, y = om_Exp)) +
       geom_area(fill = "grey")+
-      geom_point(aes(y = om_Obs), color = "red", size = 4)+
+      geom_point(aes(y = om_Obs), color = "red", size = 2)+
       geom_point(aes(y = em_Obs, shape = iteration), color = "black")+
-      facet_wrap(vars(Yr))+
+      facet_wrap(vars(Yr_lab, Seas_lab, Sex_lab))+
        scale_shape_manual(values = 
          rep(15, length(unique(comp_dbase[["iteration"]]))))+
       ylab("Proportion")+
