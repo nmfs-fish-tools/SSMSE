@@ -90,7 +90,7 @@ future_om_list_3[[2]][["input"]] <- data.frame(
 # Object 4 ----
 # Specify recdevs and implementation error
 future_om_list_4 <- vector(mode = "list", length = 2)
-future_om_list_4 <- lapply(future_om_list_, function (x) x <- vector(mode = "list", length = 4))
+future_om_list_4 <- lapply(future_om_list_4, function (x) x <- vector(mode = "list", length = 4))
 names(future_om_list_4[[1]]) <- c("pars", "scen", "pattern", "input")
 names(future_om_list_4[[2]]) <- c("pars", "scen", "pattern", "input")
 
