@@ -16,18 +16,21 @@ names(future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
 future_om_list[[1]][["pars"]] <- "NatM_p_1_Fem_GP_1"
 future_om_list[[1]][["scen"]] <- c("replicate", "scen2", "scen3")
 future_om_list[[1]][["pattern"]] <- "model_change"
-future_om_list[[1]][["input"]] <- data.frame(start_yr = 101, # or maybe this should be 100, the last yr of the model?
+future_om_list[[1]][["input"]] <- data.frame(start_yr = 100, # or maybe this should be 100, the last yr of the model? Yes I think it should be 100.
                                              end_yr = 101, 
                                              ts_param = "sd", 
                                              method = "multiplier", 
                                              value = 1)
   # jitter with a standard deviation equal to the historic standard deviation
+  # NOTE: The way this is set up it would jitter with standard deviation equal to the standard deviation in year 100 not an average over the 
+  # whole series. If we use the logic that year 100 represents the historic model and therefore a single year for averaging. Setting start_yr = 1 (or 0?)
+  # would do an average of the whole historic period.
 
 # add values for selectivity curve param. step change occuring in year 103
 future_om_list[[2]][["pars"]] <- "SizeSel_P_3_Fishery(1)" # had to figure this out from reading in the par file.
 future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
 future_om_list[[2]][["pattern"]] <- "model_change"
-future_om_list[[2]][["input"]] <- data.frame(start_yr = 103, # or should this be 102 for a step change?
+future_om_list[[2]][["input"]] <- data.frame(start_yr = 102, # or should this be 102 for a step change? yes so the step starts at the end of 102 and is completed by the start of 103 so instant
                                              end_yr = 103, 
                                              ts_param = "mean",
                                              method = "absolute", 
@@ -51,6 +54,9 @@ future_om_list_2[[1]][["input"]] <- data.frame(start_yr = c(101, 101),
                                                ts_param = c("sd", "mean"), # how to specify if this uses historic mean or mean in the last model year?
                                                method = c("absolute", "multiplier"), 
                                                value = 0.1, 1)
+                # As mentioned above the choice of start_yr=1 vs 100 would differentiate between final year value vs whole model average.
+                # We will have to think more about how to handle the rec_dev and environmental vals as they have both variability in their deviations and 
+                # specified st_dev in each year??? Not sure what the best way to handle is.
 
 # Object 3, use custom ---
 # set future values for von bert k and and for survey q
