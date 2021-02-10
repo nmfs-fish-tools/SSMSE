@@ -56,7 +56,7 @@ future_om_list_2[[1]][["input"]] <- data.frame(random_type = "error",
 # Object 3, use custom ---
 # set future values for von bert k and and for survey q
 
-future_om_list_3 <- vector(mode = "list", length = 1)
+future_om_list_3 <- vector(mode = "list", length = 2)
 future_om_list_3 <- lapply(future_om_list_3, function (x) x <- vector(mode = "list", length = 4))
 names(future_om_list_3[[1]]) <- c("pars", "scen", "pattern", "input")
 names(future_om_list_3[[2]]) <- c("pars", "scen", "pattern", "input")
@@ -76,17 +76,39 @@ future_om_list_3[[1]][["input"]] <- data.frame(
   value = c(rep(0.2, times = 6*2), rep(0.3, times = 6)))
 
 # add in vals for list element 2
-future_om_list_3[[1]][["pars"]] <- "LnQ_base_Survey(2)"
-future_om_list_3[[1]][["scen"]] <- c("replicate", "all")
-future_om_list_3[[1]][["pattern"]] <- "custom"
+future_om_list_3[[2]][["pars"]] <- "LnQ_base_Survey(2)"
+future_om_list_3[[2]][["scen"]] <- c("replicate", "all")
+future_om_list_3[[2]][["pattern"]] <- "custom"
 # the following list has LnQ_base_Survey(2)  set as 0.02 for all years in scen1
 # but set at 0.04 in scen2 and scen3
-future_om_list_3[[1]][["input"]] <- data.frame(
+future_om_list_3[[2]][["input"]] <- data.frame(
   parameter = "LnQ_base_Survey(2)", 
   scenario = rep(c("scen1","scen2", "scen3"), times = rep(6, times = 3)), 
   year = rep(101:106, times = 3),
   value = c(rep(0.02, times = 6), rep(0.04, times = 6*2)))
 
 # Object 4 ----
-# 1. Rec devs? should be specified here? or with separate input? What about
-# implementation error?
+# Specify recdevs and implementation error
+future_om_list_4 <- vector(mode = "list", length = 2)
+future_om_list_4 <- lapply(future_om_list_, function (x) x <- vector(mode = "list", length = 4))
+names(future_om_list_4[[1]]) <- c("pars", "scen", "pattern", "input")
+names(future_om_list_4[[2]]) <- c("pars", "scen", "pattern", "input")
+
+# add in vals for list element 1
+future_om_list_4[[1]][["pars"]] <- "rec_devs" # or recdevs, not sure which way to spell is better
+future_om_list_4[[1]][["scen"]] <- c("replicate", "all")
+future_om_list_4[[1]][["pattern"]] <- "historic"
+future_om_list_4[[1]][["input"]] <- 1 # this should use the same sd as historically?
+
+# add in vals for list element 2
+future_om_list_4[[2]][["pars"]] <- "impl_error" 
+future_om_list_4[[2]][["scen"]] <- c("randomize", "all")
+future_om_list_4[[2]][["pattern"]] <- "custom"
+future_om_list_4[[2]][["input"]] <- data.frame(
+  parameter = "impl_error",
+  scenario = rep(c("scen1","scen2", "scen3"), times = rep(6, times = 3)),
+  year = rep(101:106, times = 3), 
+  value = c(rep(1.05, times = 6), rep(1.10, times = 6*2)) # can't remember
+  #exactly how impl error is specified, so not sure if this is correct...
+)
+
