@@ -12,46 +12,45 @@ future_om_list <- lapply(future_om_list, function (x) x <- vector(mode = "list",
 names(future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
 names(future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
 
-
 # add in vals for M
 future_om_list[[1]][["pars"]] <- "NatM_p_1_Fem_GP_1"
 future_om_list[[1]][["scen"]] <- c("replicate", "scen2", "scen3")
-future_om_list[[1]][["pattern"]] <- "historic"
-future_om_list[[1]][["input"]] <- 0.1 # jitter with a standard deviation of 0.1 times the historic standard deviation
+future_om_list[[1]][["pattern"]] <- "model_change"
+future_om_list[[1]][["input"]] <- data.frame(start_yr = 101, # or maybe this should be 100, the last yr of the model?
+                                             end_yr = 101, 
+                                             ts_param = "sd", 
+                                             method = "multiplier", 
+                                             value = 1)
+  # jitter with a standard deviation equal to the historic standard deviation
 
-# add values for selectivity curve param
+# add values for selectivity curve param. step change occuring in year 103
 future_om_list[[2]][["pars"]] <- "SizeSel_P_3_Fishery(1)" # had to figure this out from reading in the par file.
 future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
-future_om_list[[2]][["pattern"]] <- "fixed"
-future_om_list[[2]][["input"]] <- data.frame(start_yr = 103, 
-                                             end_yr = 104, 
-                                             mod_method = 
-                                               "absolute", 
-                                             value = 4.5) # step change? or does this gradually change up to 4.5? The way I envisaged it your definition would cause a slope
-                                                          # change where 103 was exactly the old value, 106 would be exactly 4.5,  104 would have transitioned a third of the way 
-                                                          # and 105 would have transitioned two thirds. if you set start_yr=103 and end_yr=104 it would be a step with 103 at the 
-                                                          # original value and 104 at 4.5.
+future_om_list[[2]][["pattern"]] <- "model_change"
+future_om_list[[2]][["input"]] <- data.frame(start_yr = 103, # or should this be 102 for a step change?
+                                             end_yr = 103, 
+                                             ts_param = "mean",
+                                             method = "absolute", 
+                                             value = 4.5)
 
 # Object 2, apply change to all params ----
 # Start by specifying 2  changes to make:
-# 1. Apply change to all paramters
+# 1. Apply a random jitter to all parameters change to all paramters
 
 future_om_list_2 <- vector(mode = "list", length = 1)
 future_om_list_2 <- lapply(future_om_list_2, function (x) x <- vector(mode = "list", length = 4))
 names(future_om_list_2[[1]]) <- c("pars", "scen", "pattern", "input")
 
-# add in vals for all
+# add jittered values using mean from historic time series to all future parameters.
 future_om_list_2[[1]][["pars"]] <- "all"
 future_om_list_2[[1]][["scen"]] <- c("randomize", "scen2", "scen3")
-future_om_list_2[[1]][["pattern"]] <- "random"
-# need clarification on the mean and error parameter type options in the input section?
-# is there a way to apply the below data frame to all paramters? And better description of the cols? Not sure what the mean should be...
+future_om_list_2[[1]][["pattern"]] <- "model_change"
 # should cvs be used to specify the random sampling inputs instead of standard dev?
-future_om_list_2[[1]][["input"]] <- data.frame(random_type = "error", 
-                                               type_inputs = "normal",
-                                               type_weights = NA, 
-                                               type_init_1_or_mean = "existing_mean", 
-                                               type_init_2_or_sd = 0.01)
+future_om_list_2[[1]][["input"]] <- data.frame(start_yr = c(101, 101),
+                                               end_yr = c(101, 101),
+                                               ts_param = c("sd", "mean"), # how to specify if this uses historic mean or mean in the last model year?
+                                               method = c("absolute", "multiplier"), 
+                                               value = 0.1, 1)
 
 # Object 3, use custom ---
 # set future values for von bert k and and for survey q
@@ -70,22 +69,24 @@ future_om_list_3[[1]][["pattern"]] <- "custom"
 # the following list has von bertK set as 0.2 for all years in scen1 and scen2,
 # but set at 0.3 in scen3
 future_om_list_3[[1]][["input"]] <- data.frame(
-  parameter = "VonBert_K_Fem_GP_1", 
-  scenario = rep(c("scen1","scen2", "scen3"), times = rep(6, times = 3)), 
-  year = rep(101:106, times = 3),
-  value = c(rep(0.2, times = 6*2), rep(0.3, times = 6)))
+  parameter = "VonBert_K_Fem_GP_1", # not needed?
+  scenario = rep(c("scen1","scen2", "scen3"), times = rep(6*5, times = 3)), 
+  iteration = rep(1:5, times = 3*6),
+  year =  rep(rep(101:106, times = rep(5, times = 6)), times = 3),
+  value = c(rep(0.2, times = 6*2*5), rep(0.3, times = 6*5)))
 
-# add in vals for list element 2
+# add in vals for list element 2 - This parameter has a positive, deterministic
+# trend over time that ends at 1.5 of the original mean value.
 future_om_list_3[[2]][["pars"]] <- "LnQ_base_Survey(2)"
 future_om_list_3[[2]][["scen"]] <- c("replicate", "all")
-future_om_list_3[[2]][["pattern"]] <- "custom"
+future_om_list_3[[2]][["pattern"]] <- "model_change"
 # the following list has LnQ_base_Survey(2)  set as 0.02 for all years in scen1
 # but set at 0.04 in scen2 and scen3
-future_om_list_3[[2]][["input"]] <- data.frame(
-  parameter = "LnQ_base_Survey(2)", 
-  scenario = rep(c("scen1","scen2", "scen3"), times = rep(6, times = 3)), 
-  year = rep(101:106, times = 3),
-  value = c(rep(0.02, times = 6), rep(0.04, times = 6*2)))
+future_om_list_3[[2]][["input"]] <- data.frame(start_yr = 100, # this is the last "historic" year in the model. should this be 101 instead?
+                                               end_yr = 106,
+                                               ts_param = "mean",
+                                               method = c("multiplier"), 
+                                               value = 1.5)
 
 # Object 4 ----
 # Specify recdevs and implementation error
@@ -94,11 +95,16 @@ future_om_list_4 <- lapply(future_om_list_4, function (x) x <- vector(mode = "li
 names(future_om_list_4[[1]]) <- c("pars", "scen", "pattern", "input")
 names(future_om_list_4[[2]]) <- c("pars", "scen", "pattern", "input")
 
-# add in vals for list element 1
+# add in vals for list element 1 - use recdevs with the same sd as the historic ones, 
+# but with autocorrelation?
 future_om_list_4[[1]][["pars"]] <- "rec_devs" # or recdevs, not sure which way to spell is better
 future_om_list_4[[1]][["scen"]] <- c("replicate", "all")
-future_om_list_4[[1]][["pattern"]] <- "historic"
-future_om_list_4[[1]][["input"]] <- 1 # this should use the same sd as historically?
+future_om_list_4[[1]][["pattern"]] <- "model_change"
+future_om_list_4[[1]][["input"]] <- data.frame(start_yr = c(101, 101),
+                                               end_yr = c(106, 106),
+                                               ts_param = c("sd", "autocorr"), # better name for autocorrelation param?
+                                               method = c("multiplier", "absolute"),
+                                               value = c(1, 3)) # does 3 make sense? no idea...
 
 # add in vals for list element 2
 future_om_list_4[[2]][["pars"]] <- "impl_error" 
@@ -106,9 +112,9 @@ future_om_list_4[[2]][["scen"]] <- c("randomize", "all")
 future_om_list_4[[2]][["pattern"]] <- "custom"
 future_om_list_4[[2]][["input"]] <- data.frame(
   parameter = "impl_error",
-  scenario = rep(c("scen1","scen2", "scen3"), times = rep(6, times = 3)),
-  year = rep(101:106, times = 3), 
-  value = c(rep(1.05, times = 6), rep(1.10, times = 6*2)) # can't remember
+  scenario = rep(c("scen1","scen2", "scen3"), times = rep(6*5, times = 3)), 
+  iteration = rep(1:5, times = 3*6),
+  year = rep(rep(101:106, times = rep(5, times = 6)), times = 3),
+  value = c(rep(1.05, times = 6*5), rep(1.10, times = 6*5*2)) # can't remember
   #exactly how impl error is specified, so not sure if this is correct...
 )
-
