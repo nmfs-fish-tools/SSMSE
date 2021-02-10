@@ -53,7 +53,7 @@ future_om_list_2[[1]][["input"]] <- data.frame(start_yr = c(101, 101),
                                                end_yr = c(101, 101),
                                                ts_param = c("sd", "mean"), # how to specify if this uses historic mean or mean in the last model year?
                                                method = c("absolute", "multiplier"), 
-                                               value = 0.1, 1)
+                                               value = c(0.1, 1))
                 # As mentioned above the choice of start_yr=1 vs 100 would differentiate between final year value vs whole model average.
                 # We will have to think more about how to handle the rec_dev and environmental vals as they have both variability in their deviations and 
                 # specified st_dev in each year??? Not sure what the best way to handle is.
