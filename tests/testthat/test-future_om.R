@@ -17,23 +17,22 @@ future_om_list[[1]][["pars"]] <- "NatM_p_1_Fem_GP_1"
 future_om_list[[1]][["scen"]] <- c("replicate", "scen2", "scen3")
 future_om_list[[1]][["pattern"]] <- c("model_change","norm")
 future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = 1,
-                                             last_yr_averageing = 100,
-                                             last_yr_orig_val = 100, # or maybe this should be 100, the last yr of the model? Yes I think it should be 100.
+                                             last_yr_averaging = 100,
+                                             last_yr_orig_val = 100,
                                              first_yr_final_val = 101, 
                                              ts_param = "sd", 
                                              method = "multiplier", 
-                                             value = 1)
-  # jitter with a standard deviation equal to the historic standard deviation
-  # NOTE: The way this is set up it would jitter with standard deviation equal to the standard deviation in year 100 not an average over the 
-  # whole series. If we use the logic that year 100 represents the historic model and therefore a single year for averaging. Setting start_yr = 1 (or 0?)
-  # would do an average of the whole historic period.
+                                             value = 1) # jitter with a standard deviation equal to the historic standard deviation
+
 
 # add values for selectivity curve param. step change occuring in year 103
 future_om_list[[2]][["pars"]] <- "SizeSel_P_3_Fishery(1)" # had to figure this out from reading in the par file.
 future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
-future_om_list[[2]][["pattern"]] <- "model_change"
-future_om_list[[2]][["input"]] <- data.frame(start_yr = 102, # or should this be 102 for a step change? yes so the step starts at the end of 102 and is completed by the start of 103 so instant
-                                             end_yr = 103, 
+future_om_list[[2]][["pattern"]] <- "model_change" # defaults to normal (with SD 0, mean at last yr of mod val?)
+future_om_list[[2]][["input"]] <- data.frame(first_yr_averaging = NA, # NA b/c not using historical values
+                                             last_yr_averaging = NA, # NA b/c not using historical values
+                                             last_yr_orig_val = 102,
+                                             first_yr_final_val = 103, 
                                              ts_param = "mean",
                                              method = "absolute", 
                                              value = 4.5)
@@ -50,20 +49,21 @@ names(future_om_list_2[[1]]) <- c("pars", "scen", "pattern", "input")
 # add jittered values using mean from historic time series to all future parameters.
 future_om_list_2[[1]][["pars"]] <- "all"
 future_om_list_2[[1]][["scen"]] <- c("randomize", "scen2", "scen3")
-future_om_list_2[[1]][["pattern"]] <- "model_change"
-# should cvs be used to specify the random sampling inputs instead of standard dev?
-future_om_list_2[[1]][["input"]] <- data.frame(start_yr = c(1, 1),
-                                               end_yr = c(101, 101),
-                                               ts_param = c("sd", "mean"), # how to specify if this uses historic mean or mean in the last model year?
+future_om_list_2[[1]][["pattern"]] <- "model_change" # defaults to using normal dist
+# should CVs be an option to specify the random sampling inputs instead of standard dev
+# probably more meaningful when there are many parameter types, so included here...
+future_om_list_2[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, 1),
+                                               last_yr_averaging = c(100, 100),
+                                               last_yr_orig_val = c(100, 100),
+                                               first_yr_final_val = c(101, 101), 
+                                               ts_param = c("cv", "mean"),
                                                method = c("absolute", "multiplier"), 
                                                value = c(0.1, 1))
-                # As mentioned above the choice of start_yr=1 vs 100 would differentiate between final year value vs whole model average.
-                # i.e. I changed it to start_yr=1 above which would calculate an average over the 100 historic series. Setting it at start_yr=100 would just use the 
-                # value in year 100 and make an instant step change in year 101.
-                # We will have to think more about how to handle the rec_dev and environmental vals as they have both variability in their deviations and 
-                # specified st_dev in each year??? Not sure what the best way to handle is. NOTE: Having thought about it more I think that we 
-                # should largely ignore the annual model uncertainties on rec_devs/implementation error/environmental indicies and just calculate sd/variance/autocorrelation from the
-                # time-series of their values, I think this makes more sense as that is the pattern we are trying to replicate.
+# We will have to think more about how to handle the rec_dev and environmental vals as they have both variability in their deviations and 
+# specified st_dev in each year??? Not sure what the best way to handle is. 
+# NOTE: Having thought about it more I think that we 
+# should largely ignore the annual model uncertainties on rec_devs/implementation error/environmental indicies and just calculate sd/variance/autocorrelation from the
+# time-series of their values, I think this makes more sense as that is the pattern we are trying to replicate.
 
 # Object 3, use custom ---
 # set future values for von bert k and and for survey q
@@ -96,11 +96,13 @@ future_om_list_3[[1]][["input"]] <- data.frame(
 # trend over time that ends at 1.5 of the original mean value.
 future_om_list_3[[2]][["pars"]] <- "LnQ_base_Survey(2)"
 future_om_list_3[[2]][["scen"]] <- c("replicate", "all")
-future_om_list_3[[2]][["pattern"]] <- c("model_change","norm")
-future_om_list_3[[2]][["input"]] <- data.frame(start_yr = 100, 
-                                               end_yr = 106,
+future_om_list_3[[2]][["pattern"]] <- c("model_change","norm") #note norm is also the default
+future_om_list_3[[2]][["input"]] <- data.frame(first_yr_averaging = NA,
+                                               last_yr_averaging = NA,
+                                               last_yr_orig_val = 100,
+                                               first_yr_final_val = 106, 
                                                ts_param = "mean",
-                                               method = c("multiplier"), 
+                                               method = "multiplier", 
                                                value = 1.5)
 
 # Object 4 ----
@@ -111,13 +113,15 @@ names(future_om_list_4[[1]]) <- c("pars", "scen", "pattern", "input")
 names(future_om_list_4[[2]]) <- c("pars", "scen", "pattern", "input")
 
 # add in vals for list element 1 - use recdevs with the same sd as the historic ones, 
-# but with autocorrelation?
+# but with autocorrelation. The mean will be the default as the last model year.
 future_om_list_4[[1]][["pars"]] <- "rec_devs" # or recdevs, not sure which way to spell is better
 future_om_list_4[[1]][["scen"]] <- c("replicate", "all")
 future_om_list_4[[1]][["pattern"]] <- c("model_change","norm")
-future_om_list_4[[1]][["input"]] <- data.frame(start_yr = c(101, 101),
-                                               end_yr = c(106, 106),
-                                               ts_param = c("sd", "ar_1_param"),
+future_om_list_4[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, NA),
+                                               last_yr_averaging = c(100, NA),
+                                               last_yr_orig_val = c(100, 100),
+                                               first_yr_final_val = c(101, 101), 
+                                               ts_param = c("sd", "ar_1_q_parm"), # I think this is the degree of differencing param, aka q?
                                                method = c("multiplier", "absolute"),
                                                value = c(1, .5)) # NOTE: Auto correlation has to be a value less than 1 and greater than -1 to be stationary
                                                                 # a value of 1 would be a perfect random walk. Negative values can have weird stationary distributions that 
