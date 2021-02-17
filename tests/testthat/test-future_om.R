@@ -15,9 +15,11 @@ names(future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
 # add in vals for M
 future_om_list[[1]][["pars"]] <- "NatM_p_1_Fem_GP_1"
 future_om_list[[1]][["scen"]] <- c("replicate", "scen2", "scen3")
-future_om_list[[1]][["pattern"]] <- "model_change"
-future_om_list[[1]][["input"]] <- data.frame(start_yr = 100, # or maybe this should be 100, the last yr of the model? Yes I think it should be 100.
-                                             end_yr = 101, 
+future_om_list[[1]][["pattern"]] <- c("model_change","norm")
+future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = 1,
+                                             last_yr_averageing = 100,
+                                             last_yr_orig_val = 100, # or maybe this should be 100, the last yr of the model? Yes I think it should be 100.
+                                             first_yr_final_val = 101, 
                                              ts_param = "sd", 
                                              method = "multiplier", 
                                              value = 1)
@@ -95,7 +97,7 @@ future_om_list_3[[1]][["input"]] <- data.frame(
 # trend over time that ends at 1.5 of the original mean value.
 future_om_list_3[[2]][["pars"]] <- "LnQ_base_Survey(2)"
 future_om_list_3[[2]][["scen"]] <- c("replicate", "all")
-future_om_list_3[[2]][["pattern"]] <- "model_change"
+future_om_list_3[[2]][["pattern"]] <- c("model_change","norm")
 # the following list has LnQ_base_Survey(2)  set as 0.02 for all years in scen1
 # but set at 0.04 in scen2 and scen3
 future_om_list_3[[2]][["input"]] <- data.frame(start_yr = 100, # this is the last "historic" year in the model. should this be 101 instead? No I think that 100 means the sequence starts at the 
@@ -116,7 +118,7 @@ names(future_om_list_4[[2]]) <- c("pars", "scen", "pattern", "input")
 # but with autocorrelation?
 future_om_list_4[[1]][["pars"]] <- "rec_devs" # or recdevs, not sure which way to spell is better
 future_om_list_4[[1]][["scen"]] <- c("replicate", "all")
-future_om_list_4[[1]][["pattern"]] <- "model_change"
+future_om_list_4[[1]][["pattern"]] <- c("model_change","norm")
 future_om_list_4[[1]][["input"]] <- data.frame(start_yr = c(101, 101),
                                                end_yr = c(106, 106),
                                                ts_param = c("sd", "autocorr"), # better name for autocorrelation param?
