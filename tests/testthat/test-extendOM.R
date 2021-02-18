@@ -52,6 +52,8 @@ extend_vals <- list(
   )
 )
 
+
+#TODO: implement future_om_list use in these tests
 test_that("extend_OM works with simple case", {
   skip_on_cran()
   # simple case: 1 fleet and season needs CPUE, lencomp, agecomp added

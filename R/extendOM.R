@@ -15,6 +15,7 @@
 #'  add to the OM. The column names are as in an SS datafile.
 #' @param OM_dir The full path to the OM directory.
 #' @param sample_struct The sample structure dataframe.
+#' @param future_om_list The changes to make to the future OM list.
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
@@ -30,12 +31,14 @@ extend_OM <- function(catch,
                       harvest_rate = NULL,
                       OM_dir,
                       sample_struct = NULL,
+                      future_om_list = NULL,
                       nyrs_extend = 3,
                       write_dat = TRUE,
                       rec_devs = NULL,
                       impl_error = NULL,
                       verbose = FALSE,
                       seed = NULL) {
+  #TODO: implement using the future_om_list in this function.
 
   # input checks
 
