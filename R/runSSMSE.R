@@ -84,6 +84,12 @@
 #'  sampled for the historical period for the data generated from the OM. If 
 #'  this is left as NULL, then the same sampling scheme will be used as in the
 #'  OM's data file. If it is not NULL, then each year 
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. To see an example, try
+#'  running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+#'  that the model will be extended forward in time assuming the original model
+#'  structure.
 #' @param interim_struct_list A optional list of parameters to control an interim assessment
 #'  with an example structure below, where Beta=a positive value that is inversely proportional to risk,
 #'  MA_years= the number of years to average index observations of when calculating deviations,
@@ -181,6 +187,7 @@ run_SSMSE <- function(scen_name_vec,
                       impl_error_pattern = c("none", "rand", "user"),
                       impl_error_pars = NULL,
                       sample_struct_list = NULL,
+                      future_om_list = NULL,
                       sample_struct_hist_list = NULL,
                       interim_struct_list = NULL,
                       verbose = FALSE,
@@ -210,6 +217,7 @@ run_SSMSE <- function(scen_name_vec,
       )
     }
   }
+  check_future_om_list(future_om_list = future_om_list)
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(
@@ -348,6 +356,7 @@ run_SSMSE <- function(scen_name_vec,
       impl_error = tmp_scen[["impl_error"]],
       scen_seed = tmp_scen[["scen_seed"]],
       sample_struct = tmp_scen[["sample_struct"]],
+      future_om_list = future_om_list,
       sample_struct_hist = tmp_scen[["sample_struct_hist"]],
       interim_struct = tmp_scen[["interim_struct"]],
       run_EM_last_yr = run_EM_last_yr,
@@ -411,6 +420,12 @@ run_SSMSE <- function(scen_name_vec,
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. To see an example, try
+#'  running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+#'  that the model will be extended forward in time assuming the original model
+#'  structure.
 #' @param sample_struct_hist An optional list including which years should be
 #'  sampled for the historical period for the data generated from the OM. If 
 #'  this is left as NULL, then the same sampling scheme will be used as in the
@@ -463,6 +478,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            impl_error = NULL,
                            scen_seed = NULL,
                            sample_struct = NULL,
+                           future_om_list = NULL,
                            sample_struct_hist = NULL,
                            interim_struct = NULL,
                            verbose = FALSE,
@@ -534,6 +550,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           run_EM_last_yr = run_EM_last_yr,
           iter_seed = iter_seed,
           sample_struct = sample_struct,
+          future_om_list = future_om_list,
           sample_struct_hist = sample_struct_hist,
           interim_struct = interim_struct,
           verbose = verbose
@@ -564,6 +581,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         run_EM_last_yr = run_EM_last_yr,
         iter_seed = iter_seed,
         sample_struct = sample_struct,
+        future_om_list = future_om_list,
         sample_struct_hist = sample_struct_hist,
         interim_struct = interim_struct,
         verbose = verbose
@@ -645,6 +663,12 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  give an example of what this structure should be. Running the function
 #'  create_sample_struct() will also produce a sample_struct object in the
 #'  correct form. Can be NULL only when MS is not EM.
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. To see an example, try
+#'  running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+#'  that the model will be extended forward in time assuming the original model
+#'  structure.
 #' @param sample_struct_hist An optional list including which years should be
 #'  sampled for the historical period for the data generated from the OM. If 
 #'  this is left as NULL, then the same sampling scheme will be used as in the
@@ -716,6 +740,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            niter = 1,
                            iter_seed = NULL,
                            sample_struct = NULL,
+                           future_om_list = NULL,
                            sample_struct_hist = NULL,
                            interim_struct = NULL,
                            verbose = FALSE) {

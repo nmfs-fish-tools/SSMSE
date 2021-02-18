@@ -53,6 +53,8 @@ create_future_om_list <- function(example_type = c("model_change", "custom"),
 #' 
 #' @param future_om_list The future_om_list object to check
 check_future_om_list <- function(future_om_list) {
-  warning("Checks not yet added")
+  if(isTRUE(!is.null(future_om_list))) {
+    warning("future_om_list is not yet being used by SSMSE.")
+  }
   invisible(future_om_list)
 }
