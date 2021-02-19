@@ -88,7 +88,100 @@ Users also need to specify how and which data types should be sampled for each f
 
 The helper function `create_sample_struct()` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#sample) or by typing `?SSMSE::create_sample_struct()` into the R console.
 
+Users can specify the sampling during the historical period of the model through the `sample_struct_hist` input to `run_SSMSE`. This is an optional input and has the same structure as `sample_struct_list`, but the years will be before the original end year of the OM.
+
+## Future changes to the operating model (#future)
+
+By default, SSMSE will simply extend the structure of the OM into the future using the same values as in the last year of the model. However, it is likely that the user will want to allow changes to occur as the OM is extended forward in time. User can input values into the `future_om_list` to accomplish this. This input is a list of lists. The first level of lists specify 1 type of change. Within that first level, there are 4 list components. There are 2 main choices: 1) to specify model changes by telling SSMSE how it should sample values or 2) to input your own custom values for a given parameter. 
+
+### The strucutre of `future_om_list`
+
+For example, here is an example list containing just one future changes for the model. It shows that the model should be changed to 4.5 in year 103 and afterwards:
+
+```{r}
+my_future_om_list <- create_future_om_list(list_length = 1)
+my_future_om_list
+length(my_future_om_list) # note has length 1 b/c 1 change
+length(my_future_om_list[[1]]) # has length 4 because 4 list components, as for each change
+
+```
+
+Note there is just one change specified here. For that change, there are four list items that are required for any specified change. 
+
+1. The first list item is called "pars". It contains a vector of parameter name(s) to apply the change to. The names should be the same as the names in `r4ss::SS_read_pars()` or can be one of the following:
+
+* `"rec_devs"` - For specifying recruitment deviations
+* `"impl_error` - For specifying implementation error in transforming a management procedure's specified future catch into realized catch.
+* `"all"` - Apply the change to all parameters in the model (not to recruitment deviations and implementation error, though)
+
+In this case, we just want to apply the change to the `"SizeSel_P_3_Fishery(1)"` parameter of the model.
+
+2. The second item is "scen", which contains a vector of information about how to apply the changes within and across scenarios. The first value is an option to specify how the change should be applied across scenario, either "randomize" (use a different value for each iteration of each scenario) or replicate (use the same set of values across scenarios, but each value will be different across iterations within the same scenario). Note that the same values will be applied across iterations and scenarios if there isn't any stochasisity in the values being drawn - this is the case  in this example. Following the first values are the names of the scenarios to apply the change to. Or if the change should be applied to scenarios, "all" can be used in place of naming every scenario. In this example, The change will only be applied to the scenario named "scen2".
+
+3. The "pattern" is a a vector of string inputs. The first value should be either "model_change", meaning that SSMSE will calculate the change values, or "custom" which allows the user to directly put in the change values that they want in the model.For a given year. In this case, "model_change" is used. A second input can also be added when the "model_change" pattern is being use, which specifies the distribution to pull from. This could be "normal" or "lognormal", but if no input is provided, the default is a normal distribution.
+
+4. The fourth item, named "input", is a dataframe, which contains different column name values depending on if the "model_change" pattern is used or if the "custom" pattern is used. For the model_change options, we have a dataframe that outlines a change for the parameter of a distribution. Because we are using the model change option, we have the following columns:
+* first_yr_averaging: The first year to average historical values from the model, if using for the change (NA in our example)
+* last_yr_averaging: The last year to average historical values from the model, if using for the change (NA in our example)
+* last_yr_orig_val: The last year of the future deviations with the original model value. This value will not be changed.
+* first_yr_final_val: The first year where the final value as specified will be reached. If no future changes are made, the final value will just be continued forward in the OM. For step changes, the first_yr_final_val is just 1 year after the last_yr_orig_val. However, if a more gradual adjustment toward the final value is desired, this could be any number of years after the original value.
+* ts_param: This is the parameter to  modify. Options are "mean", "ar_1_q_param" (if using autocorrelation), "sd". If not included in the dataframe, "mean" is assumed to be the same as in the previous model year, sd is assumed to be 0, and we assume no autocorrelation (as specified through an autoregsive AR1 process).
+* method: How to apply the change relative to the historical (if specified) or previous year's value (if first_yr_averaging and last_yr_averaging for that row are NA). Options are "multiplicative", "additive", and "absolute". This example uses "absolute, meaning that the number in "value" will just be directly used.
+* value. The value of the parameter change.
+
+### Example of future_om_list denoting a gradual change.
+
+Suppose we wanted to change the value of  "SizeSel_P_3_Fishery(1)" in scen2 over 4 years after year 102 to arrive at a value of 4.5 in year 106. We can do this by using the `my_future_om_list`, but changing the value in the first row of `first_yr_final_val` to 106:
+
+```{r}
+my_future_om_list[[1]][["input"]][1, "first_yr_final_val"] <- 106
+my_future_om_list[[1]]
+```
+
+### Example of future_om_list with a random jitter
+
+Suppose we now wanted the value of "SizeSel_P_3_Fishery(1)" to change randomly according to a normal distribution with a standard deviation of 0.1 around a mean of 4.5 from 104 onwards. This can be done by adding a line specifying a change in standard deviation (which for now, has been assumed to be 0) to the data frame: 
+
+```{r}
+new_vals <- data.frame(first_yr_averaging = NA,
+                       last_yr_averaging  = NA, 
+                       last_yr_orig_val   = 103,
+                       first_yr_final_val = 104, 
+                       ts_param = "sd", 
+                       value = 0.1)
+my_future_om_list[[1]][["input"]] <- rbind(my_future_om_list[[1]][["input"]], new_vals)
+my_future_om_list[[1]]
+```
+
+### Example of using historical values for determining parameter values
+
+*to add*
+
+### Example using "custom" pattern instead of "model_change"
+
+```{r}
+custom_future_om_list <- create_future_om_list(example_type = "custom", 
+                                               list_length = 1)
+custom_future_om_list
+
+```
+
+The parameters are similar, but note that there is no need to specify a distribution as the second input of "pattern", and that the column names in input are different. Also that the change is "randomized", which indicates that a value for each scenario and each iteration are necessary, whereas if the first value of "scen" was "replicate", separate values for each scenario should not be specified, but rather a single value for "all" should be used. The columns in the dataframe are:
+
+* parameter: the parameter name or "all" if it should be applied to all parameters in the "pars" input.
+* scenario: which scenario the value should apply to, or "all" if "replicate" is used as the scenario input.
+* iteration: which number iteration the value should apply to. These are relative iteration numbers rather than absolute (e.g., if the first iteration being run through the run_SSMSE call is 30, then iteration = 1 would specify the value for iteration 30). 
+* year: the year the value applies to. These should be after the original end year of the OM.
+* value: the value to apply to the model
+
+### How is SS modified to accomodate changes in the future OM?
+
+All changes are made by converting the parameter(s) with changes to be time varying. A parameter is converted to use parameter deviations in the control file and the par file. Because this is an operating model, Stock Synthesis is not run with estimation, so to get the changes into the OM, values (drawn or calculated in model_changes or specified by the user using "custom") are directly input as parameter deviations into the par file.
+
 ## Recruitment deviations
+
+
+*Note: this approach will soon be replaced with a more comprehensive approach for all future changes in the operating model*
 
 Future recruitment deviations to use in the simulation needs to be specified by the user. SSMSE can generate the recruitment deviations or users can specify them. The recruitment deviation pattern options (specified through `rec_dev_pattern`) are:
 
@@ -101,6 +194,8 @@ Future recruitment deviations to use in the simulation needs to be specified by 
 *In the future, some example specifications will be shown here to better illustrate the options*
 
 ## Implementation error
+
+*Note: this approach will soon be replaced with a more comprehensive approach for all future changes in the operating model*
 
 Management strategies that specify a total allowable catch are not always implemented perfectly. Thus, there are options in SSMSE to specify implementation error, where the true catch does not perfectly match the catch forecasted from the management strategy. The user can specify the future implementation error by using `impl_error_pattern`. Options are:
 
