@@ -217,7 +217,8 @@ run_SSMSE <- function(scen_name_vec,
       )
     }
   }
-  check_future_om_list(future_om_list = future_om_list)
+  # check and add implicit inputs to the future_om_list
+  future_om__list <- check_future_om_list(future_om_list = future_om_list)
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(

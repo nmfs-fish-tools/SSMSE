@@ -15,7 +15,7 @@ names(future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
 # add in vals for M
 future_om_list[[1]][["pars"]] <- "NatM_p_1_Fem_GP_1"
 future_om_list[[1]][["scen"]] <- c("replicate", "scen2", "scen3")
-future_om_list[[1]][["pattern"]] <- c("model_change","norm")
+future_om_list[[1]][["pattern"]] <- c("model_change","normal")
 future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = 1,
                                              last_yr_averaging = 100,
                                              last_yr_orig_val = 100,
@@ -28,7 +28,7 @@ future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = 1,
 # add values for selectivity curve param. step change occuring in year 103
 future_om_list[[2]][["pars"]] <- "SizeSel_P_3_Fishery(1)" # had to figure this out from reading in the par file.
 future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
-future_om_list[[2]][["pattern"]] <- "model_change" # defaults to normal (with SD 0, mean at last yr of mod val?)
+future_om_list[[2]][["pattern"]] <- c("model_change", "normal") # defaults to normal (with SD 0, mean at last yr of mod val?)
 future_om_list[[2]][["input"]] <- data.frame(first_yr_averaging = NA, # NA b/c not using historical values
                                              last_yr_averaging = NA, # NA b/c not using historical values
                                              last_yr_orig_val = 102,
@@ -116,7 +116,7 @@ names(future_om_list_4[[2]]) <- c("pars", "scen", "pattern", "input")
 # but with autocorrelation. The mean will be the default as the last model year.
 future_om_list_4[[1]][["pars"]] <- "rec_devs" # or recdevs, not sure which way to spell is better
 future_om_list_4[[1]][["scen"]] <- c("replicate", "all")
-future_om_list_4[[1]][["pattern"]] <- c("model_change","norm")
+future_om_list_4[[1]][["pattern"]] <- c("model_change","normal")
 future_om_list_4[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, NA),
                                                last_yr_averaging = c(100, NA),
                                                last_yr_orig_val = c(100, 100),
@@ -141,3 +141,24 @@ future_om_list_4[[2]][["input"]] <- data.frame(
   #NOTE: While testing the timeseries sim I got to thinking, should we offer an option for the user to specify the random distribution function? 
   #maybe just a couple of options like normal, lognormal, and uniform? not sure if others would be needed? just a thought. YES, for the model change option.
 )
+
+test_that("Input checks work", {
+  future_om_list_new <- check_future_om_list(future_om_list)
+  expect_equal(future_om_list_new, future_om_list)
+})
+
+test_that("Partial matching and missing for pattern works", {
+  future_om_list_mod <- future_om_list
+  future_om_list_mod[[1]][["pattern"]][2] <- "norm"
+  future_om_list_new <- check_future_om_list(future_om_list_mod)
+  expect_true(future_om_list_new[[1]][["pattern"]][2] == "normal")
+  future_om_list_mod[[1]][["pattern"]] <-
+    future_om_list_mod[[1]][["pattern"]][1]
+  future_om_list_new <- check_future_om_list(future_om_list_mod)
+  # because the default is using a normal distribution
+  expect_true(future_om_list_new[[1]][["pattern"]][2] == "normal")
+})
+
+test_that("incorrect inputs are caught", {
+  # TODO: add these
+})
