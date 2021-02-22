@@ -1,5 +1,5 @@
 ---
-title: "README"
+title: "SSMSE: Management Strategy Evaluation for Stock Synthesis (SS)"
 output: 
   github_document:
     toc: true
@@ -15,11 +15,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# (SSMSE) Management Strategy Evaluation for Stock Synthesis (SS)
+![](man/figures/ssmse_icon_small.png)
 
-master:
-[![Build Status](https://travis-ci.org/nmfs-fish-tools/SSMSE.svg?branch=master)](https://travis-ci.org/nmfs-fish-tools/SSMSE)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/nmfs-fish-tools/SSMSE?branch=master&svg=true)](https://ci.appveyor.com/project/nmfs-fish-tools/SSMSE)
+# SSMSE build status
+
+[![R-CMD-check](https://github.com/r4ss/r4ss/workflows/R-CMD-check/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions?query=workflow%3AR-CMD-check)
 [![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
 
 
@@ -43,13 +43,13 @@ master:
   
   ***** *******
 
-## Motivation for developing SSMSE
+# Motivation for developing SSMSE
   
 This package was developed to increase the ease of using SS directly as an operating model in an Management Strategy evaluation. The approach requires a conditioned Stock Synthesis model, which is treated as the Operating Model and a Stock Synthesis model to use as the Estimation Model (EM) and to specify the Management procedure through the Stock Synthesis forecasting model. In the future, we plan to make the choice of estimation method and management procedure more flexible.
 
 Below, we'll work through a simple example MSE as a way of introducing the SSMSE package. 
   
-## Installing the SSMSE R package
+# Installing the SSMSE R package
   
 Note that the SSMSE is a work in progress and not yet a minimum viable product.
 
@@ -63,7 +63,7 @@ You can read the help files with
 ?SSMSE
 ```
 
-## Troubleshooting Installation
+# Troubleshooting Installation
 
 Here are some tips:
 
@@ -76,16 +76,17 @@ Here are some tips:
 
 Still having trouble installing SSMSE? Please don't hesitate to open an [issue](https://github.com/nmfs-fish-tools/SSMSE/issues).
 
-## An SSMSE example
+# An SSMSE example
 
 Suppose we want to look at how well we are able to achieve a specified management procedure under uncertainty in the operating model (OM). We will look 2 scenarios, one where Steepness (h) is specified correctly and one  where it is specified incorrectly in an estimation model (EM):
 
 Scenario 1. **h-ctl**: Cod operating model (h = 0.65) with correctly specified cod model EM (fixed h = 0.65). The OM is the same as the EM.
+
 Scenario 2. **h-1**: Cod operating model (h = 1) with misspecified cod model EM (fixed h = 0.65); The OM is not the same as the EM.
 
 Note that this is a simple example where the OM and EM structures for both scenarios are identical, except for different steepness between the OM and EM in scenario 2. We will assume we want to run the MSE loop for 6 years, with a stock assessment occuring every 3 years (and forecasting catch to maintain 40% of unfished spawning stock biomass). The cod model's last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100 and 103. The operating model runs through year 106. We chose not to run the assessment in year 106, as there was no need for its output in this example.
 
-### Setup R workspace folders
+## Setup R workspace folders
 First, we will load the `SSMSE` package and create a folder in which to run the example:
 ```{r, echo=FALSE, results="hide"}
 # This is needed to run the .rmd locally with the updated version of SSMSE for
@@ -104,7 +105,7 @@ library(doParallel) #if using run_parallel = TRUE
 run_SSMSE_dir <- file.path("run_SSMSE-ex")
 dir.create(run_SSMSE_dir)
 ```
-### Create the operating models (OMs)
+## Create the operating models (OMs)
 
 The cod model with h = 0.65 (as in scenario 1) is included as external package data in SSMSE. However, we will need to modify it to use as an operating model with h = 1 (as in scenario 2). Note in this case that refit_OM is false, so the model is not being refit, just run through without fitting. To condition the new model on the same data as the input model, refit_OM should be TRUE.
 
@@ -120,7 +121,7 @@ develop_OMs(OM_name = "cod", out_dir = run_SSMSE_dir, par_name = "SR_BH_steep",
 cod_1_path <- file.path(run_SSMSE_dir, "cod_SR_BH_steep_1")
 ```
 
-### Examine the management procedure used
+## Examine the management procedure used
 
 We will use the same management procedure for both scenarios:
   
@@ -161,7 +162,7 @@ However, an assessment will be conducted every 3 years and 3 years of forecastin
 More information on using the forecast module in SS to forecast catches is available in the [Stock Synthesis users manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
 
-### Adding observation error: Specify how to sample data from the Operating model
+## Adding observation error: Specify how to sample data from the Operating model
 The argument `sample_struct` specifies the structure for sampling from the OM (and passing to the EM). The function `create_sample_struct` can be used to construct a simple sampling structure consistent with an input data file:
 
 ```{r}
@@ -185,17 +186,17 @@ The same sampling structure will be used for both scenarios, which we define in 
 ```{r}
 sample_struct_list <- list("h-ctl" = sample_struct, "h-1" = sample_struct)
 ```
-### Adding process error through recruitment deviations
+## Adding process error through recruitment deviations
 
 Process error can be added through the recruitment deviations. In this case, `rec_dev_pattern = "rand"` in the call to `run_SSMSE` is used to use random recruitment deviations with the same standard deviation as the historical recruitment deviation pattern. Set `scope = 2` so that the same recruitment deviation patterns are used across scenarios, but different patterns are use across iterations in the same scenario. For more information on the available options for `rec_dev_pattern` and `scope` please see the documentation for the `run_SSMSE` function (`?SSMSE::run_SSMSE`).
 
 <!-- TODO suggestion from CP: might be nice to introduce the other recruitment deviations options and scope options here, too. I don't really understand what the scope means.   -->
 
-### Run SSMSE
+## Run SSMSE
 
 Now, we create a directory to store our results, and use `run_SSMSE` to run the MSE analysis loop (note this will take some time to run, ~ 20 min):
   
-  ```{r, warning = FALSE, message = FALSE}
+```{r, warning = FALSE, message = FALSE}
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
 run_SSMSE(scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
@@ -219,7 +220,7 @@ run_SSMSE(scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
 See `?run_SSMSE` for more details on function arguments. In a real MSE analysis, running 100+ iterations to reflect the full range of uncertainty (given observation and process errors) in the results would be preferred. However, we are only running 5 iterations per scenario in this demonstration to reduce computing time.
 
 
-### run_SSMSE output
+## run_SSMSE output
 
 `run_SSMSE` will create new folders in the folders specified in `out_dir_scen_vec` (note that in this case, we are running both scenarios in the same folder). After is complete, there will be a folder for each scenario in `run_res_path` (since `out_dir_scen_vec = run_res_path` in this example):
 
@@ -243,11 +244,11 @@ There should be 1 folder for the OM, which is run multiple times in this same fo
 
 With many iterations, the number of files adds up; in the future, we hope to add options to save less output.
 
-### Performance metrics
+## Performance metrics
 
 Quantitative performance metrics should be specified before conducting an MSE. Typically, a suite of performance metrics will be examined; however, for simplicity in this example, we will only look at what the achieved relative biomass was for the last 3 years of projection in the MSE to determine how it compares to the intended management target of 40% of unfished Spawning Stock Biomass. Note that we are only running our MSE projection for 6 years, but longer projections are typical in MSE analyses.
 
-### Summarize results
+## Summarize results
 
 The function `SSMSE_summary_all` can be used to summarize the model results in a list of 3 dataframes, one for scalar outputs (named `scalar`), one for timeseries outputs (`ts`), one for derived quantities (`dq`). This function also creates summary csv files in the folder where the results are stored.
 
@@ -327,24 +328,73 @@ ggplot(data = rel_SSB, aes(x = scenario, y = avg_SSB)) +
 
 From the above plot, we see that the realized Spawning stock Biomass is higher than the target that was intended for both scenarios.
 
-### Example MSE Results
+## Example MSE Results
 
 We can see from the performance metric that mis-specifying the value of steepness will results in higher realized relative spawning stock biomass than correctly specifying it. This gives us some idea of the consequences of misspecifying steepness in the stock assessment.
 
-### Delete the files
+## Delete the files
 
 If you wish to delete the files created from this example, you can use:
-  ```{r, eval = FALSE}
+
+```{r, eval = FALSE}
 unlink(run_SSMSE_dir, recursive = TRUE)
 ```
+# Advanced options: use a custom management strategy/procedure
 
-## How can I contribute to SSMSE?
+Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:
+
+```{r}
+constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100, 
+                              frac_catch = 0.5, ...) { # need to include ... to allow function to work
+  # set catch the same as the previous year (sampled catch).
+  # catch is in the same units as the operating model, in this case it is in
+  # biomass.
+  catch <- data.frame(
+    year = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess), # the years to project the model forward
+    seas = 1, # hard coded from looking at model 
+    fleet = 1,  # hard coded from looking at model
+    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"]*frac_catch,
+    catch_se = 0.05) # hard coded from looking at model
+  catch_bio <- catch # catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL
+  catch_F <- NULL # catch in terms of F, can be left as NULL.
+  discards <- NULL # discards can be left as NULL if there are no discards
+  catch_list <- list(catch = catch,
+                     catch_bio = catch_bio, 
+                     catch_F = catch_F,
+                     discards = discards)
+}
+```
+
+This function can then be used in a call to `run_SSMSE`:
+
+```{r}
+run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the scenario
+                out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+                iter_vec = 1,
+                OM_name_vec = "cod", # specify directories instead
+                OM_in_dir_vec = NULL,
+                MS_vec = "constant_catch_MS", # use the custom function
+                use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling, the only option
+                nyrs_vec = 6,        # Years to project OM forward
+                nyrs_assess_vec = 3, # Years between assessments
+                rec_dev_pattern = "rand", # Use random recruitment devs
+                scope = "2", # to use the same recruitment devs across scenarios, but not iterations
+                impl_error_pattern = "none", # Don't use implementation error
+                run_EM_last_yr = FALSE, # Don't run the EM in the last year
+                run_parallel = FALSE, # Run iterations in parallel
+                sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
+                seed = 12345) #Set a fixed integer seed that allows replication 
+```
+
+
+
+# How can I contribute to SSMSE?
 
 If you have thoughts about how to implement the [upcoming work](#roadmap-where-is-ssmse-headed-next) or are interested in helping develop SSMSE, please contact the developers by posting an issue in this repository or emailing nmfs.stock.synthesis@noaa.gov.
   
   If you are interested in contributing, please read the [NMFS Fisheries Toolbox R Contribution Guide](https://github.com/nmfs-fish-tools/Resources/blob/master/CONTRIBUTING.md). This project and everyone participating in it is governed by the [NMFS Fisheries Toolbox Code of Conduct](https://github.com/nmfs-fish-tools/Resources/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [fisheries.toolbox@noaa.gov](mailto:fisheries.toolbox@noaa.gov).
   
-## Roadmap: Where is SSMSE headed next?
+# Roadmap: Where is SSMSE headed next?
   
 SSMSE is still a work in progress, with basic framework in development. Some new directions we hope to work on shortly:
     

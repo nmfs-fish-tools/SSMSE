@@ -35,15 +35,19 @@ Note that this function was created intially to return a value to
  value from a column in any data frame using the method specified.
 }
 \examples{
-dfr <- data.frame("year" = 1:5,
-                   "value" = c(2, 2, 2, 3, 3),
-                    "se_log" = 0.2)
- get_input_value(data = dfr, method = "most_common_value", colname = "se_log",
-                 group = "value")
- get_input_value(data = dfr, method = "most_common_value", colname = "value")
- get_input_value(data = dfr, method = "only_value", colname = "se_log")
- # generates an error:
- # get_input_value(data = dfr, method = "only_value", colname = "value")
+dfr <- data.frame(
+  "year" = 1:5,
+  "value" = c(2, 2, 2, 3, 3),
+  "se_log" = 0.2
+)
+get_input_value(
+  data = dfr, method = "most_common_value", colname = "se_log",
+  group = "value"
+)
+get_input_value(data = dfr, method = "most_common_value", colname = "value")
+get_input_value(data = dfr, method = "only_value", colname = "se_log")
+# generates an error:
+# get_input_value(data = dfr, method = "only_value", colname = "value")
 }
 \author{
 Kathryn Doering

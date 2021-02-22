@@ -16,7 +16,7 @@ convert_to_r4ss_names(
 )
 }
 \arguments{
-\item{sample_struct}{The sampling structure specified by the user to a 
+\item{sample_struct}{The sampling structure specified by the user to a
 run_SSMSE* wrapper function}
 
 \item{convert_key}{Data frame defining how r4ss names relate to the sample_struct

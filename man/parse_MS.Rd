@@ -22,8 +22,15 @@ parse_MS(
 \arguments{
 \item{MS}{The management strategy to use. Current options
 are:  \code{"last_yr_catch"} which uses the previous year's catch; 
-\code{"no_catch"} which uses 0 catch; and \code{"EM"} which uses the
-management strategy in the estimation model.}
+\code{"no_catch"} which uses 0 catch; \code{"EM"} which uses an stock 
+synthesis model as the estimation method and the management strategy as 
+defined in the forecast file of the stock synthesis estimation method;
+\code{"Interim"} to modify catch based on survey predictions between
+assessments. Users can also specify their own managment strategies as an
+function. To use the function, it must be available in the global
+enviroment and specified by name in MS. For example, if the function is
+called "my_ms" then the user should make it available in the global 
+environment and specify MS = "my_ms".}
 
 \item{EM_out_dir}{Relative or absolute path to the estimation model, if using a
 model outside of the SSMSE package. Note that this value should be NULL if
@@ -53,7 +60,7 @@ added from the OM into the EM for different types of data. If NULL, the data
 structure will try to be infered from the pattern found for each of the
 datatypes within EM_datfile. Ignored if init_loop is TRUE.}
 
-\item{interim_struct}{An optional including how many years to average over, 
+\item{interim_struct}{An optional including how many years to average over,
 fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
 and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
 will stay constant during simulation while relative year will progress with simulation).}

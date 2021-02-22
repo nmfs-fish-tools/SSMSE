@@ -8,18 +8,21 @@
 #' @param df The catch dataframe to test
 #' @author Kathryn Doering
 check_catch_df <- function(df) {
-
   catch_colnames <- c("year", "seas", "fleet", "catch", "catch_se")
   input_colnames <- colnames(df)
   if (length(catch_colnames) != length(input_colnames)) {
-    stop("The catch data frame does not have the correct number of column ",
-         "names. The column names should be: ",
-         paste0(catch_colnames, collapse = ", "), ". However, they are: ", paste0(input_colnames, collapse = ", "), ".")
+    stop(
+      "The catch data frame does not have the correct number of column ",
+      "names. The column names should be: ",
+      paste0(catch_colnames, collapse = ", "), ". However, they are: ", paste0(input_colnames, collapse = ", "), "."
+    )
   }
   if (any(catch_colnames != input_colnames)) {
-    stop("The catch data frame does not have the correct column names in the ",
-         "correct order. The column names should be: ",
-         paste0(catch_colnames, collapse = ", "), ". However, they are: ", paste0(input_colnames, collapse = ", "), ".")
+    stop(
+      "The catch data frame does not have the correct column names in the ",
+      "correct order. The column names should be: ",
+      paste0(catch_colnames, collapse = ", "), ". However, they are: ", paste0(input_colnames, collapse = ", "), "."
+    )
   }
   invisible(df)
 }
@@ -41,10 +44,12 @@ check_dir <- function(dir) {
     errors <- c(errors, "forecast.ss")
   }
   if (!is.null(errors)) {
-    stop("The file(s): ", paste(errors, collapse = ", "), " is/are missing ",
-        "from the directory ", dir, ", which suggests that it is not a valid ",
-        "SS directory. Please change to a directory containing a valid SS ",
-        "model.")
+    stop(
+      "The file(s): ", paste(errors, collapse = ", "), " is/are missing ",
+      "from the directory ", dir, ", which suggests that it is not a valid ",
+      "SS directory. Please change to a directory containing a valid SS ",
+      "model."
+    )
   }
   invisible(dir)
 }
@@ -57,53 +62,67 @@ check_dir <- function(dir) {
 #' @author Kathryn Doering
 check_OM_dat <- function(OM_dat, EM_dat) {
   # check start and end years match
-  if (OM_dat$styr != EM_dat$styr | OM_dat$endyr != EM_dat$endyr) {
-    stop("OM_dat and EM_dat should have the same start and end years. However, ",
-         "OM_dat has styr = ", OM_dat$styr, " and endyr = ", OM_dat$endyr,
-         ", while EM_dat has styr = ", EM_dat$styr, " and endyr = ",
-         EM_dat$endyr)
+  if (OM_dat[["styr"]] != EM_dat[["styr"]] | OM_dat[["endyr"]] != EM_dat[["endyr"]]) {
+    stop(
+      "OM_dat and EM_dat should have the same start and end years. However, ",
+      "OM_dat has styr = ", OM_dat[["styr"]], " and endyr = ", OM_dat[["endyr"]],
+      ", while EM_dat has styr = ", EM_dat[["styr"]], " and endyr = ",
+      EM_dat[["endyr"]]
+    )
   }
-  check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "catch",
-                  colnames = c("year", "seas", "fleet"))
-  check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "CPUE",
-                  colnames = c("year", "seas", "index"))
+  check_avail_dat(
+    EM_dat = EM_dat, OM_dat = OM_dat, list_item = "catch",
+    colnames = c("year", "seas", "fleet")
+  )
+  check_avail_dat(
+    EM_dat = EM_dat, OM_dat = OM_dat, list_item = "CPUE",
+    colnames = c("year", "seas", "index")
+  )
   # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
   # TODO: add in capabilities to deal with this type of data and remove stop msgs
-  if (OM_dat$use_meanbodywt == 1 | EM_dat$use_meanbodywt == 1) {
-    stop("Models with mean body size observations cannot yet be used as OMs ",
-         "or EMs in SSMSE")
+  if (OM_dat[["use_meanbodywt"]] == 1) {
+    warning("Mean body size observations are not yet sampled in SSMSE")
   }
-  # if (OM_dat$use_MeanSize_at_Age_obs == 1 | EM_dat$use_meanbodywt == 1) {
-  #   stop("Models with mean size-at-age observations cannot yet be used as OMs ",
-  #        "or EMs in SSMSE")
-  # }
+  if (OM_dat[["use_MeanSize_at_Age_obs"]] == 1) {
+    warning("Mean size-at-age observations are not yet sampled in SSMSE")
+  }
   # check population length bins
   # check lcomp bins and lcomp bins (if exists)
-  if (EM_dat$use_lencomp == 1) {
-    if (OM_dat$use_lencomp != 1) {
-      stop("The EM expects length composition data, but the OM does not have ",
-           "any. Please add length composition to the ")
+  if (EM_dat[["use_lencomp"]] == 1) {
+    if (OM_dat[["use_lencomp"]] != 1) {
+      stop(
+        "The EM expects length composition data, but the OM does not have ",
+        "any. Please add length composition to the "
+      )
     }
     # check there are the correct number of columns and same names
-    if (paste0(colnames(OM_dat$lencomp), collapse = "") !=
-       paste0(colnames(EM_dat$lencomp), collapse = "")) {
-      stop("Column names for length composition were not the same for the OM ",
-           "and EM. Please make the length comp bins the same.")
+    if (paste0(colnames(OM_dat[["lencomp"]]), collapse = "") !=
+      paste0(colnames(EM_dat[["lencomp"]]), collapse = "")) {
+      stop(
+        "Column names for length composition were not the same for the OM ",
+        "and EM. Please make the length comp bins the same."
+      )
     }
     # check there is the same data for Years, Seas, FltSvy available
-    check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "lencomp",
-                    colnames = c("Yr", "Seas", "FltSvy"))
+    check_avail_dat(
+      EM_dat = EM_dat, OM_dat = OM_dat, list_item = "lencomp",
+      colnames = c("Yr", "Seas", "FltSvy")
+    )
     # there may be more rigorous checks to do (checking that sex and partion
     # is the same?
   }
   # check age comp
-  if (paste0(colnames(OM_dat$agecomp), collapse = "") !=
-     paste0(colnames(EM_dat$agecomp), collapse = "")) {
-    stop("Column names for age composition were not the same for the OM ",
-         "and EM. Please make the age comp bins the same.")
+  if (paste0(colnames(OM_dat[["agecomp"]]), collapse = "") !=
+    paste0(colnames(EM_dat[["agecomp"]]), collapse = "")) {
+    stop(
+      "Column names for age composition were not the same for the OM ",
+      "and EM. Please make the age comp bins the same."
+    )
   }
-  check_avail_dat(EM_dat = EM_dat, OM_dat = OM_dat, list_item = "agecomp",
-                  colnames = c("Yr", "Seas", "FltSvy"))
+  check_avail_dat(
+    EM_dat = EM_dat, OM_dat = OM_dat, list_item = "agecomp",
+    colnames = c("Yr", "Seas", "FltSvy")
+  )
   invisible(OM_dat)
 }
 
@@ -126,8 +145,10 @@ check_avail_dat <- function(EM_dat, OM_dat,
     combo_OM <- c(paste0(combo_OM, OM_item[, n], "_"))
   }
   if (any(!(combo_EM %in% combo_OM))) {
-    stop("The OM_dat does not include all values of ",
-         paste0(colnames, collapse = ", "), " needed for ", list_item, ".")
+    stop(
+      "The OM_dat does not include all values of ",
+      paste0(colnames, collapse = ", "), " needed for ", list_item, "."
+    )
   }
 }
 
@@ -141,18 +162,23 @@ check_avail_dat <- function(EM_dat, OM_dat,
 #'  fleets should be added from the OM into the EM for different types of data.
 #' @param valid_names The list to compare sample_struct to.
 #' @author Kathryn Doering
-check_sample_struct <- function(sample_struct, 
-  valid_names = list(catch = c("Yr", "Seas", "FltSvy", "SE"),
-                     CPUE = c("Yr", "Seas", "FltSvy", "SE"),
-                     lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"),
-                     agecomp = c("Yr", "Seas", "FltSvy", "Sex", "Part",
-                                 "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"))
-  ) {
+check_sample_struct <- function(sample_struct,
+                                valid_names = list(
+                                  catch = c("Yr", "Seas", "FltSvy", "SE"),
+                                  CPUE = c("Yr", "Seas", "FltSvy", "SE"),
+                                  lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"),
+                                  agecomp = c(
+                                    "Yr", "Seas", "FltSvy", "Sex", "Part",
+                                    "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"
+                                  )
+                                )) {
   # list components should have same names as in r4ss
   # check no repeat names
   if (length(unique(names(sample_struct))) != length(names(sample_struct))) {
-    stop("There are repeated names in sample_struct. Please make sure each list ",
-         "component has a unique name.")
+    stop(
+      "There are repeated names in sample_struct. Please make sure each list ",
+      "component has a unique name."
+    )
   }
   # Check correct names and column names
   error <- mapply(function(x, x_name, valid_names) {
@@ -172,28 +198,33 @@ check_sample_struct <- function(sample_struct,
   },
   x = sample_struct, x_name = names(sample_struct),
   MoreArgs = list(valid_names = valid_names),
-  SIMPLIFY = FALSE)
+  SIMPLIFY = FALSE
+  )
 
   lapply(error, function(e, v) {
     if (!is.null(e)) {
-      stop("Invalid input for sample_struct due to ", e, ". Please check that all",
-           " names are not anything other than ",
-           paste0(names(v), collapse = ", "), " and have the column names",
-           ":\n",
-           paste0(paste0(names(v), ": ", v), collapse = "\n"))
+      stop(
+        "Invalid input for sample_struct due to ", e, ". Please check that all",
+        " names are not anything other than ",
+        paste0(names(v), collapse = ", "), " and have the column names",
+        ":\n",
+        paste0(paste0(names(v), ": ", v), collapse = "\n")
+      )
     }
     invisible("no_error")
   }, v = valid_names)
   # check that all values can be coerced to numeric
   lapply(sample_struct, function(dataframe) {
     apply(dataframe, 2, function(col) {
-      if (!is.numeric(col) & !is.integer(col) & length(col)>=1) {
+      if (!is.numeric(col) & !is.integer(col) & length(col) >= 1) {
         stop("Some values in sample_struct are not integers or numeric. Please check 
              that all values in the list components of sample_struct are either integer or numeric.")
       }
-      if(any(is.na(col))) {
-        stop("Some values in sample_struct are NA. Please remove or replace ", 
-             "with numeric or integer values.")
+      if (any(is.na(col))) {
+        stop(
+          "Some values in sample_struct are NA. Please remove or replace ",
+          "with numeric or integer values."
+        )
       }
     })
   })
@@ -205,8 +236,10 @@ check_sample_struct <- function(sample_struct,
 #' @param type Type that obj_name was expected to be, but is not,
 #' @author Kathryn Doering
 r4ss_obj_err <- function(obj_name = "object ", type = "list") {
-  stop(obj_name, " was found to not be an r4ss ", type, ". Please read in ",
-       obj_name, " using r4ss read functions.")
+  stop(
+    obj_name, " was found to not be an r4ss ", type, ". Please read in ",
+    obj_name, " using r4ss read functions."
+  )
 }
 
 #' Check structure of the object scen_list
@@ -252,8 +285,10 @@ check_EM_forecast <- function(fore, n_flts_catch = NULL) {
     msg <- c(msg, "Rebuilder turned on; must be turned off to use model with SSMSE.")
   }
   if (!is.null(msg)) {
-    stop("EM forecast file has issues and needs changes:",
-         paste(msg, collapse = " "))
+    stop(
+      "EM forecast file has issues and needs changes:",
+      paste(msg, collapse = " ")
+    )
   }
   invisible(TRUE)
 }

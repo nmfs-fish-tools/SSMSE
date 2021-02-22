@@ -2,17 +2,17 @@
 % Please edit documentation in R/initOM.R
 \name{create_OM}
 \alias{create_OM}
-\title{Create the OM by adding dummy data}
+\title{Create the OM}
 \usage{
 create_OM(
   OM_out_dir,
   overwrite = TRUE,
-  add_dummy_dat = FALSE,
   writedat = TRUE,
   verbose = FALSE,
   nyrs_assess = NULL,
   rec_devs = NULL,
   verify_OM = TRUE,
+  sample_struct_hist = NULL,
   seed = NULL
 )
 }
@@ -21,12 +21,7 @@ create_OM(
 
 \item{overwrite}{Overwrite existing files with matching names?}
 
-\item{add_dummy_dat}{Should dummy data be added to indices and comps for each
-year so that expected values and sampling is obtained for years other than
-those that already have data? Defaults to FALSE.}
-
-\item{writedat}{Should a new datafile be written? Only used if add_dummy_dat
-is \code{TRUE}.}
+\item{writedat}{Should a new datafile be written?}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
@@ -38,10 +33,14 @@ structure the forecast file for use in the OM.}
 \item{verify_OM}{Should the model be run without estimation and some basic
 checks done to verify that the OM can run? Defaults to TRUE.}
 
+\item{sample_struct_hist}{The historical sample structure, if specified by 
+the user. Defaults to NULL, which means to use the same sample structure as
+the historical data.}
+
 \item{seed}{input seed to allow reproducible SS results.}
 }
 \value{
-A new datafile as read in for r4ss, but with dummy data added.
+A modified datafile
 }
 \description{
 This function manipulates the OM as needed so that it can be used as an

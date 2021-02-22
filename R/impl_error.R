@@ -43,7 +43,7 @@ calc_impl_errors <- function(breaks, n_impl_errors, n_impl_error_groups, target_
 #' @param targ_var the target variance to the simulated log normal values
 #' @return the squared difference between observed and target variances
 get_inp_var <- function(target_mean, targ_var) {
- inp_var <- sqrt(log(targ_var / target_mean^2 + 1))
+  inp_var <- sqrt(log(targ_var / target_mean^2 + 1))
 }
 
 #' calculate input mean to achieve target mean
@@ -61,9 +61,11 @@ get_inp_mean <- function(target_mean, inp_var) {
 #' @param expected_length the expected length of the implementation error sequence
 check_impl_error <- function(length_impl_error_seq, expected_length) {
   if (length_impl_error_seq != expected_length) {
-    stop("Wrong number of implementation pars. You input ",
-         length_impl_error_seq, " when it should have been ",
-         expected_length, " equal to nyrs*nseas*Nfleet")
+    stop(
+      "Wrong number of implementation pars. You input ",
+      length_impl_error_seq, " when it should have been ",
+      expected_length, " equal to nyrs*nseas*Nfleet"
+    )
   }
 }
 
@@ -82,7 +84,6 @@ check_impl_error <- function(length_impl_error_seq, expected_length) {
 #' @return A list of scenarios with lists of interations in each with a vector of
 #'  implementation errors for each simulation year-fleet-season combination.
 build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_error_pattern, impl_error_pars, n_scenarios, iter_vec, seed) {
-
   if (is.null(impl_error_pars)) {
     impl_error_pars <- c(nyrs_assess, 1, 0)
   }
@@ -99,28 +100,29 @@ build_impl_error <- function(yrs, nyrs_assess, n_impl_error_groups, scope, impl_
       inp_var <- get_inp_var(impl_error_pars[2:(n_impl_error_groups[i] + 1)], impl_error_pars[(n_impl_error_groups[i] + 2):(n_impl_error_groups[i] * 2 + 1)]^2)
       inp_mean <- get_inp_mean(impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_var)
       inp_stdev <- sqrt(inp_var)
-      
-      breaks <- unique(c(seq(0, (yrs[i] * n_impl_error_groups[i]),
-                             (impl_error_pars[1] * n_impl_error_groups[i])),
-                         (yrs[i] * n_impl_error_groups[i])))
+
+      breaks <- unique(c(
+        seq(
+          0, (yrs[i] * n_impl_error_groups[i]),
+          (impl_error_pars[1] * n_impl_error_groups[i])
+        ),
+        (yrs[i] * n_impl_error_groups[i])
+      ))
       if (scope == 1) {
-        
-        set.seed((seed$global+999))
-        
+        set.seed((seed[["global"]] + 999))
+
         impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
       }
       impl_error[[i]] <- list()
       if (scope == 2) {
-        
-        set.seed((seed$scenario[i]+999))
-        
+        set.seed((seed[["scenario"]][i] + 999))
+
         impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
       }
       for (j in 1:iter_vec[i]) {
         if (scope == 3) {
-          
-          set.seed((seed$iter[[i]][j]+999))
-          
+          set.seed((seed[["iter"]][[i]][j] + 999))
+
           impl_error_seq <- calc_impl_errors(breaks, (yrs[i] * n_impl_error_groups[i]), impl_error_pars[2:(n_impl_error_groups[i] + 1)], inp_mean, inp_stdev)
         }
         impl_error[[i]][[j]] <- impl_error_seq

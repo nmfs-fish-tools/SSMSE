@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2 A simple example | SSMSE user manual</title>
+  <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2 A simple example | SSMSE user manual" />
+  <meta property="og:type" content="book" />
+  <meta property="og:url" content="https://nmfs-fish-tools.github.io/SSMSE/manual/" />
+  
+  <meta property="og:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
+  <meta name="github-repo" content="nmfs-fish-tools/SSMSE" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2 A simple example | SSMSE user manual" />
+  
+  <meta name="twitter:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
+  
+
+<meta name="author" content="Kathryn Doering and Nathan Vaughan" />
+
+
+<meta name="date" content="2020-12-18" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="intro.html"/>
+<link rel="next" href="SSMSE.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#r-session-information"><i class="fa fa-check"></i>R session information</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#purpose"><i class="fa fa-check"></i><b>1.1</b> Purpose</a></li>
+<li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#funs"><i class="fa fa-check"></i><b>1.2</b> Functions in SSMSE</a></li>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure</a><ul>
+<li class="chapter" data-level="1.3.1" data-path="intro.html"><a href="intro.html#conditioning-the-om-and-sampling-from-the-om"><i class="fa fa-check"></i><b>1.3.1</b> Conditioning the OM and sampling from the OM</a></li>
+<li class="chapter" data-level="1.3.2" data-path="intro.html"><a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation"><i class="fa fa-check"></i><b>1.3.2</b> First run of the management strategy in the MSE simulation</a></li>
+<li class="chapter" data-level="1.3.3" data-path="intro.html"><a href="intro.html#feedback-from-managment-strategy-into-om-extending-model-years"><i class="fa fa-check"></i><b>1.3.3</b> Feedback from Managment Strategy into OM: extending model years</a></li>
+<li class="chapter" data-level="1.3.4" data-path="intro.html"><a href="intro.html#subsequent-runs-of-the-management-strategy"><i class="fa fa-check"></i><b>1.3.4</b> Subsequent runs of the management strategy</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a><ul>
+<li class="chapter" data-level="2.1" data-path="simple.html"><a href="simple.html#setup-r-workspace-folders"><i class="fa fa-check"></i><b>2.1</b> Setup R workspace folders</a></li>
+<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a></li>
+<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#examine-the-management-procedure-used"><i class="fa fa-check"></i><b>2.3</b> Examine the management procedure used</a></li>
+<li class="chapter" data-level="2.4" data-path="simple.html"><a href="simple.html#adding-observation-error-specify-how-to-sample-data-from-the-operating-model-sample"><i class="fa fa-check"></i><b>2.4</b> Adding observation error: Specify how to sample data from the Operating model (#sample)</a></li>
+<li class="chapter" data-level="2.5" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations"><i class="fa fa-check"></i><b>2.5</b> Adding process error through recruitment deviations</a></li>
+<li class="chapter" data-level="2.6" data-path="simple.html"><a href="simple.html#run-ssmse"><i class="fa fa-check"></i><b>2.6</b> Run SSMSE</a></li>
+<li class="chapter" data-level="2.7" data-path="simple.html"><a href="simple.html#run_ssmse-output"><i class="fa fa-check"></i><b>2.7</b> run_SSMSE output</a></li>
+<li class="chapter" data-level="2.8" data-path="simple.html"><a href="simple.html#performance-metrics"><i class="fa fa-check"></i><b>2.8</b> Performance metrics</a></li>
+<li class="chapter" data-level="2.9" data-path="simple.html"><a href="simple.html#summarize-results"><i class="fa fa-check"></i><b>2.9</b> Summarize results</a></li>
+<li class="chapter" data-level="2.10" data-path="simple.html"><a href="simple.html#example-mse-results"><i class="fa fa-check"></i><b>2.10</b> Example MSE Results</a></li>
+<li class="chapter" data-level="2.11" data-path="simple.html"><a href="simple.html#delete-the-files"><i class="fa fa-check"></i><b>2.11</b> Delete the files</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>3</b> Options for run_SSMSE</a><ul>
+<li class="chapter" data-level="3.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>3.1</b> Scenarios in SSMSE</a></li>
+<li class="chapter" data-level="3.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>3.2</b> Operating model</a></li>
+<li class="chapter" data-level="3.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-including-estimation-method-em"><i class="fa fa-check"></i><b>3.3</b> The Management Strategy/procedure, including estimation method (EM)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss-model"><i class="fa fa-check"></i><b>3.3.1</b> Specify the Management Strategy in a SS model</a></li>
+<li class="chapter" data-level="3.3.2" data-path="SSMSE.html"><a href="SSMSE.html#using-a-custom-management-strategyprocedure"><i class="fa fa-check"></i><b>3.3.2</b> Using a custom management strategy/procedure</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>3.4</b> Sampling options</a></li>
+<li class="chapter" data-level="3.5" data-path="SSMSE.html"><a href="SSMSE.html#recruitment-deviations"><i class="fa fa-check"></i><b>3.5</b> Recruitment deviations</a></li>
+<li class="chapter" data-level="3.6" data-path="SSMSE.html"><a href="SSMSE.html#implementation-error"><i class="fa fa-check"></i><b>3.6</b> Implementation error</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>4</b> Helper functions in SSMSE</a><ul>
+<li class="chapter" data-level="4.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>4.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
+<li class="chapter" data-level="4.2" data-path="helper.html"><a href="helper.html#scenlist"><i class="fa fa-check"></i><b>4.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Output and Plots</a><ul>
+<li class="chapter" data-level="5.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>5.1</b> Summarizing output</a></li>
+<li class="chapter" data-level="5.2" data-path="output.html"><a href="output.html#checking-estimation-model-convergence"><i class="fa fa-check"></i><b>5.2</b> Checking estimation model convergence</a></li>
+<li class="chapter" data-level="5.3" data-path="output.html"><a href="output.html#calculating-performance-metrics"><i class="fa fa-check"></i><b>5.3</b> Calculating performance metrics</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="plotting-output-and-performance-metrics.html"><a href="plotting-output-and-performance-metrics.html"><i class="fa fa-check"></i><b>6</b> Plotting output and performance metrics</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">SSMSE user manual</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="simple" class="section level1">
+<h1><span class="header-section-number">2</span> A simple example</h1>
+<p>We will start off exploring SSMSE by running a simple example.</p>
+<p>Suppose we want to look at how well we are able to achieve a specified management procedure under uncertainty in the operating model (OM). We will look 2 scenarios, one where Steepness (h) is specified correctly and one where it is specified incorrectly in an estimation model (EM):</p>
+<p>Scenario 1. <strong>h-ctl</strong>: Cod operating model (h = 0.65) with correctly specified cod model EM (fixed h = 0.65). The OM is the same as the EM.</p>
+<p>Scenario 2. <strong>h-1</strong>: Cod operating model (h = 1) with misspecified cod model EM (fixed h = 0.65); The OM is not the same as the EM.</p>
+<p>Note that this is a simple example where the OM and EM structures for both scenarios are identical, except for different steepness between the OM and EM in scenario 2. We will assume we want to run the MSE loop for 6 years, with a stock assessment occuring every 3 years (and forecasting catch to maintain 40% of unfished spawning stock biomass). The cod model’s last year is 100, so the OM is initially conditioned through year 100. Then, after conditioning the operating model through year 100, assessments will occur in years 100 and 103. The operating model runs through year 106. We chose not to run the assessment in year 106, as there was no need for its output in this example.</p>
+<div id="setup-r-workspace-folders" class="section level2">
+<h2><span class="header-section-number">2.1</span> Setup R workspace folders</h2>
+<p>First, we will load the <code>SSMSE</code> package and create a folder in which to run the example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(SSMSE) <span class="co">#load the package</span></a></code></pre></div>
+<pre><code>Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39; when loading &#39;dplyr&#39;</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(r4ss) <span class="co">#install using remotes::install_github(&quot;r4ss/r4ss@development)</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">library</span>(foreach) <span class="co">#if using run_parallel = TRUE</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">library</span>(doParallel) <span class="co">#if using run_parallel = TRUE</span></a></code></pre></div>
+<pre><code>Loading required package: iterators</code></pre>
+<pre><code>Loading required package: parallel</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># Create a folder for the output in the working directory.</span></a>
+<a class="sourceLine" id="cb8-2" title="2">run_SSMSE_dir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;run_SSMSE-ex&quot;</span>)</a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="kw">dir.create</span>(run_SSMSE_dir)</a></code></pre></div>
+</div>
+<div id="create-the-operating-models-oms" class="section level2">
+<h2><span class="header-section-number">2.2</span> Create the operating models (OMs)</h2>
+<p>The cod model with h = 0.65 (as in scenario 1) is included as external package data in SSMSE. However, we will need to modify it to use as an operating model with h = 1 (as in scenario 2). Note in this case that refit_OM is false, so the model is not being refit, just run through without fitting. To condition the new model on the same data as the input model, refit_OM should be TRUE.</p>
+<p>First, we identify where the base cod model is stored, modify it such that the steepness parameter is 1, and save the modified cod OM for scenario 2 in a new folder in the <code>run_SSMSE_dir</code> directory.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">cod_mod_path &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co"># develop_OMs will save a model called &quot;cod_SR_BH_steep_1&quot; in the out_dir</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co"># specified</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="kw">develop_OMs</span>(<span class="dt">OM_name =</span> <span class="st">&quot;cod&quot;</span>, <span class="dt">out_dir =</span> run_SSMSE_dir, <span class="dt">par_name =</span> <span class="st">&quot;SR_BH_steep&quot;</span>,</a>
+<a class="sourceLine" id="cb9-5" title="5">            <span class="dt">par_vals =</span> <span class="dv">1</span>, <span class="dt">refit_OMs =</span> <span class="ot">FALSE</span>, <span class="dt">hess =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co"># OM model for scenario 2</span></a>
+<a class="sourceLine" id="cb9-7" title="7">cod_<span class="dv">1</span>_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(run_SSMSE_dir, <span class="st">&quot;cod_SR_BH_steep_1&quot;</span>)</a></code></pre></div>
+</div>
+<div id="examine-the-management-procedure-used" class="section level2">
+<h2><span class="header-section-number">2.3</span> Examine the management procedure used</h2>
+<p>We will use the same management procedure for both scenarios:</p>
+<ol style="list-style-type: decimal">
+<li>Conduct a stock assessment every 3 years to get stock status.</li>
+<li>Forecast from this stock assessment using the SS forecast file to get future catch.</li>
+<li>Put this forecasted catch (without implementation error, in the case of this example) back into the OM. Extend the OM forward in time to get the true values for the population.</li>
+</ol>
+<p>Let’s take a look at step 2 in the management procedure, which is implemented using the forecasting module in SS. We will examine the forecast file for the estimation model to better understand how catches will be forecasted from the assessment. We will use the same management procedure in both of these scenarios, although for a full MSE analysis, it is likely that multiple management procedures would be compared.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">fore &lt;-<span class="st"> </span>r4ss<span class="op">::</span><span class="kw">SS_readforecast</span>(</a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;forecast.ss&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SSMSE&quot;</span>),</a>
+<a class="sourceLine" id="cb10-3" title="3">  <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb10-4" title="4">fore<span class="op">$</span>Forecast </a></code></pre></div>
+<pre><code>[1] 3</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">fore<span class="op">$</span>Btarget</a></code></pre></div>
+<pre><code>[1] 0.4</code></pre>
+<p><code>fore$Forecast = 3</code> means our forecasts from the assessment will use fishing mortality (F) to achieve a relative (to unfished) spawning stock biomass. Based on <code>fore$Btarget</code>, the relative biomass target is 40% of unfished spawning stock biomass. Note also that the control rule <code>fore$BforconstantF</code> and <code>fore$BfornoF</code> values are set low to make it unlikely that they will be used (these parameters are used for a ramp harvest control rule, which we do not want to use here):</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">fore<span class="op">$</span>BforconstantF</a></code></pre></div>
+<pre><code>[1] 0.03</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">fore<span class="op">$</span>BfornoF</a></code></pre></div>
+<pre><code>[1] 0.01</code></pre>
+<p>Futhermore, <code>fore$Flimitfraction</code> is set to 1 so that the forecasted catch is set equal to the overfishing limit (for simplicity):</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">fore<span class="op">$</span>Flimitfraction</a></code></pre></div>
+<pre><code>[1] 1</code></pre>
+<p>Note that the number of forecast years is 1:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">fore<span class="op">$</span>Nforecastyrs</a></code></pre></div>
+<pre><code>[1] 1</code></pre>
+<p>However, an assessment will be conducted every 3 years and 3 years of forecasting is required. SSMSE will modify this value to the appropriate number of forecasting years.</p>
+<p>More information on using the forecast module in SS to forecast catches is available in the <a href="https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132">Stock Synthesis users manual</a>.</p>
+</div>
+<div id="adding-observation-error-specify-how-to-sample-data-from-the-operating-model-sample" class="section level2">
+<h2><span class="header-section-number">2.4</span> Adding observation error: Specify how to sample data from the Operating model (#sample)</h2>
+<p>The argument <code>sample_struct()</code> specifies the structure for sampling from the OM (and passing to the EM). The function <code>create_sample_struct()</code> can be used to construct a simple sampling structure consistent with an input data file:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">datfile &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</a>
+<a class="sourceLine" id="cb22-2" title="2">sample_struct &lt;-<span class="st"> </span><span class="kw">create_sample_struct</span>(<span class="dt">dat =</span> datfile, <span class="dt">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></a></code></pre></div>
+<pre><code>Warning in FUN(X[[i]], ...): Pattern not found for lencomp: FltSvy 1, Seas 1. Returning NA for Yr in this dataframe.</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">sample_struct</a></code></pre></div>
+<pre><code>$catch
+   Yr Seas FltSvy    SE
+1 101    1      1 0.005
+2 102    1      1 0.005
+3 103    1      1 0.005
+4 104    1      1 0.005
+5 105    1      1 0.005
+6 106    1      1 0.005
+
+$CPUE
+   Yr Seas FltSvy  SE
+1 105    7      2 0.2
+
+$lencomp
+  Yr Seas FltSvy Sex Part Nsamp
+1 NA    1      1   0    0   125
+
+$agecomp
+   Yr Seas FltSvy Sex Part Ageerr Lbin_lo Lbin_hi Nsamp
+1 105    1      2   0    0      1      -1      -1   500</code></pre>
+<p>By default, <code>create_sample_struct()</code> identifies sampling patterns from the historical period of the OM and replicates those patterns in the projection period. In our cod example, the sample structure specifies that catch will be added to the estimation model every year (years 101 to 106), but an index of abundance (i.e., CPUE) and age composition (i.e., agecomp) will only be added in year 105. We will use the same sampling scheme for both scenarios, but it is possible to specify different sampling for each scenario. The user could modify this sampling strategy (for example, maybe age composition should also be sampled from FltSvy 2 in Yr 102; the user could add another line to the dataframe in <code>sample_struct$agecomp</code>).</p>
+<p>Note that length comp (lencomp) includes an <code>NA</code> value for year. This is because
+no consistent pattern was identified, so the user must define their own input.
+In this case, we will remove sampling length comps all together:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">sample_struct<span class="op">$</span>lencomp &lt;-<span class="st"> </span><span class="ot">NULL</span> <span class="co"># don&#39;t use length sampling</span></a></code></pre></div>
+<p>The same sampling structure will be used for both scenarios, which we define in a list below:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">sample_struct_list &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;h-ctl&quot;</span> =<span class="st"> </span>sample_struct, <span class="st">&quot;h-1&quot;</span> =<span class="st"> </span>sample_struct)</a></code></pre></div>
+</div>
+<div id="adding-process-error-through-recruitment-deviations" class="section level2">
+<h2><span class="header-section-number">2.5</span> Adding process error through recruitment deviations</h2>
+<p>Process error can be added through the recruitment deviations. In this case, <code>rec_dev_pattern = "rand"</code> in the call to <code>run_SSMSE()</code> is used to use random recruitment deviations with the same standard deviation as the historical recruitment deviation pattern. Set <code>scope = 2</code> so that the same recruitment deviation patterns are used across scenarios, but different patterns are use across iterations in the same scenario. For more information on the available options for <code>rec_dev_pattern</code> and <code>scope</code> please see the documentation for the <code>run_SSMSE()</code> function (<code>?SSMSE::run_SSMSE()</code>).</p>
+<!-- TODO suggestion from CP: might be nice to introduce the other recruitment deviations options and scope options here, too. I don't really understand what the scope means.   -->
+</div>
+<div id="run-ssmse" class="section level2">
+<h2><span class="header-section-number">2.6</span> Run SSMSE</h2>
+<p>Now, we create a directory to store our results, and use <code>run_SSMSE()</code> to run the MSE analysis loop (note this will take some time to run, ~ 20 min):</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">run_res_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(run_SSMSE_dir, <span class="st">&quot;results&quot;</span>)</a>
+<a class="sourceLine" id="cb28-2" title="2"><span class="kw">dir.create</span>(run_res_path)</a>
+<a class="sourceLine" id="cb28-3" title="3"><span class="kw">run_SSMSE</span>(<span class="dt">scen_name_vec =</span> <span class="kw">c</span>(<span class="st">&quot;h-ctl&quot;</span>, <span class="st">&quot;h-1&quot;</span>),<span class="co"># name of the scenario</span></a>
+<a class="sourceLine" id="cb28-4" title="4">          <span class="dt">out_dir_scen_vec =</span> run_res_path, <span class="co"># directory in which to run the scenario</span></a>
+<a class="sourceLine" id="cb28-5" title="5">          <span class="dt">iter_vec =</span> <span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">5</span>), <span class="co"># run with 5 iterations each</span></a>
+<a class="sourceLine" id="cb28-6" title="6">          <span class="dt">OM_name_vec =</span> <span class="ot">NULL</span>, <span class="co"># specify directories instead</span></a>
+<a class="sourceLine" id="cb28-7" title="7">          <span class="dt">OM_in_dir_vec =</span> <span class="kw">c</span>(cod_mod_path, <span class="kw">normalizePath</span>(cod_<span class="dv">1</span>_path)), <span class="co"># OM files</span></a>
+<a class="sourceLine" id="cb28-8" title="8">          <span class="dt">EM_name_vec =</span> <span class="kw">c</span>(<span class="st">&quot;cod&quot;</span>, <span class="st">&quot;cod&quot;</span>), <span class="co"># cod is included in package data</span></a>
+<a class="sourceLine" id="cb28-9" title="9">          <span class="dt">MS_vec =</span> <span class="kw">c</span>(<span class="st">&quot;EM&quot;</span>,<span class="st">&quot;EM&quot;</span>),       <span class="co"># The management strategy is specified in the EM</span></a>
+<a class="sourceLine" id="cb28-10" title="10">          <span class="dt">use_SS_boot_vec =</span> <span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">TRUE</span>), <span class="co"># use the SS bootstrap module for sampling</span></a>
+<a class="sourceLine" id="cb28-11" title="11">          <span class="dt">nyrs_vec =</span> <span class="kw">c</span>(<span class="dv">6</span>, <span class="dv">6</span>),        <span class="co"># Years to project OM forward</span></a>
+<a class="sourceLine" id="cb28-12" title="12">          <span class="dt">nyrs_assess_vec =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>), <span class="co"># Years between assessments</span></a>
+<a class="sourceLine" id="cb28-13" title="13">          <span class="dt">rec_dev_pattern =</span> <span class="st">&quot;rand&quot;</span>, <span class="co"># Use random recruitment devs</span></a>
+<a class="sourceLine" id="cb28-14" title="14">          <span class="dt">scope =</span> <span class="st">&quot;2&quot;</span>, <span class="co"># to use the same recruitment devs across scenarios.</span></a>
+<a class="sourceLine" id="cb28-15" title="15">          <span class="dt">impl_error_pattern =</span> <span class="st">&quot;none&quot;</span>, <span class="co"># Don&#39;t use implementation error</span></a>
+<a class="sourceLine" id="cb28-16" title="16">          <span class="dt">run_EM_last_yr =</span> <span class="ot">FALSE</span>, <span class="co"># Run the EM in 106</span></a>
+<a class="sourceLine" id="cb28-17" title="17">          <span class="dt">run_parallel =</span> <span class="ot">TRUE</span>, <span class="co"># Run iterations in parallel</span></a>
+<a class="sourceLine" id="cb28-18" title="18">          <span class="dt">sample_struct_list =</span> sample_struct_list, <span class="co"># How to sample data for running the EM.</span></a>
+<a class="sourceLine" id="cb28-19" title="19">          <span class="dt">seed =</span> <span class="dv">12345</span>) <span class="co">#Set a fixed integer seed that allows replication </span></a></code></pre></div>
+<p>See <code>?run_SSMSE()</code> for more details on function arguments. In a real MSE analysis, running 100+ iterations to reflect the full range of uncertainty (given observation and process errors) in the results would be preferred. However, we are only running 5 iterations per scenario in this demonstration to reduce computing time.</p>
+</div>
+<div id="run_ssmse-output" class="section level2">
+<h2><span class="header-section-number">2.7</span> run_SSMSE output</h2>
+<p><code>run_SSMSE()</code> will create new folders in the folders specified in <code>out_dir_scen_vec</code> (note that in this case, we are running both scenarios in the same folder). After is complete, there will be a folder for each scenario in <code>run_res_path</code> (since <code>out_dir_scen_vec = run_res_path</code> in this example):</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="kw">list.dirs</span>(run_res_path, <span class="dt">recursive =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb29-2" title="2"><span class="co">## [1] &quot;run_SSMSE-ex/results/h-1&quot;   &quot;run_SSMSE-ex/results/h-ctl&quot;</span></a></code></pre></div>
+<p>Within each scenario is a folder for each scenario:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="co"># See folders for scenario 1.</span></a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="kw">list.dirs</span>(<span class="kw">file.path</span>(run_res_path, <span class="st">&quot;h-ctl&quot;</span>), <span class="dt">recursive =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="co">## [1] &quot;run_SSMSE-ex/results/h-ctl/1&quot; &quot;run_SSMSE-ex/results/h-ctl/2&quot;</span></a>
+<a class="sourceLine" id="cb30-4" title="4"><span class="co">## [3] &quot;run_SSMSE-ex/results/h-ctl/3&quot; &quot;run_SSMSE-ex/results/h-ctl/4&quot;</span></a>
+<a class="sourceLine" id="cb30-5" title="5"><span class="co">## [5] &quot;run_SSMSE-ex/results/h-ctl/5&quot;</span></a></code></pre></div>
+<p>And within each scenario folder, there are folders containing the SS models that were run by <code>run_SSMSE()</code>.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="co"># see folders for the first iteration of scenario 1</span></a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="kw">list.dirs</span>(<span class="kw">file.path</span>(run_res_path, <span class="st">&quot;h-ctl&quot;</span>, <span class="st">&quot;1&quot;</span>), <span class="dt">recursive =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="co">## [1] &quot;run_SSMSE-ex/results/h-ctl/1/cod_EM_103&quot; </span></a>
+<a class="sourceLine" id="cb31-4" title="4"><span class="co">## [2] &quot;run_SSMSE-ex/results/h-ctl/1/cod_EM_init&quot;</span></a>
+<a class="sourceLine" id="cb31-5" title="5"><span class="co">## [3] &quot;run_SSMSE-ex/results/h-ctl/1/cod_OM&quot;</span></a></code></pre></div>
+<p>There should be 1 folder for the OM, which is run multiple times in this same folder during the MSE analysis. There are multiple folders for the EMs, as a new folder is created each time an assessment is done. The first run is the folder with a name ending in <code>init</code>; then, each assessment after is named for the updated end year of the model.</p>
+<p>With many iterations, the number of files adds up; in the future, we hope to add options to save less output.</p>
+</div>
+<div id="performance-metrics" class="section level2">
+<h2><span class="header-section-number">2.8</span> Performance metrics</h2>
+<p>Quantitative performance metrics should be specified before conducting an MSE. Typically, a suite of performance metrics will be examined; however, for simplicity in this example, we will only look at what the achieved relative biomass was for the last 3 years of projection in the MSE to determine how it compares to the intended management target of 40% of unfished Spawning Stock Biomass. Note that we are only running our MSE projection for 6 years, but longer projections are typical in MSE analyses.</p>
+</div>
+<div id="summarize-results" class="section level2">
+<h2><span class="header-section-number">2.9</span> Summarize results</h2>
+<p>The function <code>SSMSE_summary_all()</code> can be used to summarize the model results in a list of 3 dataframes, one for scalar outputs (named <code>scalar</code>), one for timeseries outputs (<code>ts</code>), one for derived quantities (<code>dq</code>). This function also creates summary csv files in the folder where the results are stored.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="co"># Summarize 1 iteration of output</span></a>
+<a class="sourceLine" id="cb32-2" title="2">summary &lt;-<span class="st"> </span><span class="kw">SSMSE_summary_all</span>(run_res_path)</a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="co">## Extracting results from 2 scenarios</span></a>
+<a class="sourceLine" id="cb32-4" title="4"><span class="co">## Starting h-1 with 5 iterations</span></a>
+<a class="sourceLine" id="cb32-5" title="5"><span class="co">## Starting h-ctl with 5 iterations</span></a></code></pre></div>
+<p>Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), and the EM run with last year of data in year 103 (cod_EM_103). The operating models are shown in blue or black (depending on the scenario), and the estimation model runs are shown in orange, and the scenarios are shown on different subplots:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">library</span>(ggplot2) <span class="co"># use install.packages(&quot;ggplot2&quot;) to install package if needed</span></a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="kw">library</span>(tidyr) <span class="co"># use install.packages(&quot;tidyr&quot;) to install package if needed</span></a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="kw">library</span>(dplyr) <span class="co"># use install.packages(&quot;dplyr&quot;) to install package if needed</span></a></code></pre></div>
+<pre><code>
+Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1"><span class="co"># plot SSB by year and model run</span></a>
+<a class="sourceLine" id="cb37-2" title="2">ggplot2<span class="op">::</span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(summary<span class="op">$</span>ts, model_run <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;cod_OM&quot;</span>, <span class="st">&quot;cod_SR_BH_steep_1_OM&quot;</span>, <span class="st">&quot;cod_EM_103&quot;</span>)), </a>
+<a class="sourceLine" id="cb37-3" title="3">                ggplot2<span class="op">::</span><span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> SpawnBio)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-4" title="4"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">100</span>, <span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-5" title="5"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">geom_line</span>(ggplot2<span class="op">::</span><span class="kw">aes</span>(<span class="dt">linetype =</span> <span class="kw">as.character</span>(iteration), <span class="dt">color =</span> model_run))<span class="op">+</span></a>
+<a class="sourceLine" id="cb37-6" title="6"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;#D65F00&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;blue&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-7" title="7"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">scale_linetype_manual</span>(<span class="dt">values =</span> <span class="kw">rep</span>(<span class="st">&quot;solid&quot;</span>, <span class="dv">50</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-8" title="8"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">guides</span>(<span class="dt">linetype =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-9" title="9"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">facet_wrap</span>(. <span class="op">~</span><span class="st"> </span>scenario) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-10" title="10"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">theme_classic</span>()</a></code></pre></div>
+<p><img src="manual_files/figure-html/plot_SSB-1.png" width="672" />
+This plot shows that SSB estimated does not match perfectly with the operating model. A similar plot could be made for anu parameter of interest.</p>
+<p>Now, we calculate and plot the performance metric.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="co"># The get_rel_SSB_avg calculates the relative SSB in each year for each</span></a>
+<a class="sourceLine" id="cb38-2" title="2"><span class="co"># iteration of the operating model, then takes the average over the years from</span></a>
+<a class="sourceLine" id="cb38-3" title="3"><span class="co"># min_yr, to max_year. It uses the summary object as input to do these</span></a>
+<a class="sourceLine" id="cb38-4" title="4"><span class="co"># calculations.</span></a>
+<a class="sourceLine" id="cb38-5" title="5">get_rel_SSB_avg &lt;-<span class="st"> </span><span class="cf">function</span>(summary, min_yr, max_yr) {</a>
+<a class="sourceLine" id="cb38-6" title="6">  <span class="co"># Get just the result for the OMs and not for the EMs.</span></a>
+<a class="sourceLine" id="cb38-7" title="7">  OM_vals &lt;-<span class="st"> </span><span class="kw">unique</span>(summary<span class="op">$</span>ts<span class="op">$</span>model_run)</a>
+<a class="sourceLine" id="cb38-8" title="8">  OM_vals &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="st">&quot;_OM$&quot;</span>, OM_vals, <span class="dt">value =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb38-9" title="9">  <span class="co"># find the unfished biomass fr the OMs</span></a>
+<a class="sourceLine" id="cb38-10" title="10">  B_unfished &lt;-<span class="st"> </span>summary<span class="op">$</span>scalar <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-11" title="11"><span class="st">    </span><span class="kw">filter</span>(model_run <span class="op">%in%</span><span class="st"> </span>OM_vals) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-12" title="12"><span class="st">    </span><span class="kw">select</span>(iteration, scenario,SSB_Unfished)</a>
+<a class="sourceLine" id="cb38-13" title="13">  <span class="co">#  find the spawning stock biomass for the years of interest</span></a>
+<a class="sourceLine" id="cb38-14" title="14">  SSB_yr &lt;-<span class="st"> </span>summary<span class="op">$</span>ts <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-15" title="15"><span class="st">    </span><span class="kw">filter</span>(year <span class="op">&gt;=</span><span class="st"> </span>min_yr <span class="op">&amp;</span><span class="st"> </span>year <span class="op">&lt;=</span><span class="st"> </span>max_yr) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-16" title="16"><span class="st">    </span><span class="kw">select</span>(iteration, scenario, year, SpawnBio)</a>
+<a class="sourceLine" id="cb38-17" title="17">  <span class="co"># Calculated the relative spawning stock biomass using B_unfished and SSB_yr</span></a>
+<a class="sourceLine" id="cb38-18" title="18">  <span class="co"># dataframes, then take an average over years.</span></a>
+<a class="sourceLine" id="cb38-19" title="19">  SSB_yr &lt;-<span class="st"> </span><span class="kw">left_join</span>(SSB_yr, B_unfished) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-20" title="20"><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">Rel_SSB =</span> SpawnBio<span class="op">/</span>SSB_Unfished) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-21" title="21"><span class="st">    </span><span class="kw">group_by</span>(iteration, scenario) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-22" title="22"><span class="st">    </span><span class="kw">summarize</span>(<span class="dt">avg_SSB =</span> <span class="kw">mean</span>(Rel_SSB), <span class="dt">.groups =</span> <span class="st">&quot;keep&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb38-23" title="23"><span class="st">    </span><span class="kw">ungroup</span>()</a>
+<a class="sourceLine" id="cb38-24" title="24">  SSB_yr <span class="co"># return SSB averaged over yrs for each iteration and each scenario.</span></a>
+<a class="sourceLine" id="cb38-25" title="25">}</a>
+<a class="sourceLine" id="cb38-26" title="26">rel_SSB &lt;-<span class="st"> </span><span class="kw">get_rel_SSB_avg</span>(summary, <span class="dt">min_yr =</span> <span class="dv">104</span>, <span class="dt">max_yr =</span> <span class="dv">106</span>)</a></code></pre></div>
+<pre><code>Joining, by = c(&quot;iteration&quot;, &quot;scenario&quot;)</code></pre>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="co"># function to summarize data in plot</span></a>
+<a class="sourceLine" id="cb40-2" title="2">data_summary &lt;-<span class="st"> </span><span class="cf">function</span>(x) {</a>
+<a class="sourceLine" id="cb40-3" title="3">  m &lt;-<span class="st"> </span><span class="kw">mean</span>(x)</a>
+<a class="sourceLine" id="cb40-4" title="4">  ymin &lt;-<span class="st"> </span>m <span class="op">-</span><span class="st"> </span><span class="kw">sd</span>(x)</a>
+<a class="sourceLine" id="cb40-5" title="5">  ymax &lt;-<span class="st"> </span>m <span class="op">+</span><span class="st"> </span><span class="kw">sd</span>(x)</a>
+<a class="sourceLine" id="cb40-6" title="6">  <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">y =</span> m, <span class="dt">ymin =</span> ymin, <span class="dt">ymax =</span> ymax))</a>
+<a class="sourceLine" id="cb40-7" title="7">}</a>
+<a class="sourceLine" id="cb40-8" title="8"><span class="co"># Now, plot the average relative spawning stock biomass for years 104 - 106</span></a>
+<a class="sourceLine" id="cb40-9" title="9"><span class="kw">ggplot</span>(<span class="dt">data =</span> rel_SSB, <span class="kw">aes</span>(<span class="dt">x =</span> scenario, <span class="dt">y =</span> avg_SSB)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-10" title="10"><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="fl">0.4</span>, <span class="dt">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-11" title="11"><span class="st">  </span><span class="kw">stat_summary</span>(<span class="dt">fun.data =</span> data_summary, </a>
+<a class="sourceLine" id="cb40-12" title="12">               <span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.9</span>), <span class="dt">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-13" title="13"><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.8</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-14" title="14"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Long-term average relative SSB</span><span class="ch">\n</span><span class="st">(years 104-106)&quot;</span>, </a>
+<a class="sourceLine" id="cb40-15" title="15">       <span class="dt">x =</span> <span class="st">&quot;Scenario&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;SSB/SSB_unfished&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb40-16" title="16"><span class="st">  </span><span class="kw">theme_classic</span>()</a></code></pre></div>
+<p><img src="manual_files/figure-html/plot_rel_SSB-1.png" width="672" /></p>
+<p>From the above plot, we see that the realized Spawning stock Biomass is higher than the target that was intended for both scenarios.</p>
+</div>
+<div id="example-mse-results" class="section level2">
+<h2><span class="header-section-number">2.10</span> Example MSE Results</h2>
+<p>We can see from the performance metric that mis-specifying the value of steepness will results in higher realized relative spawning stock biomass than correctly specifying it. This gives us some idea of the consequences of misspecifying steepness in the stock assessment.</p>
+</div>
+<div id="delete-the-files" class="section level2">
+<h2><span class="header-section-number">2.11</span> Delete the files</h2>
+<p>If you wish to delete the files created from this example, you can use:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">unlink</span>(run_SSMSE_dir, <span class="dt">recursive =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="intro.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="SSMSE.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

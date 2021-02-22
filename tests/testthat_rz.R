@@ -1,5 +1,0 @@
-library("testthat")
-library("SSMSE")
-# broke up tests to allow tests to run longer than 10 min in travis
-# see https://github.com/travis-ci/travis-ci/issues/3849#issuecomment-345686242
-test_check("SSMSE", filter = "^[r-z]")

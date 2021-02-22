@@ -1,0 +1,13 @@
+# Helper functions in SSMSE {#helper}
+
+`run_SSMSE()` requires some detailed inputs that are time consuming to make. In the interest of automating routines as much as possible, helper functions are available in SSMSE.
+
+## Creating multiple operating models with `develop_OMs()` {#devOM}
+
+This function allows users to change a parameter in a Stock Synthesis OM and, if desired, refit the operating model to data. Typically, users will want to create multiple operating models to use in different scenarios in order to account for uncertainties in parameter values, such as biological parameters relating to natural mortality or growth.
+
+## Set up sampling for a scenario with `create_sample_struct()` {#scenlist}
+
+`run_SSMSE()` requires the input `sample_struct()`, which outlines the future sampling structure to use to generate data sets. This object could be difficult to create manually and users may want to just continue sampling as previously done in an existing SS model. `create_sample_struct()` will use the time patterns in sampling for different data types found in an SS data file and extend it forward in time. If no pattern is found, the function will return NAs and provide a warning to the user.
+
+See [use of `create_sample_struct()` in simple example](#sample).

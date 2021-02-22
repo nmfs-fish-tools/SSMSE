@@ -56,7 +56,7 @@ run_ss_model <- function(dir,
   check_dir(dir)
   wd_orig <- getwd()
   on.exit(setwd(wd_orig))
-  os <- .Platform$OS.type
+  os <- .Platform[["OS.type"]]
   bin <- get_bin(ss_bin)
   if (check_run == TRUE) {
     ss_new_path <- file.path(dir, "data.ss_new")
@@ -67,24 +67,32 @@ run_ss_model <- function(dir,
 
   if (verbose) message("Running SS.")
   if (os == "unix") {
-    system(paste0("cd ", dir, ";", paste0(bin, " "),
-                   admb_options),
-           ignore.stdout = ignore.stdout, ...)
+    system(paste0(
+      "cd ", dir, ";", paste0(bin, " "),
+      admb_options
+    ),
+    ignore.stdout = ignore.stdout, ...
+    )
   } else {
     setwd(dir)
     system(paste0(paste0(bin, " "), admb_options),
-           invisible = TRUE, ignore.stdout = ignore.stdout,
-           show.output.on.console = show.output.on.console, ...)
+      invisible = TRUE, ignore.stdout = ignore.stdout,
+      show.output.on.console = show.output.on.console, ...
+    )
   }
   if (check_run == TRUE) {
     if (!file.exists(ss_new_path)) {
       if (debug_par_run) {
-        test_no_par(orig_mod_dir = dir,
-                    new_mod_dir = file.path(dirname(dir), "OM_error_check"))
+        test_no_par(
+          orig_mod_dir = dir,
+          new_mod_dir = file.path(dirname(dir), "OM_error_check")
+        )
         # note that this will exit on error.
       } else {
-        stop("data.ss_new was not created during the model run, which suggests ",
-             "SS did not run correctly")
+        stop(
+          "data.ss_new was not created during the model run, which suggests ",
+          "SS did not run correctly"
+        )
       }
     } else {
       if (verbose) "data.ss_new created during model run."
@@ -111,28 +119,33 @@ run_ss_model <- function(dir,
 #' }
 get_bin <- function(bin_name = "ss") {
   # code inspiration from glmmADMB package:
-  if (.Platform$OS.type == "windows") {
+  if (.Platform[["OS.type"]] == "windows") {
     platform <- "Windows64"
     bin_name <- paste0(bin_name, ".exe")
     bit <- gsub("\\/", "", Sys.getenv("R_ARCH"))
     if (grepl("3", bit)) {
       if (!grepl("86", bit)) {
         platform <- "Windows32"
-        warning("SS3 binary is not available for 32-bit ",
-                .Platform$OS.type, " within the package. ",
-                "You must have an appropriate SS3 binary in your path. ",
-                "See the ss3sim vignette.")
-      }}
+        warning(
+          "SS3 binary is not available for 32-bit ",
+          .Platform[["OS.type"]], " within the package. ",
+          "You must have an appropriate SS3 binary in your path. ",
+          "See the ss3sim vignette."
+        )
+      }
+    }
   } else {
-    if (substr(R.version$os, 1, 6) == "darwin") {
+    if (substr(R.version[["os"]], 1, 6) == "darwin") {
       platform <- "MacOS"
     } else {
-      if (R.version$os == "linux-gnu") {
+      if (R.version[["os"]] == "linux-gnu") {
         platform <- "Linux64"
       } else {
-        warning("SS3 binary is not available for OS ", R.version$os,
-               " within the package. You must have an appropriate SS3 binary in your ",
-                "path. See the ss3sim vignette.")
+        warning(
+          "SS3 binary is not available for OS ", R.version[["os"]],
+          " within the package. You must have an appropriate SS3 binary in your ",
+          "path. See the ss3sim vignette."
+        )
       }
     }
   }
@@ -146,9 +159,11 @@ get_bin <- function(bin_name = "ss") {
   if (bin == "") { # resort to binaries in path
     bin <- Sys.which(bin_name)[[1]]
     if (bin == "") {
-      stop("The expected SS executable, ", bin_name, ", was not found in your",
-           " path. See the ss3sim vignette and ?ss3sim::run_ss3model for ",
-           "instructions.")
+      stop(
+        "The expected SS executable, ", bin_name, ", was not found in your",
+        " path. See the ss3sim vignette and ?ss3sim::run_ss3model for ",
+        "instructions."
+      )
     }
   }
   if (grepl("[[:space:]]", bin)) {

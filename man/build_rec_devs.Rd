@@ -18,10 +18,10 @@ build_rec_devs(
 \arguments{
 \item{rec_dev_pattern}{how to simulate recruitment devations.}
 
-\item{yrs}{the number of years to simulate recruitment deviations for for each 
+\item{yrs}{the number of years to simulate recruitment deviations for for each
 scenario. An integer vector with length equal to the number of scenarios.}
 
-\item{iter_vec}{An integer vector (with length n_scenarios) of number of 
+\item{iter_vec}{An integer vector (with length n_scenarios) of number of
 iterations by scenario. length(iter_vec) should be the number of scenarios simulated.}
 
 \item{scope}{scope over which recruitment devations will be randomized.}

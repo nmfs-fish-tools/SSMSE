@@ -9,7 +9,7 @@ get_retained_catch(timeseries, units_of_catch)
 \arguments{
 \item{timeseries}{from SSoutput}
 
-\item{units_of_catch}{From datalist, the catch units. A named list where the 
+\item{units_of_catch}{From datalist, the catch units. A named list where the
 names are the fleets (to provide an extra check)}
 }
 \value{
