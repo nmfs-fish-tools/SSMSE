@@ -129,7 +129,7 @@ future_om_list_4[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, NA),
 
 # add in vals for list element 2
 future_om_list_4[[2]][["pars"]] <- "impl_error" 
-future_om_list_4[[2]][["scen"]] <- c("randomize", "all")
+future_om_list_4[[2]][["scen"]] <- c("randomize", "scen1", "scen2", "scen3")
 future_om_list_4[[2]][["pattern"]] <- "custom"
 future_om_list_4[[2]][["input"]] <- data.frame(
   parameter = "impl_error",
@@ -143,22 +143,104 @@ future_om_list_4[[2]][["input"]] <- data.frame(
 )
 
 test_that("Input checks work", {
-  future_om_list_new <- check_future_om_list(future_om_list)
+  future_om_list_new <- check_future_om_list_str(future_om_list)
   expect_equal(future_om_list_new, future_om_list)
 })
 
 test_that("Partial matching and missing for pattern works", {
   future_om_list_mod <- future_om_list
   future_om_list_mod[[1]][["pattern"]][2] <- "norm"
-  future_om_list_new <- check_future_om_list(future_om_list_mod)
+  future_om_list_new <- check_future_om_list_str(
+    future_om_list = future_om_list_mod)
   expect_true(future_om_list_new[[1]][["pattern"]][2] == "normal")
   future_om_list_mod[[1]][["pattern"]] <-
     future_om_list_mod[[1]][["pattern"]][1]
-  future_om_list_new <- check_future_om_list(future_om_list_mod)
+  future_om_list_new <- check_future_om_list_str(
+    future_om_list = future_om_list_mod)
   # because the default is using a normal distribution
   expect_true(future_om_list_new[[1]][["pattern"]][2] == "normal")
 })
 
 test_that("incorrect inputs are caught", {
-  # TODO: add these
+  future_om_list_mod <- future_om_list
+  future_om_list_mod[[1]][["pattern"]] <- "badval"
+  expect_error(check_future_om_list_str(future_om_list = future_om_list_mod), 
+               "'arg' should be one of")
+  future_om_list_mod <- future_om_list
+  future_om_list_mod[[1]][["input"]] <- NULL
+  expect_error(check_future_om_list_str(future_om_list = future_om_list_mod), 
+               "Names of list elements not correct")
+  future_om_list_mod <- future_om_list
+  future_om_list_mod[[1]][["input"]] <- future_om_list_mod[[1]][["input"]][, -1]
+  expect_error(check_future_om_list_str(future_om_list = future_om_list_mod), 
+               "Because pattern future_om_list[[", fixed = TRUE)
+  future_om_list_mod <- future_om_list
+  future_om_list_mod[[2]]["scen"] <- c("dontreplicate", "scen2")
+  expect_error(check_future_om_list_str(future_om_list = future_om_list_mod), 
+               "'arg' should be one of", fixed = TRUE)
 })
+
+future_om_list <- check_future_om_list_str(future_om_list)
+future_om_list_2 <- check_future_om_list_str(future_om_list_2)
+future_om_list_3 <- check_future_om_list_str(future_om_list_3)
+future_om_list_4 <- check_future_om_list_str(future_om_list_4)
+
+test_that("checks with scen info doesnt error with valid input", {
+  scen_list <- create_scen_list(
+    scen_name_vec = c("scen1", "scen2", "scen3"),
+    out_dir_scen_vec = NULL,
+    iter_vec = 5,
+    OM_name_vec = "cod",
+    EM_name_vec = "cod",
+    MS_vec = "EM",
+    use_SS_boot_vec = TRUE,
+    nyrs_vec = c(6, 6, 6),
+    nyrs_assess_vec = 3
+  )
+   return_list <- check_future_om_list_vals(future_om_list = future_om_list, 
+                                         scen_list = scen_list)
+   expect_equal(return_list, future_om_list)
+   return_list_2 <- check_future_om_list_vals(future_om_list = future_om_list_3, 
+                                         scen_list = scen_list)
+   expect_equal(return_list_2, future_om_list_3)
+   return_list_3 <- check_future_om_list_vals(future_om_list = future_om_list_4, 
+                                              scen_list = scen_list)
+   expect_equal(return_list_3, future_om_list_4)
+})
+
+test_that("Checks with scen info does catch bad input", {
+  scen_list <- create_scen_list(
+    scen_name_vec = c("scen1", "scen2", "scen3"),
+    out_dir_scen_vec = NULL,
+    iter_vec = 5,
+    OM_name_vec = "cod",
+    EM_name_vec = "cod",
+    MS_vec = "EM",
+    use_SS_boot_vec = TRUE,
+    nyrs_vec = c(6, 6, 7),
+    nyrs_assess_vec = 3
+  )
+  expect_error(check_future_om_list_vals(future_om_list = future_om_list_3, 
+                                             scen_list = scen_list), 
+    paste0("Cannot use 'scenario = all' for custom if the number of years ", 
+           "extended forward differ across scenarios"))
+  
+  scen_list <- create_scen_list(
+    scen_name_vec = c("scen1", "scen2", "scen3"),
+    out_dir_scen_vec = NULL,
+    iter_vec = 5,
+    OM_name_vec = "cod",
+    EM_name_vec = "cod",
+    MS_vec = "EM",
+    use_SS_boot_vec = TRUE,
+    nyrs_vec = c(6, 6, 6),
+    nyrs_assess_vec = 3
+  )
+  bad_future_om_list <- future_om_list_4
+  bad_future_om_list[[2]][["input"]] <- bad_future_om_list[[2]][["input"]][-1,]
+  expect_error(check_future_om_list_vals(future_om_list = bad_future_om_list, 
+                                         scen_list = scen_list), 
+               "Expecting 90, but there are 89 rows")
+})
+
+# Question: What about seasonal models? Should users be able to put in inputs by season?

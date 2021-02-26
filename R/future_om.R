@@ -49,13 +49,14 @@ create_future_om_list <- function(example_type = c("model_change", "custom"),
   future_om_list <- rep(future_om_list, times =  list_length)
 }
 
-#' Check the validity of a future OM list and standardize values
+#' Check the general structure of a future OM list and standardize values
 #' 
 #' Checks that a future OM list is valid. If any values are implicit, 
-#' then add these values
-#' 
+#' then add these values. Does not check against arguments in the scenario,
+#' just the generic structure
 #' @param future_om_list The future_om_list object to check
-check_future_om_list <- function(future_om_list) {
+#' @return The future_om_list with implicit arguments made explicit
+check_future_om_list_str <- function(future_om_list) {
   # warning provided until future_om_list is used within SSMSE
   if(isTRUE(!is.null(future_om_list))) {
     warning("future_om_list is not yet being used by SSMSE.")
@@ -104,26 +105,87 @@ check_future_om_list <- function(future_om_list) {
     }
     if(isTRUE(!all(names(x[["input"]]) == expected_names)) 
        | isTRUE(length(names(x[["input"]] != length(expected_names))))) {
-      stop("Because pattern future_om_list[[", elem_num, "]] is model_change", 
-           "names(future_om_list[['input']]) should be ", expected_names, ".", 
+      stop("Because pattern future_om_list[[", elem_num, "]] is model_change, ", 
+           "names(future_om_list[[", elem_num, "]][['input']]) should be \n",
+           paste0(expected_names, collapse = ", "), ".\n", 
            "Current names are: ", 
            paste0(names(x[["input"]]), collapse = ", "))
     }
     invisible(x)
   }, future_om_list, list_nums, SIMPLIFY = FALSE)
-  
-
-  
-  # more specific structure checks
-  mapply(FUN = function(x, elem_num) {
-    # TODO: add checks that pars are either rec_devs, impl_error, all, or 
-    # valid names from the om model?
-    # TODO: add checks that scenario names are valid or is "all"
-    # TODO: add checks that the correct values are present in the dataframes.
-    # for example, for custom, there need to be a certain number of inputs
-    # based on the scenarios selected, number of iterations.
-    
-  }, future_om_list_mod, list_nums, SIMPLIFY = FALSE)
 
   invisible(future_om_list_mod)
+}
+
+#' Check structure of a future OM list against the scen_list
+#' 
+#' Checks that a future OM list is valid when compared with the scen_list inputs
+#' @param future_om_list The future_om_list object to check.
+#' @param scen_list The list object of scenarios specifying inputs, typically 
+#'  passed to or created by run_SSMSE.
+#' @return The future_om_list with implicit arguments made explicit
+check_future_om_list_vals <- function(future_om_list, scen_list) {
+  list_nums <- seq_along(future_om_list)
+# more specific structure checks
+  mapply(FUN = function(x, elem_num, scen_list) {
+    # TODO: add checks that pars are either rec_devs, impl_error, all, or 
+    # valid names from the om model?
+    # This is a tricky check, because the names may differ based on the scenario
+    # Perhaps will just need to do this check later, on the fly?
+    # checks that scenario names are valid or is "all"
+    len_scen_vec <- length(x[["scen"]])
+    tmp_scen <- x[["scen"]][-1]
+    if(isTRUE(tmp_scen[1] != "all")) {
+      if(isTRUE(!all(tmp_scen %in% names(scen_list)))) {
+        stop("Scenario names in future_om_list[[", elem_num, "]] do not match ", 
+             "the scenario names in scen_list.\nfuture_om_list[[", elem_num, "]]", 
+             "scenario names: ", paste0(tmp_scen, collapse = ", "), "\nscen_list", 
+             "names: ", paste0(names(scen_list), collapse = ", "))
+      }
+    }
+    #  Can't think of a necessary check for when pattern = "model_change"
+    if (x[["pattern"]][1] == "custom") {
+      # number of vals will depend on the number of scenarios and number of
+      # iterations for each scenario, 
+      if(tmp_scen == "all") tmp_scen <- names(scen_list)
+      n_iter_vec <- unlist(lapply(scen_list, function(y) y[["iter"]]))
+      nyrs_vec <- unlist(lapply(scen_list, function(y) y[["nyrs"]]))
+      names(n_iter_vec) <- names(scen_list)
+      names(nyrs_vec) <- names(scen_list)
+      included_scen_iters <- n_iter_vec[which(names(scen_list) %in% tmp_scen)]
+      included_nyrs <- nyrs_vec[which(names(scen_list) %in% tmp_scen)]
+      if(all(x[["input"]][,"scenario"] == "all")) {
+        if(length(unique(n_iter_vec)) != 1) {
+          stop("Cannot use 'scenario = all' for custom if the number of", 
+               " iterations differ across scenarios. Please specify values for ", 
+               "each scenario, year, and iteration instead.")
+        }
+        if(length(unique(nyrs_vec)) != 1) {
+          stop("Cannot use 'scenario = all' for custom if the number of ", 
+               "years extended forward differ across scenarios. Please specify ",
+               "values for each scenario, year, and iteration instead.")
+        }
+        n_iters_expect <- unique(n_iter_vec)
+        n_years_expect <- unique(nyrs_vec)
+        total_rows_expect <- 1 * n_iters_expect * n_years_expect
+        if(NROW(x[["input"]]) != total_rows_expect) {
+          stop("Number of rows in future_om_list[[", elem_num, "]][['input']] ", 
+               "is not correct. Expecting ", total_rows_expect, ", but there ", 
+               "are ", NROW(x[['input']]), " rows. Please specify a row for ", 
+                "each year and iteration.")
+        }
+      } else {
+        if(nrow(x[["input"]]) != sum(included_scen_iters * included_nyrs)) {
+          stop("Number of rows in future_om_list[[", elem_num, "]][['input']] ", 
+               "is not correct. Expecting ", 
+               sum(included_scen_iters * included_nyrs), ", but there ", 
+               "are ", NROW(x[['input']]), " rows. Please specify a row for ", 
+               "each year and iteration for the included scenarios specified ", 
+               " in future_om_list[[", elem_num, "]][['scen']].")
+        }
+      }
+    }
+  }, future_om_list, list_nums, MoreArgs = list(scen_list = scen_list),
+  SIMPLIFY = FALSE)
+  invisible(future_om_list)
 }

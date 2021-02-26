@@ -218,7 +218,7 @@ run_SSMSE <- function(scen_name_vec,
     }
   }
   # check and add implicit inputs to the future_om_list
-  future_om__list <- check_future_om_list(future_om_list = future_om_list)
+  future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(
@@ -239,6 +239,10 @@ run_SSMSE <- function(scen_name_vec,
   )
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)
+  # check future OM list with the scen_list
+  check_future_om_list_vals(future_om_list = future_om_list,
+                            scen_list = scen_list)
+  
   # First reset the R random seed
   set.seed(seed = NULL)
   # Now set the global, scenario, and iteration seeds that will be used as needed
