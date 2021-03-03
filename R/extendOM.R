@@ -18,6 +18,7 @@
 #' @param future_om_list The changes to make to the future OM list.
 #' @param nyrs_extend An integer value of years to extend the model forward. Defaults
 #'  to an arbitrary value of 3.
+#' # SINGLE_RUN_MODS: param dat_yrs Which years should parameter values be updated for. 
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
 #' @param rec_devs The recruitment deviations
 #' @param impl_error The implementation error
@@ -33,6 +34,7 @@ extend_OM <- function(catch,
                       sample_struct = NULL,
                       future_om_list = NULL,
                       nyrs_extend = 3,
+                      # SINGLE_RUN_MODS: dat_yrs = NULL,
                       write_dat = TRUE,
                       rec_devs = NULL,
                       impl_error = NULL,
@@ -67,6 +69,7 @@ extend_OM <- function(catch,
     verbose = FALSE
   )
   # read in forecast file
+  # SINGLE_RUN_MODS: don't need to read in forecast once we move to directly updating values in the model period
   forelist <- r4ss::SS_readforecast(
     file = file.path(OM_dir, "forecast.ss"),
     readAll = TRUE, verbose = FALSE
@@ -94,17 +97,18 @@ extend_OM <- function(catch,
   # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
-  forelist[["Nforecastyrs"]] <- nyrs_extend # should already have this value, but just in case.
-  forelist[["InputBasis"]] <- -1
+  forelist[["Nforecastyrs"]] <- nyrs_extend # should already have this value, but just in case. # SINGLE_RUN_MODS: delete
+  forelist[["InputBasis"]] <- -1 # SINGLE_RUN_MODS: delete
 
   temp_catch <- catch[, c("year", "seas", "fleet", "catch")]
-  temp_catch <- cbind(temp_catch, rep(3, length(temp_catch[, 1])))
+  temp_catch <- cbind(temp_catch, rep(3, length(temp_catch[, 1]))) 
 
   temp_catch[, "catch"] <- temp_catch[, "catch"] *
-    impl_error[seq_along(NROW(temp_catch[, "catch"]))]
+    impl_error[seq_along(NROW(temp_catch[, "catch"]))] # SINGLE_RUN_MODS: will need to update with whatever the new impl_error format becomes
   temp_comb <- temp_catch
   mod_catch <- catch
 
+  # SINGLE_RUN_MODS: The logic of creating a combined catch and F target table may still be useful for implementing search in the model period
   if (!is.null(harvest_rate)) {
     temp_F <- harvest_rate[, c("year", "seas", "fleet", "catch")]
     temp_F <- cbind(temp_F, rep(99, length(temp_F[, 1])))
@@ -112,47 +116,57 @@ extend_OM <- function(catch,
     temp_comb[temp_catch[["catch"]] == 0, ] <- temp_F[temp_catch[["catch"]] == 0, ]
     mod_catch[mod_catch[["catch"]] == 0 & harvest_rate[["catch"]] != 0, "catch"] <- 0.1
   }
-
+  
   achieved_Catch <- FALSE
   colnames(temp_comb) <- c("year", "seas", "fleet", "catch", "basis")
   catch_intended <- temp_comb
 
   # modify par file ----
-  old_recs <- parlist[["recdev_forecast"]]
-  old_recs <- old_recs[old_recs[, "year"] <= dat[["endyr"]], , drop = FALSE]
+  # SINGLE_RUN_MODS: This whole recdev section can go I think we will not be moving or changing length of recdevs 
+  # but may have to update there values if they are a function of SSB or a user specified EM model  
+  old_recs <- parlist[["recdev_forecast"]] # SINGLE_RUN_MODS: delete
+  old_recs <- old_recs[old_recs[, "year"] <= dat[["endyr"]], , drop = FALSE] # SINGLE_RUN_MODS: delete
 
-  new_recs <- get_rec_devs_matrix(
-    yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]),
-    rec_devs = rec_devs
-  )
+  new_recs <- get_rec_devs_matrix( # SINGLE_RUN_MODS: delete
+    yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]), # SINGLE_RUN_MODS: delete
+    rec_devs = rec_devs # SINGLE_RUN_MODS: delete
+  ) # SINGLE_RUN_MODS: delete
 
-  parlist[["recdev_forecast"]] <- rbind(old_recs, new_recs)
+  
+  parlist[["recdev_forecast"]] <- rbind(old_recs, new_recs) # SINGLE_RUN_MODS: update this to modify the relevent years rec devs if needed
 
   # implementation error should always be 0 in the OM
-  parlist[["Fcast_impl_error"]] <-
-    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
+  parlist[["Fcast_impl_error"]] <- # SINGLE_RUN_MODS: delete no longer needed
+    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]])) # SINGLE_RUN_MODS: delete
 
+  # SINGLE_RUN_MODS: add in functions to update other parameter devs as required 
+  
+  # SINGLE_RUN_MODS: also need to update the F's in Par file before saving
+  
   # write new par file
   r4ss::SS_writepar_3.30(
     parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
     overwrite = TRUE, verbose = FALSE
   )
 
+  
   Fleet_scale <- catch_intended
   Fleet_scale[, "catch"] <- 1
   Fleet_scale[, "basis"] <- 0
-  Fleet_scale <- Fleet_scale[Fleet_scale[, "year"] >= (dat[["endyr"]] + 1) & Fleet_scale[, "year"] <= (dat[["endyr"]] + nyrs_extend), ]
+  Fleet_scale <- Fleet_scale[Fleet_scale[, "year"] >= (dat[["endyr"]] + 1) & Fleet_scale[, "year"] <= (dat[["endyr"]] + nyrs_extend), ] # SINGLE_RUN_MODS: Fleet_scale <- Fleet_scale[is.element(Fleet_scale[, "year"], dat_yrs), ]
   search_loops <- 0
   while (achieved_Catch == FALSE) {
     search_loops <- search_loops + 1
-    forelist[["ForeCatch"]] <- temp_comb
-
+    forelist[["ForeCatch"]] <- temp_comb # SINGLE_RUN_MODS: delete
+    
     # write out the changed forecast file ----
-    r4ss::SS_writeforecast(
-      mylist = forelist, dir = OM_dir, writeAll = TRUE,
-      overwrite = TRUE, verbose = FALSE
-    )
+    r4ss::SS_writeforecast( # SINGLE_RUN_MODS: delete
+      mylist = forelist, dir = OM_dir, writeAll = TRUE, # SINGLE_RUN_MODS: delete
+      overwrite = TRUE, verbose = FALSE # SINGLE_RUN_MODS: delete
+    ) # SINGLE_RUN_MODS: delete
 
+    # SINGLE_RUN_MODS: Add code here to update the par F's with adjusted target F's until the achieve target catch
+    
     # Run SS with the new catch set as forecast targets. This will use SS to
     # calculate the F required in the OM to achieve these catches.
     run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess",
@@ -165,10 +179,10 @@ extend_OM <- function(catch,
       covar = FALSE, warn = FALSE, readwt = FALSE
     )
     # Extract the achieved F and Catch for the forecast period
-    F_list <- get_F(
-      timeseries = outlist[["timeseries"]],
-      fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
-    )
+    F_list <- get_F( # SINGLE_RUN_MODS: delete
+      timeseries = outlist[["timeseries"]],# SINGLE_RUN_MODS: delete
+      fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]# SINGLE_RUN_MODS: delete
+    )# SINGLE_RUN_MODS: delete
 
     units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"]
 
@@ -179,8 +193,8 @@ extend_OM <- function(catch,
       units_of_catch = units_of_catch
     )
 
-    F_achieved <- F_list[["F_df"]][F_list[["F_df"]][, "Era"] == "FORE", c("Yr", "Seas", "Fleet", "F")]
-    colnames(F_achieved) <- c("year", "seas", "fleet", "F")
+    F_achieved <- F_list[["F_df"]][F_list[["F_df"]][, "Era"] == "FORE", c("Yr", "Seas", "Fleet", "F")]  # SINGLE_RUN_MODS: delete
+    colnames(F_achieved) <- c("year", "seas", "fleet", "F")# SINGLE_RUN_MODS: delete
     # Check that SS created projections with the intended catches before updating model
     # make sure retained catch is close to the same as the input catch.
     for (i in 1:length(Fleet_scale[, "catch"])) {
@@ -250,7 +264,8 @@ extend_OM <- function(catch,
       }
       ratio <- min(ratio, 2)
 
-      if (ratio < 0) {
+      # SINGLE_RUN_MODS: These need to be adjusted to modify the par file F's instead of the forecast file dataframe
+      if (ratio < 0) {  # SINGLE_RUN_MODS: We will need to replace this but still probably have a way to limit the upper bound of F (maybe a default of 2 times the historic max?? I think F=1.5 is a default cap for SS)
         temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
           temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
           temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- 1.5
@@ -266,8 +281,8 @@ extend_OM <- function(catch,
           catch_intended[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] <- 99
       } else {
         if (ratio < 1) {
-          ratio <- (0.5 * (ratio - 1) + 1)
-          ratio <- (ratio + Fleet_scale[i, "catch"]) / 2
+          ratio <- (0.5 * (ratio - 1) + 1) # SINGLE_RUN_MODS: replace 0.5 with runif(1,0,1) so that the model can step quickly while also avoiding oscillating
+          ratio <- (ratio + Fleet_scale[i, "catch"]) / 2 # SINGLE_RUN_MODS: delete I think, I don't think averaging with the previous step was my best idea
           temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
             temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
             temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
@@ -276,8 +291,8 @@ extend_OM <- function(catch,
         } else if (achieved_F >= 1.45) {
           ratio <- 1
         } else {
-          ratio <- (0.5 * (ratio - 1) + 1)
-          ratio <- (ratio + Fleet_scale[i, "catch"]) / 2
+          ratio <- (0.5 * (ratio - 1) + 1) # SINGLE_RUN_MODS: replace 0.5 with runif(1,0,1) so that the model can step quickly while also avoiding oscillating 
+          ratio <- (ratio + Fleet_scale[i, "catch"]) / 2 # SINGLE_RUN_MODS: delete I think, I don't think averaging with the previous step was my best idea
           temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
             temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
             temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
@@ -317,17 +332,17 @@ extend_OM <- function(catch,
   # extend the number of yrs in the model and add in catch ----
   # modify forecast file - do this to make the forecasting elements simpler for
   # the second run of the OM.
-  forelist[["Nforecastyrs"]] <- 1
-  forelist[["ForeCatch"]] <- NULL
+  forelist[["Nforecastyrs"]] <- 1  # SINGLE_RUN_MODS: delete 
+  forelist[["ForeCatch"]] <- NULL  # SINGLE_RUN_MODS: delete 
   # change parfile
   # recdevs
   # recdev1 is created when using do_rec_devs method 1; recdev2 is created when
   # using do_rec_devs method 2,3,or 4;
-  dummy_rec <- get_rec_devs_matrix(
-    yrs = (dat[["endyr"]] + nyrs_extend + 1),
-    rec_devs = 0
-  )
-  parlist[["recdev_forecast"]] <- rbind(parlist[["recdev_forecast"]], dummy_rec)
+  dummy_rec <- get_rec_devs_matrix(  # SINGLE_RUN_MODS: delete 
+    yrs = (dat[["endyr"]] + nyrs_extend + 1),  # SINGLE_RUN_MODS: delete 
+    rec_devs = 0  # SINGLE_RUN_MODS: delete 
+  )  # SINGLE_RUN_MODS: delete 
+  parlist[["recdev_forecast"]] <- rbind(parlist[["recdev_forecast"]], dummy_rec)  # SINGLE_RUN_MODS: delete 
   #
   # if (!is.null(parlist[["recdev1"]])) {
   #   parlist[["recdev1"]] <- rbind(parlist[["recdev1"]],
@@ -337,15 +352,16 @@ extend_OM <- function(catch,
   #                            parlist[["recdev_forecast"]][seq_len(nyrs_extend), ])
   # }
   # implementation error
-  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(
-    yrs = (dat[["endyr"]] + nyrs_extend + 1)
-  )
+  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(  # SINGLE_RUN_MODS: delete 
+    yrs = (dat[["endyr"]] + nyrs_extend + 1)  # SINGLE_RUN_MODS: delete 
+  )  # SINGLE_RUN_MODS: delete 
   # recdevs
   # parlist[["recdev_forecast"]] <-
   #   get_rec_devs_matrix(yrs = (dat[["endyr"]] + nyrs_extend + 1),
   #                       rec_devs = 0)
 
   # F values
+  # SINGLE_RUN_MODS: need to modify this and move it back to the loop to modify a portion of F_rate rather than appending to the end
   add_F_rate <- F_list[["F_rate_fcast"]][
     ,
     setdiff(colnames(F_list[["F_rate_fcast"]]), "name")
@@ -357,15 +373,17 @@ extend_OM <- function(catch,
   parlist[["F_rate"]] <- parlist[["F_rate"]][order(parlist[["F_rate"]][["fleet"]], parlist[["F_rate"]][["year"]], parlist[["F_rate"]][["seas"]]), ]
   # change data file
 
-  dat[["catch"]] <- rbind(dat[["catch"]], mod_catch)
+  # SINGLE_RUN_MODS: need to modify this and move it back to the loop to modify a portion of catch rather than appending to the end
+  dat[["catch"]] <- rbind(dat[["catch"]], mod_catch) 
   if (dat[["N_discard_fleets"]] > 0) {
     dat[["discard_data"]] <- rbind(dat[["discard_data"]], discards)
   }
   
+  
   # add in future years data that the EM will need.
-    dat <- add_sample_struct(sample_struct = sample_struct, dat = dat, 
-                      nyrs_extend = nyrs_extend)
-  dat[["endyr"]] <- dat[["endyr"]] + nyrs_extend
+    dat <- add_sample_struct(sample_struct = sample_struct, dat = dat, # SINGLE_RUN_MODS: delete 
+                      nyrs_extend = nyrs_extend)# SINGLE_RUN_MODS: delete 
+  dat[["endyr"]] <- dat[["endyr"]] + nyrs_extend# SINGLE_RUN_MODS: delete 
   # write the new data file
   if (write_dat) {
     r4ss::SS_writedat(dat,
