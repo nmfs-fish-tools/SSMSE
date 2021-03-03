@@ -7,10 +7,16 @@
 #' @author Kathryn Doering & Nathan Vaughan
 #' @param OM_out_dir The full path to the directory in which the OM is run.
 #' @param overwrite Overwrite existing files with matching names?
+#' @param nyrs Number of years beyond the years included in the OM to run the
+#'   MSE. A single integer value.
 #' @param nyrs_assess The number of years between assessments. This is used to
 #'  structure the forecast file for use in the OM.
 #' @param writedat Should a new datafile be written?
 #' @param rec_devs Vector of recruitment deviations for simulation.
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. This will identify which
+#'  parameters to turn deviations on for
 #' @param verify_OM Should the model be run without estimation and some basic
 #'  checks done to verify that the OM can run? Defaults to TRUE.
 #' @param sample_struct_hist The historical sample structure, if specified by 
@@ -24,8 +30,10 @@ create_OM <- function(OM_out_dir,
                       overwrite = TRUE,
                       writedat = TRUE,
                       verbose = FALSE,
+                      nyrs = NULL,
                       nyrs_assess = NULL,
                       rec_devs = NULL,
+                      future_om_list = NULL,
                       verify_OM = TRUE,
                       sample_struct_hist = NULL,
                       seed = NULL) {
@@ -88,14 +96,18 @@ create_OM <- function(OM_out_dir,
 
   # modify forecast file ----
   currentNforecast <- forelist[["Nforecastyrs"]]
-  forelist[["Nforecastyrs"]] <- nyrs_assess
-  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1
-  forelist[["InputBasis"]] <- 3
-  forelist[["ControlRuleMethod"]] <- 1
-  forelist[["BforconstantF"]] <- 0.001
-  forelist[["BfornoF"]] <- 0.0001
-  forelist[["Flimitfraction"]] <- 1
+  
+  # SINGLE_RUN_MODS: forelist[["Forecast"]] <- 0
+  forelist[["Nforecastyrs"]] <- nyrs_assess # SINGLE_RUN_MODS: forelist[["Nforecastyrs"]] <- 0
+  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1 # SINGLE_RUN_MODS: forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + 1
+  forelist[["InputBasis"]] <- 3 # SINGLE_RUN_MODS: remove
+  forelist[["ControlRuleMethod"]] <- 1 # SINGLE_RUN_MODS: remove
+  forelist[["BforconstantF"]] <- 0.001 # SINGLE_RUN_MODS: remove
+  forelist[["BfornoF"]] <- 0.0001 # SINGLE_RUN_MODS: remove
+  forelist[["Flimitfraction"]] <- 1 # SINGLE_RUN_MODS: remove
 
+  
+  # SINGLE_RUN_MODS: remove this section
   # convert forecast year selectors to absolute form
   for (i in 1:6) {
     x <- forelist[["Fcast_years"]][i]
@@ -107,6 +119,11 @@ create_OM <- function(OM_out_dir,
       stop("Forecast year should be <=0 or between start year and end year")
     }
   }
+  
+  
+  # SINGLE_RUN_MODS: refactor this to be values put directly into the OM data 
+  # alternatively remove this and force the user to always run the EM in the first year which makes sense
+  
   # put together a Forecatch dataframe using retained catch as a starting point for the OM
   # this would only matter if an EM assessment is not run in the first year.
   units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"]
@@ -121,11 +138,13 @@ create_OM <- function(OM_out_dir,
   ]
   row.names(temp_fore) <- NULL
   names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F")
+  
   # only put values in that are in the Fcas year range.
   forelist[["ForeCatch"]] <- temp_fore[
     is.element(temp_fore[["Year"]], (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs_assess)),
   ]
 
+  
   # modify ctl file ----
   # in the context of an OM, do not want to use the bias adjustment ramp, so just
   # turn off and make the recdevs years always the same.
@@ -162,19 +181,30 @@ create_OM <- function(OM_out_dir,
       first_year <- ctl[["MainRdevYrFirst"]]
     )
   }
+  
+  # SINGLE_RUN_MODS: add code to turn on parameter devs for the appropriate parameters in the ctl file and initialize mean and sd pars to some default value
+  
+  # SINGLE_RUN_MODS: modify this code to add in rec devs for all years not just nasses years.
+  # this shouldn't be too bad as fixing the main rec devs phase means all the values stay in the recdev_forecast input I think.
+  # also I think we should add modification here to input the random rec devs now.
+  # QUESTION: How does Rick implement average recruitement in the forecast period? I assume all our rec devs are around the SR relationship
+  # if we want a fixed recruitment we would need to modify the SR params or do an iterative search to compensate for the SR results.
+  # I don't think there is anywhere to input fixed absolute recruitment values.
+  
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
-  # get recdevs for all model yeasrs
-  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ]
+  # get recdevs for all model years
+  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ] # SINGLE_RUN_MODS: all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + nyrs), ]
+  
   # new_recdevs_df <- data.frame(year = dat[["styr"]]:dat[["endyr"]], recdev = NA)
   new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
-  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]), recdev = NA)
-  for (i in seq_along(first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))) {
-    tmp_yr <- (first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))[i]
+  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]), recdev = NA)   # SINGLE_RUN_MODS: fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + nyrs), recdev = NA)
+  for (i in seq_along(first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))) { # SINGLE_RUN_MODS: for (i in seq_along(first_year:(dat[["endyr"]] + nyrs))) {
+    tmp_yr <- (first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))[i] # SINGLE_RUN_MODS: tmp_yr <- (first_year:(dat[["endyr"]] + nyrs))[i] 
     if (tmp_yr <= ctl[["MainRdevYrLast"]]) {
       step <- i
       if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
-        new_recdevs_df[i, "recdev"] <- 0 # just assume no recdevs
+        new_recdevs_df[i, "recdev"] <- 0 # just assume no rec devs
       } else {
         new_recdevs_df[i, "recdev"] <-
           all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
@@ -201,6 +231,7 @@ create_OM <- function(OM_out_dir,
       }
     }
   }
+  
   new_recdevs_mat <- as.matrix(new_recdevs_df)
   new_fore_recdevs_mat <- as.matrix(fore_recdevs_df)
   if (!is.null(parlist[["recdev1"]])) {
@@ -211,6 +242,9 @@ create_OM <- function(OM_out_dir,
     stop("no recdevs in initial OM model")
   }
 
+  # SINGLE_RUN_MODS: Add F_rates for all years of the future simulation if they are not already included.
+  # a good default will probably be just to repeat whatever the final year F was in all future years
+  
   # use report.sso time series table to find the F's to put into the parlist.
   F_list <- get_F(
     timeseries = outlist[["timeseries"]],
@@ -221,13 +255,16 @@ create_OM <- function(OM_out_dir,
   # rows.
   parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")]
   parlist[["init_F"]] <- F_list[["init_F"]]
+  
+ 
+  
   # add recdevs to the parlist
   parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
   # get_rec_devs_matrix(yrs = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]),
   #                     rec_devs = rec_devs)
   # want no implementation error for the forecast, so function adds in 0s.
   parlist[["Fcast_impl_error"]] <-
-    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
+    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))# SINGLE_RUN_MODS: get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs))
 
 
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
@@ -255,6 +292,9 @@ create_OM <- function(OM_out_dir,
   # Add in the historical sampling structure, as defined by the user
   dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat, 
                            nyrs_extend = 0)
+  
+  # SINGLE_RUN_MODS: add environmental data if needed
+  # SINGLE_RUN_MODS: dat[["endyr"]] <- dat[["endyr"]] + nyrs
   
   # make sure tail compression is off.
   # turn off tail compression
