@@ -137,7 +137,7 @@ calc_comp_var <- function(data_obs, data_exp, bins, fleets=NULL, years=NULL, sea
         #expected value was 1e-5)
         buff<-0.1
         for(k in 1:length(output_array[,1])){
-          output_array[k,2]<-ksmooth(x=dat_array[,2],y=dat_array[,5],kernel = "box",bandwidth = mult*output_array[k,1]+buff,x.points=output_array[k,1])$y
+          output_array[k,2]<-stats::ksmooth(x=dat_array[,2],y=dat_array[,5],kernel = "box",bandwidth = mult*output_array[k,1]+buff,x.points=output_array[k,1])$y
         }
         
         #The second phase uses a normal distribution kernel to smooth out a lot of the jitter 
@@ -152,14 +152,14 @@ calc_comp_var <- function(data_obs, data_exp, bins, fleets=NULL, years=NULL, sea
         #Here we calculate the kernel interpolation at the smooth range of the output array for
         #future use calculating simulated values
         for(k in 1:length(output_array[,1])){
-          output_array[k,3]<-ksmooth(x=output_array[,1],y=output_array[,2],kernel = "normal",bandwidth = mult*output_array[k,1]+buff,x.points=output_array[k,1])$y
+          output_array[k,3]<-stats::ksmooth(x=output_array[,1],y=output_array[,2],kernel = "normal",bandwidth = mult*output_array[k,1]+buff,x.points=output_array[k,1])$y
         }
         #Here we calculate the kernel interpolation at all the points of the original data
         #this will be used for weighting the data to calculate mean biases of different sample bins
         #these biases should show artifacts of real sampling such as observers favoring round 
         #multiples of 10 or some other bias.
         for(k in 1:length(dat_array[,1])){
-          dat_array[k,7]<-ksmooth(x=output_array[,1],y=output_array[,2],kernel = "normal",bandwidth = mult*dat_array[k,2]+buff,x.points=dat_array[k,2])$y
+          dat_array[k,7]<-stats::ksmooth(x=output_array[,1],y=output_array[,2],kernel = "normal",bandwidth = mult*dat_array[k,2]+buff,x.points=dat_array[k,2])$y
         }
         output_array[,2]<-output_array[,3]
         
@@ -277,13 +277,13 @@ Sim_comp <- function(Comp_uncert, data_exp, bins, years=NULL, seasons=NULL, flee
       #size of the variance relative to the mean
       if(ref_var[1,2]==ref_var[1,1]){
         #If mean and variance are equal sample from a Poisson with a random mean/variance bias draw based on the bias distribution for the bin   
-        data_obs[i,(j+offset)]<-rpois(1, (ref_var[1,1]+rlnorm(1,sub_bias[j,2],sub_bias[j,3])*sqrt(ref_var[1,2])))
+        data_obs[i,(j+offset)]<-stats::rpois(1, (ref_var[1,1]+stats::rlnorm(1,sub_bias[j,2],sub_bias[j,3])*sqrt(ref_var[1,2])))
       }else if(ref_var[1,2]<ref_var[1,1]){
         #If mean is greater than variance sample from a binomial distribution with a random mean bias draw based on the bias distribution for the bin
-        data_obs[i,(j+offset)]<-rbinom(1, size=ref_var[1,3],prob=((ref_var[1,1]+rlnorm(1,sub_bias[j,2],sub_bias[j,3])*sqrt(ref_var[1,2]))/ref_var[1,3]))
+        data_obs[i,(j+offset)]<-stats::rbinom(1, size=ref_var[1,3],prob=((ref_var[1,1]+stats::rlnorm(1,sub_bias[j,2],sub_bias[j,3])*sqrt(ref_var[1,2]))/ref_var[1,3]))
       }else if(ref_var[1,2]>ref_var[1,1]){
         #If mean is less than variance sample from a negative binomial distribution with a random mean bias draw based on the bias distribution for the bin
-        data_obs[i,(j+offset)]<-rnbinom(1, size=ref_var[1,3], mu=(ref_var[1,1]+rlnorm(1,sub_bias[j,2],sub_bias[j,3])*sqrt(ref_var[1,2])))
+        data_obs[i,(j+offset)]<-stats::rnbinom(1, size=ref_var[1,3], mu=(ref_var[1,1]+stats::rlnorm(1,sub_bias[j,2],sub_bias[j,3])*sqrt(ref_var[1,2])))
       }
     }
   }

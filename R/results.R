@@ -225,6 +225,7 @@ plot_index_sampling <- function(dir = getwd()) {
 #' @param comp_type Type of composition data, age or length. Defaults to age.
 #' @export
 #' @import ggplot2
+#' @importFrom magrittr %>%
 #' @author Kathryn Doering
 #' @return A list containing 2 components: 1) the ggplot object and 2) the
 #'  dataframe used to make the ggplot object
@@ -253,7 +254,7 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
     stop("The comp database from the operating model has no rows, so must not ", 
     "have been any historical data in the OM.")
   }
-  comp_dbase <- type.convert(comp_dbase)
+  comp_dbase <- utils::type.convert(comp_dbase)
   comp_dbase[["iteration"]] <- 1
   comp_dbase[["scenario"]] <- scenario
   comp_dbase[["model_run"]] <- "om"
@@ -367,7 +368,7 @@ get_performance_metrics <- function(dir = getwd(),
   }
   if("SpawnBio" %in% quantities) {
     if(use_SSMSE_summary_all == TRUE) {
-      ts_df <- read.csv(file.path(dir, "SSMSE_ts.csv"))
+      ts_df <- utils::read.csv(file.path(dir, "SSMSE_ts.csv"))
       keep_rows <- grep("OM$", ts_df[["model_run"]], ignore.case = TRUE)
       ts_df <- ts_df[keep_rows, ]
       ts_df[["fleet"]] <- NA

@@ -9,7 +9,7 @@
 #' "model_change" or "custom". Defaults to "model_change".
 #' @param list_length The length of the example list to create. Defaults to 1.
 #' For now, just replicates the same list.
-#' @example example_future_om_list <- create_om_list(example_type = "custom",
+#' @examples example_future_om_list <- create_om_list(example_type = "custom",
 #'                                                   list_length = 2)
 create_future_om_list <- function(example_type = c("model_change", "custom"),
                                   list_length = 1) {
