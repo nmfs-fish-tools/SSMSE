@@ -23,6 +23,6 @@ users create these objects. For now, just returns examples based on cod
 model that comes with SSMSE.
 }
 \examples{
-example_future_om_list <- create_om_list(example_type = "custom",
-                                                  list_length = 2)
+example_future_om_list <- 
+  create_future_om_list(example_type = "custom", list_length = 2)
 }
