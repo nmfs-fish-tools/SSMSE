@@ -9,8 +9,10 @@ create_OM(
   overwrite = TRUE,
   writedat = TRUE,
   verbose = FALSE,
+  nyrs = NULL,
   nyrs_assess = NULL,
   rec_devs = NULL,
+  future_om_list = NULL,
   verify_OM = TRUE,
   sample_struct_hist = NULL,
   seed = NULL
@@ -25,10 +27,18 @@ create_OM(
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
+\item{nyrs}{Number of years beyond the years included in the OM to run the
+MSE. A single integer value.}
+
 \item{nyrs_assess}{The number of years between assessments. This is used to
 structure the forecast file for use in the OM.}
 
 \item{rec_devs}{Vector of recruitment deviations for simulation.}
+
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. This will identify which
+parameters to turn deviations on for}
 
 \item{verify_OM}{Should the model be run without estimation and some basic
 checks done to verify that the OM can run? Defaults to TRUE.}

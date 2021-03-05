@@ -13,7 +13,9 @@ parse_MS(
   OM_out_dir = NULL,
   verbose = FALSE,
   nyrs_assess,
+  first_catch_yr,
   dat_yrs,
+  future_om_list = NULL,
   sample_struct = NULL,
   interim_struct = NULL,
   seed = NULL
@@ -52,8 +54,15 @@ this should be sampled data.}
 \item{nyrs_assess}{The number of years between assessments. E.g., if an
 assessment is conducted every 3 years, put 3 here. A single integer value.}
 
+\item{first_catch_yr}{The first year for which to calculate a catch}
+
 \item{dat_yrs}{Which years should be added to the new model? Ignored if
 init_loop is TRUE.}
+
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. This will identify which
+parameters to turn deviations on for}
 
 \item{sample_struct}{An optional list including which years and fleets should be
 added from the OM into the EM for different types of data. If NULL, the data

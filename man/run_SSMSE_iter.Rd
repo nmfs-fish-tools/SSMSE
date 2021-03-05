@@ -20,6 +20,7 @@ run_SSMSE_iter(
   niter = 1,
   iter_seed = NULL,
   sample_struct = NULL,
+  future_om_list = NULL,
   sample_struct_hist = NULL,
   interim_struct = NULL,
   verbose = FALSE
@@ -95,6 +96,13 @@ used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
 give an example of what this structure should be. Running the function
 create_sample_struct() will also produce a sample_struct object in the
 correct form. Can be NULL only when MS is not EM.}
+
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. To see an example, try
+running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+that the model will be extended forward in time assuming the original model
+structure.}
 
 \item{sample_struct_hist}{An optional list including which years should be
 sampled for the historical period for the data generated from the OM. If 

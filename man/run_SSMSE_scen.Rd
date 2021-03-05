@@ -21,6 +21,7 @@ run_SSMSE_scen(
   impl_error = NULL,
   scen_seed = NULL,
   sample_struct = NULL,
+  future_om_list = NULL,
   sample_struct_hist = NULL,
   interim_struct = NULL,
   verbose = FALSE,
@@ -96,6 +97,13 @@ should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre
 for the number of years to extend the model out.}
+
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. To see an example, try
+running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+that the model will be extended forward in time assuming the original model
+structure.}
 
 \item{sample_struct_hist}{An optional list including which years should be
 sampled for the historical period for the data generated from the OM. If 

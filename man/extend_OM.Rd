@@ -10,6 +10,7 @@ extend_OM(
   harvest_rate = NULL,
   OM_dir,
   sample_struct = NULL,
+  future_om_list = NULL,
   nyrs_extend = 3,
   write_dat = TRUE,
   rec_devs = NULL,
@@ -34,8 +35,11 @@ add to the OM. The column names are as in an SS datafile.}
 
 \item{sample_struct}{The sample structure dataframe.}
 
+\item{future_om_list}{The changes to make to the future OM list.}
+
 \item{nyrs_extend}{An integer value of years to extend the model forward. Defaults
-to an arbitrary value of 3.}
+ to an arbitrary value of 3.
+# SINGLE_RUN_MODS: param dat_yrs Which years should parameter values be updated for.}
 
 \item{write_dat}{Should the datafile be overwritten? Defaults to TRUE.}
 
