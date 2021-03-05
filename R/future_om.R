@@ -147,7 +147,7 @@ check_future_om_list_vals <- function(future_om_list, scen_list) {
     if (x[["pattern"]][1] == "custom") {
       # number of vals will depend on the number of scenarios and number of
       # iterations for each scenario, 
-      if(tmp_scen == "all") tmp_scen <- names(scen_list)
+      if(isTRUE(tmp_scen == "all")) tmp_scen <- names(scen_list)
       n_iter_vec <- unlist(lapply(scen_list, function(y) y[["iter"]]))
       nyrs_vec <- unlist(lapply(scen_list, function(y) y[["nyrs"]]))
       names(n_iter_vec) <- names(scen_list)
