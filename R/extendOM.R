@@ -121,6 +121,16 @@ extend_OM <- function(catch,
   colnames(temp_comb) <- c("year", "seas", "fleet", "catch", "basis")
   catch_intended <- temp_comb
 
+  # SINGLE_RUN_MODS: 
+  # F_ref<-rep(1,length(catch_intended[,1]))
+  # for(i in 1:length(F_ref)){
+  #   F_ref[i] <- which(parlist$F_rate[,c("year")]==catch_intended[i,c("year")] & 
+  #                     parlist$F_rate[,c("seas")]==catch_intended[i,c("seas")] &
+  #                     parlist$F_rate[,c("fleet")]==catch_intended[i,c("fleet")]) 
+  # }
+  
+  
+  
   # modify par file ----
   # SINGLE_RUN_MODS: This whole recdev section can go I think we will not be moving or changing length of recdevs 
   # but may have to update there values if they are a function of SSB or a user specified EM model  
@@ -136,18 +146,19 @@ extend_OM <- function(catch,
   parlist[["recdev_forecast"]] <- rbind(old_recs, new_recs) # SINGLE_RUN_MODS: update this to modify the relevent years rec devs if needed
 
   # implementation error should always be 0 in the OM
-  parlist[["Fcast_impl_error"]] <- # SINGLE_RUN_MODS: delete no longer needed
+  parlist[["Fcast_impl_error"]] <- # SINGLE_RUN_MODS: delete \
     get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]])) # SINGLE_RUN_MODS: delete
 
   # SINGLE_RUN_MODS: add in functions to update other parameter devs as required 
   
-  # SINGLE_RUN_MODS: also need to update the F's in Par file before saving
+  # SINGLE_RUN_MODS: also need to update the F's in Par file to good starting guesses??
+  # maybe don't need too just let it run with whatever the base values are to start??
   
   # write new par file
-  r4ss::SS_writepar_3.30(
-    parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
-    overwrite = TRUE, verbose = FALSE
-  )
+  r4ss::SS_writepar_3.30( # SINGLE_RUN_MODS: delete
+    parlist = parlist, outfile = file.path(OM_dir, "ss.par"), # SINGLE_RUN_MODS: delete
+    overwrite = TRUE, verbose = FALSE # SINGLE_RUN_MODS: delete
+  ) # SINGLE_RUN_MODS: delete
 
   
   Fleet_scale <- catch_intended
@@ -166,6 +177,10 @@ extend_OM <- function(catch,
     ) # SINGLE_RUN_MODS: delete
 
     # SINGLE_RUN_MODS: Add code here to update the par F's with adjusted target F's until the achieve target catch
+    # SINGLE_RUN_MODS: r4ss::SS_writepar_3.30(
+    # SINGLE_RUN_MODS:   parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
+    # SINGLE_RUN_MODS:   overwrite = TRUE, verbose = FALSE
+    # SINGLE_RUN_MODS:  )
     
     # Run SS with the new catch set as forecast targets. This will use SS to
     # calculate the F required in the OM to achieve these catches.
@@ -178,6 +193,17 @@ extend_OM <- function(catch,
       verbose = FALSE, printstats = FALSE,
       covar = FALSE, warn = FALSE, readwt = FALSE
     )
+    
+    # SINGLE_RUN_MODS: 
+    # read in parameter file
+    # parlist <- r4ss::SS_readpar_3.30(
+    #   parfile = file.path(OM_dir, "ss.par"),
+    #   datsource = dat, ctlsource = ctl,
+    #   verbose = FALSE
+    # )
+    
+    # F_achieved <- parlist[["F_rate"]][F_ref,]
+    
     # Extract the achieved F and Catch for the forecast period
     F_list <- get_F( # SINGLE_RUN_MODS: delete
       timeseries = outlist[["timeseries"]],# SINGLE_RUN_MODS: delete
@@ -215,6 +241,9 @@ extend_OM <- function(catch,
       achieved_F <- F_achieved[F_achieved[, "year"] == Fleet_scale[i, "year"] &
         F_achieved[, "seas"] == Fleet_scale[i, "seas"] &
         F_achieved[, "fleet"] == Fleet_scale[i, "fleet"], "F"]
+      
+      # TODO: Add a dead catch option if we think it is beneficial? not hard to implement I don't think.
+      
       if (length(achieved_F) == 0) {
         achieved_F <- 0
       }
@@ -224,17 +253,24 @@ extend_OM <- function(catch,
           if (intended_val == 0 & achieved_ret == 0) {
             ratio <- 1
           } else if (achieved_ret == 0) {
-            if (temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-              temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-              temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] == 99) {
-              stop("For some reason SS refuses to apply catch to this fleet SOMETHING IS VERY WRONG! :(")
+            if (temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] & # SINGLE_RUN_MODS: if(parlist[["F_rate"]][F_ref[i],"F"] > 0){ stop("This fleet must be 100% discard you will never be able to achieve target catch")
+              temp_comb[, "seas"] == Fleet_scale[i, "seas"] & # SINGLE_RUN_MODS: delete
+              temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] == 99) { # SINGLE_RUN_MODS: delete
+              stop("For some reason SS refuses to apply catch to this fleet SOMETHING IS VERY WRONG! :(") # SINGLE_RUN_MODS: delete
+              # TODO: we could possibly add in capacity for total dead rather than retained to allow biomass based projection of discard fleets?? 
+              # catch_intended[catch_intended[, "year"] == Fleet_scale[i, "year"] &
+              #                  catch_intended[, "seas"] == Fleet_scale[i, "seas"] &
+              #                  catch_intended[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] <- 2
+              
             } else {
-              temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-                temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-                temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- .4
-              temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-                temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-                temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] <- 99
+              # SINGLE_RUN_MODS: parlist[["F_rate"]][F_ref[i],"F"] <- 0.4
+              # SINGLE_RUN_MODS: ratio <- 1
+              temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &  # SINGLE_RUN_MODS: delete
+                temp_comb[, "seas"] == Fleet_scale[i, "seas"] &  # SINGLE_RUN_MODS: delete
+                temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- 0.4  # SINGLE_RUN_MODS: delete
+              temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &  # SINGLE_RUN_MODS: delete
+                temp_comb[, "seas"] == Fleet_scale[i, "seas"] &  # SINGLE_RUN_MODS: delete
+                temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] <- 99  # SINGLE_RUN_MODS: delete
             }
           } else {
             ratio <- intended_val / achieved_ret
@@ -243,11 +279,12 @@ extend_OM <- function(catch,
           if (intended_val == 0 & achieved_ret == 0) {
             ratio <- 1
           } else if (length(achieved_F) == 0) {
-            stop("For some reason SS refuses to apply F to this fleet SOMETHING IS VERY WRONG! :(")
+            stop("For some reason SS refuses to apply F to this fleet SOMETHING IS VERY WRONG! :(") # SINGLE_RUN_MODS: probably don't need this any more as we are pulling directly from the par Fs
           } else {
             ratio <- intended_val / achieved_F
           }
-        } else {
+        } else {# TODO: We could add in dead catch here as a target option
+          # replicate the inner loops of intended basis = 3 here
           stop("Catch testing is only set up to compare retained catch or F at the moment")
         }
       } else {
@@ -266,12 +303,20 @@ extend_OM <- function(catch,
 
       # SINGLE_RUN_MODS: These need to be adjusted to modify the par file F's instead of the forecast file dataframe
       if (ratio < 0) {  # SINGLE_RUN_MODS: We will need to replace this but still probably have a way to limit the upper bound of F (maybe a default of 2 times the historic max?? I think F=1.5 is a default cap for SS)
-        temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-          temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-          temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- 1.5
-        temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-          temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-          temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] <- 99
+        # SINGLE_RUN_MODS: The scenario of negative Fs/catch (required to create ratio<0) is likely not possible any more now that we are fitting Fs directly. This only happened when SS tried to implement impossibly 
+        # large fixed catches.
+        
+        # SINGLE_RUN_MODS: parlist[["F_rate"]][F_ref[i],"F"] <- 1.5
+        # SINGLE_RUN_MODS: ratio <- 1
+        # SINGLE_RUN_MODS: Fleet_scale[i, "catch"] <- ratio
+        # SINGLE_RUN_MODS: Fleet_scale[i, "basis"] <- abs(1 - ratio)
+        
+        temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &  # SINGLE_RUN_MODS: delete
+          temp_comb[, "seas"] == Fleet_scale[i, "seas"] &  # SINGLE_RUN_MODS: delete
+          temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- 1.5  # SINGLE_RUN_MODS: delete
+        temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &  # SINGLE_RUN_MODS: delete
+          temp_comb[, "seas"] == Fleet_scale[i, "seas"] &  # SINGLE_RUN_MODS: delete
+          temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] <- 99  # SINGLE_RUN_MODS: delete
 
         catch_intended[catch_intended[, "year"] == Fleet_scale[i, "year"] &
           catch_intended[, "seas"] == Fleet_scale[i, "seas"] &
@@ -281,36 +326,44 @@ extend_OM <- function(catch,
           catch_intended[, "fleet"] == Fleet_scale[i, "fleet"], "basis"] <- 99
       } else {
         if (ratio < 1) {
-          ratio <- (0.5 * (ratio - 1) + 1) # SINGLE_RUN_MODS: replace 0.5 with runif(1,0,1) so that the model can step quickly while also avoiding oscillating
+          # SINGLE_RUN_MODS: Fleet_scale[i, "catch"] <- ratio
+          # SINGLE_RUN_MODS: Fleet_scale[i, "basis"] <- abs(1 - ratio)
+          ratio <- (0.5 * (ratio - 1) + 1) # SINGLE_RUN_MODS: replace 0.5 with runif(1,0.5,1) so that the model can step quickly while also avoiding oscillating
           ratio <- (ratio + Fleet_scale[i, "catch"]) / 2 # SINGLE_RUN_MODS: delete I think, I don't think averaging with the previous step was my best idea
-          temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-            temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-            temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] * ratio
-        } else if (achieved_F >= 1.45) {
+          temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "seas"] == Fleet_scale[i, "seas"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "seas"] == Fleet_scale[i, "seas"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] * ratio # SINGLE_RUN_MODS: delete
+          # SINGLE_RUN_MODS: parlist[["F_rate"]][F_ref[i],"F"] <- parlist[["F_rate"]][F_ref[i],"F"] * ratio
+        } else if (achieved_F >= 1.5) {
+          # SINGLE_RUN_MODS: parlist[["F_rate"]][F_ref[i],"F"] <- 1.5
+          # SINGLE_RUN_MODS: Fleet_scale[i, "catch"] <- ratio
+          # SINGLE_RUN_MODS: Fleet_scale[i, "basis"] <- abs(1 - ratio)
           ratio <- 1
         } else {
-          ratio <- (0.5 * (ratio - 1) + 1) # SINGLE_RUN_MODS: replace 0.5 with runif(1,0,1) so that the model can step quickly while also avoiding oscillating 
+          # SINGLE_RUN_MODS: Fleet_scale[i, "catch"] <- ratio
+          # SINGLE_RUN_MODS: Fleet_scale[i, "basis"] <- abs(1 - ratio)
+          ratio <- (0.5 * (ratio - 1) + 1) # SINGLE_RUN_MODS: replace 0.5 with runif(1,.5,1) so that the model can step quickly while also avoiding oscillating 
           ratio <- (ratio + Fleet_scale[i, "catch"]) / 2 # SINGLE_RUN_MODS: delete I think, I don't think averaging with the previous step was my best idea
-          temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-            temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] &
-            temp_comb[, "seas"] == Fleet_scale[i, "seas"] &
-            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] * ratio
+          temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "seas"] == Fleet_scale[i, "seas"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] <- temp_comb[temp_comb[, "year"] == Fleet_scale[i, "year"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "seas"] == Fleet_scale[i, "seas"] & # SINGLE_RUN_MODS: delete
+            temp_comb[, "fleet"] == Fleet_scale[i, "fleet"], "catch"] * ratio # SINGLE_RUN_MODS: delete
         }
       }
 
-      Fleet_scale[i, "catch"] <- ratio
-      Fleet_scale[i, "basis"] <- abs(1 - ratio)
+      Fleet_scale[i, "catch"] <- ratio # SINGLE_RUN_MODS: delete
+      Fleet_scale[i, "basis"] <- abs(1 - ratio) # SINGLE_RUN_MODS: delete
     }
 
-    if (max(Fleet_scale[, "basis"]) > 0.05 & search_loops < 10) {
+    if (max(Fleet_scale[, "basis"]) > 0.001 & search_loops < 20) {
       achieved_Catch <- FALSE
     } else {
       achieved_Catch <- TRUE
     }
-    if (search_loops == 10) {
+    if (search_loops == 20) {
       utils::write.csv("test to see how long the loop runs",
         file = file.path(OM_dir, "search_took_too_long.csv")
       )
@@ -362,22 +415,22 @@ extend_OM <- function(catch,
 
   # F values
   # SINGLE_RUN_MODS: need to modify this and move it back to the loop to modify a portion of F_rate rather than appending to the end
-  add_F_rate <- F_list[["F_rate_fcast"]][
-    ,
-    setdiff(colnames(F_list[["F_rate_fcast"]]), "name")
-  ]
-  add_F_rate <- add_F_rate[add_F_rate[["year"]] %in%
-    (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs_extend), ]
-  parlist[["F_rate"]] <- rbind(parlist[["F_rate"]], add_F_rate)
+  add_F_rate <- F_list[["F_rate_fcast"]][  # SINGLE_RUN_MODS: delete
+    , # SINGLE_RUN_MODS: delete
+    setdiff(colnames(F_list[["F_rate_fcast"]]), "name") # SINGLE_RUN_MODS: delete
+  ] # SINGLE_RUN_MODS: delete
+  add_F_rate <- add_F_rate[add_F_rate[["year"]] %in% # SINGLE_RUN_MODS: delete
+    (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs_extend), ] # SINGLE_RUN_MODS: delete
+  parlist[["F_rate"]] <- rbind(parlist[["F_rate"]], add_F_rate) # SINGLE_RUN_MODS: delete
 
-  parlist[["F_rate"]] <- parlist[["F_rate"]][order(parlist[["F_rate"]][["fleet"]], parlist[["F_rate"]][["year"]], parlist[["F_rate"]][["seas"]]), ]
+  parlist[["F_rate"]] <- parlist[["F_rate"]][order(parlist[["F_rate"]][["fleet"]], parlist[["F_rate"]][["year"]], parlist[["F_rate"]][["seas"]]), ] # SINGLE_RUN_MODS: delete
   # change data file
 
-  # SINGLE_RUN_MODS: need to modify this and move it back to the loop to modify a portion of catch rather than appending to the end
-  dat[["catch"]] <- rbind(dat[["catch"]], mod_catch) 
-  if (dat[["N_discard_fleets"]] > 0) {
-    dat[["discard_data"]] <- rbind(dat[["discard_data"]], discards)
-  }
+  # SINGLE_RUN_MODS: I don't think this matters because we are not fitting to the catches/discards, we could always just replace the input catch/discards with the expected values if we want for neatness??
+  dat[["catch"]] <- rbind(dat[["catch"]], mod_catch)  # SINGLE_RUN_MODS: delete
+  if (dat[["N_discard_fleets"]] > 0) { # SINGLE_RUN_MODS: delete
+    dat[["discard_data"]] <- rbind(dat[["discard_data"]], discards) # SINGLE_RUN_MODS: delete
+  } # SINGLE_RUN_MODS: delete
   
   
   # add in future years data that the EM will need.
@@ -385,6 +438,7 @@ extend_OM <- function(catch,
                       nyrs_extend = nyrs_extend)# SINGLE_RUN_MODS: delete 
   dat[["endyr"]] <- dat[["endyr"]] + nyrs_extend# SINGLE_RUN_MODS: delete 
   # write the new data file
+  # SINGLE_RUN_MODS: only need to do this if we are updating the values from the expected
   if (write_dat) {
     r4ss::SS_writedat(dat,
                       outfile = file.path(OM_dir, start[["datfile"]]),
@@ -410,6 +464,12 @@ extend_OM <- function(catch,
     parlist = parlist,
     outfile = file.path(OM_dir, "ss.par"), overwrite = TRUE
   )
+  
+  # SINGLE_RUN_MODS: run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess",
+  # SINGLE_RUN_MODS:              verbose = verbose,
+  # SINGLE_RUN_MODS:              debug_par_run = TRUE
+  # SINGLE_RUN_MODS: )
+  
   invisible(dat)
   # maybe should just move the final run of the OM here, since we can no longer
   # isolate this function to prevent it from running SS?

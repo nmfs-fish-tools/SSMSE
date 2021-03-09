@@ -177,3 +177,5 @@ get_retained_catch <- function(timeseries, units_of_catch) {
   )
   # units are not as concies as they could be, but leave for now.
 }
+
+# TODO: add a get dead catch option to allow extension of the EM forecast options if we think it would be useful??
