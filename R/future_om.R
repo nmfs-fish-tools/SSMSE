@@ -42,10 +42,10 @@ create_future_om_list <- function(example_type = c("model_change", "custom"),
     future_om_list[[1]][["scen"]] <- c("randomize", "all")
     future_om_list[[1]][["pattern"]] <- "custom"
     future_om_list[[1]][["input"]] <- data.frame(
-      parameter = "impl_error",
-      scenario = rep(c("scen1","scen2", "scen3"), times = rep(6*5, times = 3)), 
-      iteration = rep(1:5, times = 3*6),
-      year = rep(rep(101:106, times = rep(5, times = 6)), times = 3),
+      par = "impl_error",
+      scen = rep(c("scen1","scen2", "scen3"), times = rep(6*5, times = 3)), 
+      iter = rep(1:5, times = 3*6),
+      yr = rep(rep(101:106, times = rep(5, times = 6)), times = 3),
       value = c(rep(1.05, times = 6*5), rep(1.10, times = 6*5*2)))
   }
   future_om_list <- rep(future_om_list, times =  list_length)
@@ -103,7 +103,7 @@ check_future_om_list_str <- function(future_om_list) {
         "last_yr_orig_val", "first_yr_final_val", "ts_param", "method", "value")
     }
     if(x[["pattern"]][1] == "custom") {
-      expected_names <- c("parameter", "scenario", "iteration", "year", "value")
+      expected_names <- c("par", "scen", "iter", "yr", "value")
     }
     if(isTRUE(!all(names(x[["input"]]) == expected_names)) 
        | isTRUE(length(names(x[["input"]] != length(expected_names))))) {
@@ -156,14 +156,14 @@ check_future_om_list_vals <- function(future_om_list, scen_list) {
       names(nyrs_vec) <- names(scen_list)
       included_scen_iters <- n_iter_vec[which(names(scen_list) %in% tmp_scen)]
       included_nyrs <- nyrs_vec[which(names(scen_list) %in% tmp_scen)]
-      if(all(x[["input"]][,"scenario"] == "all")) {
+      if(all(x[["input"]][,"scen"] == "all")) {
         if(length(unique(n_iter_vec)) != 1) {
-          stop("Cannot use 'scenario = all' for custom if the number of", 
+          stop("Cannot use 'scen = all' for custom if the number of", 
                " iterations differ across scenarios. Please specify values for ", 
                "each scenario, year, and iteration instead.")
         }
         if(length(unique(nyrs_vec)) != 1) {
-          stop("Cannot use 'scenario = all' for custom if the number of ", 
+          stop("Cannot use 'scen = all' for custom if the number of ", 
                "years extended forward differ across scenarios. Please specify ",
                "values for each scenario, year, and iteration instead.")
         }
@@ -174,7 +174,7 @@ check_future_om_list_vals <- function(future_om_list, scen_list) {
           stop("Number of rows in future_om_list[[", elem_num, "]][['input']] ", 
                "is not correct. Expecting ", total_rows_expect, ", but there ", 
                "are ", NROW(x[['input']]), " rows. Please specify a row for ", 
-                "each year and iteration.")
+                "each yr and iter.")
         }
       } else {
         if(nrow(x[["input"]]) != sum(included_scen_iters * included_nyrs)) {
@@ -182,7 +182,7 @@ check_future_om_list_vals <- function(future_om_list, scen_list) {
                "is not correct. Expecting ", 
                sum(included_scen_iters * included_nyrs), ", but there ", 
                "are ", NROW(x[['input']]), " rows. Please specify a row for ", 
-               "each year and iteration for the included scenarios specified ", 
+               "each year and iter for the included scenarios specified ", 
                " in future_om_list[[", elem_num, "]][['scen']].")
         }
       }

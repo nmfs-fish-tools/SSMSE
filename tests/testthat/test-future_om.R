@@ -86,10 +86,10 @@ future_om_list_3[[1]][["pattern"]] <- "custom"
 # the following list has von bertK set as 0.2 for all years in scen1 and scen2,
 # but set at 0.3 in scen3
 future_om_list_3[[1]][["input"]] <- data.frame(
-  parameter = "VonBert_K_Fem_GP_1",
-  scenario = rep("all", times = 6*5), 
-  iteration = rep(1:5, times = 6),
-  year =  rep(101:106, times = rep(5, times = 6)),
+  par = "VonBert_K_Fem_GP_1",
+  scen = rep("all", times = 6*5), 
+  iter = rep(1:5, times = 6),
+  yr =  rep(101:106, times = rep(5, times = 6)),
   value = rep(0.2, times = 6*5))
 
 # add in vals for list element 2 - This parameter has a positive, deterministic
@@ -132,10 +132,10 @@ future_om_list_4[[2]][["pars"]] <- "impl_error"
 future_om_list_4[[2]][["scen"]] <- c("randomize", "scen1", "scen2", "scen3")
 future_om_list_4[[2]][["pattern"]] <- "custom"
 future_om_list_4[[2]][["input"]] <- data.frame(
-  parameter = "impl_error",
-  scenario = rep(c("scen1","scen2", "scen3"), times = rep(6*5, times = 3)), 
-  iteration = rep(1:5, times = 3*6),
-  year = rep(rep(101:106, times = rep(5, times = 6)), times = 3),
+  par = "impl_error",
+  scen = rep(c("scen1","scen2", "scen3"), times = rep(6*5, times = 3)), 
+  iter = rep(1:5, times = 3*6),
+  yr = rep(rep(101:106, times = rep(5, times = 6)), times = 3),
   value = c(rep(1.05, times = 6*5), rep(1.10, times = 6*5*2)) # this specifies catch as 5% or 10% greater than the catch from the MS
   
   #NOTE: While testing the timeseries sim I got to thinking, should we offer an option for the user to specify the random distribution function? 
@@ -222,7 +222,7 @@ test_that("Checks with scen info does catch bad input", {
   )
   expect_error(check_future_om_list_vals(future_om_list = future_om_list_3, 
                                              scen_list = scen_list), 
-    paste0("Cannot use 'scenario = all' for custom if the number of years ", 
+    paste0("Cannot use 'scen = all' for custom if the number of years ", 
            "extended forward differ across scenarios"))
   
   scen_list <- create_scen_list(
@@ -242,5 +242,3 @@ test_that("Checks with scen info does catch bad input", {
                                          scen_list = scen_list), 
                "Expecting 90, but there are 89 rows")
 })
-
-# Question: What about seasonal models? Should users be able to put in inputs by season?
