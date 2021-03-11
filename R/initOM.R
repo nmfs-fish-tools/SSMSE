@@ -59,7 +59,7 @@ create_OM <- function(OM_out_dir,
     dir = OM_out_dir, verbose = FALSE,
     overwrite = TRUE, warn = FALSE
   )
-  # run model to get standardized output ----
+  # run model from par file with no estimation to get standardized output ----
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess",
     debug_par_run = TRUE,
     verbose = verbose
@@ -88,18 +88,21 @@ create_OM <- function(OM_out_dir,
   )
   # model checks ----
   if(ctl[["F_Method"]] == 1) {
-    stop("SSMSE cannot work with models that use F method 1 (Pope's ",
+    stop("SSMSE cannot work with operating models that use F method 1 (Pope's ",
          "approximation). Please use F method 2 or 3 instead (3 is ",  
          "recommended over method 1).")
   }
   
 
   # modify forecast file ----
+  #SINGLE_RUN_MODS: turn off forecasting completely.
   currentNforecast <- forelist[["Nforecastyrs"]]
   
-  # SINGLE_RUN_MODS: forelist[["Forecast"]] <- 0
-  forelist[["Nforecastyrs"]] <- nyrs_assess # SINGLE_RUN_MODS: forelist[["Nforecastyrs"]] <- 0
-  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1 # SINGLE_RUN_MODS: forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + 1
+  # SINGLE_RUN_MODS: forelist[["Forecast"]] <- -1 
+  # SINGLE_RUN_MODS note, KD: to turn off forecasting completely (0 years), need
+  # to use option -1. SS does not read past this point in the ctl file
+  forelist[["Nforecastyrs"]] <- nyrs_assess # SINGLE_RUN_MODS: forelist[["Nforecastyrs"]] <- 0 # SINGLE_RUN_MODS: remove 
+  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1 # SINGLE_RUN_MODS: remove 
   forelist[["InputBasis"]] <- 3 # SINGLE_RUN_MODS: remove
   forelist[["ControlRuleMethod"]] <- 1 # SINGLE_RUN_MODS: remove
   forelist[["BforconstantF"]] <- 0.001 # SINGLE_RUN_MODS: remove
@@ -123,6 +126,7 @@ create_OM <- function(OM_out_dir,
   
   # SINGLE_RUN_MODS: refactor this to be values put directly into the OM data 
   # alternatively remove this and force the user to always run the EM in the first year which makes sense
+  # KD: I think it makes sense that an EM would always be run with years identical to the historical period of the OM (years for which there is actual data?)
   
   # put together a Forecatch dataframe using retained catch as a starting point for the OM
   # this would only matter if an EM assessment is not run in the first year.
@@ -182,7 +186,9 @@ create_OM <- function(OM_out_dir,
     )
   }
   
-  # SINGLE_RUN_MODS: add code to turn on parameter devs for the appropriate parameters in the ctl file and initialize mean and sd pars to some default value
+  # SINGLE_RUN_MODS: add code to turn on parameter devs for the appropriate 
+  # parameters in the ctl file/parfile and initialize mean and sd pars to some 
+  # default value. DO this in 1 or several separate functions.
   
   # SINGLE_RUN_MODS: modify this code to add in rec devs for all years not just nasses years.
   # this shouldn't be too bad as fixing the main rec devs phase means all the values stay in the recdev_forecast input I think.
@@ -190,6 +196,8 @@ create_OM <- function(OM_out_dir,
   # QUESTION: How does Rick implement average recruitement in the forecast period? I assume all our rec devs are around the SR relationship
   # if we want a fixed recruitment we would need to modify the SR params or do an iterative search to compensate for the SR results.
   # I don't think there is anywhere to input fixed absolute recruitment values.
+  # KD: see manual: forecast recruitment options. There is no way to input a fixed recruitment to forecasting, though this maybe could be hacked by inputs to the par file and no estimation?
+  # KD: I thought we weren't using any forecast period, just putting the entire om within the model years?
   
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
@@ -239,7 +247,7 @@ create_OM <- function(OM_out_dir,
   } else if (!is.null(parlist[["recdev2"]])) {
     parlist[["recdev2"]] <- new_recdevs_mat
   } else {
-    stop("no recdevs in initial OM model")
+    stop("no recdevs in initial OM model") #KD: is this stop msg necessary? hmm...
   }
 
   # SINGLE_RUN_MODS: Add F_rates for all years of the future simulation if they are not already included.
@@ -326,6 +334,7 @@ create_OM <- function(OM_out_dir,
       verbose = verbose,
       debug_par_run = TRUE
     )
+    #note: the 1st check below may be unnecessary since debug_par_run above = TRUE.
     if (!file.exists(file.path(OM_out_dir, "control.ss_new"))) {
       stop(
         "The OM model created is not valid; it did not run and produce a\n",
@@ -341,17 +350,20 @@ create_OM <- function(OM_out_dir,
       warn = FALSE, covar = FALSE, readwt = FALSE,
       printstats = FALSE
     )
-    # check F's in the assumed order.
+    # check F's in the assumed order. If they are not, then SSMSE isn't coded
+    # correctly.
     par_df <- test_output[["parameters"]]
     init_F_pars <- par_df[grep("^InitF_", par_df[["Label"]]), ]
     if (NROW(init_F_pars) != length(F_list[["init_F"]])) {
-      stop("Wrong number of init_F parameters assumed by create_OM function.")
+      stop("Wrong number of init_F parameters assumed by create_OM function.", 
+           "Please open an issue: https://github.com/nmfs-fish-tools/SSMSE")
     }
     if (NROW(init_F_pars) > 0) {
       if (!all(init_F_pars[["Label"]] == names(F_list[["init_F"]]))) {
         stop(
           "Names of init_F parameters assumed by create_OM function and in\n",
-          "the PARAMETERS table of Report.sso function do not match."
+          "the PARAMETERS table of Report.sso function do not match.", 
+          "Please open an issue: https://github.com/nmfs-fish-tools/SSMSE"
         )
       }
     }
@@ -363,7 +375,8 @@ create_OM <- function(OM_out_dir,
       if (!all(F_rate_pars[["Label"]] == F_list[["F_rate"]][["name"]])) {
         stop(
           "Names of F_rate parameters assumed by create_OM function and in\n",
-          "the PARAMETERS table of Report.sso function do not match."
+          "the PARAMETERS table of Report.sso function do not match.", 
+          "Please open an issue: https://github.com/nmfs-fish-tools/SSMSE"
         )
       }
     }
