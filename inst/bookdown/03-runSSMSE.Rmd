@@ -92,7 +92,7 @@ Users can specify the sampling during the historical period of the model through
 
 ## Future changes to the operating model (#future)
 
-By default, SSMSE will simply extend the structure of the OM into the future using the same values as in the last year of the model. However, it is likely that the user will want to allow changes to occur as the OM is extended forward in time. User can input values into the `future_om_list` to accomplish this. This input is a list of lists. The first level of lists specify 1 type of change. Within that first level, there are 4 list components. There are 2 main choices: 1) to specify model changes by telling SSMSE how it should sample values or 2) to input your own custom values for a given parameter. 
+By default, SSMSE will simply extend the structure of the OM into the future using the same parameter values as in the last year of the model. However, it is likely that the user will want to allow changes in parameter values to occur as the OM is extended forward in time. User can input values into the `future_om_list` to accomplish this. This input is a list of lists. The first level of lists specify 1 type of change. Within the first level, there are 4 list components. There are 2 main choices: 1) to specify model changes by telling SSMSE how it should sample values or 2) to input your own custom values for a given parameter. 
 
 ### The strucutre of `future_om_list`
 
@@ -116,16 +116,16 @@ Note there is just one change specified here. For that change, there are four li
 
 In this case, we just want to apply the change to the `"SizeSel_P_3_Fishery(1)"` parameter of the model.
 
-2. The second item is "scen", which contains a vector of information about how to apply the changes within and across scenarios. The first value is an option to specify how the change should be applied across scenario, either "randomize" (use a different value for each iteration of each scenario) or replicate (use the same set of values across scenarios, but each value will be different across iterations within the same scenario). Note that the same values will be applied across iterations and scenarios if there isn't any stochasisity in the values being drawn - this is the case  in this example. Following the first values are the names of the scenarios to apply the change to. Or if the change should be applied to scenarios, "all" can be used in place of naming every scenario. In this example, The change will only be applied to the scenario named "scen2".
+2. The second item is "scen", which contains a vector of information about how to apply the changes within and across scenarios. The first value is an option to specify how the change should be applied across scenario, either "randomize" (use a different value for each iteration of each scenario) or "replicate" (use the same set of values across scenarios, but each value will be different across iterations within the same scenario). Note that the same values will be applied across iterations and scenarios if there isn't any stochasisity in the values being drawn, regardless if "randomize" or "replicate" is chosen - this is the case  in this example. Following the first values are the names of the scenarios to apply the change to. Or if the change should be applied to scenarios, "all" can be used in place of naming every scenario. In this example, The change will only be applied to the scenario named "scen2", so the input for "scen" is `c("randomize", "scen2")`
 
 3. The "pattern" is a a vector of string inputs. The first value should be either "model_change", meaning that SSMSE will calculate the change values, or "custom" which allows the user to directly put in the change values that they want in the model.For a given year. In this case, "model_change" is used. A second input can also be added when the "model_change" pattern is being use, which specifies the distribution to pull from. This could be "normal" or "lognormal", but if no input is provided, the default is a normal distribution.
 
-4. The fourth item, named "input", is a dataframe, which contains different column name values depending on if the "model_change" pattern is used or if the "custom" pattern is used. For the model_change options, we have a dataframe that outlines a change for the parameter of a distribution. Because we are using the model change option, we have the following columns:
-* first_yr_averaging: The first year to average historical values from the model, if using for the change (NA in our example)
-* last_yr_averaging: The last year to average historical values from the model, if using for the change (NA in our example)
+4. The fourth item, named "input", is a dataframe, which contains different column name values depending on if the "model_change" pattern is used or if the "custom" pattern is used. For the model_change options, a dataframe in input speciefies a change for the parameter of a distribution. Because we are using the model change option, we have the following columns:
+* first_yr_averaging: The first year to average historical values from the model, if using for the change (`NA` in our example)
+* last_yr_averaging: The last year to average historical values from the model, if using for the change (`NA` in our example)
 * last_yr_orig_val: The last year of the future deviations with the original model value. This value will not be changed.
 * first_yr_final_val: The first year where the final value as specified will be reached. If no future changes are made, the final value will just be continued forward in the OM. For step changes, the first_yr_final_val is just 1 year after the last_yr_orig_val. However, if a more gradual adjustment toward the final value is desired, this could be any number of years after the original value.
-* ts_param: This is the parameter to  modify. Options are "mean", "ar_1_q_param" (if using autocorrelation), "sd". If not included in the dataframe, "mean" is assumed to be the same as in the previous model year, sd is assumed to be 0, and we assume no autocorrelation (as specified through an autoregsive AR1 process).
+* ts_param: This is the parameter to  modify. Options are "mean", "ar_1_q_param" (if using autocorrelation), "sd", and "cv". *(note: make sure cv is implemented)* If not included in the dataframe, "mean" is assumed to be the same as in the previous model year, sd is assumed to be 0, and we assume no autocorrelation (as specified through an autoregsive AR1 process).
 * method: How to apply the change relative to the historical (if specified) or previous year's value (if first_yr_averaging and last_yr_averaging for that row are NA). Options are "multiplicative", "additive", and "absolute". This example uses "absolute, meaning that the number in "value" will just be directly used.
 * value. The value of the parameter change.
 
@@ -149,13 +149,34 @@ new_vals <- data.frame(first_yr_averaging = NA,
                        first_yr_final_val = 104, 
                        ts_param = "sd", 
                        value = 0.1)
-my_future_om_list[[1]][["input"]] <- rbind(my_future_om_list[[1]][["input"]], new_vals)
+my_future_om_list[[1]][["input"]] <- rbind(my_future_om_list[[1]][["input"]],
+                                           new_vals)
 my_future_om_list[[1]]
 ```
 
 ### Example of using historical values for determining parameter values
 
-*to add*
+This example applies a random jitter to all parametero for scenario scen2 and 
+scen3.
+
+```{r}
+
+future_om_list_2 <- vector(mode = "list", length = 1)
+future_om_list_2 <- lapply(future_om_list_2, function (x) x <- vector(mode = "list", length = 4))
+names(future_om_list_2[[1]]) <- c("pars", "scen", "pattern", "input")
+
+future_om_list_2[[1]][["pars"]] <- "all"
+future_om_list_2[[1]][["scen"]] <- c("randomize", "scen2", "scen3")
+future_om_list_2[[1]][["pattern"]] <- "model_change" # defaults to using normal dist
+future_om_list_2[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, 1),
+                                               last_yr_averaging = c(100, 100),
+                                               last_yr_orig_val = c(100, 100),
+                                               first_yr_final_val = c(101, 101), 
+                                               ts_param = c("cv", "mean"),
+                                               method = c("absolute", "multiplier"), 
+                                               value = c(0.1, 1))
+```
+
 
 ### Example using "custom" pattern instead of "model_change"
 
@@ -166,12 +187,12 @@ custom_future_om_list
 
 ```
 
-The parameters are similar, but note that there is no need to specify a distribution as the second input of "pattern", and that the column names in input are different. Also that the change is "randomized", which indicates that a value for each scenario and each iteration are necessary, whereas if the first value of "scen" was "replicate", separate values for each scenario should not be specified, but rather a single value for "all" should be used. The columns in the dataframe are:
+The parameters are similar, but note that there is no need to specify a distribution as the second vector input of "pattern", and that the column names in input are different. Also that the change is "randomized", which indicates that a value for each scenario and each iteration are necessary, whereas if the first value of "scen" was "replicate", separate values for each scenario should not be specified, but rather a single value for "all" should be used. The columns in the dataframe are:
 
-* parameter: the parameter name or "all" if it should be applied to all parameters in the "pars" input.
-* scenario: which scenario the value should apply to, or "all" if "replicate" is used as the scenario input.
-* iteration: which number iteration the value should apply to. These are relative iteration numbers rather than absolute (e.g., if the first iteration being run through the run_SSMSE call is 30, then iteration = 1 would specify the value for iteration 30). 
-* year: the year the value applies to. These should be after the original end year of the OM.
+* par: the parameter name or "all" if it should be applied to all parameters in the "pars" input.
+* scen: which scenario the value should apply to, or "all" if "replicate" is used as the scenario input.
+* iter: which number iteration the value should apply to. These are relative iteration numbers rather than absolute (e.g., if the first iteration being run through the run_SSMSE call is 30, then iteration = 1 would specify the value for iteration 30). 
+* yr: the year the value applies to. These should be after the original end year of the OM.
 * value: the value to apply to the model
 
 ### How is SS modified to accomodate changes in the future OM?
