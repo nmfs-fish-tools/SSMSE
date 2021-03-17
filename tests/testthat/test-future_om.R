@@ -142,6 +142,19 @@ future_om_list_4[[2]][["input"]] <- data.frame(
   #maybe just a couple of options like normal, lognormal, and uniform? not sure if others would be needed? just a thought. YES, for the model change option.
 )
 
+
+# Time-varying parameter input dataframe
+# This object will be passed from a sampling function that calculates environmental linkage devs 
+# to a file update function that modifies SS files to incorporate new timevarying impacts
+nyrs=100 #the total number of years to run MSE simulations for
+Time_varying_devs <- data.frame(rec_devs=rnorm(nyrs),#The functions I'm using are just examples. just input a vector of values of length nyrs
+                                LnQ_base_Survey_2=rnorm(nyrs), #We will need to modify the naming of some par slightly like this one to not have brackets
+                                Env_1=rnorm(nyrs), #I think we should use Env_n or something similar for when we are extending an existing environmental index
+                                NatM_p_1_Fem_GP_1=rnorm(nyrs),
+                                impl_error=rep(0,nyrs)
+                                )
+
+
 test_that("Input checks work", {
   future_om_list_new <- check_future_om_list_str(future_om_list)
   expect_equal(future_om_list_new, future_om_list)

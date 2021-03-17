@@ -333,7 +333,7 @@ create_OM <- function(OM_out_dir,
     if (!is.null(dat[["age_info"]])) dat[["age_info"]][["mintailcomp"]] <- -1
   }
   
-  # SINGLE_RUN_MODS: single_run_files<-extend_OM_full_period(clt,dat,parlist,future_om_list,nyrs)
+  # SINGLE_RUN_MODS: single_run_files<-extend_OM_full_period(ctl,dat,parlist,future_om_list,nyrs,nscen,niter)
   # SINGLE_RUN_MODS: dat<-single_run_files$dat
   # SINGLE_RUN_MODS: ctl<-single_run_files$ctl
   # SINGLE_RUN_MODS: parlist<-single_run_files$parlist
