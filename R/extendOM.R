@@ -30,14 +30,16 @@
 extend_OM <- function(catch,
                       discards,
                       harvest_rate = NULL,
+                      # SINGLE_RUN_MODS: EM_pars = NULL, This will let EM specified pars be passed in directly 
+                      # SINGLE_RUN_MODS: Linked_pars = NULL, We may need to update some pars based on linkages such as SSB?? if so may be easier to pass in a reference to this?
                       OM_dir,
-                      sample_struct = NULL,
-                      future_om_list = NULL,
-                      nyrs_extend = 3,
+                      sample_struct = NULL, # SINGLE_RUN_MODS: delete
+                      future_om_list = NULL, # SINGLE_RUN_MODS: delete may be better to have the EM directly pass the appropriate pars if needed and given the single run no other pars need updating
+                      nyrs_extend = 3, # SINGLE_RUN_MODS: delete
                       # SINGLE_RUN_MODS: dat_yrs = NULL,
                       write_dat = TRUE,
-                      rec_devs = NULL,
-                      impl_error = NULL,
+                      rec_devs = NULL, # SINGLE_RUN_MODS: delete
+                      impl_error = NULL, # SINGLE_RUN_MODS: delete
                       verbose = FALSE,
                       seed = NULL) {
   #TODO: implement using the future_om_list in this function.
@@ -70,19 +72,23 @@ extend_OM <- function(catch,
   )
   # read in forecast file
   # SINGLE_RUN_MODS: don't need to read in forecast once we move to directly updating values in the model period
-  forelist <- r4ss::SS_readforecast(
-    file = file.path(OM_dir, "forecast.ss"),
-    readAll = TRUE, verbose = FALSE
-  )
+  forelist <- r4ss::SS_readforecast( # SINGLE_RUN_MODS: delete
+    file = file.path(OM_dir, "forecast.ss"), # SINGLE_RUN_MODS: delete
+    readAll = TRUE, verbose = FALSE # SINGLE_RUN_MODS: delete
+  ) # SINGLE_RUN_MODS: delete
 
-  if (max(catch[["year"]]) > (dat[["endyr"]] + nyrs_extend)) {
-    stop(
-      "The maximum year input for catch is ", max(catch[["year"]]), ", but the ",
-      " nyrs_extend used in function extend_OM only extends the model to the year ",
-      (dat[["endyr"]] + nyrs_extend), ". Please either remove years of catch data or ",
-      "the end year of the model longer."
-    )
-  }
+  # SINGLE_RUN_MODS: No real need for this check as we are working in Fs that cap at 1.5 better just to give a 
+  # warning that the fishery bounded at an F limit. Even better would be to require that users put in an F limit
+  # for their fleets.
+  if (max(catch[["year"]]) > (dat[["endyr"]] + nyrs_extend)) { # SINGLE_RUN_MODS: delete
+    stop( # SINGLE_RUN_MODS: delete
+      "The maximum year input for catch is ", max(catch[["year"]]), ", but the ", # SINGLE_RUN_MODS: delete
+      " nyrs_extend used in function extend_OM only extends the model to the year ", # SINGLE_RUN_MODS: delete
+      (dat[["endyr"]] + nyrs_extend), ". Please either remove years of catch data or ", # SINGLE_RUN_MODS: delete
+      "the end year of the model longer." # SINGLE_RUN_MODS: delete
+    ) # SINGLE_RUN_MODS: delete
+  } # SINGLE_RUN_MODS: delete
+  
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
   }
@@ -94,7 +100,8 @@ extend_OM <- function(catch,
     warn = FALSE
   )
 
-  # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM
+
+  # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM  # SINGLE_RUN_MODS: delete
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
   forelist[["Nforecastyrs"]] <- nyrs_extend # should already have this value, but just in case. # SINGLE_RUN_MODS: delete
@@ -121,7 +128,7 @@ extend_OM <- function(catch,
   colnames(temp_comb) <- c("year", "seas", "fleet", "catch", "basis")
   catch_intended <- temp_comb
 
-  # SINGLE_RUN_MODS: 
+  # SINGLE_RUN_MODS: This adds a reference pointer for what row of the par file Fs the input catch target represents
   # F_ref<-rep(1,length(catch_intended[,1]))
   # for(i in 1:length(F_ref)){
   #   F_ref[i] <- which(parlist$F_rate[,c("year")]==catch_intended[i,c("year")] & 
@@ -143,13 +150,25 @@ extend_OM <- function(catch,
   ) # SINGLE_RUN_MODS: delete
 
   
-  parlist[["recdev_forecast"]] <- rbind(old_recs, new_recs) # SINGLE_RUN_MODS: update this to modify the relevent years rec devs if needed
+  parlist[["recdev_forecast"]] <- rbind(old_recs, new_recs) # SINGLE_RUN_MODS: update this to modify the relevant years rec devs if needed i.e. parlist[["recdev_forecast"]][is.element(parlist[["recdev_forecast"]][,"year"],dat_yrs),"recdev"]<-EM_recs[,"recdev"]
 
   # implementation error should always be 0 in the OM
   parlist[["Fcast_impl_error"]] <- # SINGLE_RUN_MODS: delete \
     get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]])) # SINGLE_RUN_MODS: delete
 
-  # SINGLE_RUN_MODS: add in functions to update other parameter devs as required 
+  # SINGLE_RUN_MODS: add in function to update other parameter devs as required 
+  # parlist <- update_pars(parlist,future_om_list,dat_yrs)
+  
+  update_pars<-function(parlist,future_om_list,dat_yrs){
+    #Thinking about the update function here it is maybe easier to cull the future_om_list each time it is passed down to a 
+    #scenario or iteration rather than passing down 
+    
+  }
+  
+  
+  
+  
+  
   
   # SINGLE_RUN_MODS: also need to update the F's in Par file to good starting guesses??
   # maybe don't need too just let it run with whatever the base values are to start??
@@ -170,7 +189,7 @@ extend_OM <- function(catch,
     search_loops <- search_loops + 1
     forelist[["ForeCatch"]] <- temp_comb # SINGLE_RUN_MODS: delete
     
-    # write out the changed forecast file ----
+    # write out the changed forecast file ---- # SINGLE_RUN_MODS: delete
     r4ss::SS_writeforecast( # SINGLE_RUN_MODS: delete
       mylist = forelist, dir = OM_dir, writeAll = TRUE, # SINGLE_RUN_MODS: delete
       overwrite = TRUE, verbose = FALSE # SINGLE_RUN_MODS: delete

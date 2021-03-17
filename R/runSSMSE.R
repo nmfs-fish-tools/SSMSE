@@ -347,6 +347,7 @@ run_SSMSE <- function(scen_name_vec,
     # run for each scenario
     return_df <- run_SSMSE_scen(
       scen_name = names(scen_list)[i],
+      nscen = i,
       out_dir_scen = tmp_scen[["out_dir_scen"]],
       iter = tmp_scen[["iter"]],
       OM_name = tmp_scen[["OM_name"]],
@@ -385,6 +386,7 @@ run_SSMSE <- function(scen_name_vec,
 #' a management strategy evaluation using Stock Synthesis as the Operating Model
 #' @param scen_name Name of the scenario. The directory containing all the model
 #'  runs the scenario will be stored within a folder of this name.
+#' @param nscen Which scenario is this. Integer value >=1
 #' @param out_dir_scen The directory to which to write output. IF NULL, will
 #'  default to the working directory.
 #' @param iter The number of iterations for the scenario. A single integer
@@ -468,6 +470,7 @@ run_SSMSE <- function(scen_name_vec,
 #' }
 #'
 run_SSMSE_scen <- function(scen_name = "scen_1",
+                           nscen = 1,
                            out_dir_scen = NULL,
                            iter = 2,
                            OM_name = "cod",
@@ -551,6 +554,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           nyrs_assess = nyrs_assess,
           rec_dev_iter = rec_devs_scen[[i]],
           impl_error = impl_error[[i]],
+          nscen = nscen,
+          scen_name = scen_name,
           niter = max_prev_iter + i,
           run_EM_last_yr = run_EM_last_yr,
           iter_seed = iter_seed,
@@ -582,6 +587,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         nyrs_assess = nyrs_assess,
         rec_dev_iter = rec_devs_scen[[i]],
         impl_error = impl_error[[i]],
+        nscen = nscen,
+        scen_name = scen_name,
         niter = max_prev_iter + i,
         run_EM_last_yr = run_EM_last_yr,
         iter_seed = iter_seed,
@@ -655,6 +662,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
 #' @param impl_error An implementation error vector for the iteration.
 #'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
+#' @param nscen The scenario number.
+#' @param scen_name Name of the scenario. The directory containing all the model
+#'  runs the scenario will be stored within a folder of this name.
 #' @param niter The iteration number, which is also the name of the folder the
 #'  results will be written to.
 #' @param iter_seed List containing fixed seeds for this iteration.
@@ -742,6 +752,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            nyrs_assess = 3,
                            rec_dev_iter = NULL,
                            impl_error = NULL,
+                           nscen = 1,
+                           scen_name = NULL,
                            niter = 1,
                            iter_seed = NULL,
                            sample_struct = NULL,
@@ -756,6 +768,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_any_of(nyrs, c("integer", "numeric"))
   assertive.types::assert_is_any_of(nyrs_assess, c("integer", "numeric"))
   assertive.types::assert_is_any_of(niter, c("integer", "numeric"))
+  assertive.types::assert_is_any_of(nscen, c("integer", "numeric"))
   if (!is.null(sample_struct)) {
     assertive.types::assert_is_list(sample_struct)
     check_sample_struct(sample_struct)
@@ -826,7 +839,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   create_OM(
     OM_out_dir = OM_out_dir, overwrite = TRUE,
     sample_struct_hist = sample_struct_hist, verbose = verbose, writedat = TRUE, nyrs = nyrs,
-    nyrs_assess = nyrs_assess, rec_devs = rec_dev_iter, future_om_list = future_om_list,
+    nyrs_assess = nyrs_assess, nscen = nscen, niter = niter, rec_devs = rec_dev_iter, future_om_list = future_om_list,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
 
