@@ -321,10 +321,10 @@ run_SSMSE <- function(scen_name_vec,
     }
     if (!is.null(n_cores)) {
       n_cores <- min(max(n_cores, 1), (detectCores() - 1))
-      cl <- parallel::makeCluster((n_cores))
+      cl <- parallel::makeCluster((n_cores), setup_strategy = "sequential")
       doParallel::registerDoParallel(cl, cores = (n_cores))
     } else {
-      cl <- parallel::makeCluster((detectCores() - 1))
+      cl <- parallel::makeCluster((detectCores() - 1), setup_strategy = "sequential")
       doParallel::registerDoParallel(cl, cores = (detectCores() - 1))
     }
   }
