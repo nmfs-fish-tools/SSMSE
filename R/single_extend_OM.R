@@ -56,8 +56,7 @@ extend_OM_full_period <- function(ctl, dat, parlist, future_om_list, nyrs, nscen
 #' 
 #' 
 get_dev_loc <- function(ctl){
-  pars<-ctl[[""]]
-}
+  parvals<-ctl[[""]]
 
 
 #Build mortality and growth parameter list
@@ -98,7 +97,7 @@ if(length(grep("MGparm",parvals))>0){
   parlist$MG_parms[,2] <- MG_seq
 }
 
-
+}
 
 
 #' Get time varying parameter labels
