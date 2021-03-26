@@ -146,7 +146,7 @@ future_om_list_4[[2]][["input"]] <- data.frame(
 # Time-varying parameter input dataframe
 # This object will be passed from a sampling function that calculates environmental linkage devs 
 # to a file update function that modifies SS files to incorporate new timevarying impacts
-nyrs=100 #the total number of years to run MSE simulations for
+nyrs <- 100 #the total number of years to run MSE simulations for
 Time_varying_devs <- data.frame(rec_devs=rnorm(nyrs),#The functions I'm using are just examples. just input a vector of values of length nyrs
                                 LnQ_base_Survey_2=rnorm(nyrs), #We will need to modify the naming of some par slightly like this one to not have brackets
                                 Env_1=rnorm(nyrs), #I think we should use Env_n or something similar for when we are extending an existing environmental index
@@ -254,4 +254,15 @@ test_that("Checks with scen info does catch bad input", {
   expect_error(check_future_om_list_vals(future_om_list = bad_future_om_list, 
                                          scen_list = scen_list), 
                "Expecting 90, but there are 89 rows")
+})
+
+test_that("Creating the devs df works", {
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
+  devs_df <- convert_future_om_list_to_devs_df(
+    future_om_list = future_om_list, 
+    scen_name = "scen2", 
+    niter  = 1, 
+    om_mod_path = om_path, nyrs = 10, tvdevs = Time_varying_devs)
 })
