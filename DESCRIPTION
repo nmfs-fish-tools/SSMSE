@@ -38,6 +38,6 @@ Suggests:
     parallel,
     foreach
 Remotes:
-    r4ss/r4ss@development,
+    r4ss/r4ss@main,
     ss3sim/ss3sim@development,
     bitbucket::richierocks/assertive.base
