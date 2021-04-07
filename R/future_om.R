@@ -60,9 +60,9 @@ create_future_om_list <- function(example_type = c("model_change", "custom"),
 #' @return The future_om_list with implicit arguments made explicit
 check_future_om_list_str <- function(future_om_list) {
   # warning provided until future_om_list is used within SSMSE
-  if(isTRUE(!is.null(future_om_list))) {
-    warning("future_om_list is not yet being used by SSMSE.")
-  }
+  # if(isTRUE(!is.null(future_om_list))) {
+  #   warning("future_om_list is not yet being used by SSMSE.")
+  # }
   list_nums <- seq_along(future_om_list)
   # general strucure checks
   future_om_list_mod <- mapply(FUN = function(x, elem_num) {
