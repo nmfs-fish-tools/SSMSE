@@ -21,8 +21,8 @@ future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = 1,
                                              last_yr_orig_val = 100,
                                              first_yr_final_val = 101, 
                                              ts_param = "sd", 
-                                             method = "multiplier", 
-                                             value = 1) # jitter with a standard deviation equal to the historic standard deviation
+                                             method = "absolute", 
+                                             value = 0.01) # jitter with a standard deviation equal to 0.01
 
 
 # add values for selectivity curve param. step change occuring in year 103
@@ -198,27 +198,32 @@ future_om_list_2 <- check_future_om_list_str(future_om_list_2)
 future_om_list_3 <- check_future_om_list_str(future_om_list_3)
 future_om_list_4 <- check_future_om_list_str(future_om_list_4)
 
+scen_list <- create_scen_list(
+  scen_name_vec = c("scen1", "scen2", "scen3"),
+  out_dir_scen_vec = NULL,
+  iter_vec = 5,
+  OM_name_vec = "cod",
+  EM_name_vec = "cod",
+  MS_vec = "EM",
+  use_SS_boot_vec = TRUE,
+  nyrs_vec = c(6, 6, 6),
+  nyrs_assess_vec = 3
+)
 test_that("checks with scen info doesnt error with valid input", {
-  scen_list <- create_scen_list(
-    scen_name_vec = c("scen1", "scen2", "scen3"),
-    out_dir_scen_vec = NULL,
-    iter_vec = 5,
-    OM_name_vec = "cod",
-    EM_name_vec = "cod",
-    MS_vec = "EM",
-    use_SS_boot_vec = TRUE,
-    nyrs_vec = c(6, 6, 6),
-    nyrs_assess_vec = 3
-  )
    return_list <- check_future_om_list_vals(future_om_list = future_om_list, 
                                          scen_list = scen_list)
    expect_equal(return_list, future_om_list)
    return_list_2 <- check_future_om_list_vals(future_om_list = future_om_list_3, 
                                          scen_list = scen_list)
-   expect_equal(return_list_2, future_om_list_3)
+   expect_return <- future_om_list_3
+   expect_return[[1]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_return[[2]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_equal(return_list_2, expect_return)
    return_list_3 <- check_future_om_list_vals(future_om_list = future_om_list_4, 
                                               scen_list = scen_list)
-   expect_equal(return_list_3, future_om_list_4)
+   expect_return <- future_om_list_4
+   expect_return[[1]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_equal(return_list_3, expect_return)
 })
 
 test_that("Checks with scen info does catch bad input", {

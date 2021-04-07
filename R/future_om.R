@@ -119,7 +119,7 @@ check_future_om_list_str <- function(future_om_list) {
   invisible(future_om_list_mod)
 }
 
-#' Check structure of a future OM list against the scen_list
+#' Check structure of a future OM list against the scen_list and standardize output
 #' 
 #' Checks that a future OM list is valid when compared with the scen_list inputs
 #' @param future_om_list The future_om_list object to check.
@@ -129,7 +129,7 @@ check_future_om_list_str <- function(future_om_list) {
 check_future_om_list_vals <- function(future_om_list, scen_list) {
   list_nums <- seq_along(future_om_list)
 # more specific structure checks
-  mapply(FUN = function(x, elem_num, scen_list) {
+ future_om_list <-  mapply(FUN = function(x, elem_num, scen_list) {
     # TODO: add checks that pars are either rec_devs, impl_error, all, or 
     # valid names from the om model?
     # This is a tricky check, because the names may differ based on the scenario
@@ -187,6 +187,13 @@ check_future_om_list_vals <- function(future_om_list, scen_list) {
         }
       }
     }
+    #replace all scenario designation with the scenario names, in the order that
+    # they appear in the scenario list.
+    if(isTRUE(x[["scen"]][2] == "all")) {
+      x[["scen"]] <- x[["scen"]][1]
+      x[["scen"]] <- c(x[["scen"]], names(scen_list))
+    }
+    x
   }, future_om_list, list_nums, MoreArgs = list(scen_list = scen_list),
   SIMPLIFY = FALSE)
   invisible(future_om_list)
