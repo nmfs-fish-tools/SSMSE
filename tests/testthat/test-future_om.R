@@ -265,9 +265,11 @@ test_that("Creating the devs df works", {
   ext_files <- system.file(package = "SSMSE")
   om_path <- file.path(ext_files, "extdata", "models", "cod")
   future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
+  future_om_list <- check_future_om_list_vals(future_om_list = future_om_list,
+                                              scen_list =  scen_list)
   devs_df <- convert_future_om_list_to_devs_df(
-    future_om_list = future_om_list, 
-    scen_name = "scen2", 
-    niter  = 1, 
+    future_om_list = future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
     om_mod_path = om_path, nyrs = 10, tvdevs = Time_varying_devs)
 })

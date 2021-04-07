@@ -7,18 +7,29 @@
 #' @param iteration The scenario number
 #' @param om_mod_path Path to the OM files. Used to reference parameter names.
 #' @param nyrs The total number of years that the model will be extended forward.
+#' @param global_seed A global seed to set, then pull new seeds from global seed + 1.
+#' Defaults to 123.
 #' @author Kathryn Doering
 #' @return A dataframe of devs values with parameter names to put into the OM
 convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
-                                              niter, om_mod_path, nyrs, tvdevs 
+                                              niter, om_mod_path, nyrs, tvdevs,
+                                              global_seed = 123
                                               ) {
-  #Note: may need to think about how this function is called, as it may not be
-  # possible to call it for each iteration and scenario separately, as in some
-  # cases, values are shared across scenarios
   if(isTRUE(is.null(future_om_list))) { # in case future_om_list is NULL to start with.
     dev_vals_df <- NULL
     return(dev_vals_df)
   }
+  # create the seeds to use for each list element of future_om_list, one seed per element.
+  # add some arbitrary numbers to the global seed; but maybe there is a more
+  # thoughtful way to do this? 
+  seeds_to_use <- rep(global_seed, length.out = length(future_om_list)) + 
+                   seq(from = 235, by = 5, length.out = length(future_om_list))
+  
+  #add seeds (alternative to this would be adding the seeds to this list earlier)
+  future_om_list <- mapply(function(fut_list, seed) {
+    fut_list$seed <- seed
+    fut_list
+  }, fut_list = future_om_list, seed = seeds_to_use, SIMPLIFY = FALSE)
   # get rid of the list elements that don't apply to this scenario
   future_om_list <- lapply(future_om_list, function(fut_list, scen) {
      scenarios <- fut_list[["scen"]][-1]
@@ -32,7 +43,8 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
     dev_vals_df <- NULL
     return(dev_vals_df)
   }
-  dev_vals_list <- lapply(future_om_list, function(fut_list, om, nyrs) {
+
+  dev_vals_list <- lapply(future_om_list, function(fut_list, om, nyrs, scen) {
     # do sampling for things that require sampling
     if(fut_list[["pattern"]][1] == "model_change") {
       start <- r4ss::SS_readstarter(file = file.path(om, "starter.ss"), 
@@ -52,18 +64,56 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
       }
       # if there are no tv devs, than taking a historical average is unnecessary;
       # is just a single value
+      # this assumes a single value. will need to loop over pars instead fo
+      # some cases.
+      hist_val <- par[[where_par[["obj"]] ]][
+        rownames(par[[where_par[["obj"]]]])== where_par[["pars"]],
+        "ESTIM"]
+      # change seed used based on if replicate or random option is used.
       # next, look at distribution to see which ts_params to expect.
+      if(fut_list$scen == "randomize") {
+        # need a different seed for each scenario. Just add the number element
+        # the scen is to the seed (check: will this behave pseudorandomly?)
+        fut_list$seed <- fut_list$seed + which(fut_list$scen == scen)
+      }
       # see what tv_params are there. Fill in missing values for parameters that
-      # are not specified. 
+      # are not specified. (Skipping for now....)
       
-      # Do the sampling as needed. 
+      # TODO: finish this section. Do the sampling as needed. 
+      # sampling needs to be done if patttern is listed as model_change.
+      if(fut_list$pattern == "model_change") {
+        # sampling needs to be done.
+        dist <- fut_list$pattern[[2]]
+        # look at input df to determine what should be used to do the sampling
+        if(dist == "normal") { #need a mean and sd
+          # set up the default vaues first
+          tv_parms <- NA
+          mean <- hist_val # would need to add some deviation on this if tving
+          sd <- 1*mean # is 1 or the using a cv of 1 with most recent value a better default?
+          
+          # find the mean: 1) is a mean specified? If not, use the most recent
+          # value. 
+          if(isTRUE(any(fut_list$input$ts_param == "mean"))) {
+            # do some cals to figure out the mean value
+          }
+          # if it is specified: then parse this input to figure out what the 
+          # sampled mean should be.
+          # find the sd: 2) is the sd specified? If not, use sd of 1 to sample (or historical sd?)
+          if(isTRUE(any(fut_list$input$ts_param == "sd"))) {
+            # do some cals to figure out the mean value
+          }
+          
+        }
+      }
+      
+      
       # calculate the devs
       # put them in a new column of the dataframe.
       
       dev_vals_df
     }
     
-  }, om = om_mod_path, nyrs = nyrs)
+  }, om = om_mod_path, nyrs = nyrs, scen = scen_name)
   
   # transform values from list into a data frame
   # data.frame <- 

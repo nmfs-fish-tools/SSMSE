@@ -22,3 +22,7 @@
 # just truncate the values? Does it make sense to match up the values of years 
 # or just add them as relative years?
 
+# more thoughts ----
+# keep calcing recdevs at the iteration level. Assign a seed to use for each of
+# the changes (even if it is not applied to that particular scenario)
+# This should make it so the same sampled values can be recreated.
