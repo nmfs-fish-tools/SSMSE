@@ -37,5 +37,5 @@ Suggests:
     ggplot2
 Remotes:
     r4ss/r4ss@main,
-    ss3sim/ss3sim@development,
+    ss3sim/ss3sim@main,
     bitbucket::richierocks/assertive.base
