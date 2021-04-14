@@ -271,7 +271,7 @@ test_that("Creating the devs df works with sampling", {
     future_om_list = future_om_list,
     scen_name = "scen2",
     niter  = 1,
-    om_mod_path = om_path, nyrs = 10, tvdevs = Time_varying_devs) #tvdevs is just for viewing the expected output. can rm when done with development.
+    om_mod_path = om_path, nyrs = 10)
   expect_true(nrow(devs_df) == 10)
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SizeSel_P_3_Fishery(1)"))
   expect_equivalent(devs_df$yrs, 101:110)
@@ -290,8 +290,8 @@ test_that("Creating the devs df works with custom", {
     future_om_list = future_om_list_3,
     scen_name = "scen2",
     niter  = 1,
-    om_mod_path = om_path, nyrs = 9, # note: replaces years 107 to 110 with 0s since no values provided.
-    tvdevs = Time_varying_devs) # note: this is just to see what we want the output to look like for now.
+    om_mod_path = om_path, nyrs = 9 # note: replaces years 107 to 110 with 0s since no values provided.
+    )
   expect_true(nrow(devs_df) == 9)
   expect_equal(colnames(devs_df) , c("yrs", "VonBert_K_Fem_GP_1", "LnQ_base_Survey(2)"))
   expect_equivalent(devs_df[["yrs"]], 101:109)

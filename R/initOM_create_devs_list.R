@@ -12,7 +12,7 @@
 #' @author Kathryn Doering
 #' @return A dataframe of devs values with parameter names to put into the OM
 convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
-                                              niter, om_mod_path, nyrs, tvdevs,
+                                              niter, om_mod_path, nyrs, 
                                               global_seed = 123
                                               ) {
   if(isTRUE(is.null(future_om_list))) { # in case future_om_list is NULL to start with.
