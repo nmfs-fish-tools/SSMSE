@@ -301,4 +301,120 @@ test_that("Creating the devs df works with custom", {
   
 })
 
+test_that("Creating the devs df works with log normal dist", {
+  #TODO: get this up and running.
+  tmp_future_om_list <- vector(mode = "list", length = 2)
+  tmp_future_om_list <- lapply(tmp_future_om_list,
+    function (x) x <- vector(mode = "list", length = 4))
+  names(tmp_tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
+  
+  # add in vals for M and steepness. Jitter after year 101, with a log normal dist.
+  tmp_future_om_list[[1]][["pars"]] <- c("NatM_p_1_Fem_GP_1", "SR_BH_steep")
+  tmp_future_om_list[[1]][["scen"]] <- c("randomize","scen1", "scen2")
+  tmp_future_om_list[[1]][["pattern"]] <- c("model_change","lognormal")
+  tmp_future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = NA,
+                                               last_yr_averaging = NA,
+                                               last_yr_orig_val = 101,
+                                               first_yr_final_val = 102, 
+                                               ts_param = "sd", 
+                                               method = "absolute", 
+                                               value = log(0.02)) # jitter with a standard deviation equal to 0.01
+  
+  
+  # add values for selectivity curve param. step change occuring in year 103
+  tmp_future_om_list[[2]][["pars"]] <- "NatM_p_1_Fem_GP_1" # had to figure this out from reading in the par file.
+  tmp_future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
+  tmp_future_om_list[[2]][["pattern"]] <- c("model_change", "normal") # defaults to normal (with SD 0, mean at last yr of mod val?)
+  tmp_future_om_list[[2]][["input"]] <- data.frame(first_yr_averaging = NA, # NA b/c not using historical values
+                                               last_yr_averaging = NA, # NA b/c not using historical values
+                                               last_yr_orig_val = 106,
+                                               first_yr_final_val = 112, # use 12 years projection  
+                                               ts_param = "mean",
+                                               method = "additive", # need to implmeent this option
+                                               value =  0.2) # so at end should be 0.4
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list_3 <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list_3 <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                scen_list =  scen_list)
+  devs_df <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 12)
+  expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
+  expect_equivalent(devs_df[["yrs"]], 101:112)
+  # TODO: figure out how to characterize all of the changes. Just put in the 2 
+  # obvious (I think) values for now. 
+  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.4)
+  expect_equivalent(devs_df[1,"SR_BH_steep"], 0.65)
+  
+})
+
+test_that("Creating the devs df works with time series options", {
+  #TODO: get this up and running.
+  tmp_future_om_list <- vector(mode = "list", length = 2)
+  tmp_future_om_list <- lapply(tmp_future_om_list,
+                               function (x) x <- vector(mode = "list", length = 4))
+  names(tmp_tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
+  
+  # add in vals for M and steepness. Jitter after year 101, with a log normal dist.
+  tmp_future_om_list[[1]][["pars"]] <- c("NatM_p_1_Fem_GP_1", "SR_BH_steep")
+  tmp_future_om_list[[1]][["scen"]] <- c("randomize","scen1", "scen2")
+  tmp_future_om_list[[1]][["pattern"]] <- c("model_change","lognormal")
+  tmp_future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = NA,
+                                                   last_yr_averaging = NA,
+                                                   last_yr_orig_val = 101,
+                                                   first_yr_final_val = 102, 
+                                                   ts_param = c("sd", "ar_1_q_param"), # what is this param? order and q is different?
+                                                   method = "absolute", 
+                                                   value = c(log(0.02), 1))# jitter with a standard deviation equal to 0.02 (using log scale b/c log normal.)
+  
+  
+  # add values for selectivity curve param. step change occuring in year 103
+  tmp_future_om_list[[2]][["pars"]] <- "NatM_p_1_Fem_GP_1" # had to figure this out from reading in the par file.
+  tmp_future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
+  tmp_future_om_list[[2]][["pattern"]] <- c("model_change", "normal") # defaults to normal (with SD 0, mean at last yr of mod val?)
+  tmp_future_om_list[[2]][["input"]] <- data.frame(first_yr_averaging = NA, # NA b/c not using historical values
+                                                   last_yr_averaging = NA, # NA b/c not using historical values
+                                                   last_yr_orig_val = 106,
+                                                   first_yr_final_val = 112, # use 12 years projection  
+                                                   ts_param = "mean",
+                                                   method = "additive", # need to implmeent this option
+                                                   value =  0.2) # so at end should be 0.4
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list_3 <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list_3 <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                    scen_list =  scen_list)
+  devs_df <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 12)
+  expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
+  expect_equivalent(devs_df[["yrs"]], 101:112)
+  # TODO: figure out how to characterize all of the changes. Just put in the 2 
+  # obvious (I think) values for now. 
+  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.4)
+  expect_equivalent(devs_df[1,"SR_BH_steep"], 0.65)
+})
+
+test_that("Creating the devs df works with devs in initial model", {
+  #TODO: creat this test up and running.
+})
+
+test_that("Creating the devs df works for recdevs, implementation error", {
+  #TODO: creat this test up and running.
+  # note: do we want to limit users from modifying regime and R0 since they are 
+  # able to modify the recdevs?
+})
 
