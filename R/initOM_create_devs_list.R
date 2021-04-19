@@ -97,7 +97,7 @@ match_parname <- function(list_pars, par) {
                         data.frame(pars = rownames(par[["S_parms"]]),
                                    obj = "S_parms"))
   par_name_tbl <- rbind(par_name_tbl, 
-                        data.frame(pars = "rec_devs", obj = "recdevs1"))
+                        data.frame(pars = "rec_devs", obj = "recdev1"))
   if(isTRUE(list_pars == "all")) {
     # note that impl_error is not included in all for now; not sure if it should be?
     return(par_name_tbl)
@@ -106,10 +106,16 @@ match_parname <- function(list_pars, par) {
   where_pars <- match(list_pars, par_name_tbl[["pars"]])
   subset_parname_tbl <- par_name_tbl[where_pars,]
   est <- vector(mode = "numeric", length = nrow(subset_parname_tbl))
-  for(r in seq_len(nrow(subset_parname_tbl))) {
-    tmp_tbl <- par[[subset_parname_tbl[r, "obj"]]]
-    tmp_est <- tmp_tbl[ rownames(tmp_tbl) == subset_parname_tbl[r,"pars"],"ESTIM"]
-    est[r] <- tmp_est
+  for (r in seq_len(nrow(subset_parname_tbl))) {
+    if (subset_parname_tbl[r,"pars"] == "rec_devs") {
+       est[r] <- 0 # Is this the right assumption? or pull some val from recdevs1?
+    } else if (subset_parname_tbl[r, "pars"] == "impl_error") {
+       est[r] <- 0 # is this the right assumption? or pull some val from Fcast_impl_error?
+    } else {
+      tmp_tbl <- par[[subset_parname_tbl[r, "obj"]]]
+      tmp_est <- tmp_tbl[ rownames(tmp_tbl) == subset_parname_tbl[r,"pars"],"ESTIM"]
+      est[r] <- tmp_est
+    }
   }
   subset_parname_tbl <- cbind(subset_parname_tbl, data.frame(est = est))
   subset_parname_tbl
@@ -127,21 +133,28 @@ sample_devs <- function(mean,
                         ndevs, 
                         dist = c("normal", "lognormal")) {
   # checks
+  dist <- match.arg(dist, several.ok = FALSE)
   if(!is.na(ts_params)) {
     stop("sampling fxn for time series params not yet written")
   }
-  if(length(mean) > 1) {
-    assertive.properties::assert_is_of_length(mean, ndevs)
+  
+  if(length(mean) == 1) {
+    mean <- rep(mean, length = ndevs)
   }
-  if(length(sd) > 1) {
-    assertive.properties::assert_is_of_length(sd, ndevs)
+  assertive.properties::assert_is_of_length(mean, ndevs)
+
+  if(length(sd) == 1) {
+    sd <- rep(sd, length = ndevs)
   }
+  assertive.properties::assert_is_of_length(sd, ndevs)
   # sample
   set.seed(seed)
   devs <- switch(dist,
          normal = rnorm(n = ndevs, mean = mean, sd = sd), 
-         # user input is on the log scale? need to make this clear.
-         lognormal = rlnorm(n = ndevs, meanlog = mean, sdlog = sd)) 
+         # Is this right? Need to clairify if users input mu or mean, sigma or sd
+         # I'm not really sure what this is assuming right now?I think mu and
+         # sigma?
+         lognormal = rlnorm(n = ndevs, meanlog = log(mean), sdlog = sd)) 
   devs
 }
 
@@ -180,53 +193,43 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     # if there are no tv devs in the original model, than taking a historical
     # average is unnecessary.
     for(i in where_par$pars) {
-      # change seed used based on if replicate or random option is used.
-      # next, look at distribution to see which ts_params to expect.
-
-      # see what tv_params are there. Fill in missing values for parameters that
-      # are not specified. (Skipping for now....)
-      
       # TODO: finish this section. Do the sampling as needed. 
-      # sampling needs to be done if patttern is listed as model_change.
-      # look at input df to determine what should be used to do the sampling
-      if(fut_list$pattern[[2]] == "normal") { #need a mean and sd
-        ts_params <- NA  # not sure if this is really necessary; 
-        
-        # find the mean: 1) is a mean specified? If not, use the most recent
-        # value. 
-          # do some calcs to figure out the mean value
-          # this holds if the parameter isn't time varying 
-          # calculate the mean. The  below holds with or without a trend
-  
-          mean <- calc_par_trend(val_info = fut_list$input, 
-                                 val_line = "mean",
-                                 ref_parm_value = where_par[where_par$pars == i, "est"],
-                                 vals_df = vals_df, # use to potentially get trend start value.
-                                 parname = i
-                                 )
-          sd <- calc_par_trend(val_info = fut_list$input, 
-                               val_line = "sd",
-                               ref_parm_value = 0, # may not always be correct?
-                               vals_df = vals_df, # use to get trend start value, and last yr. 
+      ts_params <- NA  # not sure if this is really necessary; 
+      
+      # find the mean: 1) is a mean specified? If not, use the most recent
+      # value. 
+        # do some calcs to figure out the mean value
+        # this holds if the parameter isn't time varying 
+        # calculate the mean. The  below holds with or without a trend
+
+        mean <- calc_par_trend(val_info = fut_list$input, 
+                               val_line = "mean",
+                               ref_parm_value = where_par[where_par$pars == i, "est"],
+                               vals_df = vals_df, # use to potentially get trend start value.
                                parname = i
                                )
+        sd <- calc_par_trend(val_info = fut_list$input, 
+                             val_line = "sd",
+                             ref_parm_value = 0, # may not always be correct?
+                             vals_df = vals_df, # use to get trend start value, and last yr. 
+                             parname = i
+                             )
 
-            
-        # if it is specified: then parse this input to figure out what the 
-        # sampled mean should be.
-        # find the sd: 2) is the sd specified? If not, use sd of 1 to sample (or historical sd?)
-        if(isTRUE(any(!fut_list$input$ts_param %in% c("mean", "sd")))) {
-          stop("timeseries params not yet implemented")
-          # do some calcs to figure out the time varying parameter values
-          #TODO, but leave empty for now.
-        }
-        devs <- sample_devs(mean = mean, sd = sd, ts_params = ts_params,
-                                 ndevs = nyrs,
-                                 seed = fut_list$seed, dist = "normal")
-        # this works for 1 parameter only
-
-        vals_df[[i]] <- devs # Maybe these should just replace what is alredy there?
+          
+      # if it is specified: then parse this input to figure out what the 
+      # sampled mean should be.
+      # find the sd: 2) is the sd specified? If not, use sd of 1 to sample (or historical sd?)
+      if(isTRUE(any(!fut_list$input$ts_param %in% c("mean", "sd")))) {
+        stop("timeseries params not yet implemented")
+        # do some calcs to figure out the time varying parameter values
+        #TODO, but leave empty for now.
       }
+      devs <- sample_devs(mean = mean, sd = sd, ts_params = ts_params,
+                               ndevs = nyrs,
+                               seed = fut_list$seed, dist = fut_list$pattern[2] )
+      # this works for 1 parameter only
+
+      vals_df[[i]] <- devs # Maybe these should just replace what is alredy there?
 
       # Now, should have a complete list of the dev vals to apply
     }
@@ -257,7 +260,7 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   #'  more options for time varying parameters, perhaps.
   #' @ref_parm_value This is the historic parameter that the end trend value.
   #'  Can be NA if the there is no line in val_info for the given parameter
-  #' @vals_df Use to get start val and last year 
+  #' @vals_df Use to get start val and last year
   #' @parname Name of the parameter with devs from the SS model.
   #'  will reference, if using a relative method.
   calc_par_trend <- function(val_info,val_line = c("mean", "sd"), ref_parm_value, vals_df, parname) {
@@ -283,22 +286,28 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
       # use the start value
       return(start_val)
     }
-    yrs_out <- val_info$first_yr_final_val - val_info$last_yr_orig_val + 1
+    yrs_out <- val_info[val_info$ts_param == val_line, "first_yr_final_val"] -
+      val_info[val_info$ts_param == val_line, "last_yr_orig_val"] + 1
     if(is.na((yrs_out))) yrs_out <- 2 # this is just a ste
     # get end value
     end <- switch(
       val_info[val_info$ts_param == val_line, "method"], 
       absolute = val_info[val_info$ts_param == val_line, "value"], 
+      additive = val_info[val_info$ts_param == val_line, "value"]+ref_parm_value,
       multiplier = val_info[val_info$ts_param == val_line, "value"]*ref_parm_value)
     # Calculate a linear trend in between them
     trend <- seq(from = start_val, to = end, length.out = yrs_out)
     trend <- trend[-1] # because don't want to keep the year with the original value
     # after, want to keep the trend at the same value.
-    end_val <- rep(end, length.out = last_yr - val_info$first_yr_final_val)
+    end_val <- rep(end, length.out = last_yr - 
+      val_info[val_info$ts_param == val_line, "first_yr_final_val"] )
     trend <- c(trend, end_val)
     # before, want to keep the trend at the original value. This is not always needed.
-    if(val_info$last_yr_orig_val >= vals_df$yrs[1]) {
-      beg_val <- rep(start_val, length.out =  val_info$last_yr_orig_val - vals_df$yrs[1] + 1)
+    if(val_info[val_info$ts_param == val_line, "last_yr_orig_val"] >= 
+       vals_df$yrs[1]) {
+      beg_val <- rep(start_val, 
+        length.out =  val_info[val_info$ts_param == val_line,
+                               "last_yr_orig_val"] - vals_df$yrs[1] + 1)
       trend <- c(beg_val, trend)
     }
     trend

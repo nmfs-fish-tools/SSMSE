@@ -306,10 +306,11 @@ test_that("Creating the devs df works with log normal dist", {
   tmp_future_om_list <- vector(mode = "list", length = 2)
   tmp_future_om_list <- lapply(tmp_future_om_list,
     function (x) x <- vector(mode = "list", length = 4))
-  names(tmp_tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
-  names(tmp_tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
   
   # add in vals for M and steepness. Jitter after year 101, with a log normal dist.
+  # note users inputs for lognormal should be on the nominal scale still
   tmp_future_om_list[[1]][["pars"]] <- c("NatM_p_1_Fem_GP_1", "SR_BH_steep")
   tmp_future_om_list[[1]][["scen"]] <- c("randomize","scen1", "scen2")
   tmp_future_om_list[[1]][["pattern"]] <- c("model_change","lognormal")
@@ -319,7 +320,7 @@ test_that("Creating the devs df works with log normal dist", {
                                                first_yr_final_val = 102, 
                                                ts_param = "sd", 
                                                method = "absolute", 
-                                               value = log(0.02)) # jitter with a standard deviation equal to 0.01
+                                               value = 0.02) # jitter with a standard deviation equal to 0.01
   
   
   # add values for selectivity curve param. step change occuring in year 103
@@ -335,8 +336,8 @@ test_that("Creating the devs df works with log normal dist", {
                                                value =  0.2) # so at end should be 0.4
   ext_files <- system.file(package = "SSMSE")
   om_path <- file.path(ext_files, "extdata", "models", "cod")
-  tmp_future_om_list_3 <- check_future_om_list_str(future_om_list = tmp_future_om_list)
-  tmp_future_om_list_3 <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
                                                 scen_list =  scen_list)
   devs_df <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list,
@@ -355,13 +356,41 @@ test_that("Creating the devs df works with log normal dist", {
   
 })
 
+test_that("Creating the devs df works for recdevs, implementation error", {
+  #TODO: creat this test up and running.
+  # note: do we want to limit users from modifying regime and R0 since they are 
+  # able to modify the recdevs?
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list_4 <- check_future_om_list_str(future_om_list = future_om_list_4)
+  tmp_future_om_list_4 <- check_future_om_list_vals(future_om_list = tmp_future_om_list_4,
+                                                  scen_list =  scen_list)
+  # remove time varying parameter for now, b/c not yet implemented
+  tmp_future_om_list_4[[1]]$input <-  tmp_future_om_list_4[[1]]$input[1,]
+  
+  devs_df <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list_4,
+    scen_name = "scen3",
+    niter  = 3,
+    om_mod_path = om_path, nyrs = 6
+  )
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 6)
+  expect_equal(colnames(devs_df) , c("yrs", "rec_devs", "impl_error"))
+  expect_equivalent(devs_df[["yrs"]], 101:106)
+  # TODO:add better expectation for recdevs (not sure how this would work for multi area models)
+  expect_true(all(devs_df$rec_devs != 0))
+  expect_true(all(devs_df[["impl_error"]] == 1.1))
+  
+})
+
 test_that("Creating the devs df works with time series options", {
   #TODO: get this up and running.
   tmp_future_om_list <- vector(mode = "list", length = 2)
   tmp_future_om_list <- lapply(tmp_future_om_list,
                                function (x) x <- vector(mode = "list", length = 4))
-  names(tmp_tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
-  names(tmp_tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
   
   # add in vals for M and steepness. Jitter after year 101, with a log normal dist.
   tmp_future_om_list[[1]][["pars"]] <- c("NatM_p_1_Fem_GP_1", "SR_BH_steep")
@@ -373,7 +402,7 @@ test_that("Creating the devs df works with time series options", {
                                                    first_yr_final_val = 102, 
                                                    ts_param = c("sd", "ar_1_q_param"), # what is this param? order and q is different?
                                                    method = "absolute", 
-                                                   value = c(log(0.02), 1))# jitter with a standard deviation equal to 0.02 (using log scale b/c log normal.)
+                                                   value = c(0.02, 1))# jitter with a standard deviation equal to 0.02 (using log scale b/c log normal.)
   
   
   # add values for selectivity curve param. step change occuring in year 103
@@ -389,8 +418,8 @@ test_that("Creating the devs df works with time series options", {
                                                    value =  0.2) # so at end should be 0.4
   ext_files <- system.file(package = "SSMSE")
   om_path <- file.path(ext_files, "extdata", "models", "cod")
-  tmp_future_om_list_3 <- check_future_om_list_str(future_om_list = tmp_future_om_list)
-  tmp_future_om_list_3 <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
                                                     scen_list =  scen_list)
   devs_df <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list,
@@ -412,9 +441,5 @@ test_that("Creating the devs df works with devs in initial model", {
   #TODO: creat this test up and running.
 })
 
-test_that("Creating the devs df works for recdevs, implementation error", {
-  #TODO: creat this test up and running.
-  # note: do we want to limit users from modifying regime and R0 since they are 
-  # able to modify the recdevs?
-})
+
 
