@@ -367,7 +367,6 @@ test_that("Creating the devs df works for recdevs, implementation error", {
                                                   scen_list =  scen_list)
   # remove time varying parameter for now, b/c not yet implemented
   tmp_future_om_list_4[[1]]$input <-  tmp_future_om_list_4[[1]]$input[1,]
-  
   devs_df <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list_4,
     scen_name = "scen3",

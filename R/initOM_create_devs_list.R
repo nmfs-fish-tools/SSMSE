@@ -185,11 +185,6 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
       fut_list$seed <- fut_list$seed + which(fut_list$scen == scen)
     }
     set.seed(fut_list$seed) # set the seed before sampling.
-    # check for tv devs
-    if(isTRUE(!is.null(par[["parm_devs"]]))) {
-      stop("code not yet written to deal with tv parms in original OM")
-      # in this case, will need to do the historical avg if user requests it.
-    }
     # if there are no tv devs in the original model, than taking a historical
     # average is unnecessary.
     for(i in where_par$pars) {
@@ -201,15 +196,17 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
         # do some calcs to figure out the mean value
         # this holds if the parameter isn't time varying 
         # calculate the mean. The  below holds with or without a trend
-
+ 
         mean <- calc_par_trend(val_info = fut_list$input, 
                                val_line = "mean",
+                               par = par,
                                ref_parm_value = where_par[where_par$pars == i, "est"],
                                vals_df = vals_df, # use to potentially get trend start value.
                                parname = i
                                )
         sd <- calc_par_trend(val_info = fut_list$input, 
                              val_line = "sd",
+                             par = par,
                              ref_parm_value = 0, # may not always be correct?
                              vals_df = vals_df, # use to get trend start value, and last yr. 
                              parname = i
@@ -263,8 +260,36 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   #' @vals_df Use to get start val and last year
   #' @parname Name of the parameter with devs from the SS model.
   #'  will reference, if using a relative method.
-  calc_par_trend <- function(val_info,val_line = c("mean", "sd"), ref_parm_value, vals_df, parname) {
+  #' @par the par file list
+  calc_par_trend <- function(val_info,val_line = c("mean", "sd"), ref_parm_value, vals_df, parname, par) {
     val_line <- match.arg(val_line, several.ok = FALSE)
+    # determine historical value, if necessary. This will replace the ref_parm_value
+    # determine the ref_parm_value
+    
+    if(isTRUE(!is.na(val_info[val_info$ts_param == val_line, "first_yr_averaging"] &
+              !is.na(val_info[val_info$ts_param == val_line, "last_yr_averaging"])))) {
+      if(parname == "rec_devs") {
+        browser()
+        tmp_vals <- data.frame(yrs = par$recdev1[,1], rec_devs = par$recdev1[,2])
+        tmp_vals_2 <- data.frame(yrs = vals_df$yrs, rec_devs = vals_df$rec_devs)
+        tmp_vals <- rbind(tmp_vals, tmp_vals_2)
+        to_include <- which(tmp_vals$yr >= val_info[val_info$ts_param == val_line, "first_yr_averaging"] &
+                              tmp_vals$yr <= val_info[val_info$ts_param == val_line, "last_yr_averaging"])
+        tmp_vals <- tmp_vals[to_include, "rec_devs"]
+        ref_parm_value <- switch(val_line, 
+                                 mean = mean(tmp_vals), 
+                                 sd = sd(tmp_vals))
+      } else { # for all other parameters
+        # check for tv devs
+        if(isTRUE(!is.null(par[["parm_devs"]]))) { #TODO: implement this and remove the stop
+          stop("code not yet written to deal with tv parms in original OM")
+          # in this case, will need to do the historical avg if user requests it.
+        } 
+        # the base parm value should just be used as the reference in this case.
+        ref_parm_value <- ref_parm_value # keeep using the default.
+      }
+    }
+ 
     # determine start val
     if(isTRUE(length(val_info[val_info$ts_param == val_line, "last_yr_orig_val"]) == 1 & 
               val_line == "mean")) {
