@@ -154,6 +154,8 @@ sample_devs <- function(mean,
          # Is this right? Need to clairify if users input mu or mean, sigma or sd
          # I'm not really sure what this is assuming right now?I think mu and
          # sigma?
+         # or should be this? obs * exp(rnorm(n = 1, mean = 0, sd = sd) - sd^2/2)
+         # different, but adding bias corretion to below gets close.
          lognormal = rlnorm(n = ndevs, meanlog = log(mean), sdlog = sd)) 
   devs
 }
@@ -269,7 +271,6 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     if(isTRUE(!is.na(val_info[val_info$ts_param == val_line, "first_yr_averaging"] &
               !is.na(val_info[val_info$ts_param == val_line, "last_yr_averaging"])))) {
       if(parname == "rec_devs") {
-        browser()
         tmp_vals <- data.frame(yrs = par$recdev1[,1], rec_devs = par$recdev1[,2])
         tmp_vals_2 <- data.frame(yrs = vals_df$yrs, rec_devs = vals_df$rec_devs)
         tmp_vals <- rbind(tmp_vals, tmp_vals_2)
@@ -337,3 +338,5 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     }
     trend
   }
+  #TODO: add test that allows CV to be used instead of sd? might be necessary
+  # for the all params option..

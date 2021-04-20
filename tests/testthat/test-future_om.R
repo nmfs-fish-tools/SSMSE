@@ -121,9 +121,9 @@ future_om_list_4[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, NA),
                                                last_yr_averaging = c(100, NA),
                                                last_yr_orig_val = c(100, 100),
                                                first_yr_final_val = c(101, 101), 
-                                               ts_param = c("sd", "ar_1_q_parm"), # I think this is the degree of differencing param, aka q?
+                                               ts_param = c("sd", "ar_1_phi"), # coeff on ar 1 process.
                                                method = c("multiplier", "absolute"),
-                                               value = c(1, .5)) # NOTE: Auto correlation has to be a value less than 1 and greater than -1 to be stationary
+                                               value = c(1, 0.1)) # NOTE: Auto correlation has to be a value less than 1 and greater than -1 to be stationary
                                                                 # a value of 1 would be a perfect random walk. Negative values can have weird stationary distributions that 
                                                                  # oscillate positive to negative, kind of like a sound wave where the amplitude is the random walk. 
 
@@ -383,6 +383,9 @@ test_that("Creating the devs df works for recdevs, implementation error", {
   
 })
 
+# https://en.wikipedia.org/wiki/Autoregressive_model#Example:_An_AR(1)_process
+# https://nwfsc-timeseries.github.io/atsa-labs/sec-tslab-autoregressive-ar-models.html
+# use arima.sim(list(order = c(1,0,0), ar = phi), n = nyrs)* mean val +trend (maybe?)
 test_that("Creating the devs df works with time series options", {
   #TODO: get this up and running.
   tmp_future_om_list <- vector(mode = "list", length = 2)
@@ -399,7 +402,7 @@ test_that("Creating the devs df works with time series options", {
                                                    last_yr_averaging = NA,
                                                    last_yr_orig_val = 101,
                                                    first_yr_final_val = 102, 
-                                                   ts_param = c("sd", "ar_1_q_param"), # what is this param? order and q is different?
+                                                   ts_param = c("sd", "ar_1_phi"), # The coefficient.
                                                    method = "absolute", 
                                                    value = c(0.02, 1))# jitter with a standard deviation equal to 0.02 (using log scale b/c log normal.)
   
