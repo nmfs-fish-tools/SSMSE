@@ -136,6 +136,7 @@ sample_devs <- function(mean,
   dist <- match.arg(dist, several.ok = FALSE)
   if(!is.na(ts_params)) {
     stop("sampling fxn for time series params not yet written")
+    #note: arima.sim(list(order = c(1,0,0), ar = phi), n = nyrs)+mean
   }
   
   if(length(mean) == 1) {
@@ -149,14 +150,25 @@ sample_devs <- function(mean,
   assertive.properties::assert_is_of_length(sd, ndevs)
   # sample
   set.seed(seed)
-  devs <- switch(dist,
-         normal = rnorm(n = ndevs, mean = mean, sd = sd), 
-         # Is this right? Need to clairify if users input mu or mean, sigma or sd
-         # I'm not really sure what this is assuming right now?I think mu and
-         # sigma?
-         # or should be this? obs * exp(rnorm(n = 1, mean = 0, sd = sd) - sd^2/2)
-         # different, but adding bias corretion to below gets close.
-         lognormal = rlnorm(n = ndevs, meanlog = log(mean), sdlog = sd)) 
+  if(isTRUE(is.na(ts_params))) {
+    devs <- switch(dist,
+           normal = rnorm(n = ndevs, mean = mean, sd = sd), 
+           # other way of writing: obs * exp(rnorm(n = 1, mean = 0, sd = sd) - sd^2/2)
+           # note term in front is the bias correction to make E(x) = exp(mu) 
+           # instead of med(x) = exp(mu)
+           lognormal = exp(-sd^2/2)*rlnorm(n = ndevs, meanlog = log(mean), sdlog = sd)) 
+  } else {
+    sd <- unique(sd)
+    if(length(sd) > 1) {
+      stop("ar process sampling doesn't work with changing standard deviations.")
+      #way to get rid of this stop msg?
+    }
+    devs <- switch(dist, 
+                   normal = arima.sim(n = ndevs, 
+                                      list(order = c(1,0,0), ar = ts_params, sd = sd)), 
+                   lognormal = 
+      stop("Lognormal sampling cannot be use with autocorrelation. Please use normal distribution."))
+  }
   devs
 }
 
