@@ -511,7 +511,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   return_val <- vector(mode = "list", length = iter)
   if (run_parallel) {
     return_val <- foreach::`%dopar%`(
-      foreach::foreach(i = seq_len(iter), .errorhandling = "pass"),
+      foreach::foreach(i = seq_len(iter), .errorhandling = "pass", .export=paste(MS)),
       {
         iter_seed <- vector(mode = "list", length = 3)
         names(iter_seed) <- c("global", "scenario", "iter")
