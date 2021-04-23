@@ -12,7 +12,7 @@ run_SSMSE_iter(
   EM_in_dir = NULL,
   run_EM_last_yr = FALSE,
   MS = "last_yr_catch",
-  Custom_MS_source = NULL,
+  custom_MS_source = NULL,
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
@@ -63,7 +63,7 @@ enviroment and specified by name in MS. For example, if the function is
 called "my_ms" then the user should make it available in the global 
 environment and specify MS = "my_ms".}
 
-\item{Custom_MS_source}{A file location with the source code for any custom MS 
+\item{custom_MS_source}{A file location with the source code for any custom MS 
 models to be used in the simulation. SSMSE will source this file which should 
 contain a function/s whose name/s match each custom MS models included in MS_vec.}
 
