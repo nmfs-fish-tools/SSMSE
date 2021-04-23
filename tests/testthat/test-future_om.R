@@ -365,8 +365,6 @@ test_that("Creating the devs df works for recdevs, implementation error", {
   tmp_future_om_list_4 <- check_future_om_list_str(future_om_list = future_om_list_4)
   tmp_future_om_list_4 <- check_future_om_list_vals(future_om_list = tmp_future_om_list_4,
                                                   scen_list =  scen_list)
-  # remove time varying parameter for now, b/c not yet implemented
-  tmp_future_om_list_4[[1]]$input <-  tmp_future_om_list_4[[1]]$input[1,]
   devs_df <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list_4,
     scen_name = "scen3",
@@ -394,17 +392,17 @@ test_that("Creating the devs df works with time series options", {
   names(tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
   names(tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
   
-  # add in vals for M and steepness. Jitter after year 101, with a log normal dist.
+  # add in vals for M and steepness. Jitter after year 101, with a normal dist.
   tmp_future_om_list[[1]][["pars"]] <- c("NatM_p_1_Fem_GP_1", "SR_BH_steep")
   tmp_future_om_list[[1]][["scen"]] <- c("randomize","scen1", "scen2")
-  tmp_future_om_list[[1]][["pattern"]] <- c("model_change","lognormal")
+  tmp_future_om_list[[1]][["pattern"]] <- c("model_change","normal")
   tmp_future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = NA,
                                                    last_yr_averaging = NA,
                                                    last_yr_orig_val = 101,
                                                    first_yr_final_val = 102, 
                                                    ts_param = c("sd", "ar_1_phi"), # The coefficient.
                                                    method = "absolute", 
-                                                   value = c(0.02, 1))# jitter with a standard deviation equal to 0.02 (using log scale b/c log normal.)
+                                                   value = c(0.02, 1))
   
   
   # add values for selectivity curve param. step change occuring in year 103

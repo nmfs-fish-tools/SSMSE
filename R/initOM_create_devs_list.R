@@ -121,24 +121,26 @@ match_parname <- function(list_pars, par) {
   subset_parname_tbl
 }
 
-
+#' Sample deviations from normal, lognormal, or AR-1 process.
+#' 
 #' @param mean A single value or vector of mean parameters
 #' @param sd A single value or vector of sd parameter
+#' @param ar_1_phi The phi (coefficient) value for an ar 1 process. Should be 
+#'  Between -1 and 1. 0 means an AR 1 process will NOT be used. 1 Indicates a
+#'  random walk.
 #' @param seed the seed that will be set before sampling
 #' @param ndevs The number of deviations to expect
+#' @author Kathryn Doering
 sample_devs <- function(mean,
                         sd,
-                        ts_params = NA,
+                        ar_1_phi = 0,
                         seed,
                         ndevs, 
                         dist = c("normal", "lognormal")) {
   # checks
   dist <- match.arg(dist, several.ok = FALSE)
-  if(!is.na(ts_params)) {
-    stop("sampling fxn for time series params not yet written")
     #note: arima.sim(list(order = c(1,0,0), ar = phi), n = nyrs)+mean
-  }
-  
+
   if(length(mean) == 1) {
     mean <- rep(mean, length = ndevs)
   }
@@ -150,7 +152,7 @@ sample_devs <- function(mean,
   assertive.properties::assert_is_of_length(sd, ndevs)
   # sample
   set.seed(seed)
-  if(isTRUE(is.na(ts_params))) {
+  if(isTRUE(is.na(ar_1_phi) | unique(ar_1_phi) == 0)) {
     devs <- switch(dist,
            normal = rnorm(n = ndevs, mean = mean, sd = sd), 
            # other way of writing: obs * exp(rnorm(n = 1, mean = 0, sd = sd) - sd^2/2)
@@ -158,16 +160,26 @@ sample_devs <- function(mean,
            # instead of med(x) = exp(mu)
            lognormal = exp(-sd^2/2)*rlnorm(n = ndevs, meanlog = log(mean), sdlog = sd)) 
   } else {
-    sd <- unique(sd)
-    if(length(sd) > 1) {
-      stop("ar process sampling doesn't work with changing standard deviations.")
-      #way to get rid of this stop msg?
+    if(dist == "lognormal") {
+      stop("Lognormal sampling cannot be use with autocorrelation. Please use",
+      "normal distribution.")
     }
-    devs <- switch(dist, 
-                   normal = arima.sim(n = ndevs, 
-                                      list(order = c(1,0,0), ar = ts_params, sd = sd)), 
-                   lognormal = 
-      stop("Lognormal sampling cannot be use with autocorrelation. Please use normal distribution."))
+    if(length(ar_1_phi) == 1) {
+      ar_1_phi <- rep(ar_1_phi, length = ndevs)
+    }
+    assertive.properties::is_of_length(ar_1_phi, ndevs)
+    #custom function to sample, becasue sd and phi have to be fixed for the 
+    # arima_sim function.
+    # need to think more about if this is correct or  not. this isn't exactly
+    # an ar 1 process as described....because the variance isn't constant.
+    devs <- vector(mode = "numeric", length = ndevs)
+    for (d in seq_len(ndevs)) {
+      if(d == 1) {
+      devs[1] <- mean[1] + rnorm(n = 1, sd = sd[1]) #maybe? not sure what init value should be...
+      } else {
+        devs[d] <- mean[d] + ar_1_phi[d]*devs[d-1] + rnorm(1, sd = sd[d])
+      }
+    }
   }
   devs
 }
@@ -202,9 +214,6 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     # if there are no tv devs in the original model, than taking a historical
     # average is unnecessary.
     for(i in where_par$pars) {
-      # TODO: finish this section. Do the sampling as needed. 
-      ts_params <- NA  # not sure if this is really necessary; 
-      
       # find the mean: 1) is a mean specified? If not, use the most recent
       # value. 
         # do some calcs to figure out the mean value
@@ -225,19 +234,20 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
                              vals_df = vals_df, # use to get trend start value, and last yr. 
                              parname = i
                              )
-
+        ar_1_phi <- calc_par_trend(val_info = fut_list$input, 
+                                   val_line = "ar_1_phi",
+                                   par = par,
+                                   ref_parm_value = 0, # may not always be correct?
+                                   vals_df = vals_df, # use to get trend start value, and last yr. 
+                                   parname = i
+                                  )
           
       # if it is specified: then parse this input to figure out what the 
       # sampled mean should be.
       # find the sd: 2) is the sd specified? If not, use sd of 1 to sample (or historical sd?)
-      if(isTRUE(any(!fut_list$input$ts_param %in% c("mean", "sd")))) {
-        stop("timeseries params not yet implemented")
-        # do some calcs to figure out the time varying parameter values
-        #TODO, but leave empty for now.
-      }
-      devs <- sample_devs(mean = mean, sd = sd, ts_params = ts_params,
+      devs <- sample_devs(mean = mean, sd = sd, ar_1_phi = ar_1_phi,
                                ndevs = nyrs,
-                               seed = fut_list$seed, dist = fut_list$pattern[2] )
+                               seed = fut_list$seed, dist = fut_list$pattern[2])
       # this works for 1 parameter only
 
       vals_df[[i]] <- devs # Maybe these should just replace what is alredy there?
@@ -275,13 +285,14 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   #' @parname Name of the parameter with devs from the SS model.
   #'  will reference, if using a relative method.
   #' @par the par file list
-  calc_par_trend <- function(val_info,val_line = c("mean", "sd"), ref_parm_value, vals_df, parname, par) {
+  calc_par_trend <- function(val_info,val_line = c("mean", "sd", "ar_1_phi"), ref_parm_value, vals_df, parname, par) {
+    
     val_line <- match.arg(val_line, several.ok = FALSE)
     # determine historical value, if necessary. This will replace the ref_parm_value
     # determine the ref_parm_value
     
-    if(isTRUE(!is.na(val_info[val_info$ts_param == val_line, "first_yr_averaging"] &
-              !is.na(val_info[val_info$ts_param == val_line, "last_yr_averaging"])))) {
+    if(isTRUE(!is.na(val_info[val_info$ts_param == val_line, "first_yr_averaging"]) &
+              !is.na(val_info[val_info$ts_param == val_line, "last_yr_averaging"]))) {
       if(parname == "rec_devs") {
         tmp_vals <- data.frame(yrs = par$recdev1[,1], rec_devs = par$recdev1[,2])
         tmp_vals_2 <- data.frame(yrs = vals_df$yrs, rec_devs = vals_df$rec_devs)
@@ -291,7 +302,8 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
         tmp_vals <- tmp_vals[to_include, "rec_devs"]
         ref_parm_value <- switch(val_line, 
                                  mean = mean(tmp_vals), 
-                                 sd = sd(tmp_vals))
+                                 sd = sd(tmp_vals), 
+                                 ar_1_phi = stats::arima(tmp_vals, order = c(1,0,0))$coef[1])
       } else { # for all other parameters
         # check for tv devs
         if(isTRUE(!is.null(par[["parm_devs"]]))) { #TODO: implement this and remove the stop
