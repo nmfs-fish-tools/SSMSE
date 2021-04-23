@@ -22,7 +22,7 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
     OM_name_vec = "cod",
     EM_name_vec = "cod", # cod is included in package data
     MS_vec = "EM", # The management strategy is specified in the EM
-    Custom_MS_source = NULL,
+    custom_MS_source = NULL,
     use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
     run_EM_last_yr = FALSE,
     nyrs_vec = nyrs, # Years to project OM forward
@@ -77,7 +77,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
     OM_name_vec = "cod",
     EM_name_vec = "cod", # cod is included in package data
     MS_vec = "EM", # The management strategy is specified in the EM
-    Custom_MS_source = NULL,
+    custom_MS_source = NULL,
     use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
     nyrs_vec = nyrs, # Years to project OM forward
     nyrs_assess_vec = 3, # Years between assessments
@@ -125,7 +125,7 @@ test_that("run_SSMSE_iter runs with no EM", {
   result <- run_SSMSE_iter(
     OM_name = "cod",
     MS = "no_catch",
-    Custom_MS_source = NULL,
+    custom_MS_source = NULL,
     out_dir = new_temp_path,
     nyrs = 6,
     nyrs_assess = 3,
@@ -152,7 +152,7 @@ test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE wo
     OM_name = NULL,
     OM_in_dir = OM_path_cod,
     MS = "EM",
-    Custom_MS_source = NULL,
+    custom_MS_source = NULL,
     out_dir = new_temp_path,
     EM_name = NULL,
     EM_in_dir = EM_path_cod,
