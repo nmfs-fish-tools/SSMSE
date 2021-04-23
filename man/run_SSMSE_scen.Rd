@@ -14,7 +14,7 @@ run_SSMSE_scen(
   EM_in_dir = NULL,
   run_EM_last_yr = FALSE,
   MS = "no_catch",
-  Custom_MS_source = Custom_MS_source,
+  Custom_MS_source = NULL,
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,

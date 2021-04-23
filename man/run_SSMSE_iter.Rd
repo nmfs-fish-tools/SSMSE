@@ -12,7 +12,7 @@ run_SSMSE_iter(
   EM_in_dir = NULL,
   run_EM_last_yr = FALSE,
   MS = "last_yr_catch",
-  Custom_MS_source = Custom_MS_source,
+  Custom_MS_source = NULL,
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
