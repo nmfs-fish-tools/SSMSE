@@ -1,4 +1,4 @@
-#' Create the devs dataframe for a scenario from user input
+#' Create the devs dataframe for a scenario and iteration from user input
 #'
 #'This function parses user inputs to convert it into a dataframe of deviations.
 #'
@@ -10,7 +10,10 @@
 #' @param global_seed A global seed to set, then pull new seeds from global seed + 1.
 #' Defaults to 123.
 #' @author Kathryn Doering
-#' @return A dataframe of devs values with parameter names to put into the OM
+#' @return A list including 3 dataframes: devs_df, the additive deviations 
+#'  relative to the base values; base_df, the base values of the parameter with 
+#'  deviations; abs_df, the absolute future values by year (first col) and 
+#'  parameter (parameterss in different cols).
 convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
                                               niter, om_mod_path, nyrs, 
                                               global_seed = 123
@@ -68,12 +71,25 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
   for(p in where_par$pars) {
     vals_df[[p]] <- where_par[where_par$pars == p, "est"]
   }
-  #now, add changes on top of this. 
+  base_vals <- vals_df
+  #now, add changes on top of this. Note this is the TOTAL value.
   for (i in seq_len(length(future_om_list))) {
     vals_df <- add_dev_changes(fut_list = future_om_list[[i]], scen = scen_name, iter = niter, 
                                par = par, dat = dat, vals_df = vals_df, nyrs = nyrs)
   }
+  # remove base values from pars? I think soo...
   vals_df
+  dev_vals_df <- vals_df - base_vals
+  if(!all(dev_vals_df$yrs == 0)) {
+    stop("Incorrect assumption made regarding dataframe addition, please open ",
+    "an issue in the SSMSE repository.")
+  } 
+  # correct the years
+  dev_vals_df$yrs <- vals_df$yrs
+  
+  # return the base vals, deviations, and absolute vals.
+  return_list <- list(base_vals = base_vals, dev_vals = dev_vals_df, abs_vals = vals_df)
+  return_list
 } 
 
 #' Match parameter name to parameter names in the par file
@@ -257,17 +273,18 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   } else if (fut_list$pattern[1] == "custom") {
     # custom ---
     for (i in where_par$pars) {
-    # custom will just replace any values for the pattern.
-    #filter out the columns needed for the given scenario and iteration
-    custom_vals <- fut_list$input[fut_list$input$scen %in% c("all", scen) &
-                             fut_list$input$par == i &
-                             fut_list$input$iter == iter,]
-    custom_vals <- dplyr::select(custom_vals, yr, value) %>%
-      dplyr::rename(yrs = yr)
-    vals_df <- dplyr::left_join(vals_df, custom_vals, by = "yrs") %>% 
-      tidyr::replace_na(replace = list(value = 0))
-    vals_df[[i]] <- vals_df[["value"]] # move to the correct column
-    vals_df[["value"]] <- NULL
+      tmp_base <- where_par[where_par$pars == i, "est"]
+      # custom will just replace any values for the pattern.
+      #filter out the columns needed for the given scenario and iteration
+      custom_vals <- fut_list$input[fut_list$input$scen %in% c("all", scen) &
+                               fut_list$input$par == i &
+                               fut_list$input$iter == iter,]
+      custom_vals <- dplyr::select(custom_vals, yr, value) %>%
+        dplyr::rename(yrs = yr)
+      vals_df <- dplyr::left_join(vals_df, custom_vals, by = "yrs") %>% 
+        tidyr::replace_na(replace = list(value = tmp_base))
+      vals_df[[i]] <- vals_df[["value"]] # move to the correct column
+      vals_df[["value"]] <- NULL
     }
   }
   vals_df

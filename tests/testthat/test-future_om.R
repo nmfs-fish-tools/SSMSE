@@ -267,18 +267,19 @@ test_that("Creating the devs df works with sampling", {
   future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
   future_om_list <- check_future_om_list_vals(future_om_list = future_om_list,
                                               scen_list =  scen_list)
-  devs_df <- convert_future_om_list_to_devs_df(
+  devs_list <- convert_future_om_list_to_devs_df(
     future_om_list = future_om_list,
     scen_name = "scen2",
     niter  = 1,
     om_mod_path = om_path, nyrs = 10)
+  devs_df <- devs_list$dev_vals
   expect_true(nrow(devs_df) == 10)
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SizeSel_P_3_Fishery(1)"))
   expect_equivalent(devs_df$yrs, 101:110)
-  expect_equivalent(devs_df[["SizeSel_P_3_Fishery(1)"]], c(rep(5.275309, 2), rep(4.5, 8)), tolerance = 0.0001)
+  expect_equivalent(devs_df[["SizeSel_P_3_Fishery(1)"]], c(rep(0, 2), rep(4.5-5.275309, 8)), tolerance = 0.0001)
   #TODO: add check for NatM. Need a way to fig(ure out the seed used so can reproduce
-  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 > (0.2 - 0.03))) # very unlikely to be less than 3 sds away, but possible...
-  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 < (0.2 + 0.03))) # very unlikely to be greater than 3 sds away, but possible
+  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 > (-0.03))) # very unlikely to be less than 3 sds away, but possible...
+  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 < (0.03))) # very unlikely to be greater than 3 sds away, but possible
 })
 test_that("Creating the devs df works with custom", {
   ext_files <- system.file(package = "SSMSE")
@@ -286,19 +287,20 @@ test_that("Creating the devs df works with custom", {
   future_om_list_3 <- check_future_om_list_str(future_om_list = future_om_list_3)
   future_om_list_3 <- check_future_om_list_vals(future_om_list = future_om_list_3,
                                               scen_list =  scen_list)
-  devs_df <- convert_future_om_list_to_devs_df(
+  devs_list <- convert_future_om_list_to_devs_df(
     future_om_list = future_om_list_3,
     scen_name = "scen2",
     niter  = 1,
     om_mod_path = om_path, nyrs = 9 # note: replaces years 107 to 110 with 0s since no values provided.
     )
+  devs_df <- devs_list$dev_vals
   expect_true(nrow(devs_df) == 9)
   expect_equal(colnames(devs_df) , c("yrs", "VonBert_K_Fem_GP_1", "LnQ_base_Survey(2)"))
   expect_equivalent(devs_df[["yrs"]], 101:109)
-  expect_equivalent(devs_df[["VonBert_K_Fem_GP_1"]], c(rep(0.2, 6), rep(0, 3))) # hmm, is 0s what we really want?
+  expect_equivalent(devs_df[["VonBert_K_Fem_GP_1"]], c(rep(0.2 - 0.2039802, 6), rep(0, 3)), tolerance = 0.001)  # maybe provide a warning if 0s for custom changes?
   expect_equivalent(devs_df[["LnQ_base_Survey(2)"]],
-                    c(seq(0.0207711, 0.0207711*1.5, length.out = 7)[-1], rep(0.0207711*1.5, 3)), tolerance = 0.0001)
-  
+    c(seq(0, 0.0207711*1.5 - 0.0207711, length.out = 7)[-1], 
+      rep(0.0207711*1.5 - 0.0207711, 3)), tolerance = 0.0001)
 })
 
 test_that("Creating the devs df works with log normal dist", {
@@ -339,21 +341,21 @@ test_that("Creating the devs df works with log normal dist", {
   tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
   tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
                                                 scen_list =  scen_list)
-  devs_df <- convert_future_om_list_to_devs_df(
+  devs_list <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list,
     scen_name = "scen2",
     niter  = 1,
     om_mod_path = om_path, nyrs = 12
   )
+  devs_df <- devs_list$dev_vals
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
   expect_equivalent(devs_df[["yrs"]], 101:112)
   # TODO: figure out how to characterize all of the changes. Just put in the 2 
   # obvious (I think) values for now. 
-  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.4)
-  expect_equivalent(devs_df[1,"SR_BH_steep"], 0.65)
-  
+  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.2)
+  expect_equivalent(devs_df[1,"SR_BH_steep"], 0)
 })
 
 test_that("Creating the devs df works for recdevs, implementation error", {
@@ -365,12 +367,13 @@ test_that("Creating the devs df works for recdevs, implementation error", {
   tmp_future_om_list_4 <- check_future_om_list_str(future_om_list = future_om_list_4)
   tmp_future_om_list_4 <- check_future_om_list_vals(future_om_list = tmp_future_om_list_4,
                                                   scen_list =  scen_list)
-  devs_df <- convert_future_om_list_to_devs_df(
+  devs_list <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list_4,
     scen_name = "scen3",
     niter  = 3,
     om_mod_path = om_path, nyrs = 6
   )
+  devs_df <- devs_list$dev_vals
   # modify the following expectations
   expect_true(nrow(devs_df) == 6)
   expect_equal(colnames(devs_df) , c("yrs", "rec_devs", "impl_error"))
@@ -421,20 +424,21 @@ test_that("Creating the devs df works with time series options", {
   tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
   tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
                                                     scen_list =  scen_list)
-  devs_df <- convert_future_om_list_to_devs_df(
+  devs_list <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list,
     scen_name = "scen2",
     niter  = 1,
     om_mod_path = om_path, nyrs = 12
   )
+  devs_df <- devs_list$dev_vals
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
   expect_equivalent(devs_df[["yrs"]], 101:112)
   # TODO: figure out how to characterize all of the changes. Just put in the 2 
   # obvious (I think) values for now. 
-  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.4)
-  expect_equivalent(devs_df[1,"SR_BH_steep"], 0.65)
+  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.2)
+  expect_equivalent(devs_df[1,"SR_BH_steep"], 0)
 })
 
 test_that("Creating the devs df works with devs in initial model", {
@@ -442,4 +446,11 @@ test_that("Creating the devs df works with devs in initial model", {
 })
 
 
+test_that("Setting seeds works as intended", {
+  # add this. test that works across scens/iterations
+})
 
+test_that("Sampling from AR1 process works as intended", {
+  #TODO: add this. make sure our AR1 sampling process is working like arima_sim
+  # if sd and mean aren't changing, should work the same.
+})
