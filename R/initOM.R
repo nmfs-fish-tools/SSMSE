@@ -152,25 +152,17 @@ create_OM <- function(OM_out_dir,
     ctl[["N_Read_recdevs"]] <- 0
     ctl[["recdev_input"]] <- NULL
   }
-
-  if (ctl[["recdev_early_start"]] <= 0) {
-    first_year <- ctl[["MainRdevYrFirst"]] + ctl[["recdev_early_start"]]
-  } else if (ctl[["recdev_early_start"]] < ctl[["MainRdevYrFirst"]]) {
-    first_year <- ctl[["recdev_early_start"]]
-  } else {
-    (
-      first_year <- ctl[["MainRdevYrFirst"]]
-    )
-  }
+  
   # modify par file ----
+  # note: don't include early recdevs in in all_recdevs
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
   # get recdevs for all model yeasrs
-  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ]
+  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= ctl[["MainRdevYrFirst"]] & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ]
   # new_recdevs_df <- data.frame(year = dat[["styr"]]:dat[["endyr"]], recdev = NA)
-  new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
+  new_recdevs_df <- data.frame(year = ctl[["MainRdevYrFirst"]]:ctl[["MainRdevYrLast"]], recdev = NA)
   fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]), recdev = NA)
-  for (i in seq_along(first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))) {
-    tmp_yr <- (first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))[i]
+  for (i in seq_along(ctl[["MainRdevYrFirst"]]:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))) {
+    tmp_yr <- (ctl[["MainRdevYrFirst"]]:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))[i]
     if (tmp_yr <= ctl[["MainRdevYrLast"]]) {
       step <- i
       if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
@@ -286,6 +278,14 @@ create_OM <- function(OM_out_dir,
       verbose = verbose,
       debug_par_run = TRUE
     )
+    # TODO: maybe add the following check into the debug par run arg of run_ss_model?
+    check_par <- readLines(file.path(OM_out_dir, "ss.par"))
+    check_sum_val <- check_par[grep("checksum999", check_par)+1]
+    if(as.numeric(check_sum_val) != 999) {
+      stop("The OM model created is not valid; likely, the par file was not of", 
+           "the correct length because checksum999 of output is not 999.", 
+           "Please open an issue in the SSMSE repository for assistance.")
+    }
     if (!file.exists(file.path(OM_out_dir, "control.ss_new"))) {
       stop(
         "The OM model created is not valid; it did not run and produce a\n",
