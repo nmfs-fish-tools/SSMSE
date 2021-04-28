@@ -189,12 +189,23 @@ sample_devs <- function(mean,
     # need to think more about if this is correct or  not. this isn't exactly
     # an ar 1 process as described....because the variance isn't constant.
     devs <- vector(mode = "numeric", length = ndevs)
+    nonstat_warning <- TRUE
     for (d in seq_len(ndevs)) {
       if(d == 1) {
-      devs[1] <- mean[1] + rnorm(n = 1, sd = sd[1]) #maybe? not sure what init value should be...
+        past_dev <- 0 # I think
       } else {
-        devs[d] <- mean[d] + ar_1_phi[d]*devs[d-1] + rnorm(1, sd = sd[d])
+        past_dev <- devs[d-1]
       }
+      if(abs(ar_1_phi[d]) < 1) {
+        devs[d] <- mean[d]*(1-ar_1_phi[d]) + ar_1_phi[d]*past_dev + 
+          rnorm(1, mean = 0, sd = sd[d]/sqrt(1/(1-ar_1_phi[d]^2)))    
+      } else {
+        devs[d] <- mean[d] + ar_1_phi[d]*past_dev + rnorm(1, mean = 0, sd = sd[d])
+        nonstat_warning <- TRUE
+      }
+    }
+    if(nonstat_warning) {
+      warning("An AR1 process with phi >= 1 was called, therefore will be nonstationary.")
     }
   }
   devs
