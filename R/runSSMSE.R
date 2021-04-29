@@ -839,7 +839,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   create_OM(
     OM_out_dir = OM_out_dir, overwrite = TRUE,
     sample_struct_hist = sample_struct_hist, verbose = verbose, writedat = TRUE, nyrs = nyrs,
-    nyrs_assess = nyrs_assess, nscen = nscen, niter = niter, rec_devs = rec_dev_iter, future_om_list = future_om_list,
+    nyrs_assess = nyrs_assess, nscen = nscen, scen_name = scen_name, niter = niter, rec_devs = rec_dev_iter, future_om_list = future_om_list,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
 

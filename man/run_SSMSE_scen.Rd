@@ -6,6 +6,7 @@
 \usage{
 run_SSMSE_scen(
   scen_name = "scen_1",
+  nscen = 1,
   out_dir_scen = NULL,
   iter = 2,
   OM_name = "cod",
@@ -32,6 +33,8 @@ run_SSMSE_scen(
 \arguments{
 \item{scen_name}{Name of the scenario. The directory containing all the model
 runs the scenario will be stored within a folder of this name.}
+
+\item{nscen}{Which scenario is this. Integer value >=1}
 
 \item{out_dir_scen}{The directory to which to write output. IF NULL, will
 default to the working directory.}

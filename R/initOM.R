@@ -12,6 +12,7 @@
 #' @param nyrs_assess The number of years between assessments. This is used to
 #'  structure the forecast file for use in the OM.
 #'  @param nscen The scenario number
+#'  @param scen_name The scenario name
 #'  @param niter the iteration number
 #' @param writedat Should a new datafile be written?
 #' @param rec_devs Vector of recruitment deviations for simulation.
@@ -35,6 +36,7 @@ create_OM <- function(OM_out_dir,
                       nyrs = NULL,
                       nyrs_assess = NULL,
                       nscen = 1, 
+                      scen_name = NULL,
                       niter = 1,
                       rec_devs = NULL, # SINGLE_RUN_MODS: delete 
                       future_om_list = NULL,
@@ -333,7 +335,7 @@ create_OM <- function(OM_out_dir,
     if (!is.null(dat[["age_info"]])) dat[["age_info"]][["mintailcomp"]] <- -1
   }
   
-  # SINGLE_RUN_MODS: single_run_files<-extend_OM_full_period(ctl,dat,parlist,future_om_list,nyrs,nscen,niter)
+  # SINGLE_RUN_MODS: single_run_files<-extend_OM_full_period(ctl,dat,parlist,future_om_list,nyrs,nscen,scen_name,niter)
   # SINGLE_RUN_MODS: dat<-single_run_files$dat
   # SINGLE_RUN_MODS: ctl<-single_run_files$ctl
   # SINGLE_RUN_MODS: parlist<-single_run_files$parlist

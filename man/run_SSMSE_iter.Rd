@@ -17,6 +17,8 @@ run_SSMSE_iter(
   nyrs_assess = 3,
   rec_dev_iter = NULL,
   impl_error = NULL,
+  nscen = 1,
+  scen_name = NULL,
   niter = 1,
   iter_seed = NULL,
   sample_struct = NULL,
@@ -80,6 +82,11 @@ Dimensions are nyrs_assess\*number of fleets \* number of seasons}
 
 \item{impl_error}{An implementation error vector for the iteration.
 Dimensions are nyrs_assess\*number of fleets \* number of seasons}
+
+\item{nscen}{The scenario number.}
+
+\item{scen_name}{Name of the scenario. The directory containing all the model
+runs the scenario will be stored within a folder of this name.}
 
 \item{niter}{The iteration number, which is also the name of the folder the
 results will be written to.}
