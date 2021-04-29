@@ -87,8 +87,11 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
   # correct the years
   dev_vals_df$yrs <- vals_df$yrs
   
-  # return the base vals, deviations, and absolute vals.
-  return_list <- list(base_vals = base_vals, dev_vals = dev_vals_df, abs_vals = vals_df)
+  # return the base vals, deviations, and absolute vals, also the future_om_list values
+  return_list <- list(base_vals = base_vals,
+                      dev_vals = dev_vals_df,
+                      abs_vals = vals_df, 
+                      future_om_list = future_om_list)
   return_list
 } 
 
@@ -241,7 +244,6 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
       # the scen is to the seed (check: will this behave pseudorandomly?)
       fut_list$seed <- fut_list$seed + which(fut_list$scen == scen)
     }
-    set.seed(fut_list$seed) # set the seed before sampling.
     # if there are no tv devs in the original model, than taking a historical
     # average is unnecessary.
     # Users are not allowed to input both sd and cv, so add a check for this.

@@ -405,7 +405,7 @@ test_that("Creating the devs df works with time series options", {
                                                    first_yr_final_val = 102, 
                                                    ts_param = c("sd", "ar_1_phi"), # The coefficient.
                                                    method = "absolute", 
-                                                   value = c(0.02, 1))
+                                                   value = c(0.02, 0.8))
   
   
   # add values for selectivity curve param. step change occuring in year 103
@@ -430,6 +430,7 @@ test_that("Creating the devs df works with time series options", {
     niter  = 1,
     om_mod_path = om_path, nyrs = 12
   )
+
   devs_df <- devs_list$dev_vals
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)
@@ -439,6 +440,18 @@ test_that("Creating the devs df works with time series options", {
   # obvious (I think) values for now. 
   expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.2)
   expect_equivalent(devs_df[1,"SR_BH_steep"], 0)
+  
+  # TODO: check that the steepness SR_BH_steep values are sampled correctly.
+  # compare sampled values with arima
+  # want theses:
+  # not quite sure how to do this?
+  # devs_list$abs_vals$SR_BH_steep
+  # devs_list$future_om_list[[1]]$seed # the seed
+  # set.seed(devs_list$future_om_list[[1]]$seed)
+  # # first value:
+  # #first_val <- rnorm(1, mean = 0, sd = 0)
+  # 0.65 + arima.sim(list(order = c(1,1,0), ar = 0.8), n = 11, sd = 0.02)
+  
 })
 
 test_that("creating the devs df works with cv", {
@@ -483,7 +496,7 @@ test_that("Creating the devs df works with devs in initial model", {
 
 
 test_that("Setting seeds works as intended", {
-  # add this. test that works across scens/iterations
+  # check replicate option works
   ext_files <- system.file(package = "SSMSE")
   om_path <- file.path(ext_files, "extdata", "models", "cod")
   tmp_future_om_list <- future_om_list
@@ -503,7 +516,51 @@ test_that("Setting seeds works as intended", {
     niter  = 1,
     om_mod_path = om_path, nyrs = 12
   )
+  devs_list_3 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 2,
+    om_mod_path = om_path, nyrs = 12
+  )
   expect_equal(devs_list_1$dev_vals, devs_list_2$dev_vals)
+  #TODO: fix this. Need each iteration to be different when using replicate
+  expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
+                    devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  
+  # now, check randomize option works.
+  tmp_future_om_list[[1]]$scen[1] <- "randomize"
+  
+  devs_list_1 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_2 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_2_dup <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_3 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 2,
+    om_mod_path = om_path, nyrs = 12
+  )
+  
+  expect_true(all(devs_list_1$dev_vals$NatM_p_1_Fem_GP_1 != 
+                  devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  #TODO: fix this. Need each iteration to be different when using replicate
+  expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
+                    devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.
 })
 
 test_that("Sampling from AR1 process works as intended", {
