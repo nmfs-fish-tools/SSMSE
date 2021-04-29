@@ -441,6 +441,41 @@ test_that("Creating the devs df works with time series options", {
   expect_equivalent(devs_df[1,"SR_BH_steep"], 0)
 })
 
+test_that("creating the devs df works with cv", {
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list <- future_om_list_2
+  # for now, just apply to 1 parameter; turn off later
+  #tmp_future_om_list[[1]]$pars <- "NatM_p_1_Fem_GP_1"
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                  scen_list =  scen_list)
+  #TODO: need to add code to allow for "all" to be used.
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_df <- devs_list$dev_vals
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 12)
+  expect_length(colnames(devs_df), 42)
+  expect_equivalent(devs_df[["yrs"]], 101:112)
+  # TODO: figure out how to characterize all of the changes. Just put in the 2 
+  # obvious (I think) values for now. 
+  base_M <- unique(devs_list$base_vals$NatM_p_1_Fem_GP_1)
+  base_sel <- unique(devs_list$base_vals[["SizeSel_P_4_Fishery(1)"]])
+  cv_val <- tmp_future_om_list[[1]]$input[tmp_future_om_list[[1]]$input$ts_param == "cv", "value"]
+  expect_true(all(devs_df[,"NatM_p_1_Fem_GP_1"] <= (2*base_M*cv_val)) &
+              all(devs_df[,"NatM_p_1_Fem_GP_1"] >= (-2*base_M*cv_val)))
+  expect_true(all(devs_df[,"SizeSel_P_4_Fishery(1)"] <= (2*base_sel*cv_val)) &
+              all(devs_df[,"SizeSel_P_4_Fishery(1)"] >= (-2*base_sel*cv_val)))
+  #TODO: consider this option more thoroughly. Some of these params shouldn't be
+  # simultaneously (e.g., SR parameters and recdevs. WHat to do about 0 and 
+  # negative values?)
+})
+
 test_that("Creating the devs df works with devs in initial model", {
   #TODO: creat this test up and running.
 })

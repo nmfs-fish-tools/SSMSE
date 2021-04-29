@@ -64,7 +64,7 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
   where_par <- match_parname(list_pars = pars_to_change, par = par)
   vals_df <- data.frame(yrs = seq_len(nyrs) + dat[["endyr"]])
   tmp_vals <- setNames(data.frame(
-    matrix(NA, nrow = nrow(vals_df),ncol = length(pars_to_change))),
+    matrix(NA, nrow = nrow(vals_df),ncol = length(where_par[["pars"]]))),
     where_par[["pars"]])
   vals_df <- cbind(vals_df, tmp_vals)
   # Get the base values for these parameters.
@@ -114,11 +114,13 @@ match_parname <- function(list_pars, par) {
                                    obj = "S_parms"))
   par_name_tbl <- rbind(par_name_tbl, 
                         data.frame(pars = "rec_devs", obj = "recdev1"))
+  par_name_tbl <- rbind(par_name_tbl, data.frame(pars = "impl_error", obj = NA))
   if(isTRUE(list_pars == "all")) {
     # note that impl_error is not included in all for now; not sure if it should be?
-    return(par_name_tbl)
+    #return(par_name_tbl)
+    list_pars <- par_name_tbl[["pars"]]
   }
-  par_name_tbl <- rbind(par_name_tbl, data.frame(pars = "impl_error", obj = NA))
+  
   where_pars <- match(list_pars, par_name_tbl[["pars"]])
   subset_parname_tbl <- par_name_tbl[where_pars,]
   est <- vector(mode = "numeric", length = nrow(subset_parname_tbl))
@@ -240,13 +242,18 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     set.seed(fut_list$seed) # set the seed before sampling.
     # if there are no tv devs in the original model, than taking a historical
     # average is unnecessary.
+    # Users are not allowed to input both sd and cv, so add a check for this.
+    if(length(which(fut_list$input$ts_param == "sd")) == 1 & 
+       length(which(fut_list$input$ts_param == "cv")) == 1) {
+      stop("sd and cv both specified as a ts_param in the input dataframe. ", 
+      "Please specify only one or the other. ")
+    }
     for(i in where_par$pars) {
       # find the mean: 1) is a mean specified? If not, use the most recent
       # value. 
         # do some calcs to figure out the mean value
         # this holds if the parameter isn't time varying 
         # calculate the mean. The  below holds with or without a trend
- 
         mean <- calc_par_trend(val_info = fut_list$input, 
                                val_line = "mean",
                                par = par,
@@ -261,6 +268,27 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
                              vals_df = vals_df, # use to get trend start value, and last yr. 
                              parname = i
                              )
+        cv <-  calc_par_trend(val_info = fut_list$input, 
+                              val_line = "cv",
+                              par = par,
+                              ref_parm_value = 0, # may not always be correct?
+                              vals_df = vals_df, # use to get trend start value, and last yr. 
+                              parname = i
+                             )
+        if(any(cv != 0)) {
+          # calculate the sd to use
+          # sanity check for developers.
+          if(length(mean) != length(cv)) {
+            stop("Incorrect assumption in SSMSE. Please contact the developers")
+          }
+          if(any(mean <= 0)){
+            warning("Parameter ", i, " has negative or 0 values and cv is used.", 
+                    "The cv is still used by calculating sd as abs(cv*mean), ", 
+                    "which may or may not be reasonable for this variable.")
+          }
+          sd <- abs(cv*mean)
+        }
+
         ar_1_phi <- calc_par_trend(val_info = fut_list$input, 
                                    val_line = "ar_1_phi",
                                    par = par,
@@ -313,7 +341,9 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   #' @parname Name of the parameter with devs from the SS model.
   #'  will reference, if using a relative method.
   #' @par the par file list
-  calc_par_trend <- function(val_info,val_line = c("mean", "sd", "ar_1_phi"), ref_parm_value, vals_df, parname, par) {
+  calc_par_trend <- function(val_info,
+                             val_line = c("mean", "sd", "cv", "ar_1_phi"), 
+                             ref_parm_value, vals_df, parname, par) {
     
     val_line <- match.arg(val_line, several.ok = FALSE)
     # determine historical value, if necessary. This will replace the ref_parm_value
@@ -330,7 +360,8 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
         tmp_vals <- tmp_vals[to_include, "rec_devs"]
         ref_parm_value <- switch(val_line, 
                                  mean = mean(tmp_vals), 
-                                 sd = sd(tmp_vals), 
+                                 sd = sd(tmp_vals),
+                                 cv = sd(tmp_vals)/mean(tmp_vals),
                                  ar_1_phi = stats::arima(tmp_vals, order = c(1,0,0))$coef[1])
       } else { # for all other parameters
         # check for tv devs
@@ -390,5 +421,3 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     }
     trend
   }
-  #TODO: add test that allows CV to be used instead of sd? might be necessary
-  # for the all params option..
