@@ -472,17 +472,38 @@ test_that("creating the devs df works with cv", {
   expect_true(all(devs_df[,"SizeSel_P_4_Fishery(1)"] <= (2*base_sel*cv_val)) &
               all(devs_df[,"SizeSel_P_4_Fishery(1)"] >= (-2*base_sel*cv_val)))
   #TODO: consider this option more thoroughly. Some of these params shouldn't be
-  # simultaneously (e.g., SR parameters and recdevs. WHat to do about 0 and 
+  # simultaneously (e.g., SR parameters and recdevs. What to do about 0 and 
   # negative values?)
 })
 
 test_that("Creating the devs df works with devs in initial model", {
-  #TODO: creat this test up and running.
+  #TODO: create this test up and running.
+  
 })
 
 
 test_that("Setting seeds works as intended", {
   # add this. test that works across scens/iterations
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list <- future_om_list
+  tmp_future_om_list[[2]] <- NULL
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                  scen_list =  scen_list)
+  devs_list_1 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_2 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  expect_equal(devs_list_1$dev_vals, devs_list_2$dev_vals)
 })
 
 test_that("Sampling from AR1 process works as intended", {

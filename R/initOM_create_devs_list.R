@@ -223,8 +223,10 @@ sample_devs <- function(mean,
 #' @param nyrs The number of years to extend the model forward
 #' @param vals_df The dataframe with future om values
 add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
+  if(is.null(fut_list)) {
+    return(vals_df)
+  }
   where_par <- match_parname(list_pars = fut_list[["pars"]], par = par)
-  
   # model_change sampling -------
   # do sampling for things that require sampling
   if(fut_list[["pattern"]][1] == "model_change") {
