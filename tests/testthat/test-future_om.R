@@ -523,7 +523,7 @@ test_that("Setting seeds works as intended", {
     om_mod_path = om_path, nyrs = 12
   )
   expect_equal(devs_list_1$dev_vals, devs_list_2$dev_vals)
-  #TODO: fix this. Need each iteration to be different when using replicate
+  # Need each iteration to be different when using replicate
   expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
                     devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
   
@@ -557,7 +557,7 @@ test_that("Setting seeds works as intended", {
   
   expect_true(all(devs_list_1$dev_vals$NatM_p_1_Fem_GP_1 != 
                   devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
-  #TODO: fix this. Need each iteration to be different when using replicate
+  # Need each iteration to be different
   expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
                     devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
   expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.

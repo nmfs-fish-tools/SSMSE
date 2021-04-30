@@ -240,10 +240,17 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     # now, parse the input part (and pattern[2])
 
     if(fut_list$scen[1] == "randomize") {
-      # need a different seed for each scenario. Just add the number element
-      # the scen is to the seed (check: will this behave pseudorandomly?)
+      # need a different seed for each scenario and iteration
+      set.seed(fut_list$seed)
+      tmp_scen_seed <- runif(length(fut_list$scen), 0, 999999)[which(fut_list$scen == scen)]
+      tmp_iter_seed <- tmp_scen_seed + iter
+      fut_list$seed <- tmp_iter_seed
       fut_list$seed <- fut_list$seed + which(fut_list$scen == scen)
+    } else if (fut_list$scen[1] == "replicate") {
+      # use the same seed for the same number iteration of different scenarios.
+      fut_list$seed <- fut_list$seed + iter
     }
+    
     # if there are no tv devs in the original model, than taking a historical
     # average is unnecessary.
     # Users are not allowed to input both sd and cv, so add a check for this.
