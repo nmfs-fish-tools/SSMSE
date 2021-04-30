@@ -480,10 +480,12 @@ test_that("creating the devs df works with cv", {
   base_M <- unique(devs_list$base_vals$NatM_p_1_Fem_GP_1)
   base_sel <- unique(devs_list$base_vals[["SizeSel_P_4_Fishery(1)"]])
   cv_val <- tmp_future_om_list[[1]]$input[tmp_future_om_list[[1]]$input$ts_param == "cv", "value"]
-  expect_true(all(devs_df[,"NatM_p_1_Fem_GP_1"] <= (2*base_M*cv_val)) &
-              all(devs_df[,"NatM_p_1_Fem_GP_1"] >= (-2*base_M*cv_val)))
-  expect_true(all(devs_df[,"SizeSel_P_4_Fishery(1)"] <= (2*base_sel*cv_val)) &
-              all(devs_df[,"SizeSel_P_4_Fishery(1)"] >= (-2*base_sel*cv_val)))
+  # The following tests could fail, but are unlikely to. Test that the values 
+  # are within +/- 3 sigma.
+  expect_true(all(devs_df[,"NatM_p_1_Fem_GP_1"] <= (3*base_M*cv_val)) &
+              all(devs_df[,"NatM_p_1_Fem_GP_1"] >= (-3*base_M*cv_val)))
+  expect_true(all(devs_df[,"SizeSel_P_4_Fishery(1)"] <= (3*base_sel*cv_val)) &
+              all(devs_df[,"SizeSel_P_4_Fishery(1)"] >= (-3*base_sel*cv_val)))
   #TODO: consider this option more thoroughly. Some of these params shouldn't be
   # simultaneously (e.g., SR parameters and recdevs. What to do about 0 and 
   # negative values?)
