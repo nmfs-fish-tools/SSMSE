@@ -2,18 +2,25 @@
 #'
 #'This function parses user inputs to convert it into a dataframe of deviations.
 #'
-#' @param future_om_list User input to runSSMSE
+#' @param future_om_list User input to runSSMSE describing changes to make to
+#'  the operating model as it is extended forward in time
 #' @param scenario The scenario name
 #' @param niter The iteration number
 #' @param om_mod_path Path to the OM files. Used to reference parameter names.
 #' @param nyrs The total number of years that the model will be extended forward.
-#' @param global_seed A global seed to set, then pull new seeds from global seed + 1.
-#' Defaults to 123.
+#' @param global_seed A global seed to set, then pull new seeds from. Defaults 
+#'   to 123.
 #' @author Kathryn Doering
-#' @return A list including 3 dataframes: devs_df, the additive deviations 
+#' @return A list including 3 dataframes and one list: devs_df, the additive deviations 
 #'  relative to the base values; base_df, the base values of the parameter with 
 #'  deviations; abs_df, the absolute future values by year (first col) and 
-#'  parameter (parameterss in different cols).
+#'  parameter (parameterss in different cols). Also includes a modified version
+#'  of the future_om_list which includes the seed applied to each list component
+#'  (note that this is not the ultimate seed used for sampling, as addiitonal)
+#'  seeds are generated from this seed based on the scenario, iteration, and 
+#'  option for randomness (replicate across scenarios or randomize across scenarios).
+#'  Note that no OM files are modified or created as part of this function 
+#'  (i.e., it does not have side effects).
 convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
                                               niter, om_mod_path, nyrs, 
                                               global_seed = 123
@@ -98,10 +105,10 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
 #' Match parameter name to parameter names in the par file
 #' 
 #' @param list_pars the parameter names to find
-#' @param the parfile in which to find list_pars
+#' @param par the parfile in which to find list_pars
+#' @author Kathryn Doering
 #' @return A dataframe containing the parameter name and which object it is in
 #'  in the par object.
-# Find the par name in a par file. Use partial matching?
 match_parname <- function(list_pars, par) {
   # make table of values
   par_name_tbl <- data.frame(pars = rownames(par[["MG_parms"]]),
@@ -143,17 +150,19 @@ match_parname <- function(list_pars, par) {
   subset_parname_tbl
 }
 
-#' Sample deviations from normal, lognormal, or AR-1 process.
+#' Sample vals from normal random, lognormal random, or modified AR-1 
+#' process.
 #' 
 #' @param mean A single value or vector of mean parameters
 #' @param sd A single value or vector of sd parameter
 #' @param ar_1_phi The phi (coefficient) value for an ar 1 process. Should be 
-#'  Between -1 and 1. 0 means an AR 1 process will NOT be used. 1 Indicates a
-#'  random walk.
-#' @param seed the seed that will be set before sampling
-#' @param ndevs The number of deviations to expect
+#'  between -1 and 1. 0 means an AR 1 process will NOT be used. 1 indicates a
+#'  random walk. A single value or vector.
+#' @param seed The seed that will be set before sampling
+#' @param ndevs The number of sampled values to expect
+#' @param dist The distribution to sample from.
 #' @author Kathryn Doering
-sample_devs <- function(mean,
+sample_vals <- function(mean,
                         sd,
                         ar_1_phi = 0,
                         seed,
@@ -175,7 +184,7 @@ sample_devs <- function(mean,
   # sample
   set.seed(seed)
   if(isTRUE(is.na(ar_1_phi) | unique(ar_1_phi) == 0)) {
-    devs <- switch(dist,
+    samps <- switch(dist,
            normal = rnorm(n = ndevs, mean = mean, sd = sd), 
            # other way of writing: obs * exp(rnorm(n = 1, mean = 0, sd = sd) - sd^2/2)
            # note term in front is the bias correction to make E(x) = exp(mu) 
@@ -194,19 +203,19 @@ sample_devs <- function(mean,
     # arima_sim function.
     # need to think more about if this is correct or  not. this isn't exactly
     # an ar 1 process as described....because the variance isn't constant.
-    devs <- vector(mode = "numeric", length = ndevs)
+    samps <- vector(mode = "numeric", length = ndevs)
     nonstat_warning <- TRUE
     for (d in seq_len(ndevs)) {
       if(d == 1) {
-        past_dev <- 0 # I think
+        past_samp <- 0 # I think
       } else {
-        past_dev <- devs[d-1]
+        past_samp <- samps[d-1]
       }
       if(abs(ar_1_phi[d]) < 1) {
-        devs[d] <- mean[d]*(1-ar_1_phi[d]) + ar_1_phi[d]*past_dev + 
+        samps[d] <- mean[d]*(1-ar_1_phi[d]) + ar_1_phi[d]*past_samp + 
           rnorm(1, mean = 0, sd = sd[d]/sqrt(1/(1-ar_1_phi[d]^2)))    
       } else {
-        devs[d] <- mean[d] + ar_1_phi[d]*past_dev + rnorm(1, mean = 0, sd = sd[d])
+        samps[d] <- mean[d] + ar_1_phi[d]*past_samp + rnorm(1, mean = 0, sd = sd[d])
         nonstat_warning <- TRUE
       }
     }
@@ -214,7 +223,7 @@ sample_devs <- function(mean,
       warning("An AR1 process with phi >= 1 was called, therefore will be nonstationary.")
     }
   }
-  devs
+  samps
 }
 
 #' Add the deviation changes from the list obj to an existing df
@@ -224,8 +233,10 @@ sample_devs <- function(mean,
 #' @param iter The iteration name
 #' @param par the parameter list
 #' @param dat The data list
-#' @param nyrs The number of years to extend the model forward
 #' @param vals_df The dataframe with future om values
+#' @param nyrs The number of years to extend the model forward
+#' @author Kathryn Doering
+#' @return A modified version of vals_df with the new changes applied.
 add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   if(is.null(fut_list)) {
     return(vals_df)
@@ -312,17 +323,14 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
       # if it is specified: then parse this input to figure out what the 
       # sampled mean should be.
       # find the sd: 2) is the sd specified? If not, use sd of 1 to sample (or historical sd?)
-      devs <- sample_devs(mean = mean, sd = sd, ar_1_phi = ar_1_phi,
+      samp_vals <- sample_vals(mean = mean, sd = sd, ar_1_phi = ar_1_phi,
                                ndevs = nyrs,
                                seed = fut_list$seed, dist = fut_list$pattern[2])
-      # this works for 1 parameter only
 
-      vals_df[[i]] <- devs # Maybe these should just replace what is alredy there?
-
-      # Now, should have a complete list of the dev vals to apply
+      vals_df[[i]] <- samp_vals
     }
   } else if (fut_list$pattern[1] == "custom") {
-    # custom ---
+    # custom ----
     for (i in where_par$pars) {
       tmp_base <- where_par[where_par$pars == i, "est"]
       # custom will just replace any values for the pattern.
@@ -343,16 +351,18 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   
   #' Calculate the parameter trend
   #' 
-  #' @start_val The start value for the trend
-  #' @val_info The line in the input df containing info about the parameter.
-  #' @val_line Which line in val info to use. Can be mean or sd, but need to add
-  #'  more options for time varying parameters, perhaps.
-  #' @ref_parm_value This is the historic parameter that the end trend value.
+  #' @param val_info The line in the input df containing info about the parameter.
+  #' @param val_line Which line in val info to use.
+  #' @param ref_parm_value This is the historic parameter that the end trend value.
   #'  Can be NA if the there is no line in val_info for the given parameter
-  #' @vals_df Use to get start val and last year
-  #' @parname Name of the parameter with devs from the SS model.
+  #' @param vals_df The dataframe of the parameter values by year. Use to get 
+  #'  start val and last year
+  #' @param parname Name of the parameter with devs from the SS model.
   #'  will reference, if using a relative method.
-  #' @par the par file list
+  #' @param par The par file list.
+  #' @author Kathryn Doering
+  #' @return A vector of values with length ncol(vals_df), the number of future
+  #'  years.
   calc_par_trend <- function(val_info,
                              val_line = c("mean", "sd", "cv", "ar_1_phi"), 
                              ref_parm_value, vals_df, parname, par) {
