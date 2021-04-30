@@ -119,6 +119,7 @@ match_parname <- function(list_pars, par) {
                         data.frame(pars = "rec_devs", obj = "recdev1"))
   par_name_tbl <- rbind(par_name_tbl, data.frame(pars = "impl_error", obj = NA))
   if(isTRUE(list_pars == "all")) {
+    #TODO: consider which parameters should be included in the "all" option.
     # note that impl_error is not included in all for now; not sure if it should be?
     #return(par_name_tbl)
     list_pars <- par_name_tbl[["pars"]]
@@ -160,7 +161,7 @@ sample_devs <- function(mean,
                         dist = c("normal", "lognormal")) {
   # checks
   dist <- match.arg(dist, several.ok = FALSE)
-    #note: arima.sim(list(order = c(1,0,0), ar = phi), n = nyrs)+mean
+  #note: arima.sim(list(order = c(1,0,0), ar = phi), n = nyrs)+mean, if mean, sd fixed.
 
   if(length(mean) == 1) {
     mean <- rep(mean, length = ndevs)
@@ -401,7 +402,6 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
       start_val <- ref_parm_value # I'm not sure this is right or not for the sd???
     }
     last_yr <- vals_df[nrow(vals_df), "yrs"]
-    #TODO: not sure this is exactly right. Getting confused about which is the
     if(isFALSE(val_line %in% val_info$ts_param)) {
       # use the start value
       return(start_val)

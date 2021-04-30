@@ -277,7 +277,6 @@ test_that("Creating the devs df works with sampling", {
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SizeSel_P_3_Fishery(1)"))
   expect_equivalent(devs_df$yrs, 101:110)
   expect_equivalent(devs_df[["SizeSel_P_3_Fishery(1)"]], c(rep(0, 2), rep(4.5-5.275309, 8)), tolerance = 0.0001)
-  #TODO: add check for NatM. Need a way to fig(ure out the seed used so can reproduce
   expect_true(all(devs_df$NatM_p_1_Fem_GP_1 > (-0.03))) # very unlikely to be less than 3 sds away, but possible...
   expect_true(all(devs_df$NatM_p_1_Fem_GP_1 < (0.03))) # very unlikely to be greater than 3 sds away, but possible
 })
@@ -304,7 +303,6 @@ test_that("Creating the devs df works with custom", {
 })
 
 test_that("Creating the devs df works with log normal dist", {
-  #TODO: get this up and running.
   tmp_future_om_list <- vector(mode = "list", length = 2)
   tmp_future_om_list <- lapply(tmp_future_om_list,
     function (x) x <- vector(mode = "list", length = 4))
@@ -359,7 +357,6 @@ test_that("Creating the devs df works with log normal dist", {
 })
 
 test_that("Creating the devs df works for recdevs, implementation error", {
-  #TODO: creat this test up and running.
   # note: do we want to limit users from modifying regime and R0 since they are 
   # able to modify the recdevs?
   ext_files <- system.file(package = "SSMSE")
@@ -384,9 +381,6 @@ test_that("Creating the devs df works for recdevs, implementation error", {
   
 })
 
-# https://en.wikipedia.org/wiki/Autoregressive_model#Example:_An_AR(1)_process
-# https://nwfsc-timeseries.github.io/atsa-labs/sec-tslab-autoregressive-ar-models.html
-# use arima.sim(list(order = c(1,0,0), ar = phi), n = nyrs)* mean val +trend (maybe?)
 test_that("Creating the devs df works with time series options", {
   #TODO: get this up and running.
   tmp_future_om_list <- vector(mode = "list", length = 2)
@@ -458,12 +452,9 @@ test_that("creating the devs df works with cv", {
   ext_files <- system.file(package = "SSMSE")
   om_path <- file.path(ext_files, "extdata", "models", "cod")
   tmp_future_om_list <- future_om_list_2
-  # for now, just apply to 1 parameter; turn off later
-  #tmp_future_om_list[[1]]$pars <- "NatM_p_1_Fem_GP_1"
   tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
   tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
                                                   scen_list =  scen_list)
-  #TODO: need to add code to allow for "all" to be used.
   devs_list <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list,
     scen_name = "scen2",
@@ -475,8 +466,6 @@ test_that("creating the devs df works with cv", {
   expect_true(nrow(devs_df) == 12)
   expect_length(colnames(devs_df), 42)
   expect_equivalent(devs_df[["yrs"]], 101:112)
-  # TODO: figure out how to characterize all of the changes. Just put in the 2 
-  # obvious (I think) values for now. 
   base_M <- unique(devs_list$base_vals$NatM_p_1_Fem_GP_1)
   base_sel <- unique(devs_list$base_vals[["SizeSel_P_4_Fishery(1)"]])
   cv_val <- tmp_future_om_list[[1]]$input[tmp_future_om_list[[1]]$input$ts_param == "cv", "value"]
@@ -563,9 +552,4 @@ test_that("Setting seeds works as intended", {
   expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
                     devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
   expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.
-})
-
-test_that("Sampling from AR1 process works as intended", {
-  #TODO: add this. make sure our AR1 sampling process is working like arima_sim
-  # if sd and mean aren't changing, should work the same.
 })
