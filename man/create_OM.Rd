@@ -11,6 +11,8 @@ create_OM(
   verbose = FALSE,
   nyrs = NULL,
   nyrs_assess = NULL,
+  nscen = 1,
+  niter = 1,
   rec_devs = NULL,
   future_om_list = NULL,
   verify_OM = TRUE,
@@ -31,7 +33,9 @@ create_OM(
 MSE. A single integer value.}
 
 \item{nyrs_assess}{The number of years between assessments. This is used to
-structure the forecast file for use in the OM.}
+structure the forecast file for use in the OM.
+@param nscen The scenario number
+@param niter the iteration number}
 
 \item{rec_devs}{Vector of recruitment deviations for simulation.}
 
