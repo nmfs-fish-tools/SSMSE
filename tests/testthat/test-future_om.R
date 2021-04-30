@@ -553,3 +553,12 @@ test_that("Setting seeds works as intended", {
                     devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
   expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.
 })
+
+test_that("Historical values applied appropriately",  {
+  # TODO: implement. Not sure how well tested using historical values is.
+})
+
+test_that("Randomize and replicate work as expected for the custom values", {
+  #TODO: implement or at least check that code working as expected for both
+  # scenarios (may already be a test that checks this)
+})
