@@ -464,7 +464,7 @@ test_that("creating the devs df works with cv", {
   devs_df <- devs_list$dev_vals
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)
-  expect_length(colnames(devs_df), 42)
+  expect_length(colnames(devs_df), 38)
   expect_equivalent(devs_df[["yrs"]], 101:112)
   base_M <- unique(devs_list$base_vals$NatM_p_1_Fem_GP_1)
   base_sel <- unique(devs_list$base_vals[["SizeSel_P_4_Fishery(1)"]])

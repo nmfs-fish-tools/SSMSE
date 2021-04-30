@@ -130,6 +130,11 @@ match_parname <- function(list_pars, par) {
     # note that impl_error is not included in all for now; not sure if it should be?
     #return(par_name_tbl)
     list_pars <- par_name_tbl[["pars"]]
+    # remove SR params we don't want to be time varying
+    #  SR_sigmaR, SR_regime, SR_autocorr
+    pars_to_rm <- c("SR_sigmaR", "SR_regime", "SR_autocorr", "impl_error")
+    tmp_keep <- which(!list_pars %in% pars_to_rm)
+    list_pars <- list_pars[tmp_keep]
   }
   
   where_pars <- match(list_pars, par_name_tbl[["pars"]])

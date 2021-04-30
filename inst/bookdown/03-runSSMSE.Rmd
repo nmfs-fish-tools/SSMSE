@@ -112,7 +112,7 @@ Note there is just one change specified here. For the change, there are four lis
 
 * `"rec_devs"` - For specifying recruitment deviations
 * `"impl_error` - For specifying implementation error in transforming a management procedure's specified future catch into realized catch.
-* `"all"` - Apply the change to all parameters in the model, with the exception of R0 and regime parameters (changing these would conflict with allowing changes to recruitment deviations). The change also applies to implementation error.
+* `"all"` - Apply the change to all parameters in the model, with the exception of "SR_sigmaR", "SR_regime", "SR_autocorr", and "impl_error" parameters. Changing the first 3 stock recruitment related parameters would conflict with changes in recruitment deviations. Since implementation error  is not a parameter specified in the control file and SSMSE does not rely on the implementation error parameter created through the forecasting file, including the implementation error in "all" did not seem necessary.
 
 In this case, we just want to apply the change to the `SizeSel_P_3_Fishery(1)` parameter of the model.
 
