@@ -557,8 +557,3 @@ test_that("Setting seeds works as intended", {
 test_that("Historical values applied appropriately",  {
   # TODO: implement. Not sure how well tested using historical values is.
 })
-
-test_that("Randomize and replicate work as expected for the custom values", {
-  #TODO: implement or at least check that code working as expected for both
-  # scenarios (may already be a test that checks this)
-})
