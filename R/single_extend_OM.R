@@ -15,10 +15,12 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
     
     #First check for recruitment deviation projections and implement them
     for(i in grep("rec_devs",names(future_om_dat))){
+      if(!is.null(dat[["MainRdevYrLast"]])){
       late_years <- dat[["endyr"]]-dat[["MainRdevYrLast"]]
+      }else{late_years<-0}
       late_devs <- parlist[["recdev_forecast"]][0:late_years,"recdev"]
-      parlist[["recdev_forecast"]][,"year"] <- (dat[["endyr"]]-late_years+1):(dat[["endyr"]]+length(future_om_dat[,i]))
-      parlist[["recdev_forecast"]][,"recdev"] <- c(late_devs,future_om_dat[,i])
+      parlist[["recdev_forecast"]] <- data.frame("year"=(dat[["endyr"]]-late_years+1):(dat[["endyr"]]+length(future_om_dat[,i])),
+                                                 "recdev"=c(late_devs,future_om_dat[,i]))
     }
     
     #Next check for environmental index projections and add them
@@ -54,6 +56,16 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
         temp_ctl <- rbind(ctl[["size_selex_parms"]],ctl[["age_selex_parms"]],ctl[["dirichlet_parms"]])
         temp_tv <- rbind(ctl[["size_selex_parms_tv"]],ctl[["age_selex_parms_tv"]],ctl[["pars_2D_AR"]])
         temp_par <- parlist[["S_parms"]]
+        
+        if(!is.null(ctl[["size_selex_parms"]])){size_length <-length(ctl[["size_selex_parms"]][,1])}else{size_length<-0}
+        if(!is.null(ctl[["age_selex_parms"]])){age_length <-length(ctl[["age_selex_parms"]][,1])}else{age_length <- 0}
+        if(!is.null(ctl[["dirichlet_parms"]])){dirich_length <-length(ctl[["dirichlet_parms"]][,1])}else{dirich_length <- 0}
+        
+        
+        if(!is.null(ctl[["size_selex_parms_tv"]])){tv_size_length <-length(ctl[["size_selex_parms_tv"]][,1])}else{tv_size_length<-0}
+        if(!is.null(ctl[["age_selex_parms_tv"]])){tv_age_length <-length(ctl[["age_selex_parms_tv"]][,1])}else{tv_age_length <- 0}
+        if(!is.null(ctl[["pars_2D_AR"]])){tv_2DAR_length <-length(ctl[["pars_2D_AR"]][,1])}else{tv_2DAR_length <- 0}
+        
       }
       
       #Now select which elements of this group will be updated
@@ -61,10 +73,11 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
       
       #Find all of the existing blocks that have time varying aspects already so they can be carried over and modified 
       #as needed to interface with the new projected variations
-      TV_existing <- c(sort(which(temp_ctl[any(temp_ctl[, c("env_var&link", "dev_link", "Block")] != 0),])),2*length(temp_ctl))
-      block_existing <- c(sort(which(temp_ctl[any(temp_ctl[, c("Block")] != 0),])),2*length(temp_ctl))
-      env_existing <- c(sort(which(temp_ctl[any(temp_ctl[, c("env_var&link")] != 0),])),2*length(temp_ctl))
-      dev_existing <- c(sort(which(temp_ctl[any(temp_ctl[, c("dev_link")] != 0),])),2*length(temp_ctl))
+      block_existing <- sort(c(which(temp_ctl[, c("Block")] != 0),2*length(temp_ctl)))
+      env_existing <- sort(c(which(temp_ctl[, c("env_var&link")] != 0),2*length(temp_ctl)))
+      dev_existing <- sort(c(which(temp_ctl[, c("dev_link")] != 0),2*length(temp_ctl)))
+      TV_existing <- sort(unique(c(block_existing,env_existing,dev_existing)))
+      
       old_tv <- temp_tv
       old_par <- temp_par
       old_par_tv <- old_par[(length(old_par[,1])-length(old_tv[,1])+1):length(old_par[,1]),]
@@ -199,6 +212,17 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
             new_tv <- rbind(new_tv,tv_dummy)
             new_par_tv <- rbind(new_par_tv,tv_par_dummy)
             new_par_devs[[(length(new_par_devs)+1)]] <- data.frame(year=((dat[["endyr"]]+1):(dat[["endyr"]]+length(future_om_dat[,i]))),dev=c(future_om_dat[,i]))
+            
+            if(s==4){
+              
+              if(current_par<=size_length){
+                tv_size_length <- tv_size_length + 2
+              }else if(current_par<=(size_length+age_length)){
+                tv_age_length <- tv_age_length + 2
+              }else if(current_par<=(size_length+age_length+dirich_length)){
+                tv_2DAR_length <- tv_2DAR_length + 2
+              }
+            }
           }
           
           TV_existing <- TV_existing[TV_existing>current_par]
@@ -230,20 +254,38 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
         ctl[["Q_parms_tv"]] <- temp_tv
         parlist[["Q_parms"]] <- temp_par
       }else if(s==4){
-        ctl[["size_selex_parms"]] <- temp_ctl[1:length(ctl[["size_selex_parms"]][,1]),]
-        temp_ctl <- temp_ctl[-(1:length(ctl[["size_selex_parms"]][,1])),,drop=FALSE]
-        ctl[["age_selex_parms"]] <- temp_ctl[1:length(ctl[["age_selex_parms"]][,1]),]
-        temp_ctl <- temp_ctl[-(1:length(ctl[["age_selex_parms"]][,1])),,drop=FALSE]
-        ctl[["dirichlet_parms"]] <- temp_ctl[1:length(ctl[["dirichlet_parms"]][,1]),]
-        temp_ctl <- temp_ctl[-(1:length(ctl[["dirichlet_parms"]][,1])),,drop=FALSE]
+        if(!is.null(ctl[["size_selex_parms"]])){
+          if(length(ctl[["size_selex_parms"]][,1])>=1){
+            ctl[["size_selex_parms"]] <- temp_ctl[1:length(ctl[["size_selex_parms"]][,1]),]
+            temp_ctl <- temp_ctl[-(1:length(ctl[["size_selex_parms"]][,1])),,drop=FALSE]
+          }
+        }
+        if(!is.null(ctl[["age_selex_parms"]])){
+          if(length(ctl[["age_selex_parms"]][,1])>=1){
+            ctl[["age_selex_parms"]] <- temp_ctl[1:length(ctl[["age_selex_parms"]][,1]),]
+            temp_ctl <- temp_ctl[-(1:length(ctl[["age_selex_parms"]][,1])),,drop=FALSE]
+          }
+        }
+        if(!is.null(ctl[["dirichlet_parms"]])){
+          if(length(ctl[["dirichlet_parms"]][,1])>=1){
+            ctl[["dirichlet_parms"]] <- temp_ctl[1:length(ctl[["dirichlet_parms"]][,1]),]
+            temp_ctl <- temp_ctl[-(1:length(ctl[["dirichlet_parms"]][,1])),,drop=FALSE]
+          }
+        }
         if(length(temp_ctl[,1])>0){stop("Something is wrong, the number of temp selection parameters is not correct. This is likely a code bug not user error")}
-          
-        ctl[["size_selex_parms_tv"]] <- temp_tv[1:length(ctl[["size_selex_parms_tv"]][,1]),]
-        temp_tv <- temp_tv[-(1:length(ctl[["size_selex_parms_tv"]][,1])),,drop=FALSE]
-        ctl[["age_selex_parms_tv"]] <- temp_tv[1:length(ctl[["age_selex_parms_tv"]][,1]),]
-        temp_tv <- temp_tv[-(1:length(ctl[["age_selex_parms_tv"]][,1])),,drop=FALSE]
-        ctl[["pars_2D_AR"]] <- temp_tv[1:length(ctl[["pars_2D_AR"]][,1]),]
-        temp_tv <- temp_tv[-(1:length(ctl[["pars_2D_AR"]][,1])),,drop=FALSE]
+        
+        if(tv_size_length>=1) { 
+          ctl[["size_selex_parms_tv"]] <- temp_tv[1:tv_size_length,]
+          temp_tv <- temp_tv[-(1:tv_size_length),,drop=FALSE]
+        }
+        if(tv_age_length>=1){
+          ctl[["age_selex_parms_tv"]] <- temp_tv[1:tv_age_length,]
+          temp_tv <- temp_tv[-(1:tv_age_length),,drop=FALSE]
+        }
+        if(tv_2DAR_length>=1){
+          ctl[["pars_2D_AR"]] <- temp_tv[1:tv_2DAR_length,]
+          temp_tv <- temp_tv[-(1:tv_2DAR_length),,drop=FALSE]
+        }
         if(length(temp_tv[,1])>0){stop("Something is wrong, the number of temp time varying selection parameters is not correct. This is likely a code bug not user error")}
           
         parlist[["S_parms"]] <- temp_par 
