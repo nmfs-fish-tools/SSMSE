@@ -368,7 +368,6 @@ update_basevals_blocks <- function(base_vals,base_years,temp_block,current_par,c
   return(base_vals)
 }
 
-
 #' Update a sequence of base parameter annual values to account for a time varying environmental effects  
 #' 
 #' @param base_vals A vector of base parameter values that will be updated to include the impact of a time varying environmental effects

@@ -21,8 +21,8 @@ future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = 1,
                                              last_yr_orig_val = 100,
                                              first_yr_final_val = 101, 
                                              ts_param = "sd", 
-                                             method = "multiplier", 
-                                             value = 1) # jitter with a standard deviation equal to the historic standard deviation
+                                             method = "absolute", 
+                                             value = 0.01) # jitter with a standard deviation equal to 0.01
 
 
 # add values for selectivity curve param. step change occuring in year 103
@@ -121,9 +121,9 @@ future_om_list_4[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, NA),
                                                last_yr_averaging = c(100, NA),
                                                last_yr_orig_val = c(100, 100),
                                                first_yr_final_val = c(101, 101), 
-                                               ts_param = c("sd", "ar_1_q_parm"), # I think this is the degree of differencing param, aka q?
+                                               ts_param = c("sd", "ar_1_phi"), # coeff on ar 1 process.
                                                method = c("multiplier", "absolute"),
-                                               value = c(1, .5)) # NOTE: Auto correlation has to be a value less than 1 and greater than -1 to be stationary
+                                               value = c(1, 0.1)) # NOTE: Auto correlation has to be a value less than 1 and greater than -1 to be stationary
                                                                 # a value of 1 would be a perfect random walk. Negative values can have weird stationary distributions that 
                                                                  # oscillate positive to negative, kind of like a sound wave where the amplitude is the random walk. 
 
@@ -146,7 +146,7 @@ future_om_list_4[[2]][["input"]] <- data.frame(
 # Time-varying parameter input dataframe
 # This object will be passed from a sampling function that calculates environmental linkage devs 
 # to a file update function that modifies SS files to incorporate new timevarying impacts
-nyrs=100 #the total number of years to run MSE simulations for
+nyrs <- 100 #the total number of years to run MSE simulations for
 Time_varying_devs <- data.frame(rec_devs=rnorm(nyrs),#The functions I'm using are just examples. just input a vector of values of length nyrs
                                 LnQ_base_Survey_2=rnorm(nyrs), #We will need to modify the naming of some par slightly like this one to not have brackets
                                 Env_1=rnorm(nyrs), #I think we should use Env_n or something similar for when we are extending an existing environmental index
@@ -198,27 +198,32 @@ future_om_list_2 <- check_future_om_list_str(future_om_list_2)
 future_om_list_3 <- check_future_om_list_str(future_om_list_3)
 future_om_list_4 <- check_future_om_list_str(future_om_list_4)
 
+scen_list <- create_scen_list(
+  scen_name_vec = c("scen1", "scen2", "scen3"),
+  out_dir_scen_vec = NULL,
+  iter_vec = 5,
+  OM_name_vec = "cod",
+  EM_name_vec = "cod",
+  MS_vec = "EM",
+  use_SS_boot_vec = TRUE,
+  nyrs_vec = c(6, 6, 6),
+  nyrs_assess_vec = 3
+)
 test_that("checks with scen info doesnt error with valid input", {
-  scen_list <- create_scen_list(
-    scen_name_vec = c("scen1", "scen2", "scen3"),
-    out_dir_scen_vec = NULL,
-    iter_vec = 5,
-    OM_name_vec = "cod",
-    EM_name_vec = "cod",
-    MS_vec = "EM",
-    use_SS_boot_vec = TRUE,
-    nyrs_vec = c(6, 6, 6),
-    nyrs_assess_vec = 3
-  )
    return_list <- check_future_om_list_vals(future_om_list = future_om_list, 
                                          scen_list = scen_list)
    expect_equal(return_list, future_om_list)
    return_list_2 <- check_future_om_list_vals(future_om_list = future_om_list_3, 
                                          scen_list = scen_list)
-   expect_equal(return_list_2, future_om_list_3)
+   expect_return <- future_om_list_3
+   expect_return[[1]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_return[[2]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_equal(return_list_2, expect_return)
    return_list_3 <- check_future_om_list_vals(future_om_list = future_om_list_4, 
                                               scen_list = scen_list)
-   expect_equal(return_list_3, future_om_list_4)
+   expect_return <- future_om_list_4
+   expect_return[[1]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_equal(return_list_3, expect_return)
 })
 
 test_that("Checks with scen info does catch bad input", {
@@ -254,4 +259,301 @@ test_that("Checks with scen info does catch bad input", {
   expect_error(check_future_om_list_vals(future_om_list = bad_future_om_list, 
                                          scen_list = scen_list), 
                "Expecting 90, but there are 89 rows")
+})
+
+test_that("Creating the devs df works with sampling", {
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
+  future_om_list <- check_future_om_list_vals(future_om_list = future_om_list,
+                                              scen_list =  scen_list)
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 10)
+  devs_df <- devs_list$dev_vals
+  expect_true(nrow(devs_df) == 10)
+  expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SizeSel_P_3_Fishery(1)"))
+  expect_equivalent(devs_df$yrs, 101:110)
+  expect_equivalent(devs_df[["SizeSel_P_3_Fishery(1)"]], c(rep(0, 2), rep(4.5-5.275309, 8)), tolerance = 0.0001)
+  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 > (-0.03))) # very unlikely to be less than 3 sds away, but possible...
+  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 < (0.03))) # very unlikely to be greater than 3 sds away, but possible
+})
+test_that("Creating the devs df works with custom", {
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  future_om_list_3 <- check_future_om_list_str(future_om_list = future_om_list_3)
+  future_om_list_3 <- check_future_om_list_vals(future_om_list = future_om_list_3,
+                                              scen_list =  scen_list)
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = future_om_list_3,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 9 # note: replaces years 107 to 110 with 0s since no values provided.
+    )
+  devs_df <- devs_list$dev_vals
+  expect_true(nrow(devs_df) == 9)
+  expect_equal(colnames(devs_df) , c("yrs", "VonBert_K_Fem_GP_1", "LnQ_base_Survey(2)"))
+  expect_equivalent(devs_df[["yrs"]], 101:109)
+  expect_equivalent(devs_df[["VonBert_K_Fem_GP_1"]], c(rep(0.2 - 0.2039802, 6), rep(0, 3)), tolerance = 0.001)  # maybe provide a warning if 0s for custom changes?
+  expect_equivalent(devs_df[["LnQ_base_Survey(2)"]],
+    c(seq(0, 0.0207711*1.5 - 0.0207711, length.out = 7)[-1], 
+      rep(0.0207711*1.5 - 0.0207711, 3)), tolerance = 0.0001)
+})
+
+test_that("Creating the devs df works with log normal dist", {
+  tmp_future_om_list <- vector(mode = "list", length = 2)
+  tmp_future_om_list <- lapply(tmp_future_om_list,
+    function (x) x <- vector(mode = "list", length = 4))
+  names(tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
+  
+  # add in vals for M and steepness. Jitter after year 101, with a log normal dist.
+  # note users inputs for lognormal should be on the nominal scale still
+  tmp_future_om_list[[1]][["pars"]] <- c("NatM_p_1_Fem_GP_1", "SR_BH_steep")
+  tmp_future_om_list[[1]][["scen"]] <- c("randomize","scen1", "scen2")
+  tmp_future_om_list[[1]][["pattern"]] <- c("model_change","lognormal")
+  tmp_future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = NA,
+                                               last_yr_averaging = NA,
+                                               last_yr_orig_val = 101,
+                                               first_yr_final_val = 102, 
+                                               ts_param = "sd", 
+                                               method = "absolute", 
+                                               value = 0.02) # jitter with a standard deviation equal to 0.01
+  
+  
+  # add values for selectivity curve param. step change occuring in year 103
+  tmp_future_om_list[[2]][["pars"]] <- "NatM_p_1_Fem_GP_1" # had to figure this out from reading in the par file.
+  tmp_future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
+  tmp_future_om_list[[2]][["pattern"]] <- c("model_change", "normal") # defaults to normal (with SD 0, mean at last yr of mod val?)
+  tmp_future_om_list[[2]][["input"]] <- data.frame(first_yr_averaging = NA, # NA b/c not using historical values
+                                               last_yr_averaging = NA, # NA b/c not using historical values
+                                               last_yr_orig_val = 106,
+                                               first_yr_final_val = 112, # use 12 years projection  
+                                               ts_param = "mean",
+                                               method = "additive", # need to implmeent this option
+                                               value =  0.2) # so at end should be 0.4
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                scen_list =  scen_list)
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_df <- devs_list$dev_vals
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 12)
+  expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
+  expect_equivalent(devs_df[["yrs"]], 101:112)
+  # TODO: figure out how to characterize all of the changes. Just put in the 2 
+  # obvious (I think) values for now. 
+  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.2)
+  expect_equivalent(devs_df[1,"SR_BH_steep"], 0)
+})
+
+test_that("Creating the devs df works for recdevs, implementation error", {
+  # note: do we want to limit users from modifying regime and R0 since they are 
+  # able to modify the recdevs?
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list_4 <- check_future_om_list_str(future_om_list = future_om_list_4)
+  tmp_future_om_list_4 <- check_future_om_list_vals(future_om_list = tmp_future_om_list_4,
+                                                  scen_list =  scen_list)
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list_4,
+    scen_name = "scen3",
+    niter  = 3,
+    om_mod_path = om_path, nyrs = 6
+  )
+  devs_df <- devs_list$dev_vals
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 6)
+  expect_equal(colnames(devs_df) , c("yrs", "rec_devs", "impl_error"))
+  expect_equivalent(devs_df[["yrs"]], 101:106)
+  # TODO:add better expectation for recdevs (not sure how this would work for multi area models)
+  expect_true(all(devs_df$rec_devs != 0))
+  expect_true(all(devs_df[["impl_error"]] == 1.1))
+  
+})
+
+test_that("Creating the devs df works with time series options", {
+  #TODO: get this up and running.
+  tmp_future_om_list <- vector(mode = "list", length = 2)
+  tmp_future_om_list <- lapply(tmp_future_om_list,
+                               function (x) x <- vector(mode = "list", length = 4))
+  names(tmp_future_om_list[[1]]) <- c("pars", "scen", "pattern", "input")
+  names(tmp_future_om_list[[2]]) <- c("pars", "scen", "pattern", "input")
+  
+  # add in vals for M and steepness. Jitter after year 101, with a normal dist.
+  tmp_future_om_list[[1]][["pars"]] <- c("NatM_p_1_Fem_GP_1", "SR_BH_steep")
+  tmp_future_om_list[[1]][["scen"]] <- c("randomize","scen1", "scen2")
+  tmp_future_om_list[[1]][["pattern"]] <- c("model_change","normal")
+  tmp_future_om_list[[1]][["input"]] <- data.frame(first_yr_averaging = NA,
+                                                   last_yr_averaging = NA,
+                                                   last_yr_orig_val = 101,
+                                                   first_yr_final_val = 102, 
+                                                   ts_param = c("sd", "ar_1_phi"), # The coefficient.
+                                                   method = "absolute", 
+                                                   value = c(0.02, 0.8))
+  
+  
+  # add values for selectivity curve param. step change occuring in year 103
+  tmp_future_om_list[[2]][["pars"]] <- "NatM_p_1_Fem_GP_1" # had to figure this out from reading in the par file.
+  tmp_future_om_list[[2]][["scen"]] <- c("replicate", "scen2")
+  tmp_future_om_list[[2]][["pattern"]] <- c("model_change", "normal") # defaults to normal (with SD 0, mean at last yr of mod val?)
+  tmp_future_om_list[[2]][["input"]] <- data.frame(first_yr_averaging = NA, # NA b/c not using historical values
+                                                   last_yr_averaging = NA, # NA b/c not using historical values
+                                                   last_yr_orig_val = 106,
+                                                   first_yr_final_val = 112, # use 12 years projection  
+                                                   ts_param = "mean",
+                                                   method = "additive", # need to implmeent this option
+                                                   value =  0.2) # so at end should be 0.4
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                    scen_list =  scen_list)
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+
+  devs_df <- devs_list$dev_vals
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 12)
+  expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
+  expect_equivalent(devs_df[["yrs"]], 101:112)
+  # TODO: figure out how to characterize all of the changes. Just put in the 2 
+  # obvious (I think) values for now. 
+  expect_equivalent(devs_df[12,"NatM_p_1_Fem_GP_1"], 0.2)
+  expect_equivalent(devs_df[1,"SR_BH_steep"], 0)
+  
+  # TODO: check that the steepness SR_BH_steep values are sampled correctly.
+  # compare sampled values with arima
+  # want theses:
+  # not quite sure how to do this?
+  # devs_list$abs_vals$SR_BH_steep
+  # devs_list$future_om_list[[1]]$seed # the seed
+  # set.seed(devs_list$future_om_list[[1]]$seed)
+  # # first value:
+  # #first_val <- rnorm(1, mean = 0, sd = 0)
+  # 0.65 + arima.sim(list(order = c(1,1,0), ar = 0.8), n = 11, sd = 0.02)
+  
+})
+
+test_that("creating the devs df works with cv", {
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list <- future_om_list_2
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                  scen_list =  scen_list)
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_df <- devs_list$dev_vals
+  # modify the following expectations
+  expect_true(nrow(devs_df) == 12)
+  expect_length(colnames(devs_df), 38)
+  expect_equivalent(devs_df[["yrs"]], 101:112)
+  base_M <- unique(devs_list$base_vals$NatM_p_1_Fem_GP_1)
+  base_sel <- unique(devs_list$base_vals[["SizeSel_P_4_Fishery(1)"]])
+  cv_val <- tmp_future_om_list[[1]]$input[tmp_future_om_list[[1]]$input$ts_param == "cv", "value"]
+  # The following tests could fail, but are unlikely to. Test that the values 
+  # are within +/- 3 sigma.
+  expect_true(all(devs_df[,"NatM_p_1_Fem_GP_1"] <= (3*base_M*cv_val)) &
+              all(devs_df[,"NatM_p_1_Fem_GP_1"] >= (-3*base_M*cv_val)))
+  expect_true(all(devs_df[,"SizeSel_P_4_Fishery(1)"] <= (3*base_sel*cv_val)) &
+              all(devs_df[,"SizeSel_P_4_Fishery(1)"] >= (-3*base_sel*cv_val)))
+  #TODO: consider this option more thoroughly. Some of these params shouldn't be
+  # simultaneously (e.g., SR parameters and recdevs. What to do about 0 and 
+  # negative values?)
+})
+
+test_that("Creating the devs df works with devs in initial model", {
+  #TODO: create this test up and running.
+  
+})
+
+
+test_that("Setting seeds works as intended", {
+  # check replicate option works
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "cod")
+  tmp_future_om_list <- future_om_list
+  tmp_future_om_list[[2]] <- NULL
+  tmp_future_om_list <- check_future_om_list_str(future_om_list = tmp_future_om_list)
+  tmp_future_om_list <- check_future_om_list_vals(future_om_list = tmp_future_om_list,
+                                                  scen_list =  scen_list)
+  devs_list_1 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_2 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_3 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 2,
+    om_mod_path = om_path, nyrs = 12
+  )
+  expect_equal(devs_list_1$dev_vals, devs_list_2$dev_vals)
+  # Need each iteration to be different when using replicate
+  expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
+                    devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  
+  # now, check randomize option works.
+  tmp_future_om_list[[1]]$scen[1] <- "randomize"
+  
+  devs_list_1 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_2 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_2_dup <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 12
+  )
+  devs_list_3 <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_future_om_list,
+    scen_name = "scen3",
+    niter  = 2,
+    om_mod_path = om_path, nyrs = 12
+  )
+  
+  expect_true(all(devs_list_1$dev_vals$NatM_p_1_Fem_GP_1 != 
+                  devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  # Need each iteration to be different
+  expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
+                    devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.
+})
+
+test_that("Historical values applied appropriately",  {
+  # TODO: implement. Not sure how well tested using historical values is.
 })
