@@ -411,7 +411,6 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
 #' 
 
 update_basevals_blocks <- function(base_vals,base_years,temp_block,current_par,ctl,dat,temp_ctl,base_range,baseparm,base_bounds){
-  browser()
   if(temp_ctl[current_par,c("Block")] > 0){
     n_blocks <- ctl[["blocks_per_pattern"]][temp_ctl[current_par,c("Block")]]
     blocks <- ctl[["Block_Design"]][[temp_ctl[current_par,c("Block")]]]
