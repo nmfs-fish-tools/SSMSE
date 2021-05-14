@@ -63,7 +63,10 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
 
   start <- r4ss::SS_readstarter(file = file.path(om_mod_path, "starter.ss"),
                                 verbose = FALSE)
-  dat <- r4ss::SS_readdat(file.path(om_mod_path, start[["datfile"]]), verbose = F)
+  dat <- r4ss::SS_readdat(file.path(om_mod_path, start[["datfile"]]),
+                          verbose = FALSE)
+  ctl <- r4ss::SS_readctl(file.path(om_mod_path, start[["ctlfile"]]), 
+                          datlist = dat)
   par <- r4ss::SS_readpar_3.30(parfile = file.path(om_mod_path, "ss.par"),
                                datsource = file.path(om_mod_path, start$datfile),
                                ctlsource = file.path(om_mod_path, start$ctlfile),
@@ -82,7 +85,7 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
   #now, add changes on top of this. Note this is the TOTAL value.
   for (i in seq_len(length(future_om_list))) {
     vals_df <- add_dev_changes(fut_list = future_om_list[[i]], scen = scen_name, iter = niter, 
-                               par = par, dat = dat, vals_df = vals_df, nyrs = nyrs)
+                               par = par, dat = dat, vals_df = vals_df, nyrs = nyrs, ctl = ctl)
   }
   # remove base values from pars? I think soo...
   vals_df
@@ -100,7 +103,7 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
                       abs_vals = vals_df, 
                       future_om_list = future_om_list)
   return_list
-} 
+}
 
 #' Match parameter name to parameter names in the par file
 #' 
@@ -240,9 +243,10 @@ sample_vals <- function(mean,
 #' @param dat The data list
 #' @param vals_df The dataframe with future om values
 #' @param nyrs The number of years to extend the model forward
+#' @param ctl The control file list
 #' @author Kathryn Doering
 #' @return A modified version of vals_df with the new changes applied.
-add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
+add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) {
   if(is.null(fut_list)) {
     return(vals_df)
   }
@@ -287,21 +291,30 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
                                par = par,
                                ref_parm_value = where_par[where_par$pars == i, "est"],
                                vals_df = vals_df, # use to potentially get trend start value.
-                               parname = i
+                               parname = i,
+                               ctl = ctl,
+                               par_section = where_par[where_par$pars == i, "obj"], 
+                               dat = dat
                                )
         sd <- calc_par_trend(val_info = fut_list$input, 
                              val_line = "sd",
                              par = par,
                              ref_parm_value = 0, # may not always be correct?
                              vals_df = vals_df, # use to get trend start value, and last yr. 
-                             parname = i
+                             parname = i,
+                             ctl = ctl,
+                             par_section = where_par[where_par$pars == i, "obj"],
+                             dat = dat
                              )
         cv <-  calc_par_trend(val_info = fut_list$input, 
                               val_line = "cv",
                               par = par,
                               ref_parm_value = 0, # may not always be correct?
                               vals_df = vals_df, # use to get trend start value, and last yr. 
-                              parname = i
+                              parname = i,
+                              ctl = ctl, 
+                              par_section = where_par[where_par$pars == i, "obj"],
+                              dat = dat
                              )
         if(any(cv != 0)) {
           # calculate the sd to use
@@ -365,12 +378,15 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
   #' @param parname Name of the parameter with devs from the SS model.
   #'  will reference, if using a relative method.
   #' @param par The par file list.
+  #' @param ctl The control file read in using r4ss.
+  #' @param par_section Which parameter section should this variabile be in?
+  #' @param The data file read in using r4ss
   #' @author Kathryn Doering
   #' @return A vector of values with length ncol(vals_df), the number of future
   #'  years.
   calc_par_trend <- function(val_info,
                              val_line = c("mean", "sd", "cv", "ar_1_phi"), 
-                             ref_parm_value, vals_df, parname, par) {
+                             ref_parm_value, vals_df, parname, par, ctl, par_section, dat) {
     
     val_line <- match.arg(val_line, several.ok = FALSE)
     # determine historical value, if necessary. This will replace the ref_parm_value
@@ -392,10 +408,112 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
                                  ar_1_phi = stats::arima(tmp_vals, order = c(1,0,0))$coef[1])
       } else { # for all other parameters
         # check for tv devs
-        if(isTRUE(!is.null(par[["parm_devs"]]))) { #TODO: implement this and remove the stop
-          stop("code not yet written to deal with tv parms in original OM")
-          # in this case, will need to do the historical avg if user requests it.
-        } 
+        ctl$S_parms <- rbind(ctl[["size_selex_parms"]], ctl[["age_selex_parms"]], 
+                             ctl[["dirichlet_parms"]])
+        if(!is.null(ctl$age_selex_parms_tv) | !is.null(ctl$size_selex_parms_tv)) {
+          ctl$S_parms_tv <- rbind(ctl$size_selex_parms_tv, ctl$age_selex_parms_tv)
+        }
+        tv_par_def <- ctl[[par_section]][rownames(ctl[[par_section]]) == parname,
+                                       c("env_var&link", "dev_link", "Block")]
+        if(any(tv_par_def != 0)) {
+          #TODO: need to figure out in this case what the historical values are
+          # and figure out the base value to use.
+          # blocks/parameter trend
+          # get the starting base values
+          first_tv <- TRUE # switch to determine if this is the first tv defined or not.
+          temp_ctl <- ctl[[par_section]]
+          current_par <- which(row.names(temp_ctl) == parname)
+          if(tv_par_def$Block != 0) {
+            # pull out the block and/or trend parameters
+
+            parfile_par_block_loc <- 
+              c(grep(paste0(parname, "_BLK"),  rownames(par[[par_section]]),
+                     fixed = TRUE), 
+                grep(paste0(parname, "_Trend"),  rownames(par[[par_section]]),
+                     fixed = TRUE))
+            parfile_par_block <- par[[par_section]][parfile_par_block_loc, ]                        
+            parfile_base_val <- par[[par_section]][parname, "ESTIM"]
+            if(first_tv == TRUE) {
+              vals <- rep(parfile_base_val, 
+                          length.out = length(val_info$first_yr_averaging:val_info$last_yr_averaging))
+            } # note that otherwise, vals is already defined.
+            
+            vals <- update_basevals_blocks(
+              base_vals = vals,
+              base_years = val_info$first_yr_averaging:val_info$last_yr_averaging,
+              temp_block = parfile_par_block, 
+              current_par = current_par, 
+              dat = dat,
+              ctl = ctl,
+              temp_ctl = temp_ctl, 
+              base_range = ctl[[par_section]][parname, "HI"] - ctl[[par_section]][parname, "LO"], 
+              baseparm = parfile_base_val,
+              base_bounds = c(ctl[[par_section]][parname, "LO"], ctl[[par_section]][parname, "HI"])
+                               )
+              first_tv <- FALSE
+          }
+          # env
+          if(tv_par_def[["env_var&link"]] != 0) {
+            parfile_base_val <- par[[par_section]][parname, "ESTIM"]
+            if(first_tv == TRUE) {
+              vals <- rep(parfile_base_val, length.out = length(val_info$first_yr_averaging:val_info$last_yr_averaging))
+            } # note that otherwise, vals is already defined.
+            temp_env <- par[[par_section]][grep(paste0(parname, "_ENV"),
+                                                rownames(par[[par_section]]),
+                                                fixed = TRUE), ]
+            if(ctl[[par_section]][current_par, "env_var&link"] < 0) {
+              out <- r4ss::SS_output(dirname(dat$sourcefile), verbose = FALSE)
+              timeseries <- out$timeseries
+            } else {
+              timeseries <- NA # shouldnt need unless using biology.
+            }
+            vals <- update_basevals_env(
+              base_vals = vals,
+              base_years = val_info$first_yr_averaging:val_info$last_yr_averaging,
+              temp_env = temp_env,
+              current_par = current_par,
+              timeseries = timeseries,
+              temp_ctl = temp_ctl,
+              dat = dat,
+              base_range = ctl[[par_section]][parname, "HI"] - ctl[[par_section]][parname, "LO"],
+              base_bounds = c(ctl[[par_section]][parname, "LO"], ctl[[par_section]][parname, "HI"])
+            )
+            first_tv <- FALSE
+          }
+          # dev
+          if(tv_par_def[["dev_link"]] != 0) {
+            #TODO: need to check on how to update these if not additive?
+            parfile_base_val <- par[[par_section]][parname, "ESTIM"]
+            if(first_tv == TRUE) {
+              vals <- rep(parfile_base_val,
+                length.out = length(val_info$first_yr_averaging:val_info$last_yr_averaging))
+            } # note that otherwise, vals is already defined.
+            dev_par <- grep(paste0(parname,"_dev"),
+                            row.names(par[[par_section]]), fixed = TRUE)
+            temp_dev <- par[[par_section]][dev_par, ]
+            # currently not sure of the difference between temp_dev and dev_seq.
+            
+            vals <- update_basevals_dev(
+              base_vals = vals,
+              temp_dev = temp_dev,
+              dev_seq = rep(0, length.out = length(vals)),
+              current_par = current_par,
+              temp_ctl = temp_ctl,
+              base_range = ctl[[par_section]][parname, "HI"] - ctl[[par_section]][parname, "LO"],
+              base_bounds = c(ctl[[par_section]][parname, "LO"], ctl[[par_section]][parname, "HI"])
+            )
+            first_tv <- FALSE
+          }
+          # now, calculate the historical value to use as reference
+          ref_parm_value <- switch(val_line, 
+                                   mean = mean(vals), 
+                                   sd = sd(vals),
+                                   cv = sd(vals)/mean(vals),
+                                   ar_1_phi = stats::arima(vals, order = c(1,0,0))$coef[1])
+        } else {
+          ref_parm_value <- ref_parm_value # just keep using the default if no TV
+        }
+
         # the base parm value should just be used as the reference in this case.
         ref_parm_value <- ref_parm_value # keeep using the default.
       }
@@ -447,3 +565,5 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs) {
     }
     trend
   }
+  
+  

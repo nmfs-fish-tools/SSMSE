@@ -480,10 +480,90 @@ test_that("creating the devs df works with cv", {
   # negative values?)
 })
 
-test_that("Creating the devs df works with devs in initial model", {
-  #TODO: create this test up and running.
+
+test_that("Creating the devs df works with timevarying pars in initial model", {
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "growth_timevary")
+  future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
+  future_om_list <- check_future_om_list_vals(future_om_list = future_om_list,
+                                              scen_list =  scen_list)
+  test_list <- future_om_list
+  test_list[[1]]$input$first_yr_averaging <- 1990
+  test_list[[1]]$input$last_yr_averaging <- 2009
+  test_list[[1]]$input$last_yr_orig_val <- 2009
+  test_list[[1]]$input$first_yr_final_val <- 2010
+  test_list[[2]]$pars <- "AgeSel_P_3_Fish1(1)"
+  test_list[[2]]$input$first_yr_averaging <- 2000
+  test_list[[2]]$input$last_yr_averaging <- 2009
+  test_list[[2]]$input$last_yr_orig_val <- 2011
+  test_list[[2]]$input$first_yr_final_val <- 2012
+
+  # add another change LnQ_base_Surv1(3), which already has parameter devs.
+  tmp_list <- list(pars = "LnQ_base_Surv1(3)", 
+                   scen = c("replicate", "scen2"), 
+                   pattern = c("model_change", "normal"), 
+                   input = data.frame(first_yr_averaging = 1990, 
+                                      last_yr_averaging = 2009, 
+                                      last_yr_orig_val = 2011, 
+                                      first_yr_final_val = 2012, 
+                                      ts_param = "mean", 
+                                      method = "multiplier", value = 1.5)
+                   )
+  test_list[[3]] <- tmp_list
   
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = test_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 10)
+  dev_vals <- devs_list$dev_vals
+  dev_vals
+  # check M are in the range expected
+  expect_true(all(dev_vals$NatM_p_1_Fem_GP_1 < 3*test_list[[1]]$input$value))
+  expect_true(all(dev_vals$NatM_p_1_Fem_GP_1 > -3*test_list[[1]]$input$value))
+  # check Sel vals in range expected
+  before_change_vals <- devs_list$abs_vals[devs_list$abs_vals$yrs <= test_list[[2]]$input$last_yr_orig_val, "AgeSel_P_3_Fish1(1)"]
+  after_change_vals <- devs_list$abs_vals[devs_list$abs_vals$yrs > test_list[[2]]$input$last_yr_orig_val, "AgeSel_P_3_Fish1(1)"]
+  base_vals_tmp <- unique(devs_list$base_vals$`AgeSel_P_3_Fish1(1)`)
+  change_vals_tmp <- test_list[[2]]$input$value
+  expect_true(all(before_change_vals == base_vals_tmp))
+  expect_true(all(after_change_vals == change_vals_tmp))
+  # check Q vals in range expected
+  expect_true(all(dev_vals$`LnQ_base_Surv1(3)`[1:2] == 0))
+  expect_equivalent(dev_vals$`LnQ_base_Surv1(3)`[3:10], rep(-0.176569, length.out = 8))
 })
+
+test_that("Tests a model with env link using historical values", {
+  ext_files <- system.file(package = "SSMSE")
+  om_path <- file.path(ext_files, "extdata", "models", "SR_env_block")
+
+  tmp_list <- list(list(pars = "SR_LN(R0)",
+                   scen = c("replicate", "scen2"), 
+                   pattern = c("model_change", "normal"), 
+                   input = data.frame(first_yr_averaging = 1990, 
+                                      last_yr_averaging = 2000, 
+                                      last_yr_orig_val = 2001, 
+                                      first_yr_final_val = 2002, 
+                                      ts_param = "mean", 
+                                      method = "multiplier", value = 1.1)))
+   tmp_list <- check_future_om_list_str(future_om_list = tmp_list)
+   tmp_list <- check_future_om_list_vals(future_om_list = tmp_list,
+                                         scen_list =  scen_list)
+   devs_list <- convert_future_om_list_to_devs_df(
+     future_om_list = tmp_list,
+     scen_name = "scen2",
+     niter  = 1,
+     om_mod_path = om_path, nyrs = 10)
+   expect_length(length(unique(devs_list$dev_vals$`SR_LN(R0)`)), 1)
+   dat <- r4ss::SS_readdat(file.path(om_path, "data.ss_new"))
+   dat <- dat$envdat
+   env_vals <- dat[dat$Yr >= tmp_list[[1]]$input$first_yr_averaging &
+       dat$Yr <= tmp_list[[1]]$input$last_yr_averaging, "Value"]
+   env_parval <- 0.862777  #hard coded based on the model used.
+   base_val <- mean(unique(devs_list$base_vals$`SR_LN(R0)`) + env_parval*env_vals)
+   expect_equivalent(unique(devs_list$abs_vals$`SR_LN(R0)`), base_val*1.1)
+})
+
 
 
 test_that("Setting seeds works as intended", {
@@ -554,6 +634,10 @@ test_that("Setting seeds works as intended", {
   expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.
 })
 
-test_that("Historical values applied appropriately",  {
-  # TODO: implement. Not sure how well tested using historical values is.
-})
+
+#TODO: probably want to add this test to make more robust. could potentially add
+# onto an existing test.
+test_that("list builds properly when multiple changes done to the same variable that is already time varying", 
+          {
+            
+          })
