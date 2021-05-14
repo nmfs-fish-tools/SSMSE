@@ -105,7 +105,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
           current_par <- which(is.element(row.names(temp_ctl),names(future_om_dat)[i]))
           #Now transfer over all time varying parameters with a lower index directly to the new updated parameter list
           for(j in TV_existing[TV_existing<current_par]){
-            trans_par <- grep(row.names(temp_ctl)[j],row.names(old_par_tv))
+            trans_par <- grep(row.names(temp_ctl)[j],row.names(old_par_tv), fixed = TRUE)
             for(k in trans_par){
               new_tv <- rbind(new_tv,old_tv[1,])
               old_tv <- old_tv[-1,,drop=FALSE]
@@ -121,8 +121,9 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
           }
           #If the current parameter to update with future om devs already has block effects copy these over 
           #to the new parameter list and save them for possible use in converting parameter devs if needed
+          
           if(is.element(current_par,block_existing)){
-            block_par <- c(grep(paste0(row.names(temp_ctl)[current_par],"_BLK"),row.names(old_par_tv)),grep(paste0(row.names(temp_ctl)[current_par],"_Trend"),row.names(old_par_tv)))
+            block_par <- c(grep(paste0(row.names(temp_ctl)[current_par],"_BLK"),row.names(old_par_tv), fixed = TRUE),grep(paste0(row.names(temp_ctl)[current_par],"_Trend"),row.names(old_par_tv), fixed = TRUE))
             temp_block <- old_par_tv[block_par,]
             new_tv <- rbind(new_tv,old_tv[block_par,])
             old_tv <- old_tv[-block_par,,drop=FALSE]
@@ -135,7 +136,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
           #If the current parameter to update with future om devs already has environmental effects copy these over 
           #to the new parameter list and save them for possible use in converting parameter devs if needed
           if(is.element(current_par,env_existing)){
-            env_par <- grep(paste0(row.names(temp_ctl)[current_par],"_ENV"),row.names(old_par_tv))
+            env_par <- grep(paste0(row.names(temp_ctl)[current_par],"_ENV"),row.names(old_par_tv), fixed = TRUE) # used fixed = TRUE with grep if not using any regular expressions
             temp_env <- old_par_tv[env_par,]
             new_tv <- rbind(new_tv,old_tv[env_par,])
             old_tv <- old_tv[-env_par,,drop=FALSE]
@@ -149,7 +150,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
           #to be converted to a format compatible with the new MSE period devs
           if(is.element(current_par,dev_existing)){
             #First we need to copy over the existing tv_parameter values
-            dev_par <- grep(paste0(row.names(temp_ctl)[current_par],"_dev"),row.names(old_par_tv))
+            dev_par <- grep(paste0(row.names(temp_ctl)[current_par],"_dev"),row.names(old_par_tv), fixed = TRUE)
             temp_dev <- old_par_tv[dev_par,]
             new_tv <- rbind(new_tv,old_tv[dev_par,])
             old_tv <- old_tv[-dev_par,,drop=FALSE]
@@ -399,7 +400,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
 #' @param base_years A vector of years for which the base values are needed
 #' @param temp_block The timevarying parameter lines for the block effects on the base parameter
 #' @param current_par The index of the current parameter being updated
-#' @param clt A control file as read in by r4ss::SS_readctl
+#' @param ctl A control file as read in by r4ss::SS_readctl
 #' @param dat A datafile as read in by r4ss::SS_readdat
 #' @param temp_ctl A subset of the control file representing the parameter section of interest (i.e. MG, SR, Q, or Selectivity)
 #' @param base_range the difference between the base parameters max and min bounds
