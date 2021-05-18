@@ -554,7 +554,7 @@ test_that("Tests a model with env link using historical values", {
      scen_name = "scen2",
      niter  = 1,
      om_mod_path = om_path, nyrs = 10)
-   expect_length(length(unique(devs_list$dev_vals$`SR_LN(R0)`)), 1)
+   expect_length(unique(devs_list$dev_vals$`SR_LN(R0)`), 1)
    dat <- r4ss::SS_readdat(file.path(om_path, "data.ss_new"))
    dat <- dat$envdat
    env_vals <- dat[dat$Yr >= tmp_list[[1]]$input$first_yr_averaging &
@@ -562,6 +562,30 @@ test_that("Tests a model with env link using historical values", {
    env_parval <- 0.862777  #hard coded based on the model used.
    base_val <- mean(unique(devs_list$base_vals$`SR_LN(R0)`) + env_parval*env_vals)
    expect_equivalent(unique(devs_list$abs_vals$`SR_LN(R0)`), base_val*1.1)
+   
+   new_change <- list(pars = "SR_LN(R0)", 
+                      scen = c("replicate", "scen2"), 
+                      pattern = c("model_change", "normal"), 
+                      input = data.frame(first_yr_averaging = 1995, 
+                                         last_yr_averaging = 2000, 
+                                         last_yr_orig_val = 2005, 
+                                         first_yr_final_val = 2007, 
+                                         ts_param = "mean", 
+                                         method = "multiplier", 
+                                         value = 1.2))
+  tmp_list[[2]] <- new_change
+  devs_list <- convert_future_om_list_to_devs_df(
+    future_om_list = tmp_list,
+    scen_name = "scen2",
+    niter  = 1,
+    om_mod_path = om_path, nyrs = 10)
+  expect_length(unique(devs_list$dev_vals$`SR_LN(R0)`), 3)
+  env_vals <- dat[dat$Yr >= tmp_list[[2]]$input$first_yr_averaging &
+                    dat$Yr <= tmp_list[[2]]$input$last_yr_averaging, "Value"]
+  env_parval <- 0.862777  #hard coded based on the model used.
+  base_val <- mean(unique(devs_list$base_vals$`SR_LN(R0)`) + env_parval*env_vals)
+  expect_equivalent(unique(devs_list$abs_vals$`SR_LN(R0)`[6:10]), base_val*1.2)
+  
 })
 
 
@@ -633,11 +657,3 @@ test_that("Setting seeds works as intended", {
                     devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
   expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.
 })
-
-
-#TODO: probably want to add this test to make more robust. could potentially add
-# onto an existing test.
-test_that("list builds properly when multiple changes done to the same variable that is already time varying", 
-          {
-            
-          })
