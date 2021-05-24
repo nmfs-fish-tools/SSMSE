@@ -63,7 +63,7 @@ The Department of Commerce seal and logo, or the seal and logo of a DOC
 bureau, shall not be used in any manner to imply endorsement of any
 commercial product or activity by DOC or the United States Government.”
 
-<!-- - This project code is made available through GitHub but is managed by NOAA at https://vlab.ncep.noaa.gov/redmine/projects/integrated-fisheries-toolbox/files -->
+<!-- - This project code is made available through GitHub but is managed by NOAA at https://vlab.noaa.gov/redmine/projects/integrated-fisheries-toolbox/files -->
 
 -----
 
@@ -257,7 +257,7 @@ number of forecasting years.
 
 More information on using the forecast module in SS to forecast catches
 is available in the [Stock Synthesis users
-manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
+manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
 ## Adding observation error: Specify how to sample data from the Operating model
 
