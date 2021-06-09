@@ -182,7 +182,7 @@ create_sample_struct <- function(dat, nyrs) {
           # Ageerr, Lbin_lo, Lbin_hi
           tmp_err <- unique(df[df[[seas_col]] == tmp_seas &
             df[[flt_col]] == tmp_flt, "Ageerr"])
-          if (length(tmp_sex) == 1) {
+          if (length(tmp_err) == 1) {
             future_pat[["Ageerr"]] <- tmp_err
           } else {
             future_pat[["Ageerr"]] <- NA
