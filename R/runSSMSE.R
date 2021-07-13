@@ -658,10 +658,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param rec_dev_iter A recruitment deviation vector for the iteration.
-#'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
-#' @param impl_error An implementation error vector for the iteration.
-#'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
+#' @param nyrs_lag number of years of lag in obtaining data. i.e. the number of years
+#'  post EM assessment end yr before advice can be implemented. defaults to 0.  
 #' @param nscen The scenario number.
 #' @param scen_name Name of the scenario. The directory containing all the model
 #'  runs the scenario will be stored within a folder of this name.
@@ -750,8 +748,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            use_SS_boot = TRUE,
                            nyrs = 100,
                            nyrs_assess = 3,
-                           rec_dev_iter = NULL,
-                           impl_error = NULL,
+                           nyrs_lag = 0,
                            nscen = 1,
                            scen_name = NULL,
                            niter = 1,
@@ -830,16 +827,16 @@ run_SSMSE_iter <- function(out_dir = NULL,
     sample_struct <- convert_to_r4ss_names(sample_struct)
     sample_struct_hist <- convert_to_r4ss_names(sample_struct_hist)
   }
+  
+  #Convert the user input parameter modifications into vectors of annual additive deviations
+  future_om_dat <- convert_future_om_list_to_devs_df(future_om_list=future_om_list, scen_name=scen_name, niter=niter, om_mod_path=OM_out_dir, nyrs=nyrs, global_seed = (iter_seed[["iter"]][1] + 1234) )
+  
   # MSE first iteration ----
   # turn the stock assessment model into an OM
-  # This function is now needed in order to make changes such as run from
-  # the par file and potentially change F method to 2 to unify results.
-  # TODO: create_OM is probably where were should set up adding devs for parameters
-
-  create_OM(
+  impl_error<-create_OM(
     OM_out_dir = OM_out_dir, overwrite = TRUE,
     sample_struct_hist = sample_struct_hist, verbose = verbose, writedat = TRUE, nyrs = nyrs,
-    nyrs_assess = nyrs_assess, nscen = nscen, scen_name = scen_name, niter = niter, rec_devs = rec_dev_iter, future_om_list = future_om_list,
+    nyrs_assess = nyrs_assess, nscen = nscen, scen_name = scen_name, niter = niter, future_om_dat = future_om_dat,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
 
@@ -866,16 +863,21 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
 
-  # SINGLE_RUN_MODS: not sure if we need to adjust things here, we may need an input for the year to 
-  # start the assessment if it turns out it is currently being read from the end year of the OM??
+  nyrs_lag <- 0
+  first_catch_yr <- (OM_dat[["endyr"]] - nyrs + 1)
+  n_yrs_catch <- nyrs_assess + nyrs_lag
+  EM_avail_dat <- OM_dat
+  EM_avail_dat[[endyr]] <- first_catch_yr - (1 + nyrs_lag)
+  
   new_catch_list <- parse_MS(
     MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
-    OM_dat = OM_dat, OM_out_dir = OM_out_dir,
-    verbose = verbose, nyrs_assess = nyrs_assess,
+    OM_dat = OM_dat, OM_out_dir = OM_out_dir, 
+    verbose = verbose, nyrs_assess = nyrs_assess, first_catch_yr = first_catch_yr,
+    n_yrs_catch = n_yrs_catch,
     interim_struct = interim_struct, dat_yrs = NA,
     seed = (iter_seed[["iter"]][1] + 123456)
   )
-
+  
   message(
     "Finished getting catch (years ",
     (OM_dat[["endyr"]] + 1), " to ", (OM_dat[["endyr"]] + nyrs_assess),
@@ -886,8 +888,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # set up all the years when the assessment will be done.
   # remove first value, because done in the intialization stage.
   
-  # SINGLE_RUN_MODS: This needs to be referenced back to the original endyr not the new endyr with is endyr+nyrs
-  styr_MSE <- OM_dat[["endyr"]] # SINGLE_RUN_MODS: styr_MSE <- OM_dat[["endyr"]] - nyrs
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
   assess_yrs <- assess_yrs[-1]
   # calculate years after the last assessment. The OM will need to run
@@ -900,13 +900,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
   }
   # Loop over the assessment years.
   for (yr in assess_yrs) {
-    # checks, esp. to make sure future catch is not larger than the population
-    # biomass (or size, depending on units)
-    # TODO: improve this function below; we need better checks for all the
-    # new_catch_list components
-    # check_future_catch(catch = new_catch_list[["catch_bio"]],
-    #                    OM_dir = OM_out_dir,
-    #                    catch_units = "bio")
     # SINGLE_RUN_MODS: By removing forecasts and switching to an F based search routine it 
     # is no longer important to worry about high catch targets as we will input Fs and just 
     # have to set a cap for how high F could possibly be. I think we should add that as a 
@@ -918,15 +911,15 @@ run_SSMSE_iter <- function(out_dir = NULL,
         "."
       )
     }
-    rec_devs_chunk <- rec_dev_iter[1:nyrs_assess] 
-    rec_dev_iter <- rec_dev_iter[-(1:nyrs_assess)]
-    impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
-    impl_error <- impl_error[-(1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
+    #rec_devs_chunk <- rec_dev_iter[1:nyrs_assess] 
+    #rec_dev_iter <- rec_dev_iter[-(1:nyrs_assess)]
+    #impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
+    #impl_error <- impl_error[-(1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
 
     # SINGLE_RUN_MODS: Will need to update some things still but not all
     # probably need an input for current year so we can update the correct 
     # years of catch etc.
-    extend_OM(# SINGLE_RUN_MODS: maybe change function name to update_OM?
+    update_OM(# SINGLE_RUN_MODS: maybe change function name to update_OM?
       catch = new_catch_list[["catch"]],
       discards = new_catch_list[["discards"]],
       harvest_rate = new_catch_list[["catch_F"]],
@@ -934,9 +927,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
       sample_struct = sample_struct,
       future_om_list = future_om_list,
       nyrs_extend = nyrs_assess,
-      # SINGLE_RUN_MODS: dat_yrs = (yr - nyrs_assess+1):yr
-      rec_devs = rec_devs_chunk,
-      impl_error = impl_error_chunk,
+      mod_yrs = (yr - nyrs_assess+1):yr
+      impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 234567 + yr)
     )

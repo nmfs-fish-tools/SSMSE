@@ -11,15 +11,13 @@
 #'   MSE. A single integer value.
 #' @param nyrs_assess The number of years between assessments. This is used to
 #'  structure the forecast file for use in the OM.
-#'  @param nscen The scenario number
-#'  @param scen_name The scenario name
-#'  @param niter the iteration number
+#' @param nscen The scenario number
+#' @param scen_name The scenario name
+#' @param niter the iteration number
 #' @param writedat Should a new datafile be written?
-#' @param rec_devs Vector of recruitment deviations for simulation.
-#' @param future_om_list An optional list of lists including changes that should
-#'  be made after the end year of the input model. Each first level list element
-#'  outlines 1 change to be made to the operating model. This will identify which
-#'  parameters to turn deviations on for
+#' @param future_om_dat An optional data_frame including changes that should
+#'  be made after the end year of the input model. Including parameter variations,
+#'  recruitment deviations, and implementation errors.
 #' @param verify_OM Should the model be run without estimation and some basic
 #'  checks done to verify that the OM can run? Defaults to TRUE.
 #' @param sample_struct_hist The historical sample structure, if specified by 
@@ -38,8 +36,7 @@ create_OM <- function(OM_out_dir,
                       nscen = 1, 
                       scen_name = NULL,
                       niter = 1,
-                      rec_devs = NULL, # SINGLE_RUN_MODS: delete 
-                      future_om_list = NULL,
+                      future_om_dat = NULL,
                       verify_OM = TRUE,
                       sample_struct_hist = NULL,
                       seed = NULL) {
@@ -103,54 +100,10 @@ create_OM <- function(OM_out_dir,
   # modify forecast file ----
   currentNforecast <- forelist[["Nforecastyrs"]]
   
-  # SINGLE_RUN_MODS: forelist[["benchmarks"]] <- 0
-  # SINGLE_RUN_MODS: forelist[["Forecast"]] <- 0
-  forelist[["Nforecastyrs"]] <- nyrs_assess # SINGLE_RUN_MODS: forelist[["Nforecastyrs"]] <- 0
-  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1 # SINGLE_RUN_MODS: forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs + 1
-  forelist[["InputBasis"]] <- 3 # SINGLE_RUN_MODS: remove
-  forelist[["ControlRuleMethod"]] <- 1 # SINGLE_RUN_MODS: remove
-  forelist[["BforconstantF"]] <- 0.001 # SINGLE_RUN_MODS: remove
-  forelist[["BfornoF"]] <- 0.0001 # SINGLE_RUN_MODS: remove
-  forelist[["Flimitfraction"]] <- 1 # SINGLE_RUN_MODS: remove
-
-  
-  # SINGLE_RUN_MODS: remove this section
-  # convert forecast year selectors to absolute form
-  for (i in 1:6) { # SINGLE_RUN_MODS: remove
-    x <- forelist[["Fcast_years"]][i] # SINGLE_RUN_MODS: remove
-    if (x == -999) { # SINGLE_RUN_MODS: remove
-      forelist[["Fcast_years"]][i] <- dat[["styr"]] # SINGLE_RUN_MODS: remove
-    } else if (x <= 0) { # SINGLE_RUN_MODS: remove
-      forelist[["Fcast_years"]][i] <- dat[["endyr"]] + x # SINGLE_RUN_MODS: remove
-    } else if (x < dat[["styr"]] | x > dat[["endyr"]]) { # SINGLE_RUN_MODS: remove
-      stop("Forecast year should be <=0 or between start year and end year") # SINGLE_RUN_MODS: remove
-    } # SINGLE_RUN_MODS: remove
-  } # SINGLE_RUN_MODS: remove
-  
-  
-  # SINGLE_RUN_MODS: refactor this to be values put directly into the OM data 
-  # alternatively remove this and force the user to always run the EM in the first year which makes sense
-  
-  # put together a Forecatch dataframe using retained catch as a starting point for the OM
-  # this would only matter if an EM assessment is not run in the first year.
-  units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"] # SINGLE_RUN_MODS: remove
-  names(units_of_catch) <- as.character(which(dat[["fleetinfo"]][["type"]] %in% c(1, 2))) # SINGLE_RUN_MODS: remove
-  ret_catch <- get_retained_catch( # SINGLE_RUN_MODS: remove
-    timeseries = outlist[["timeseries"]], # SINGLE_RUN_MODS: remove
-    units_of_catch = units_of_catch # SINGLE_RUN_MODS: remove
-  ) # SINGLE_RUN_MODS: remove
-  temp_fore <- ret_catch[ # SINGLE_RUN_MODS: remove
-    ret_catch[["Era"]] == "FORE", # SINGLE_RUN_MODS: remove
-    c("Yr", "Seas", "Fleet", "retained_catch") # SINGLE_RUN_MODS: remove
-  ] # SINGLE_RUN_MODS: remove
-  row.names(temp_fore) <- NULL # SINGLE_RUN_MODS: remove
-  names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F") # SINGLE_RUN_MODS: remove
-  
-  # only put values in that are in the Fcas year range. # SINGLE_RUN_MODS: remove
-  forelist[["ForeCatch"]] <- temp_fore[ # SINGLE_RUN_MODS: remove
-    is.element(temp_fore[["Year"]], (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs_assess)), # SINGLE_RUN_MODS: remove
-  ] # SINGLE_RUN_MODS: remove
-
+  forelist[["benchmarks"]] <- 0 # 
+  forelist[["Forecast"]] <- 0 # 
+  forelist[["Nforecastyrs"]] <- 0 # 
+  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs + 1 # 
   
   # modify ctl file ----
   # in the context of an OM, do not want to use the bias adjustment ramp, so just
@@ -189,25 +142,16 @@ create_OM <- function(OM_out_dir,
     )
   }
   
-  # SINGLE_RUN_MODS: add code to turn on parameter devs for the appropriate parameters in the ctl file and initialize mean and sd pars to some default value
-  
-  # SINGLE_RUN_MODS: modify this code to add in rec devs for all years not just nasses years.
-  # this shouldn't be too bad as fixing the main rec devs phase means all the values stay in the recdev_forecast input I think.
-  # also I think we should add modification here to input the random rec devs now.
-  # QUESTION: How does Rick implement average recruitement in the forecast period? I assume all our rec devs are around the SR relationship
-  # if we want a fixed recruitment we would need to modify the SR params or do an iterative search to compensate for the SR results.
-  # I don't think there is anywhere to input fixed absolute recruitment values.
-  
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
   # get recdevs for all model years
-  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ] # SINGLE_RUN_MODS: all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + nyrs), ]
+  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ] # 
   
-  # new_recdevs_df <- data.frame(year = dat[["styr"]]:dat[["endyr"]], recdev = NA)
   new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
-  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]), recdev = NA)   # SINGLE_RUN_MODS: fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + nyrs), recdev = NA)
-  for (i in seq_along(first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))) { # SINGLE_RUN_MODS: for (i in seq_along(first_year:(dat[["endyr"]] + nyrs))) {
-    tmp_yr <- (first_year:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))[i] # SINGLE_RUN_MODS: tmp_yr <- (first_year:(dat[["endyr"]] + nyrs))[i] 
+  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + nyrs), recdev = NA) # 
+  temp_yrs<-(first_year:(dat[["endyr"]] + nyrs))
+  for (i in seq_along(temp_yrs)) { # 
+    tmp_yr <- temp_yrs[i] #
     if (tmp_yr <= ctl[["MainRdevYrLast"]]) {
       step <- i
       if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
@@ -216,29 +160,17 @@ create_OM <- function(OM_out_dir,
         new_recdevs_df[i, "recdev"] <-
           all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
       }
-    } else if (tmp_yr <= dat[["endyr"]]) {
+    } else {
       if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
         fore_recdevs_df[(i - step), "recdev"] <- 0
       } else {
         fore_recdevs_df[(i - step), "recdev"] <-
           all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
       }
-    } else {
-      temp_recs <- get_rec_devs_matrix(
-        yrs = tmp_yr,
-        rec_devs = rec_devs
-      )
-      if (length(temp_recs[, "recdev"]) == 1) {
-        fore_recdevs_df[(i - step), "recdev"] <- temp_recs[1, "recdev"]
-      } else if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
-        fore_recdevs_df[(i - step), "recdev"] <- 0
-      } else {
-        fore_recdevs_df[(i - step), "recdev"] <-
-          all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
-      }
-    }
+    } 
   }
   
+  # add recdevs to the parlist
   new_recdevs_mat <- as.matrix(new_recdevs_df)
   new_fore_recdevs_mat <- as.matrix(fore_recdevs_df)
   if (!is.null(parlist[["recdev1"]])) {
@@ -246,11 +178,10 @@ create_OM <- function(OM_out_dir,
   } else if (!is.null(parlist[["recdev2"]])) {
     parlist[["recdev2"]] <- new_recdevs_mat
   } else {
-    stop("no recdevs in initial OM model")
+    stop("no recdevs in initial OM model. something is wrong")
   }
 
-  # SINGLE_RUN_MODS: Add F_rates for all years of the future simulation if they are not already included.
-  # a good default will probably be just to repeat whatever the final year F was in all future years
+  parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
   
   # use report.sso time series table to find the F's to put into the parlist.
   F_list <- get_F(
@@ -258,57 +189,77 @@ create_OM <- function(OM_out_dir,
     fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
   )
   
-  # SINGLE_RUN_MODS: default_F<-F_list[["F_rate"]][F_list[["F_rate"]][,"year"]==dat[["endyr"]],c("year", "seas", "fleet", "F")]
-  # SINGLE_RUN_MODS: new_F_rate<-rbind(F_list[["F_rate"]][, c("year", "seas", "fleet", "F")],F_list[["F_rate_fcast"]][,c("year", "seas", "fleet", "F")])
-  # SINGLE_RUN_MODS: for(i in (dat[["endyr"]]+1):(dat[["endyr"]]+nyrs)){
-  # SINGLE_RUN_MODS:   for(j in unique(new_F_rate[,"seas"])){
-  # SINGLE_RUN_MODS:     for(k in unique(new_F_rate[,"fleet"])){
-  # SINGLE_RUN_MODS:       temp_F_rate<-new_F_rate[new_F_rate[,"year"]==i & new_F_rate[,"seas"]==j & new_F_rate[,"fleet"]==k,,drop=FALSE]
-  # SINGLE_RUN_MODS:       if(length(temp_F_rate[,1])==0){
-  # SINGLE_RUN_MODS:          if(length(default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"])==0){
-  # SINGLE_RUN_MODS:              
-  # SINGLE_RUN_MODS:              #QUESTION# I've commented out the two lines below because I'm not sure how SS handles zeros still. The idea that it excludes zero years
-  # SINGLE_RUN_MODS:              #was fine when they were fit by the model but what happens when we are putting in fixed values?? how does it know what year we are 
-  # SINGLE_RUN_MODS:              #referencing if zeros are missing?? or will it work with us putting in zeros? Our get F function excludes zeros so I assume we 
-  # SINGLE_RUN_MODS:              #determined that SS/ADMB does? Maybe the model still relies on the catch inputs to identify the zero years?
-  # SINGLE_RUN_MODS:  
-  # SINGLE_RUN_MODS:            #temp_F_rate[1,]<-c(i,j,k,0)
-  # SINGLE_RUN_MODS:            #default_F<-rbind(default_F,temp_F_rate[1,])
-  # SINGLE_RUN_MODS:   
-  # SINGLE_RUN_MODS:          }else{
-  # SINGLE_RUN_MODS:            temp_F_rate[1,]<-c(i,j,k,default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"])
-  # SINGLE_RUN_MODS:            new_F_rate<-rbind(new_F_rate,temp_F_rate[1,])
-  # SINGLE_RUN_MODS:          }
-  # SINGLE_RUN_MODS:       }else{
-  # SINGLE_RUN_MODS:         default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,]<-c(i,j,k,temp_F_rate[])
-  # SINGLE_RUN_MODS:       }
-  # SINGLE_RUN_MODS:     }
-  # SINGLE_RUN_MODS:   }
-  # SINGLE_RUN_MODS: }
-  # SINGLE_RUN_MODS: new_F_rate <- new_F_rate[order(new_F_rate[, "fleet"], new_F_rate[, "year"], new_F_rate[, "seas"]), ]
-  # SINGLE_RUN_MODS: parlist[["F_rate"]]<-new_F_rate
-  # modify the init_F and F_rate in parlist if used.
-  # note that F_list[["F_rate"]] and F_list[["F_init]] are NULL if they had 0
-  # rows.
-  parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")] # SINGLE_RUN_MODS: delete
+  # SINGLE_RUN_MODS:
+  update_F_years <- (dat[["endyr"]]+1):(dat[["endyr"]]+nyrs)
+  
+  default_Catch<-data.frame(year=sort(rep(update_F_years,(length(unique(dat[["catch"]][,"seas"]))*length(unique(dat[["catch"]][,"fleet"]))))),
+                            seas=rep(sort(rep(unique(dat[["catch"]][,"seas"]),length(unique(dat[["catch"]][,"fleet"])))),length(update_F_years)),
+                            fleet=rep(sort(unique(dat[["catch"]][,"fleet"])),(length(unique(dat[["catch"]][,"seas"]))*length(update_F_years))),
+                            catch=rep(0.001,(length(unique(dat[["catch"]][,"seas"]))*length(unique(dat[["catch"]][,"fleet"]))*length(update_F_years))),
+                            catch_se=rep(0.01,(length(unique(dat[["catch"]][,"seas"]))*length(unique(dat[["catch"]][,"fleet"]))*length(update_F_years)))
+                            )
+  
+  new_catch <- dat[["catch"]][((dat[["catch"]][,"year"]<=dat[["endyr"]] & dat[["catch"]][,"year"]>=(-dat[["endyr"]]))|dat[["catch"]][,"year"]==-9999),,drop=FALSE]
+  new_catch <- rbind(new_catch,default_Catch)
+  
+  new_catch <- new_catch[order(new_catch[, "fleet"], new_catch[, "year"], new_catch[, "seas"]), ]
+  
+  dat[["catch"]] <- new_catch
+  
+  default_F <- F_list[["F_rate"]][F_list[["F_rate"]][,"year"]==dat[["endyr"]],c("year", "seas", "fleet", "F")]  
+  new_F_rate <- rbind(F_list[["F_rate"]][, c("year", "seas", "fleet", "F")],F_list[["F_rate_fcast"]][,c("year", "seas", "fleet", "F")])  
+  rownames(new_F_rate) <- rbind(F_list[["F_rate"]][, c("name")],F_list[["F_rate_fcast"]][,c("name")])  
+    
+    F_rate[["name"]] <- paste0(
+      "F_fleet_", F_rate[["fleet"]], "_YR_", F_rate[["year"]], "_s_",
+      F_rate[["seas"]]
+    )
+  
+  for(i in update_F_years){  
+    for(j in unique(new_F_rate[,"seas"])){    
+      for(k in unique(new_F_rate[,"fleet"])){      
+        temp_F_rate <- new_F_rate[new_F_rate[,"year"]==i & new_F_rate[,"seas"]==j & new_F_rate[,"fleet"]==k,,drop=FALSE]        
+        if(length(temp_F_rate[,1])==0){        
+          if(length(default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"])==0){          
+            temp_F_rate[1,] <- c(i,j,k,0)
+            rownames(temp_F_rate[1,]) <-  paste0("F_fleet_", k, "_YR_", i, "_s_", j)
+            default_F <- rbind(default_F,temp_F_rate[1,,drop=FALSE])       
+            new_F_rate <- rbind(new_F_rate,temp_F_rate[1,,drop=FALSE])             
+          }else{           
+            temp_F_rate[1,] <- c(i,j,k,default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"][1])  
+            rownames(temp_F_rate[1,]) <-  paste0("F_fleet_", k, "_YR_", i, "_s_", j)
+            new_F_rate <- rbind(new_F_rate,temp_F_rate[1,,drop=FALSE])             
+          }
+        }else{   
+          if(length(default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"])==0){   
+            default_F<-rbind(default_F,temp_F_rate[1,,drop=FALSE]) 
+          }else{         
+            default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,] <- temp_F_rate[1,,drop=FALSE]   
+          }
+        }  
+      } 
+    }
+  } 
+  new_F_rate <- new_F_rate[order(new_F_rate[, "fleet"], new_F_rate[, "year"], new_F_rate[, "seas"]), ]
+  parlist[["F_rate"]]<-new_F_rate  
+  
   parlist[["init_F"]] <- F_list[["init_F"]]
   
- 
-  
-  # add recdevs to the parlist
-  parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
-  # get_rec_devs_matrix(yrs = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]),
-  #                     rec_devs = rec_devs)
-  # want no implementation error for the forecast, so function adds in 0s.
-  parlist[["Fcast_impl_error"]] <-
-    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))# SINGLE_RUN_MODS: get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs))
-
+  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs))
 
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
   ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM
   ctl[["F_iter"]] <- NULL # make sure list components used by other F methods are NULL:
   ctl[["F_setup2"]] <- NULL # make sure list components used by other F methods are NULL:
 
+  single_run_files <- add_OM_devs(ctl=ctl, dat=dat, parlist=parlist, timeseries=outlist[["timeseries"]], future_om_dat=future_om_dat) 
+  
+  dat<-single_run_files$dat # SINGLE_RUN_MODS: 
+  ctl<-single_run_files$ctl # SINGLE_RUN_MODS: 
+  parlist<-single_run_files$parlist # SINGLE_RUN_MODS: 
+  impl_error<-single_run_files$impl_error
+  
+  dat[["endyr"]] <- dat[["endyr"]] + nyrs # SINGLE_RUN_MODS: 
   
   # modify dat file ----
   # remove the sampling components not needed
@@ -316,9 +267,6 @@ create_OM <- function(OM_out_dir,
   # Add in the historical sampling structure, as defined by the user
   dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat, 
                            nyrs_extend = 0)
-  
-  # SINGLE_RUN_MODS: add environmental data if needed
-  # SINGLE_RUN_MODS: dat[["endyr"]] <- dat[["endyr"]] + nyrs
   
   # make sure tail compression is off.
   # turn off tail compression
@@ -335,10 +283,7 @@ create_OM <- function(OM_out_dir,
     if (!is.null(dat[["age_info"]])) dat[["age_info"]][["mintailcomp"]] <- -1
   }
   
-  # SINGLE_RUN_MODS: single_run_files<-extend_OM_full_period(ctl,dat,parlist,future_om_list,nyrs,nscen,scen_name,niter)
-  # SINGLE_RUN_MODS: dat<-single_run_files$dat
-  # SINGLE_RUN_MODS: ctl<-single_run_files$ctl
-  # SINGLE_RUN_MODS: parlist<-single_run_files$parlist
+  
   # write all files
   r4ss::SS_writectl(
     ctllist = ctl, outfile = file.path(OM_out_dir, start[["ctlfile"]]),
@@ -399,11 +344,11 @@ create_OM <- function(OM_out_dir,
       }
     }
     F_rate_pars <- par_df[grep("^F_fleet_", par_df[["Label"]]), ]
-    if (NROW(F_rate_pars) != NROW(F_list[["F_rate"]])) {
+    if (NROW(F_rate_pars) != NROW(parlist[["F_rate"]])) {
       stop("Wrong number of F_rate parameters assumed by create_OM function.")
     }
     if (NROW(F_rate_pars) > 0) {
-      if (!all(F_rate_pars[["Label"]] == F_list[["F_rate"]][["name"]])) {
+      if (!all(F_rate_pars[["Label"]] == rownames(parlist[["F_rate"]]))) {
         stop(
           "Names of F_rate parameters assumed by create_OM function and in\n",
           "the PARAMETERS table of Report.sso function do not match."
@@ -411,7 +356,7 @@ create_OM <- function(OM_out_dir,
       }
     }
   }
-  invisible(dat)
+  return(impl_error)
 }
 
 #' Initial run of the OM

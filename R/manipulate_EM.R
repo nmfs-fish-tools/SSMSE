@@ -42,7 +42,8 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
     verbose = FALSE,
     overwrite = TRUE
   )
-  new_EM_dat
+  
+  return(new_EM_dat)
 }
 
 #' Change the OM data to match the format of the EM data
@@ -168,6 +169,8 @@ run_EM <- function(EM_dir,
 #'  structure will try to be infered from the pattern found for each of the
 #'  datatypes within EM_datfile.
 #' @param EM_dir Absolute or relative path to the Estimation model directory.
+#' @param nyrs_assess The number of years between assessments. E.g., if an
+#'  assessment is conducted every 3 years, put 3 here. A single integer value.
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
 #' @param new_datfile_name An optional name of a file to write the new datafile
 #'  to. If NULL, a new datafile will not be written.
@@ -181,6 +184,7 @@ add_new_dat <- function(OM_dat,
                         EM_datfile,
                         sample_struct,
                         EM_dir,
+                        nyrs_assess,
                         do_checks = TRUE,
                         new_datfile_name = NULL,
                         verbose = FALSE) {
@@ -194,7 +198,7 @@ add_new_dat <- function(OM_dat,
   # Read in EM_datfile
   EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = FALSE)
   new_EM_dat <- EM_dat
-  new_EM_dat[["endyr"]] <- OM_dat[["endyr"]] # want to be the same as the OM
+  new_EM_dat[["endyr"]] <- new_EM_dat[["endyr"]] + nyrs_assess #  OM_dat[["endyr"]] # want to be the same as the OM
   # add the data from OM_dat into EM_dat
   # checks in relation to OM_dat: check that years, fleets, etc. ar valid
 

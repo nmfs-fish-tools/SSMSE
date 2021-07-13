@@ -1,4 +1,4 @@
-# functions to process implmentation error
+# functions to process implementation error
 
 #' Put implementation error of 0 into a matrix
 #'
@@ -13,7 +13,7 @@ get_impl_error_matrix <- function(yrs) {
   temp_impl_error
 }
 
-#' calculate a sequence of implemetation errors.
+#' calculate a sequence of implementation errors.
 #'
 #' @param breaks a vector of break-points between year groups rescaled to a mean of zero
 #' @param n_impl_errors the number of implementation error to simulate equal to nyrs x nseas x nfleets

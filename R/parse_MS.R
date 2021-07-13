@@ -514,6 +514,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         EM_datfile = new_datfile_name,
         sample_struct = sample_struct_sub,
         EM_dir = EM_out_dir,
+        nyrs_assess = nyrs_assess,
         do_checks = TRUE,
         new_datfile_name = new_datfile_name,
         verbose = verbose
@@ -658,7 +659,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
       "retain(B):_",
       flt_units[["survey_number"]][fl]
     )
-    # Get the fleet appical F's to allow identification of unrealistically high fishing effort which may be a
+    # Get the fleet apical F's to allow identification of unrealistically high fishing effort which may be a
     # better check for MSE than just single year catch larger than the population.
     tmp_col_lab_F <- paste0(
       "F:_",
@@ -914,13 +915,13 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
 
 #' Extend the EM bias adjustment forward in time
 #'
-#' Extends the EN bias adjustment forward the same amount as the number of
+#' Extends the EM bias adjustment forward the same amount as the number of
 #' assessment years. A simple default way of doing this.
 #' @param ctlfile Path to the control file.
-#' @param datlist_new A data file read in usint r4ss::SS_readdat that has already
+#' @param datlist_new A data file read in using r4ss::SS_readdat that has already
 #'  been extended forward
 #' @param nyrs_assess The number of years between assessments
-#' @param write_ctl Should the new controlfile be written, overwritting the old
+#' @param write_ctl Should the new control file be written, overwriting the old
 #'  one?
 #' @return The new control file with recdev values extended forward by
 #'  nyrs_assess

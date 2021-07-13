@@ -30,6 +30,11 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
       dat[["envdat"]]<-rbind(dat[["envdat"]],temp_env)  
     }
     
+    for(i in grep("impl_error",names(future_om_dat))){
+      impl_error<-data.frame("year"=(dat[["endyr"]]-late_years+1):(dat[["endyr"]]+length(future_om_dat[,i])),
+                             "error"=future_om_dat[,i])
+    }
+    
     #Set up dummy time varying parameter lines for the control file and parameter file which will be added in for new data
     tv_dummy <- data.frame(LO=c(0,0), HI=c(10,1), INIT=c(.5,.1), PRIOR=c(.5,.1), PR_SD=c(1,1), PR_type=c(0,0), PHASE=c(-1,-1))
     tv_par_dummy <- data.frame(INIT=c(.5,.1),ESTIM=c(.5,.1))
@@ -390,7 +395,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
   output_list[["control"]]<-ctl
   output_list[["data"]]<-dat
   output_list[["parameter"]]<-parlist
-  
+  output_list[["impl_error"]]<-impl_error
   return(output_list)
 }
 
