@@ -854,6 +854,9 @@ run_SSMSE_iter <- function(out_dir = NULL,
     )
     # TODO: add sampling functions then run a future sampling function that would
     # make it into a dataset.
+    # The plan is to implement custom random data sampling similarly to how random 
+    # parameter changes in the OM are achieved. So that users can implement not only
+    # sample uncertainty but also systematic biases possible in real sampling.
   }
   message(
     "Finished running and sampling OM for the historical period for ",
@@ -863,31 +866,35 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
 
-  nyrs_lag <- 0
-  first_catch_yr <- (OM_dat[["endyr"]] - nyrs + 1)
-  n_yrs_catch <- nyrs_assess + nyrs_lag
-  EM_avail_dat <- OM_dat
-  EM_avail_dat[[endyr]] <- first_catch_yr - (1 + nyrs_lag)
+  #nyrs_lag <- 0
+  #first_catch_yr <- (OM_dat[["endyr"]] - nyrs + 1)
+  #n_yrs_catch <- nyrs_assess + nyrs_lag
+  #EM_avail_dat <- OM_dat
+  #EM_avail_dat[[endyr]] <- first_catch_yr - (1 + nyrs_lag)
+  
+  # TODO: If we want to add in data lag then we will need to add a remove data 
+  # function I think as well as the ability to put in fixed catches for the
+  # interim years using the Forecatch section.
   
   new_catch_list <- parse_MS(
     MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
     OM_dat = OM_dat, OM_out_dir = OM_out_dir, 
-    verbose = verbose, nyrs_assess = nyrs_assess, first_catch_yr = first_catch_yr,
-    n_yrs_catch = n_yrs_catch,
+    verbose = verbose, nyrs_assess = nyrs_assess, 
+    #first_catch_yr = first_catch_yr, n_yrs_catch = n_yrs_catch,
     interim_struct = interim_struct, dat_yrs = NA,
     seed = (iter_seed[["iter"]][1] + 123456)
   )
   
   message(
     "Finished getting catch (years ",
-    (OM_dat[["endyr"]] + 1), " to ", (OM_dat[["endyr"]] + nyrs_assess),
+    (min(new_catch_list[["catch"]][,"year"]), " to ", max(new_catch_list[["catch"]][,"year"]),
     ") to feed into OM for iteration ", niter, "."
   )
 
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
-  # remove first value, because done in the intialization stage.
-  
+  # remove first value, because done in the initialization stage.
+  styr_MSE <- OM_dat[["endyr"]] - nyrs
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
   assess_yrs <- assess_yrs[-1]
   # calculate years after the last assessment. The OM will need to run
@@ -920,14 +927,17 @@ run_SSMSE_iter <- function(out_dir = NULL,
     # probably need an input for current year so we can update the correct 
     # years of catch etc.
     update_OM(# SINGLE_RUN_MODS: maybe change function name to update_OM?
-      catch = new_catch_list[["catch"]],
-      discards = new_catch_list[["discards"]],
-      harvest_rate = new_catch_list[["catch_F"]],
       OM_dir = OM_out_dir,
+      catch = new_catch_list[["catch"]],
+      #discards = new_catch_list[["discards"]],
+      harvest_rate = new_catch_list[["catch_F"]],
+      catch_basis = NULL,
+      F_limit = NULL,
+      EM_pars = new_catch_list[["EM_pars"]],
       sample_struct = sample_struct,
-      future_om_list = future_om_list,
-      nyrs_extend = nyrs_assess,
-      mod_yrs = (yr - nyrs_assess+1):yr
+      #future_om_list = future_om_list,
+      #nyrs_extend = nyrs_assess,
+      #mod_yrs = (yr - nyrs_assess+1):yr
       impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 234567 + yr)
@@ -959,7 +969,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       )
     }
     message(
-      "Finished running and sampling OM through year ", new_OM_dat[["endyr"]],
+      "Finished running and sampling OM through year ",  max(new_catch_list[["catch"]][,"year"]),
       "."
     )
     if (run_EM_last_yr == FALSE && isTRUE(yr == test_run_EM_yr)) {
@@ -986,6 +996,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       } else {
         tmp_EM_init_dir <- NULL
       }
+      
       new_catch_list <- parse_MS(
         MS = MS,
         EM_out_dir = EM_out_dir,
@@ -1010,31 +1021,30 @@ run_SSMSE_iter <- function(out_dir = NULL,
     assessment.")
     yr <- assess_yrs[length(assess_yrs)] + extra_yrs
     # get recdevs, impl_error
-    rec_devs_chunk <- rec_dev_iter[1:extra_yrs]
-    rec_dev_iter <- rec_dev_iter[-(1:extra_yrs)]
-    impl_error_chunk <- impl_error[1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
-    impl_error <- impl_error[-(1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
+    # rec_devs_chunk <- rec_dev_iter[1:extra_yrs]
+    # rec_dev_iter <- rec_dev_iter[-(1:extra_yrs)]
+    # impl_error_chunk <- impl_error[1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
+    # impl_error <- impl_error[-(1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
     # sanity checks
-    assertive.properties::assert_is_of_length(rec_dev_iter, 0)
-    assertive.properties::assert_is_of_length(impl_error, 0)
+    # assertive.properties::assert_is_of_length(rec_dev_iter, 0)
+    # assertive.properties::assert_is_of_length(impl_error, 0)
     subset_catch_list <- lapply(new_catch_list,
       function(x, yr) new_catch <- x[x[["year"]] <= yr, ],
       yr = yr
     )
-    extend_OM(
-      catch = subset_catch_list[["catch"]],
-      discards = subset_catch_list[["discards"]],
-      harvest_rate = subset_catch_list[["catch_F"]],
+    update_OM(# SINGLE_RUN_MODS: maybe change function name to update_OM?
       OM_dir = OM_out_dir,
+      catch = subset_catch_list[["catch"]],
+      harvest_rate = subset_catch_list[["catch_F"]],
+      catch_basis = NULL,
+      F_limit = NULL,
+      EM_pars = subset_catch_list[["EM_pars"]],
       sample_struct = sample_struct,
-      future_om_list = future_om_list,
-      nyrs_extend = extra_yrs,
-      # SINGLE_RUN_MODS: dat_yrs = (yr - nyrs_assess+1):yr
-      rec_devs = rec_devs_chunk,
-      impl_error = impl_error_chunk,
+      impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 6789012)
     )
+    
     # Don't need bootstrapping, b/c not samplling
     run_OM(
       OM_dir = OM_out_dir, boot = FALSE, verbose = verbose,

@@ -103,9 +103,9 @@ update_OM <- function(OM_dir,
   for(i in seq_along(catch_intended[,"catch"])){
     
     if(!is.null(F_limit)){
-      F_lim <- F_limit[(F_limit[, "year"] == Fleet_scale[i, "year"]) &
-                         (F_limit[, "seas"] == Fleet_scale[i, "seas"]) &
-                         (F_limit[, "fleet"] == Fleet_scale[i, "fleet"]), "limit"]
+      F_lim <- F_limit[(F_limit[, "year"] == catch_intended[i, "year"]) &
+                         (F_limit[, "seas"] == catch_intended[i, "seas"]) &
+                         (F_limit[, "fleet"] == catch_intended[i, "fleet"]), "limit"]
       if(length(F_lim)!=1){
         F_lim <- 1.5
       }
@@ -115,9 +115,9 @@ update_OM <- function(OM_dir,
     catch_intended[i,"F_lim"] <- F_lim
     
     if(!is.null(catch_basis)){
-      basis_2 <- catch_basis[(catch_basis[, "year"] == Fleet_scale[i, "year"]) &
-                         (catch_basis[, "seas"] == Fleet_scale[i, "seas"]) &
-                         (catch_basis[, "fleet"] == Fleet_scale[i, "fleet"]), "basis"]
+      basis_2 <- catch_basis[(catch_basis[, "year"] == catch_intended[i, "year"]) &
+                         (catch_basis[, "seas"] == catch_intended[i, "seas"]) &
+                         (catch_basis[, "fleet"] == catch_intended[i, "fleet"]), "basis"]
       if(length(basis_2)!=1){
         basis_2 <- 1
       }
@@ -125,6 +125,18 @@ update_OM <- function(OM_dir,
       basis_2 <- 1
     }
     catch_intended[i,"basis_2"] <- basis_2
+    
+    if(!is.null(impl_error)){
+      temp_impl_error <- impl_error[impl_error[,"year"]==catch_intended[i,"year"],"error"]
+      if(length(temp_impl_error)!=1){
+        temp_impl_error <- 1
+      }
+      if(temp_impl_error!>=0){
+        temp_impl_error <- 1
+      }
+    }else{
+      temp_impl_error <- 1
+    }
     
     last_F <- parlist[["F_rate"]][which(parlist[["F_rate"]][,c("year")]==(catch_intended[i,c("year")]-1) & 
                                           parlist[["F_rate"]][,c("seas")]==catch_intended[i,c("seas")] &
@@ -180,11 +192,14 @@ update_OM <- function(OM_dir,
     }
     
     if(!is.null(impl_error)){
-      temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"] & 
-                                    impl_error[,"seas"]==temp_catch[i,"seas"] & 
-                                    impl_error[,"fleet"]==temp_catch[i,"fleet"] ,"error"]
+      # temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"] & 
+      #                               impl_error[,"seas"]==temp_catch[i,"seas"] & 
+      #                               impl_error[,"fleet"]==temp_catch[i,"fleet"] ,"error"]
+      temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"],"error"]
       if(length(temp_impl_error)==1){
-        catch_intended[i,c("catch","F")] <- catch_intended[i,c("catch","F")] * temp_impl_error
+        if(temp_impl_error>=0){
+         catch_intended[i,c("catch","F")] <- catch_intended[i,c("catch","F")] * temp_impl_error
+        }
       }
     }
     
@@ -194,7 +209,9 @@ update_OM <- function(OM_dir,
   
   if(!is.null(EM_pars)){
     for(i in grep("rec_devs",names(EM_pars))){
-      parlist[["recdev_forecast"]][is.element(parlist[["recdev_forecast"]][["year"]],EM_pars[["year"]]),c("year","recdev")] <- EM_pars[,c(1,i)]
+      matches<-lapply(EM_pars[["year"]],FUN=function(x,y){which(y==x)},y=test[,"year"])
+      locations<-rep(EM_pars[["year"]],unlist(lapply(matches,length)))
+      parlist[["recdev_forecast"]][unlist(matches),c("year","recdev")] <- EM_pars[locations,c(1,i)]
     }
     
     for(i in grep("Env_",names(EM_pars))){
@@ -326,6 +343,9 @@ update_OM <- function(OM_dir,
       }
     }
   }
+  
+  # TODO: need to add code to overwrite OM parameter devs if updates are input from a custom EM
+  
   invisible(dat)
 }
 

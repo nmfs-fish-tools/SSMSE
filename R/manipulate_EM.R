@@ -358,6 +358,9 @@ change_yrs_fcast <- function(fore,
   }
   # get rid of Forecatch, if any. Add a warning to the user about this.
   # may beed to treat this differently in the futured
+  # TODO: Implementing lag in assessment data (i.e. I run an 2020 assessment with
+  # only data to 2018 and providing management advice for 2021) will require the 
+  # use of the ForeCatch input as well as a method to update what values to input.
   if (!is.null(fore[["ForeCatch"]])) {
     warning("Removing ForeCatch from the EM forecasting file.")
     fore[["ForeCatch"]] <- NULL

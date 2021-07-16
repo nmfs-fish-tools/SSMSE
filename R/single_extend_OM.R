@@ -31,7 +31,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
     }
     
     for(i in grep("impl_error",names(future_om_dat))){
-      impl_error<-data.frame("year"=(dat[["endyr"]]-late_years+1):(dat[["endyr"]]+length(future_om_dat[,i])),
+      impl_error<-data.frame("year"=(dat[["endyr"]]+1):(dat[["endyr"]]+length(future_om_dat[,i])),
                              "error"=future_om_dat[,i])
     }
     
