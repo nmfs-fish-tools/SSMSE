@@ -59,7 +59,7 @@ extend_vals <- list(
 test_that("extend_OM works with simple case", {
   skip_on_cran()
   # simple case: 1 fleet and season needs CPUE, lencomp, agecomp added
-  return_dat <- extend_OM(
+  return_dat <- update_OM(
     catch = new_catch,
     OM_dir = file.path(temp_path, "cod_initOM1"),
     write_dat = FALSE,
@@ -102,22 +102,23 @@ file.rename(
 test_that("extend_OM exits on error when it should", {
   skip_on_cran()
   # nyrs is too small (needs to be at least 3)
-  expect_error(
-    extend_OM(
-      catch = new_catch,
-      OM_dir = file.path(temp_path, "cod_initOM2"),
-      nyrs = 1,
-      verbose = FALSE
-    ),
-    "The maximum year input for catch"
-  )
+  # Removed as nyrs is no longer an input
+  # expect_error(
+  #   update_OM(
+  #     catch = new_catch,
+  #     OM_dir = file.path(temp_path, "cod_initOM2"),
+  #     nyrs = 1,
+  #     verbose = FALSE
+  #   ),
+  #   "The maximum year input for catch"
+  # )
+  
   # Missing a column in the catch dataframe
   unlink(file.path(temp_path, "cod_initOM2"), recursive = TRUE)
   file.copy(cod_mod, temp_path, recursive = TRUE)
   expect_error(
-    extend_OM(new_catch[, -1],
-      OM_dir = file.path(temp_path, "cod_initOM2"),
-      nyrs = 3
+    update_OM(new_catch[, -1],
+      OM_dir = file.path(temp_path, "cod_initOM2")
     ),
     "The catch data frame does not have the correct"
   )
@@ -127,9 +128,8 @@ test_that("extend_OM exits on error when it should", {
   unlink(file.path(temp_path, "cod_initOM2"), recursive = TRUE)
   file.copy(cod_mod, temp_path, recursive = TRUE)
   expect_error(
-    extend_OM(alt_new_catch,
-      OM_dir = file.path(temp_path, "cod_initOM2"),
-      nyrs = 3
+    update_OM(alt_new_catch,
+      OM_dir = file.path(temp_path, "cod_initOM2")
     ),
     "The catch data frame does not have the correct"
   )
@@ -137,7 +137,7 @@ test_that("extend_OM exits on error when it should", {
   unlink(file.path(temp_path, "cod_initOM2"), recursive = TRUE)
   file.copy(cod_mod, temp_path, recursive = TRUE)
   expect_error(
-    extend_OM(new_catch, OM_dir = temp_path, nyrs = 3),
+    update_OM(new_catch, OM_dir = temp_path),
     "Please change to a directory containing a valid SS model"
   )
 })
