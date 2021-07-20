@@ -26,8 +26,6 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
     run_EM_last_yr = FALSE,
     nyrs_vec = nyrs, # Years to project OM forward
     nyrs_assess_vec = 3, # Years between assessments
-    rec_dev_pattern = "none", # Don't use recruitment deviations
-    impl_error_pattern = "none", # Don't use implementation error
     sample_struct_list = list(sample_struct), # How to sample data for running the EM.
     seed = 12345
   ) # Set a fixed integer seed that allows replication
@@ -80,9 +78,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
     nyrs_vec = nyrs, # Years to project OM forward
     nyrs_assess_vec = 3, # Years between assessments
     run_EM_last_yr = FALSE,
-    rec_dev_pattern = "none", # Don't use recruitment deviations
     run_parallel = FALSE,
-    impl_error_pattern = "none", # Don't use implementation error
     sample_struct_list = list(sample_struct, sample_struct), # How to sample data for running the EM.
     seed = 12345
   ) # Set a fixed integer seed that allows replication
@@ -126,8 +122,6 @@ test_that("run_SSMSE_iter runs with no EM", {
     out_dir = new_temp_path,
     nyrs = 6,
     nyrs_assess = 3,
-    rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
-    impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
     iter_seed = list(global = 12345, scenario = 123456, iter = 1234567)
   )
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
@@ -154,8 +148,6 @@ test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE wo
     EM_in_dir = EM_path_cod,
     run_EM_last_yr = TRUE,
     nyrs = 6,
-    rec_dev_iter = rep(0, times = 3 * 2), # Nfleets times nyrs_assess
-    impl_error = rep(1, times = 3 * 2), # Nfleets times nyrs_assess
     nyrs_assess = 3,
     iter_seed = list(global = 12345, scenario = 123456, iter = 1234567),
     sample_struct = list(

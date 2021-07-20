@@ -54,17 +54,14 @@ extend_vals <- list(
 
 
 #TODO: implement future_om_list use in these tests
+#      also need to modify to update OM and have a basic OM file that
+#      already has years extended to full MSE timeseries length
 test_that("extend_OM works with simple case", {
   skip_on_cran()
   # simple case: 1 fleet and season needs CPUE, lencomp, agecomp added
   return_dat <- extend_OM(
     catch = new_catch,
-    discards = NULL,
     OM_dir = file.path(temp_path, "cod_initOM1"),
-    sample_struct = extend_vals,
-    nyrs_extend = 3,
-    rec_devs = rep(0, 4),
-    impl_error = rep(1, 4),
     write_dat = FALSE,
     verbose = FALSE
   )

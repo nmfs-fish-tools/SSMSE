@@ -356,7 +356,9 @@ create_OM <- function(OM_out_dir,
       }
     }
   }
-  return(impl_error)
+  
+  ouput_list<-list(dat=dat,impl_error=impl_error)
+  return(ouput_list)
 }
 
 #' Initial run of the OM

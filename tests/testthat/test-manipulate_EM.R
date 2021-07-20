@@ -22,7 +22,7 @@ test_that("get_EM_dat works", {
   EM_dat$lencomp <- EM_dat$lencomp[-rm_ind, ]
   EM_dat$agecomp <- EM_dat$agecomp[-rm_ind, ]
 
-  EM_dat$CPUE$obs <- 999 # to make it easier to identify if the values change4
+  EM_dat$CPUE$obs <- 999 # to make it easier to identify if the values change
   new_dat <- get_EM_dat(OM_dat, EM_dat, do_checks = FALSE)
   row_names <- c("year", "seas", "index")
   lapply(row_names, function(x) {
@@ -89,6 +89,7 @@ test_that("add_new_dat works", {
     EM_datfile = "cod_EM_dat.ss",
     sample_struct = sample_struct,
     EM_dir = temp_path,
+    nyrs_assess = 0,
     do_checks = TRUE,
     new_datfile_name = NULL,
     verbose = FALSE
@@ -125,6 +126,7 @@ test_that("add_new_dat warns as expected", {
     EM_datfile = "cod_EM_dat.ss",
     sample_struct = sample_struct,
     EM_dir = temp_path,
+    nyrs_assess = 0,
     do_checks = TRUE,
     new_datfile_name = NULL,
     verbose = FALSE

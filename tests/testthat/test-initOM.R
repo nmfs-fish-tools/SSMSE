@@ -16,14 +16,16 @@ file.copy(file.path(extdat_path, "models", "cod"),
 
 test_that("create_OM can modify model", {
   skip_on_cran() # because runs ss.
-  new_dat <- create_OM(
+  init_mod <- create_OM(
     OM_out_dir = file.path(temp_path, "cod"),
     overwrite = TRUE,
     verbose = FALSE,
     nyrs_assess = 3,
     rec_devs = rep(0, length = 6),
     verify_OM = TRUE
-  ) # use the runtime check also.
+  )
+  new_dat <- init_mod[["dat"]]
+  # use the runtime check also.
   # note there are 2 NAs introduced by coercion warnings from SS_output that
   # are safe to ignore.
   dat_types <- c("CPUE", "lencomp", "agecomp")

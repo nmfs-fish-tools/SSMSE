@@ -38,7 +38,7 @@ test_that("get_EM_catch_df works with no discards", {
 
 test_that("get_no_EM_catch_df works with no discards", {
   skip_on_cran() # because has to run SS
-  # This is an function referenced within the parse)MS function, so only
+  # This is an function referenced within the parse_MS function, so only
   # created some simple tests.
   # mock additional fleets of catch data
   catch <- OM_dat$catch
@@ -78,11 +78,12 @@ cod_EM_path <- file.path(temp_path, "cod_EM", "cod")
 OM_dat <- r4ss::SS_readdat(file.path(cod_OM_path, "data.ss"), verbose = FALSE)
 test_that("parse_MS works for no estimation model methods", {
   skip_on_cran()
-  # no catch managemetn strategy
+  # no catch management strategy
   catch_list_1 <- parse_MS(
     MS = "no_catch",
     OM_dat = OM_dat,
     OM_out_dir = cod_OM_path,
+    dat_yrs = 101:103,
     nyrs_assess = 3
   )
   catch_df_1 <- catch_list_1[["catch"]]
@@ -92,6 +93,7 @@ test_that("parse_MS works for no estimation model methods", {
     MS = "last_yr_catch",
     OM_dat = OM_dat,
     OM_out_dir = cod_OM_path,
+    dat_yrs = 101:103,
     nyrs_assess = 3
   )
   catch_df_2 <- catch_list_2[["catch"]]
@@ -107,6 +109,7 @@ test_that("parse_MS works as currently expected for estimation model methods", {
     EM_out_dir = cod_EM_path,
     OM_dat = OM_dat,
     OM_out_dir = cod_OM_path,
+    dat_yrs = 101:103,
     nyrs_assess = 3
   )
   catch_df_3 <- catch_list[["catch"]]
@@ -124,7 +127,8 @@ test_that("parse_MS catches errors when it should", {
   expect_error(parse_MS(
     MS = "bad_option", EM_out_dir = NULL,
     OM_dat = "fake_2",
-    verbose = FALSE, nyrs_assess = 3
+    verbose = FALSE, dat_yrs = 101:103,
+    nyrs_assess = 3
   ),
   "Invalid management strategy",
   fixed = TRUE
@@ -133,7 +137,8 @@ test_that("parse_MS catches errors when it should", {
   expect_error(parse_MS(
     MS = "EM", EM_out_dir = "other_fake_dir",
     OM_dat = "fake_2",
-    verbose = FALSE, nyrs_assess = 3
+    verbose = FALSE, dat_yrs = 101:103,
+    nyrs_assess = 3
   ),
   "Please change to a directory containing a valid SS model",
   fixed = TRUE

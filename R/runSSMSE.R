@@ -44,37 +44,6 @@
 #'  (NOTE: This could be made more flexible by instead reading in a vector of
 #'  assessment years, so users could specify irregular numbers of yrs between
 #'  assessments.)
-#' @param scope Assign the scope of random deviations for rec devs and implementation error.
-#' single integer value input where 1=values are identical across all scenarios and iterations
-#' (if rec_dev_pattern=user input a vector of length nyrs_vec), 2 (default)=values are random
-#' across iterations but the same iterations are used across scenarios
-#' (if rec_dev_pattern=user input a matrix with ncols=nyrs_vec and nrows=number of iterations),
-#' 3=values are random across all iterations and scenarios (if rec_dev_pattern=user input
-#' a matrix with ncols=nyrs_vec and nrows=(number of iterations)*(number of scenarios)).
-#' @param rec_dev_pattern Parameter to specify future rec devs. Input options include:
-#' 1) "none" to set all future devs to zero (default). 2) "rand" automatically assign normally
-#' distributed random recruitment deviations. Input a vector of two values to rec_dev_pars
-#' to specify the max number of years over which the sum of rec_devs can diverge from
-#' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates
-#' random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars
-#' to specify the max number of years over which the sum of rec_devs can diverge from
-#' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 4) "AutoCorr_Spec"
-#' generates auto-correlated recruitment deviations from an MA time-series model with user specified
-#' parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of
-#' length equal nyrs input the vector/matrix to rec_dev-pars.
-#' @param rec_dev_pars Input the required parameters as specified by rec_dev_pattern choice.
-#' @param impl_error_pattern Parameter to specify future implementation error. Input options include:
-#' 1) "none" to set all future catches equal to expected (default). 2) "rand" automatically assign
-#' achieved catch relative to expected catch as log normally distributed. Input
-#' a vector of ((nseas x nfleet x 2)+ 1) values to impl_error_pars to specify the max number
-#' of years over which the achieved mean catch can diverge from the mean specified, the mean
-#' (default 1 such that achieved=expected), and the standard devation. If impl_error__pars=NULL defaults to
-#' c(nyrs_assess, rep(1,(nfleetxnseas)), rep(0,(nfleetxnseas))). 3) "user" applys a user input vector
-#' or matrix of implementation errors of length/columns equal to nyrs x nseas x Nfleets
-#' and rows based on assigned scope. Input the vector/matrix to impl_error_pars.
-#' @param impl_error_pars Input the required parameters as specified by impl_error_pattern choice.
 #' @param sample_struct_list A optional list of lists including which years, seasons,
 #'  and fleets should be  added from the OM into the EM for different types of
 #'  data. If NULL, the data structure will try to be infered from the pattern
@@ -178,14 +147,6 @@ run_SSMSE <- function(scen_name_vec,
                       use_SS_boot_vec = TRUE,
                       nyrs_vec,
                       nyrs_assess_vec,
-                      scope = c("2", "1", "3"),
-                      rec_dev_pattern = c(
-                        "none", "rand", "AutoCorr_rand",
-                        "AutoCorr_Spec", "vector"
-                      ),
-                      rec_dev_pars = NULL,
-                      impl_error_pattern = c("none", "rand", "user"),
-                      impl_error_pars = NULL,
                       sample_struct_list = NULL,
                       future_om_list = NULL,
                       sample_struct_hist_list = NULL,
@@ -196,15 +157,6 @@ run_SSMSE <- function(scen_name_vec,
                       n_cores = NULL) {
   # input checks
   scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
-  rec_dev_pattern <- match.arg(rec_dev_pattern,
-    choices = c(
-      "none", "rand", "AutoCorr_rand",
-      "AutoCorr_Spec", "vector"
-    )
-  )
-  impl_error_pattern <- match.arg(impl_error_pattern,
-    choices = c("none", "rand", "user")
-  )
   if (!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
     invalid_MS <- MS_vec[unlist(lapply(MS_vec, function(x) !exists(x)))]
     invalid_MS <- invalid_MS[!invalid_MS %in% c("EM", "no_catch", "Interim")]
@@ -252,67 +204,67 @@ run_SSMSE <- function(scen_name_vec,
     iter_vec = unlist(lapply(scen_list, function(scen) scen["iter"]))
   )
   # Get directory of base OM files for each scenario as they may be different
-  rec_stddev <- rep(0, length(scen_list))
-  n_impl_error_groups <- rep(0, length(scen_list))
-  rec_autoCorr <- vector(mode = "list", length = length(scen_list))
-  for (i in 1:length(scen_list)) {
-    tmp_scen_list <- scen_list[[i]]
-    if (is.null(tmp_scen_list[["OM_in_dir"]])) {
-      OM_dir <- locate_in_dirs(OM_name = tmp_scen_list[["OM_name"]])
-    } else {
-      OM_dir <- locate_in_dirs(OM_in_dir = tmp_scen_list[["OM_in_dir"]])
-    }
-    # Read in starter file
-    start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
-      verbose = FALSE
-    )
-    # Read in data file
-    dat <- r4ss::SS_readdat(file.path(OM_dir, start[["datfile"]]),
-      section = 1,
-      verbose = FALSE
-    )
-    # Read in control file
-    ctl <- r4ss::SS_readctl(
-      file = file.path(OM_dir, start[["ctlfile"]]),
-      use_datlist = TRUE, datlist = dat,
-      verbose = FALSE
-    )
-    # Read in parameter file
-    parlist <- r4ss::SS_readpar_3.30(
-      parfile = file.path(OM_dir, "ss.par"),
-      datsource = dat, ctlsource = ctl,
-      verbose = FALSE
-    )
+  # rec_stddev <- rep(0, length(scen_list))
+  # n_impl_error_groups <- rep(0, length(scen_list))
+  # rec_autoCorr <- vector(mode = "list", length = length(scen_list))
+  # for (i in 1:length(scen_list)) {
+  #   tmp_scen_list <- scen_list[[i]]
+  #   if (is.null(tmp_scen_list[["OM_in_dir"]])) {
+  #     OM_dir <- locate_in_dirs(OM_name = tmp_scen_list[["OM_name"]])
+  #   } else {
+  #     OM_dir <- locate_in_dirs(OM_in_dir = tmp_scen_list[["OM_in_dir"]])
+  #   }
+  #   # Read in starter file
+  #   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
+  #     verbose = FALSE
+  #   )
+  #   # Read in data file
+  #   dat <- r4ss::SS_readdat(file.path(OM_dir, start[["datfile"]]),
+  #     section = 1,
+  #     verbose = FALSE
+  #   )
+  #   # Read in control file
+  #   ctl <- r4ss::SS_readctl(
+  #     file = file.path(OM_dir, start[["ctlfile"]]),
+  #     use_datlist = TRUE, datlist = dat,
+  #     verbose = FALSE
+  #   )
+  #   # Read in parameter file
+  #   parlist <- r4ss::SS_readpar_3.30(
+  #     parfile = file.path(OM_dir, "ss.par"),
+  #     datsource = dat, ctlsource = ctl,
+  #     verbose = FALSE
+  #   )
+  # 
+  #   # Calculate the standard deviation and autocorrelation of historic recruitment deviations
+  #   rec_dev_comb <- rbind(parlist[["recdev1"]], parlist[["recdev2"]])
+  #   rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
+  #   n_impl_error_groups[i] <- dat[["nseas"]] * dat[["Nfleet"]]
+  # 
+  #   if (rec_dev_pattern == "AutoCorr_rand" | rec_dev_pattern == "AutoCorr_Spec") {
+  #     rec_autoCorr[[i]] <- stats::arima(x = rec_dev_comb[, 2], order = c(0, 0, 4))
+  #   }
+  # }
 
-    # Calculate the standard deviation and autocorrelation of historic recruitment deviations
-    rec_dev_comb <- rbind(parlist[["recdev1"]], parlist[["recdev2"]])
-    rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
-    n_impl_error_groups[i] <- dat[["nseas"]] * dat[["Nfleet"]]
-
-    if (rec_dev_pattern == "AutoCorr_rand" | rec_dev_pattern == "AutoCorr_Spec") {
-      rec_autoCorr[[i]] <- stats::arima(x = rec_dev_comb[, 2], order = c(0, 0, 4))
-    }
-  }
-
-  if (is.null(rec_dev_pars)) {
-    # to do: make this a better default value.
-    rec_dev_pars <- c(ceiling(mean(nyrs_vec)), 1)
-  }
+  # if (is.null(rec_dev_pars)) {
+  #   # to do: make this a better default value.
+  #   rec_dev_pars <- c(ceiling(mean(nyrs_vec)), 1)
+  # }
 
   # make sure values are the correct length
   nyrs_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs"]))
   nyrs_assess_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs_assess"]))
   iter_vec <- unlist(lapply(scen_list, function(scen) scen["iter"]))
 
-  rec_dev_list <- build_rec_devs(yrs = nyrs_vec, scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
+  #rec_dev_list <- build_rec_devs(yrs = nyrs_vec, scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
 
 
 
-  impl_error <- build_impl_error(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, n_impl_error_groups = n_impl_error_groups, scope = scope, impl_error_pattern = impl_error_pattern, impl_error_pars = impl_error_pars, n_scenarios = length(scen_list), iter_vec = iter_vec, seed = seed)
+  #impl_error <- build_impl_error(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, n_impl_error_groups = n_impl_error_groups, scope = scope, impl_error_pattern = impl_error_pattern, impl_error_pars = impl_error_pars, n_scenarios = length(scen_list), iter_vec = iter_vec, seed = seed)
   # add recdevs, impl_err, and seed to scen_list
   for (i in seq_along(scen_list)) {
-    scen_list[[i]][["rec_devs"]] <- rec_dev_list[[i]]
-    scen_list[[i]][["impl_error"]] <- impl_error[[i]]
+    #scen_list[[i]][["rec_devs"]] <- rec_dev_list[[i]]
+    #scen_list[[i]][["impl_error"]] <- impl_error[[i]]
     scen_seed <- vector(mode = "list", length = 3)
     names(scen_seed) <- c("global", "scenario", "iter")
     scen_seed[["global"]] <- seed[["global"]]
@@ -358,8 +310,8 @@ run_SSMSE <- function(scen_name_vec,
       use_SS_boot = tmp_scen[["use_SS_boot"]],
       nyrs = tmp_scen[["nyrs"]],
       nyrs_assess = tmp_scen[["nyrs_assess"]],
-      rec_devs_scen = tmp_scen[["rec_devs"]],
-      impl_error = tmp_scen[["impl_error"]],
+      # rec_devs_scen = tmp_scen[["rec_devs"]],
+      # impl_error = tmp_scen[["impl_error"]],
       scen_seed = tmp_scen[["scen_seed"]],
       sample_struct = tmp_scen[["sample_struct"]],
       future_om_list = future_om_list,
@@ -417,10 +369,6 @@ run_SSMSE <- function(scen_name_vec,
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param rec_devs_scen List containing a recruitment deviation vector for each
-#'   iteration.
-#' @param impl_error List containing an implementation error vector for each
-#'   iteration.
 #' @param scen_seed List containing fixed seeds for this scenario and its iterations.
 #' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
@@ -482,8 +430,6 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            use_SS_boot = TRUE,
                            nyrs = 100,
                            nyrs_assess = 3,
-                           rec_devs_scen = NULL,
-                           impl_error = NULL,
                            scen_seed = NULL,
                            sample_struct = NULL,
                            future_om_list = NULL,
@@ -552,8 +498,6 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           use_SS_boot = use_SS_boot,
           nyrs = nyrs,
           nyrs_assess = nyrs_assess,
-          rec_dev_iter = rec_devs_scen[[i]],
-          impl_error = impl_error[[i]],
           nscen = nscen,
           scen_name = scen_name,
           niter = max_prev_iter + i,
@@ -585,8 +529,6 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         use_SS_boot = use_SS_boot,
         nyrs = nyrs,
         nyrs_assess = nyrs_assess,
-        rec_dev_iter = rec_devs_scen[[i]],
-        impl_error = impl_error[[i]],
         nscen = nscen,
         scen_name = scen_name,
         niter = max_prev_iter + i,
@@ -833,13 +775,13 @@ run_SSMSE_iter <- function(out_dir = NULL,
   
   # MSE first iteration ----
   # turn the stock assessment model into an OM
-  impl_error<-create_OM(
+  init_mod <- create_OM(
     OM_out_dir = OM_out_dir, overwrite = TRUE,
     sample_struct_hist = sample_struct_hist, verbose = verbose, writedat = TRUE, nyrs = nyrs,
     nyrs_assess = nyrs_assess, nscen = nscen, scen_name = scen_name, niter = niter, future_om_dat = future_om_dat,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
-
+  impl_error <- init_mod[["impl_error"]]
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(
@@ -880,7 +822,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
     MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
     OM_dat = OM_dat, OM_out_dir = OM_out_dir, 
     verbose = verbose, nyrs_assess = nyrs_assess, 
-    #first_catch_yr = first_catch_yr, n_yrs_catch = n_yrs_catch,
     interim_struct = interim_struct, dat_yrs = NA,
     seed = (iter_seed[["iter"]][1] + 123456)
   )
