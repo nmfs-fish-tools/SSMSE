@@ -130,7 +130,7 @@ update_OM <- function(OM_dir,
       if(length(temp_impl_error)!=1){
         temp_impl_error <- 1
       }
-      if(temp_impl_error!>=0){
+      if(temp_impl_error<0){
         temp_impl_error <- 1
       }
     }else{

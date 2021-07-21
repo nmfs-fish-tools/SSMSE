@@ -14,8 +14,7 @@ create_OM(
   nscen = 1,
   scen_name = NULL,
   niter = 1,
-  rec_devs = NULL,
-  future_om_list = NULL,
+  future_om_dat = NULL,
   verify_OM = TRUE,
   sample_struct_hist = NULL,
   seed = NULL
@@ -34,17 +33,17 @@ create_OM(
 MSE. A single integer value.}
 
 \item{nyrs_assess}{The number of years between assessments. This is used to
-structure the forecast file for use in the OM.
-@param nscen The scenario number
-@param scen_name The scenario name
-@param niter the iteration number}
+structure the forecast file for use in the OM.}
 
-\item{rec_devs}{Vector of recruitment deviations for simulation.}
+\item{nscen}{The scenario number}
 
-\item{future_om_list}{An optional list of lists including changes that should
-be made after the end year of the input model. Each first level list element
-outlines 1 change to be made to the operating model. This will identify which
-parameters to turn deviations on for}
+\item{scen_name}{The scenario name}
+
+\item{niter}{the iteration number}
+
+\item{future_om_dat}{An optional data_frame including changes that should
+be made after the end year of the input model. Including parameter variations,
+recruitment deviations, and implementation errors.}
 
 \item{verify_OM}{Should the model be run without estimation and some basic
 checks done to verify that the OM can run? Defaults to TRUE.}

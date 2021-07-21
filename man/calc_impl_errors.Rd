@@ -2,7 +2,7 @@
 % Please edit documentation in R/impl_error.R
 \name{calc_impl_errors}
 \alias{calc_impl_errors}
-\title{calculate a sequence of implemetation errors.}
+\title{calculate a sequence of implementation errors.}
 \usage{
 calc_impl_errors(
   breaks,
@@ -30,5 +30,5 @@ calc_impl_errors(
 a vector of implementation errors.
 }
 \description{
-calculate a sequence of implemetation errors.
+calculate a sequence of implementation errors.
 }

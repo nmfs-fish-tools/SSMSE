@@ -13,7 +13,6 @@ parse_MS(
   OM_out_dir = NULL,
   verbose = FALSE,
   nyrs_assess,
-  first_catch_yr,
   dat_yrs,
   future_om_list = NULL,
   sample_struct = NULL,
@@ -53,8 +52,6 @@ this should be sampled data.}
 
 \item{nyrs_assess}{The number of years between assessments. E.g., if an
 assessment is conducted every 3 years, put 3 here. A single integer value.}
-
-\item{first_catch_yr}{The first year for which to calculate a catch}
 
 \item{dat_yrs}{Which years should be added to the new model? Ignored if
 init_loop is TRUE.}

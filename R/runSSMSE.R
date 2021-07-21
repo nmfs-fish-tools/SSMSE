@@ -156,7 +156,6 @@ run_SSMSE <- function(scen_name_vec,
                       run_parallel = FALSE,
                       n_cores = NULL) {
   # input checks
-  scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
   if (!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
     invalid_MS <- MS_vec[unlist(lapply(MS_vec, function(x) !exists(x)))]
     invalid_MS <- invalid_MS[!invalid_MS %in% c("EM", "no_catch", "Interim")]
@@ -828,7 +827,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   
   message(
     "Finished getting catch (years ",
-    (min(new_catch_list[["catch"]][,"year"]), " to ", max(new_catch_list[["catch"]][,"year"]),
+    min(new_catch_list[["catch"]][,"year"]), " to ", max(new_catch_list[["catch"]][,"year"]),
     ") to feed into OM for iteration ", niter, "."
   )
 

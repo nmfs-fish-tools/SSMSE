@@ -15,8 +15,7 @@ run_SSMSE_iter(
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
-  rec_dev_iter = NULL,
-  impl_error = NULL,
+  nyrs_lag = 0,
   nscen = 1,
   scen_name = NULL,
   niter = 1,
@@ -77,11 +76,8 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{rec_dev_iter}{A recruitment deviation vector for the iteration.
-Dimensions are nyrs_assess\*number of fleets \* number of seasons}
-
-\item{impl_error}{An implementation error vector for the iteration.
-Dimensions are nyrs_assess\*number of fleets \* number of seasons}
+\item{nyrs_lag}{number of years of lag in obtaining data. i.e. the number of years
+post EM assessment end yr before advice can be implemented. defaults to 0.}
 
 \item{nscen}{The scenario number.}
 

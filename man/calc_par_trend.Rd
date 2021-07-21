@@ -10,7 +10,10 @@ calc_par_trend(
   ref_parm_value,
   vals_df,
   parname,
-  par
+  par,
+  ctl,
+  par_section,
+  dat
 )
 }
 \arguments{
@@ -28,6 +31,12 @@ start val and last year}
 will reference, if using a relative method.}
 
 \item{par}{The par file list.}
+
+\item{ctl}{The control file read in using r4ss.}
+
+\item{par_section}{Which parameter section should this variabile be in?}
+
+\item{The}{data file read in using r4ss}
 }
 \value{
 A vector of values with length ncol(vals_df), the number of future

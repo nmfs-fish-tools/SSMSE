@@ -26,6 +26,8 @@ update_basevals_blocks(
 
 \item{current_par}{The index of the current parameter being updated}
 
+\item{ctl}{A control file as read in by r4ss::SS_readctl}
+
 \item{dat}{A datafile as read in by r4ss::SS_readdat}
 
 \item{temp_ctl}{A subset of the control file representing the parameter section of interest (i.e. MG, SR, Q, or Selectivity)}
@@ -35,8 +37,6 @@ update_basevals_blocks(
 \item{baseparm}{The value of the base parameter}
 
 \item{base_bounds}{The min and max bounds of the base parameter}
-
-\item{clt}{A control file as read in by r4ss::SS_readctl}
 }
 \value{
 A modified parameter value series that incorporates the appropriate time varying block effects.

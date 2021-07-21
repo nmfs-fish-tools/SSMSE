@@ -4,7 +4,7 @@
 \alias{add_dev_changes}
 \title{Add the deviation changes from the list obj to an existing df}
 \usage{
-add_dev_changes(fut_list, scen, iter, par, dat, vals_df, nyrs)
+add_dev_changes(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl)
 }
 \arguments{
 \item{fut_list}{A single change input}
@@ -20,6 +20,8 @@ add_dev_changes(fut_list, scen, iter, par, dat, vals_df, nyrs)
 \item{vals_df}{The dataframe with future om values}
 
 \item{nyrs}{The number of years to extend the model forward}
+
+\item{ctl}{The control file list}
 }
 \value{
 A modified version of vals_df with the new changes applied.

@@ -18,8 +18,6 @@ run_SSMSE_scen(
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
-  rec_devs_scen = NULL,
-  impl_error = NULL,
   scen_seed = NULL,
   sample_struct = NULL,
   future_om_list = NULL,
@@ -86,12 +84,6 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 (NOTE: we could make this more flexible by instead reading in a vector of
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
-
-\item{rec_devs_scen}{List containing a recruitment deviation vector for each
-iteration.}
-
-\item{impl_error}{List containing an implementation error vector for each
-iteration.}
 
 \item{scen_seed}{List containing fixed seeds for this scenario and its iterations.}
 

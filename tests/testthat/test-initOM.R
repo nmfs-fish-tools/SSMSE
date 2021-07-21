@@ -21,7 +21,6 @@ test_that("create_OM can modify model", {
     overwrite = TRUE,
     verbose = FALSE,
     nyrs_assess = 3,
-    rec_devs = rep(0, length = 6),
     verify_OM = TRUE
   )
   new_dat <- init_mod[["dat"]]
