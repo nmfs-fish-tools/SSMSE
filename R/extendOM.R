@@ -25,7 +25,6 @@
 #'  apply the limit across all values of that variable (i.e. a single row with -99, -99, -99, -2 would implement
 #'  a cap of twice the historic maximum F for all cases)  
 #' @param EM_pars a dataframe of parameter value updates to modify OM 
-#' @param future_om_list The changes to make to the future OM list.
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
 #' @param impl_error The implementation error
 #' @param seed A random initialization seed for SS to allow reproducibility
