@@ -20,7 +20,9 @@ test_that("create_OM can modify model", {
     OM_out_dir = file.path(temp_path, "cod"),
     overwrite = TRUE,
     verbose = FALSE,
+    nyrs = 6,
     nyrs_assess = 3,
+    future_om_dat = NULL,
     verify_OM = TRUE
   )
   new_dat <- init_mod[["dat"]]

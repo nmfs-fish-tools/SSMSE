@@ -394,13 +394,13 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
         parlist[["parm_devs"]] <- new_par_devs
       }
     }
+  } else {
+    impl_error <- NULL
   }
-  
-  output_list<-list()
-  output_list[["control"]]<-ctl
-  output_list[["data"]]<-dat
-  output_list[["parameter"]]<-parlist
-  output_list[["impl_error"]]<-impl_error
+  output_list <- list(control = ctl,
+                    data = dat,
+                    parameter = parlist,
+                    impl_error = impl_error)
   return(output_list)
 }
 
