@@ -4,7 +4,7 @@
 #'
 #' @param future_om_list User input to runSSMSE describing changes to make to
 #'  the operating model as it is extended forward in time
-#' @param scenario The scenario name
+#' @param scen_name The scenario name
 #' @param niter The iteration number
 #' @param om_mod_path Path to the OM files. Used to reference parameter names.
 #' @param nyrs The total number of years that the model will be extended forward.

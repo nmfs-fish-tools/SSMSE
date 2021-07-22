@@ -1,7 +1,7 @@
 
 #' Add in future parameter values
 #' 
-#' @param clt A control file as read in by r4ss::SS_readctl
+#' @param ctl A control file as read in by r4ss::SS_readctl
 #' @param dat A datafile as read in by r4ss::SS_readdat
 #' @param parlist A parameter file as read in by r4ss::SS_readpar_3.30
 #' @param timeseries SS output timeseries data
@@ -30,6 +30,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
       dat[["envdat"]]<-rbind(dat[["envdat"]],temp_env)  
     }
     
+    impl_error<-NULL
     for(i in grep("impl_error",names(future_om_dat))){
       impl_error<-data.frame("year"=(dat[["endyr"]]+1):(dat[["endyr"]]+length(future_om_dat[,i])),
                              "error"=future_om_dat[,i])
@@ -388,7 +389,11 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
     }
     if(length(old_par_devs)!=0){stop("Something is wrong, all par devs have not been accounted for but they should have been. This is likely a code bug not user error")}
     new_par_devs <- c(new_par_devs,old_par_devs)
-    parlist[["parm_devs"]] <- new_par_devs
+    if(!is.null(new_par_devs)){
+      if(length(new_par_devs)>0){
+        parlist[["parm_devs"]] <- new_par_devs
+      }
+    }
   }
   
   output_list<-list()

@@ -62,9 +62,9 @@ check_dir <- function(dir) {
 #' @author Kathryn Doering
 check_OM_dat <- function(OM_dat, EM_dat) {
   # check start and end years match
-  if (OM_dat[["styr"]] != EM_dat[["styr"]] | OM_dat[["endyr"]] != EM_dat[["endyr"]]) {
+  if (OM_dat[["styr"]] > EM_dat[["styr"]] | OM_dat[["endyr"]] < EM_dat[["endyr"]]) {
     stop(
-      "OM_dat and EM_dat should have the same start and end years. However, ",
+      "OM_dat years should at least cover all EM_dat years. However, ",
       "OM_dat has styr = ", OM_dat[["styr"]], " and endyr = ", OM_dat[["endyr"]],
       ", while EM_dat has styr = ", EM_dat[["styr"]], " and endyr = ",
       EM_dat[["endyr"]]

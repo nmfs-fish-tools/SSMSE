@@ -209,11 +209,6 @@ create_OM <- function(OM_out_dir,
   default_F <- F_list[["F_rate"]][F_list[["F_rate"]][,"year"]==dat[["endyr"]],c("year", "seas", "fleet", "F")]  
   new_F_rate <- rbind(F_list[["F_rate"]][, c("year", "seas", "fleet", "F")],F_list[["F_rate_fcast"]][,c("year", "seas", "fleet", "F")])  
   rownames(new_F_rate) <- c(F_list[["F_rate"]][, c("name")],F_list[["F_rate_fcast"]][,c("name")])  
-    
-    # F_rate[["name"]] <- paste0(
-    #   "F_fleet_", F_rate[["fleet"]], "_YR_", F_rate[["year"]], "_s_",
-    #   F_rate[["seas"]]
-    # )
   
   for(i in update_F_years){  
     for(j in unique(new_F_rate[,"seas"])){    
@@ -241,6 +236,12 @@ create_OM <- function(OM_out_dir,
     }
   } 
   new_F_rate <- new_F_rate[order(new_F_rate[, "fleet"], new_F_rate[, "year"], new_F_rate[, "seas"]), ]
+  
+  rownames(new_F_rate) <- paste0(
+    "F_fleet_", new_F_rate[["fleet"]], "_YR_", new_F_rate[["year"]], "_s_",
+    new_F_rate[["seas"]]
+  )
+  
   parlist[["F_rate"]]<-new_F_rate  
   
   parlist[["init_F"]] <- F_list[["init_F"]]
@@ -254,14 +255,14 @@ create_OM <- function(OM_out_dir,
 
   single_run_files <- add_OM_devs(ctl=ctl, dat=dat, parlist=parlist, timeseries=outlist[["timeseries"]], future_om_dat=future_om_dat) 
   
-  dat<-single_run_files$dat # SINGLE_RUN_MODS: 
-  ctl<-single_run_files$ctl # SINGLE_RUN_MODS: 
-  parlist<-single_run_files$parlist # SINGLE_RUN_MODS: 
-  impl_error<-single_run_files$impl_error
+  dat<-single_run_files[["data"]] # SINGLE_RUN_MODS: 
+  ctl<-single_run_files[["control"]] # SINGLE_RUN_MODS: 
+  parlist<-single_run_files[["parameter"]] # SINGLE_RUN_MODS: 
+  impl_error<-single_run_files[["impl_error"]]
   
   if(is.null(impl_error)){
-    data.frame("year"=(dat[["endyr"]]+1):(dat[["endyr"]]+nyrs),
-               "error"=rep(1,nyrs))
+    impl_error <- data.frame("year"=(dat[["endyr"]]+1):(dat[["endyr"]]+nyrs),
+                             "error"=rep(1,nyrs))
   }
   
   dat[["endyr"]] <- dat[["endyr"]] + nyrs # SINGLE_RUN_MODS: 
