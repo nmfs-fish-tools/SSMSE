@@ -202,68 +202,13 @@ run_SSMSE <- function(scen_name_vec,
     seed = seed,
     iter_vec = unlist(lapply(scen_list, function(scen) scen["iter"]))
   )
-  # Get directory of base OM files for each scenario as they may be different
-  # rec_stddev <- rep(0, length(scen_list))
-  # n_impl_error_groups <- rep(0, length(scen_list))
-  # rec_autoCorr <- vector(mode = "list", length = length(scen_list))
-  # for (i in 1:length(scen_list)) {
-  #   tmp_scen_list <- scen_list[[i]]
-  #   if (is.null(tmp_scen_list[["OM_in_dir"]])) {
-  #     OM_dir <- locate_in_dirs(OM_name = tmp_scen_list[["OM_name"]])
-  #   } else {
-  #     OM_dir <- locate_in_dirs(OM_in_dir = tmp_scen_list[["OM_in_dir"]])
-  #   }
-  #   # Read in starter file
-  #   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
-  #     verbose = FALSE
-  #   )
-  #   # Read in data file
-  #   dat <- r4ss::SS_readdat(file.path(OM_dir, start[["datfile"]]),
-  #     section = 1,
-  #     verbose = FALSE
-  #   )
-  #   # Read in control file
-  #   ctl <- r4ss::SS_readctl(
-  #     file = file.path(OM_dir, start[["ctlfile"]]),
-  #     use_datlist = TRUE, datlist = dat,
-  #     verbose = FALSE
-  #   )
-  #   # Read in parameter file
-  #   parlist <- r4ss::SS_readpar_3.30(
-  #     parfile = file.path(OM_dir, "ss.par"),
-  #     datsource = dat, ctlsource = ctl,
-  #     verbose = FALSE
-  #   )
-  # 
-  #   # Calculate the standard deviation and autocorrelation of historic recruitment deviations
-  #   rec_dev_comb <- rbind(parlist[["recdev1"]], parlist[["recdev2"]])
-  #   rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
-  #   n_impl_error_groups[i] <- dat[["nseas"]] * dat[["Nfleet"]]
-  # 
-  #   if (rec_dev_pattern == "AutoCorr_rand" | rec_dev_pattern == "AutoCorr_Spec") {
-  #     rec_autoCorr[[i]] <- stats::arima(x = rec_dev_comb[, 2], order = c(0, 0, 4))
-  #   }
-  # }
-
-  # if (is.null(rec_dev_pars)) {
-  #   # to do: make this a better default value.
-  #   rec_dev_pars <- c(ceiling(mean(nyrs_vec)), 1)
-  # }
 
   # make sure values are the correct length
   nyrs_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs"]))
   nyrs_assess_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs_assess"]))
   iter_vec <- unlist(lapply(scen_list, function(scen) scen["iter"]))
 
-  #rec_dev_list <- build_rec_devs(yrs = nyrs_vec, scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
-
-
-
-  #impl_error <- build_impl_error(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, n_impl_error_groups = n_impl_error_groups, scope = scope, impl_error_pattern = impl_error_pattern, impl_error_pars = impl_error_pars, n_scenarios = length(scen_list), iter_vec = iter_vec, seed = seed)
-  # add recdevs, impl_err, and seed to scen_list
   for (i in seq_along(scen_list)) {
-    #scen_list[[i]][["rec_devs"]] <- rec_dev_list[[i]]
-    #scen_list[[i]][["impl_error"]] <- impl_error[[i]]
     scen_seed <- vector(mode = "list", length = 3)
     names(scen_seed) <- c("global", "scenario", "iter")
     scen_seed[["global"]] <- seed[["global"]]
@@ -858,26 +803,17 @@ run_SSMSE_iter <- function(out_dir = NULL,
         "."
       )
     }
-    #rec_devs_chunk <- rec_dev_iter[1:nyrs_assess] 
-    #rec_dev_iter <- rec_dev_iter[-(1:nyrs_assess)]
-    #impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
-    #impl_error <- impl_error[-(1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
-
+    
     # SINGLE_RUN_MODS: Will need to update some things still but not all
     # probably need an input for current year so we can update the correct 
     # years of catch etc.
-    update_OM(# SINGLE_RUN_MODS: maybe change function name to update_OM?
+    update_OM(
       OM_dir = OM_out_dir,
       catch = new_catch_list[["catch"]],
-      #discards = new_catch_list[["discards"]],
       harvest_rate = new_catch_list[["catch_F"]],
       catch_basis = NULL,
       F_limit = NULL,
       EM_pars = new_catch_list[["EM_pars"]],
-      #sample_struct = sample_struct,
-      #future_om_list = future_om_list,
-      #nyrs_extend = nyrs_assess,
-      #mod_yrs = (yr - nyrs_assess+1):yr
       impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 234567 + yr)
@@ -960,14 +896,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
     message("Running the OM 1 final time, because last year extends past the last 
     assessment.")
     yr <- assess_yrs[length(assess_yrs)] + extra_yrs
-    # get recdevs, impl_error
-    # rec_devs_chunk <- rec_dev_iter[1:extra_yrs]
-    # rec_dev_iter <- rec_dev_iter[-(1:extra_yrs)]
-    # impl_error_chunk <- impl_error[1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
-    # impl_error <- impl_error[-(1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
-    # sanity checks
-    # assertive.properties::assert_is_of_length(rec_dev_iter, 0)
-    # assertive.properties::assert_is_of_length(impl_error, 0)
     subset_catch_list <- lapply(new_catch_list,
       function(x, yr) new_catch <- x[x[["year"]] <= yr, ],
       yr = yr
