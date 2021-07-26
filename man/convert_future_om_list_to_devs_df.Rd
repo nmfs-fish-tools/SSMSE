@@ -17,6 +17,8 @@ convert_future_om_list_to_devs_df(
 \item{future_om_list}{User input to runSSMSE describing changes to make to
 the operating model as it is extended forward in time}
 
+\item{scen_name}{The scenario name}
+
 \item{niter}{The iteration number}
 
 \item{om_mod_path}{Path to the OM files. Used to reference parameter names.}
@@ -25,8 +27,6 @@ the operating model as it is extended forward in time}
 
 \item{global_seed}{A global seed to set, then pull new seeds from. Defaults 
 to 123.}
-
-\item{scenario}{The scenario name}
 }
 \value{
 A list including 3 dataframes and one list: devs_df, the additive deviations 

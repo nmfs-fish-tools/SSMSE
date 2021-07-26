@@ -721,8 +721,12 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # turn the stock assessment model into an OM
   init_mod <- create_OM(
     OM_out_dir = OM_out_dir, overwrite = TRUE,
-    sample_struct_hist = sample_struct_hist, verbose = verbose, writedat = TRUE, nyrs = nyrs,
-    nyrs_assess = nyrs_assess, nscen = nscen, scen_name = scen_name, niter = niter, future_om_dat = future_om_dat,
+    sample_struct_hist = sample_struct_hist, 
+    sample_struct = sample_struct,
+    verbose = verbose, writedat = TRUE, nyrs = nyrs,
+    nyrs_assess = nyrs_assess, nscen = nscen, 
+    scen_name = scen_name, niter = niter, 
+    future_om_dat = future_om_dat,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
   impl_error <- init_mod[["impl_error"]]

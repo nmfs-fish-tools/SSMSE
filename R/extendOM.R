@@ -95,8 +95,8 @@ update_OM <- function(OM_dir,
   # modify forecast file ----
   
   catch_intended<-rbind(catch,harvest_rate)
-  catch_intended<-catch_intended[-duplicated(catch_intended[,1:3])]
-  catch_intended<-cbind(catch_intended,catch_intended[,"catch"],catch_intended[,"catch"],catch_intended[,"catch"],catch_intended[,"catch"],catch_intended[,"catch"],rep(1,length(catch_intended[,"catch"])),rep(1.5,length(catch_intended[,"catch"])),rep(2,length(catch_intended[,"catch"])))
+  catch_intended<-catch_intended[!duplicated(catch_intended[,1:3]),]
+  catch_intended<-cbind(catch_intended,catch_intended[,"catch"],catch_intended[,"catch"],rep(1,length(catch_intended[,"catch"])),rep(1,length(catch_intended[,"catch"])),rep(1,length(catch_intended[,"catch"])),rep(1.5,length(catch_intended[,"catch"])),rep(2,length(catch_intended[,"catch"])))
   colnames(catch_intended)<-c("year", "seas", "fleet", "catch","F","F_ref","Catch_ref","basis","basis_2","scale","F_lim","last_adjust")
   for(i in seq_along(catch_intended[,"catch"])){
     
@@ -123,18 +123,6 @@ update_OM <- function(OM_dir,
       basis_2 <- 1
     }
     catch_intended[i,"basis_2"] <- basis_2
-    
-    if(!is.null(impl_error)){
-      temp_impl_error <- impl_error[impl_error[,"year"]==catch_intended[i,"year"],"error"]
-      if(length(temp_impl_error)!=1){
-        temp_impl_error <- 1
-      }
-      if(temp_impl_error<0){
-        temp_impl_error <- 1
-      }
-    }else{
-      temp_impl_error <- 1
-    }
     
     last_F <- parlist[["F_rate"]][which(parlist[["F_rate"]][,c("year")]==(catch_intended[i,c("year")]-1) & 
                                           parlist[["F_rate"]][,c("seas")]==catch_intended[i,c("seas")] &
@@ -193,7 +181,7 @@ update_OM <- function(OM_dir,
       # temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"] & 
       #                               impl_error[,"seas"]==temp_catch[i,"seas"] & 
       #                               impl_error[,"fleet"]==temp_catch[i,"fleet"] ,"error"]
-      temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"],"error"]
+      temp_impl_error <- impl_error[impl_error[,"year"]==catch_intended[i,"year"],"error"]
       if(length(temp_impl_error)==1){
         if(temp_impl_error>=0){
          catch_intended[i,c("catch","F")] <- catch_intended[i,c("catch","F")] * temp_impl_error
@@ -318,7 +306,7 @@ update_OM <- function(OM_dir,
         }
         
         catch_intended[i,"last_adjust"] <- target_F/achieved_F
-        catch_intended[i, "scale"] <- catch_intended[i, "scale"]((target_F/achieved_F)-1)*(1-exp(runif(1,-5,0)))
+        catch_intended[i, "scale"] <- catch_intended[i, "scale"]*((target_F/achieved_F)-1)*(1-exp(runif(1,-5,0)))
         
         parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"] <- max(0,min(catch_intended[i,"F"]*catch_intended[i, "scale"],catch_intended[i,"F_lim"]))
         if(parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"]==0 | parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"]==catch_intended[i,"F_lim"]){

@@ -17,6 +17,7 @@ create_OM(
   future_om_dat = NULL,
   verify_OM = TRUE,
   sample_struct_hist = NULL,
+  sample_struct = NULL,
   seed = NULL
 )
 }
@@ -51,6 +52,9 @@ checks done to verify that the OM can run? Defaults to TRUE.}
 \item{sample_struct_hist}{The historical sample structure, if specified by 
 the user. Defaults to NULL, which means to use the same sample structure as
 the historical data.}
+
+\item{sample_struct}{Input sampling structure to ensure future data are listed in OM
+with correct SE.}
 
 \item{seed}{input seed to allow reproducible SS results.}
 }

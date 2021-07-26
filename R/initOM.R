@@ -23,6 +23,8 @@
 #' @param sample_struct_hist The historical sample structure, if specified by 
 #'  the user. Defaults to NULL, which means to use the same sample structure as
 #'  the historical data.
+#' @param sample_struct Input sampling structure to ensure future data are listed in OM
+#'  with correct SE.
 #' @param seed input seed to allow reproducible SS results.
 #' @template verbose
 #' @return A modified datafile
@@ -39,6 +41,7 @@ create_OM <- function(OM_out_dir,
                       future_om_dat = NULL,
                       verify_OM = TRUE,
                       sample_struct_hist = NULL,
+                      sample_struct = NULL,
                       seed = NULL) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
     verbose = FALSE
@@ -204,7 +207,24 @@ create_OM <- function(OM_out_dir,
   
   new_catch <- new_catch[order(new_catch[, "fleet"], new_catch[, "year"], new_catch[, "seas"]), ]
   
+  update_SE_catch <- function(new_catch,sample_struct_in){
+    temp_samp <- sample_struct_in[sample_struct_in[,"year"]==new_catch[1] &
+                                  sample_struct_in[,"seas"]==new_catch[2] &
+                                  sample_struct_in[,"fleet"]==new_catch[3], "catch_se"]
+    if(length(temp_samp)==1){
+      new_SE <- temp_samp
+    }else{
+      new_SE <- new_catch[5]
+    }
+    return(new_SE)
+  }
+  if(!is.null(sample_struct[["catch"]])){
+    new_catch[,"catch_se"] <- apply(new_catch,1,update_SE_catch,sample_struct_in = sample_struct[["catch"]])
+  }
+  
   dat[["catch"]] <- new_catch
+  
+  
   
   default_F <- F_list[["F_rate"]][F_list[["F_rate"]][,"year"]==dat[["endyr"]],c("year", "seas", "fleet", "F")]  
   new_F_rate <- rbind(F_list[["F_rate"]][, c("year", "seas", "fleet", "F")],F_list[["F_rate_fcast"]][,c("year", "seas", "fleet", "F")])  
@@ -273,7 +293,8 @@ create_OM <- function(OM_out_dir,
   # Add in the historical sampling structure, as defined by the user
   dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat, 
                            nyrs_extend = 0)
-  
+  dat <- add_sample_struct(sample_struct = sample_struct, dat = dat, 
+                           nyrs_extend = 0)
   # make sure tail compression is off.
   # turn off tail compression
   if (isTRUE(any(dat[["len_info"]][["mintailcomp"]] >= 0)) |
