@@ -36,12 +36,11 @@ test_that("run_SSMSE runs with interim assessment workflow", {
     use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
     nyrs_vec = nyrs, # Years to project OM forward
     nyrs_assess_vec = 1, # Years between assessments
-    rec_dev_pattern = "none", # Don't use recruitment deviations
-    impl_error_pattern = "none", # Don't use implementation error
     sample_struct_list = list(sample_struct), # How to sample data for running the EM.
     interim_struct_list = list(interim_struct_list),
     seed = 12345
   ) # Set a fixed integer seed that allows replication
+  expect_null(result[["base"]][["errored_iterations"]])
   expect_true(file.exists(file.path(
     temp_path, "base", "1", "cod_OM",
     "data.ss_new"
