@@ -349,6 +349,14 @@ create_OM <- function(OM_out_dir,
         "problem."
       )
     }
+    # check model runs without producing nans in the data file
+    tmp_new_dat <- readLines(file.path(OM_out_dir, "data.ss_new"))
+    nan_vals <- grep("nan", tmp_new_dat)
+    if(length(nan_vals) > 0) {
+      stop("NAN values present in the data.ss_new om file, suggesting an issue ",
+           "setting up the OM. See ", file.path(OM_out_dir, "data.ss_new"))
+    }
+    
     # check the names of F parameters in the Parameters section of the report
     # file.
     test_output <- r4ss::SS_output(OM_out_dir,
