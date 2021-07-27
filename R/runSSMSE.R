@@ -770,7 +770,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
     MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
     OM_dat = OM_dat, OM_out_dir = OM_out_dir, 
     verbose = verbose, nyrs_assess = nyrs_assess, 
-    interim_struct = interim_struct, dat_yrs = NA,
+    interim_struct = interim_struct, 
+    dat_yrs = (init_mod[["dat"]][["endyr"]] - nyrs + 1):(init_mod[["dat"]][["endyr"]] - nyrs + nyrs_assess),
     seed = (iter_seed[["iter"]][1] + 123456)
   )
   

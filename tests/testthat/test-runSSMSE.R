@@ -57,6 +57,7 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   expect_length(unique(index_plot_list$index_dat$model_run), 3)
   # TODO: add plot testing when updating ggplots.
 })
+
 test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs", {
   # This tests takes a while to run, but is really helpful.
   new_temp_path <- file.path(temp_path, "mult_scenarios")

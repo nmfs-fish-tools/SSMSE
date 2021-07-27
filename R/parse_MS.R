@@ -574,7 +574,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
     }
     new_catch_list <- get_no_EM_catch_df(
       OM_dir = OM_out_dir,
-      yrs = (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess),
+      yrs = dat_yrs,
       MS = MS
     )
   } else {

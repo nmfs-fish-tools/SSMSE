@@ -105,8 +105,8 @@ create_OM <- function(OM_out_dir,
   
   forelist[["benchmarks"]] <- 0 # 
   forelist[["Forecast"]] <- 0 # 
-  forelist[["Nforecastyrs"]] <- 0 # 
-  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs + 1 # 
+  forelist[["Nforecastyrs"]] <- 1 # 
+  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs + 2 # 
   
   # modify ctl file ----
   # in the context of an OM, do not want to use the bias adjustment ramp, so just
@@ -148,11 +148,11 @@ create_OM <- function(OM_out_dir,
   # modify par file ----
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
   # get recdevs for all model years
-  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ] # 
+  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]]), ] # 
   
   new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
-  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + nyrs), recdev = NA) # 
-  temp_yrs<-(first_year:(dat[["endyr"]] + nyrs))
+  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + nyrs + 1), recdev = NA) # 
+  temp_yrs<-(first_year:(dat[["endyr"]] + nyrs + 1))
   for (i in seq_along(temp_yrs)) { # 
     tmp_yr <- temp_yrs[i] #
     if (tmp_yr <= ctl[["MainRdevYrLast"]]) {
@@ -266,7 +266,7 @@ create_OM <- function(OM_out_dir,
   
   parlist[["init_F"]] <- F_list[["init_F"]]
   
-  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs))
+  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(yrs = (dat[["endyr"]] + nyrs +1 ):(dat[["endyr"]] + nyrs + forelist[["Nforecastyrs"]]))
 
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
   ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM
