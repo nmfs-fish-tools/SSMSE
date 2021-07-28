@@ -73,7 +73,7 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
                                verbose = FALSE)
   where_par <- match_parname(list_pars = pars_to_change, par = par)
   vals_df <- data.frame(yrs = seq_len(nyrs) + dat[["endyr"]])
-  tmp_vals <- setNames(data.frame(
+  tmp_vals <- stats::setNames(data.frame(
     matrix(NA, nrow = nrow(vals_df),ncol = length(where_par[["pars"]]))),
     where_par[["pars"]])
   vals_df <- cbind(vals_df, tmp_vals)
@@ -193,11 +193,11 @@ sample_vals <- function(mean,
   set.seed(seed)
   if(isTRUE(is.na(ar_1_phi) | unique(ar_1_phi) == 0)) {
     samps <- switch(dist,
-           normal = rnorm(n = ndevs, mean = mean, sd = sd), 
+           normal = stats::rnorm(n = ndevs, mean = mean, sd = sd), 
            # other way of writing: obs * exp(rnorm(n = 1, mean = 0, sd = sd) - sd^2/2)
            # note term in front is the bias correction to make E(x) = exp(mu) 
            # instead of med(x) = exp(mu)
-           lognormal = exp(-sd^2/2)*rlnorm(n = ndevs, meanlog = log(mean), sdlog = sd)) 
+           lognormal = exp(-sd^2/2)*stats::rlnorm(n = ndevs, meanlog = log(mean), sdlog = sd)) 
   } else {
     if(dist == "lognormal") {
       stop("Lognormal sampling cannot be use with autocorrelation. Please use",
@@ -221,9 +221,9 @@ sample_vals <- function(mean,
       }
       if(abs(ar_1_phi[d]) < 1) {
         samps[d] <- mean[d]*(1-ar_1_phi[d]) + ar_1_phi[d]*past_samp + 
-          rnorm(1, mean = 0, sd = sd[d]/sqrt(1/(1-ar_1_phi[d]^2)))    
+          stats::rnorm(1, mean = 0, sd = sd[d]/sqrt(1/(1-ar_1_phi[d]^2)))    
       } else {
-        samps[d] <- mean[d] + ar_1_phi[d]*past_samp + rnorm(1, mean = 0, sd = sd[d])
+        samps[d] <- mean[d] + ar_1_phi[d]*past_samp + stats::rnorm(1, mean = 0, sd = sd[d])
         nonstat_warning <- TRUE
       }
     }
@@ -263,7 +263,7 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
     if(fut_list$scen[1] == "randomize") {
       # need a different seed for each scenario and iteration
       set.seed(fut_list$seed)
-      tmp_scen_seed <- runif(length(fut_list$scen), 0, 999999)[which(fut_list$scen == scen)]
+      tmp_scen_seed <- stats::runif(length(fut_list$scen), 0, 999999)[which(fut_list$scen == scen)]
       tmp_iter_seed <- tmp_scen_seed + iter
       fut_list$seed <- tmp_iter_seed
       fut_list$seed <- fut_list$seed + which(fut_list$scen == scen)
@@ -356,8 +356,8 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
       custom_vals <- fut_list$input[fut_list$input$scen %in% c("all", scen) &
                                fut_list$input$par == i &
                                fut_list$input$iter == iter,]
-      custom_vals <- dplyr::select(custom_vals, yr, value) %>%
-        dplyr::rename(yrs = yr)
+      custom_vals <- dplyr::select(custom_vals, .data[["yr"]], .data[["value"]]) %>%
+        dplyr::rename(yrs = .data[["yr"]])
       vals_df <- dplyr::left_join(vals_df, custom_vals, by = "yrs") %>% 
         tidyr::replace_na(replace = list(value = tmp_base))
       vals_df[[i]] <- vals_df[["value"]] # move to the correct column
@@ -380,7 +380,7 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
   #' @param par The par file list.
   #' @param ctl The control file read in using r4ss.
   #' @param par_section Which parameter section should this variabile be in?
-  #' @param The data file read in using r4ss
+  #' @param dat The data file read in using r4ss
   #' @author Kathryn Doering
   #' @return A vector of values with length ncol(vals_df), the number of future
   #'  years.
@@ -403,8 +403,8 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
         tmp_vals <- tmp_vals[to_include, "rec_devs"]
         ref_parm_value <- switch(val_line, 
                                  mean = mean(tmp_vals), 
-                                 sd = sd(tmp_vals),
-                                 cv = sd(tmp_vals)/mean(tmp_vals),
+                                 sd = stats::sd(tmp_vals),
+                                 cv = stats::sd(tmp_vals)/mean(tmp_vals),
                                  ar_1_phi = stats::arima(tmp_vals, order = c(1,0,0))$coef[1])
       } else { # for all other parameters
         # check for tv devs
@@ -476,7 +476,8 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
               temp_ctl = temp_ctl,
               dat = dat,
               base_range = ctl[[par_section]][parname, "HI"] - ctl[[par_section]][parname, "LO"],
-              base_bounds = c(ctl[[par_section]][parname, "LO"], ctl[[par_section]][parname, "HI"])
+              base_bounds = c(ctl[[par_section]][parname, "LO"], ctl[[par_section]][parname, "HI"]),
+              parlist = par
             )
             first_tv <- FALSE
           }
@@ -507,8 +508,8 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
           # now, calculate the historical value to use as reference
           ref_parm_value <- switch(val_line, 
                                    mean = mean(vals), 
-                                   sd = sd(vals),
-                                   cv = sd(vals)/mean(vals),
+                                   sd = stats::sd(vals),
+                                   cv = stats::sd(vals)/mean(vals),
                                    ar_1_phi = stats::arima(vals, order = c(1,0,0))$coef[1])
         } else {
           ref_parm_value <- ref_parm_value # just keep using the default if no TV

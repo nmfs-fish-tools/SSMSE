@@ -195,7 +195,7 @@ update_OM <- function(OM_dir,
   
   if(!is.null(EM_pars)){
     for(i in grep("rec_devs",names(EM_pars))){
-      matches<-lapply(EM_pars[["year"]],FUN=function(x,y){which(y==x)},y=test[,"year"])
+      matches<-lapply(EM_pars[["year"]],FUN=function(x,y){which(y==x)},y=parlist[["recdev_forecast"]][,"year"])
       locations<-rep(EM_pars[["year"]],unlist(lapply(matches,length)))
       parlist[["recdev_forecast"]][unlist(matches),c("year","recdev")] <- EM_pars[locations,c(1,i)]
     }
@@ -306,7 +306,7 @@ update_OM <- function(OM_dir,
         }
         
         catch_intended[i,"last_adjust"] <- target_F/achieved_F
-        catch_intended[i, "scale"] <- catch_intended[i, "scale"]*((target_F/achieved_F)-1)*(1-exp(runif(1,-5,0)))
+        catch_intended[i, "scale"] <- catch_intended[i, "scale"]*((target_F/achieved_F)-1)*(1-exp(stats::runif(1,-5,0)))
         
         parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"] <- max(0,min(catch_intended[i,"F"]*catch_intended[i, "scale"],catch_intended[i,"F_lim"]))
         if(parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"]==0 | parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"]==catch_intended[i,"F_lim"]){

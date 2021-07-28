@@ -95,7 +95,7 @@ test_that("Build recdevs works as expected for option autocorrelated random", {
   iter_vec <- c(3, 2)
   seed_vals <- set_MSE_seeds(seed = 123, iter_vec = iter_vec)
   set.seed(12)
-  ts <- rnorm(40)
+  ts <- stats::rnorm(40)
   # generate the rec_autoCorr input (which is complex)
   rec_autoCorr <- vector("list", 2)
   rec_autoCorr[[1]] <- stats::arima(x = ts[1:20], order = c(0, 0, 4))
@@ -119,7 +119,7 @@ test_that("Build recdevs works as expected for option autocorrelated specified",
   iter_vec <- c(3, 2)
   seed_vals <- set_MSE_seeds(seed = 123, iter_vec = iter_vec)
   set.seed(12)
-  ts <- rnorm(40)
+  ts <- stats::rnorm(40)
   # generate the rec_autoCorr input (which is complex)
   rec_autoCorr <- vector("list", 2)
   rec_autoCorr[[1]] <- list(mean = 0.1, sd = 0.1)
@@ -144,7 +144,7 @@ test_that("Build recdevs works as expected for option autocorrelated specified",
 #   set.seed <- 123
 #   iter_vec <- c(3, 2)
 #   yrs_vec <- c(3, 6)
-#   custom_recdevs_vec <- rnorm(iter_vec[1] * yrs_vec[1] + iter_vec[2] * yrs_vec[2])
+#   custom_recdevs_vec <- stats::rnorm(iter_vec[1] * yrs_vec[1] + iter_vec[2] * yrs_vec[2])
 #   custom_recdevs_matrix <- as.matrix(custom_recdevs_vec, nrow = sum(iter_vec))
 #
 #   seed_vals <- set_MSE_seeds(seed = 123, iter_vec = iter_vec)
