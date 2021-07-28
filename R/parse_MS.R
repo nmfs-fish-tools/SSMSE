@@ -208,17 +208,20 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         verbose = FALSE
       )
       new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = Reference_dat)
+      
+      # NOte: this is where we need to change which years are being subset for the 
+      # new catch list.
       if (!is.null(new_catch_list[["catch"]])) {
-        new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]], dat_yrs), ]
       }
       if (!is.null(new_catch_list[["discards"]])) {
-        new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]], dat_yrs), ]
       }
       if (!is.null(new_catch_list[["catch_bio"]])) {
-        new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]], dat_yrs), ]
       }
       if (!is.null(new_catch_list[["catch_F"]])) {
-        new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]], dat_yrs), ]
       }
       utils::write.csv(
         new_catch_list[["catch"]],
@@ -313,12 +316,12 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         } else {
           sample_struct_sub <- NULL
         }
-
         new_EM_dat <- add_new_dat(
           OM_dat = OM_dat,
           EM_datfile = start[["datfile"]],
           sample_struct = sample_struct_sub,
           EM_dir = EM_init_dir,
+          nyrs_assess = nyrs_assess,
           do_checks = TRUE,
           new_datfile_name = start[["datfile"]],
           verbose = verbose
