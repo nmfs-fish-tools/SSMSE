@@ -8,6 +8,25 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 extdat_path <- system.file("extdata", package = "SSMSE")
 
+
+test_that("run_SSMSE_iter runs with no EM", {
+  skip_on_cran()
+  new_temp_path <- file.path(temp_path, "no_EM")
+  dir.create(new_temp_path)
+  result <- run_SSMSE_iter(
+    OM_name = "cod",
+    MS = "no_catch",
+    out_dir = new_temp_path,
+    nyrs = 6,
+    nyrs_assess = 3,
+    iter_seed = list(global = 12345, scenario = 123456, iter = 1234567)
+  )
+  expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
+  expect_true(result)
+  # add more specific tests
+})
+
+
 test_that("run_SSMSE runs with an EM, and works with summary funs", {
   skip_on_cran()
   nyrs <- 7
@@ -111,23 +130,6 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   # summarize results
   summary <- SSMSE_summary_all(dir = new_temp_path, run_parallel = FALSE)
   expect_true(length(summary) == 3)
-})
-
-test_that("run_SSMSE_iter runs with no EM", {
-  skip_on_cran()
-  new_temp_path <- file.path(temp_path, "no_EM")
-  dir.create(new_temp_path)
-  result <- run_SSMSE_iter(
-    OM_name = "cod",
-    MS = "no_catch",
-    out_dir = new_temp_path,
-    nyrs = 6,
-    nyrs_assess = 3,
-    iter_seed = list(global = 12345, scenario = 123456, iter = 1234567)
-  )
-  expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
-  expect_true(result)
-  # add more specific tests
 })
 
 

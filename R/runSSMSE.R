@@ -819,6 +819,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       catch_basis = NULL,
       F_limit = NULL,
       EM_pars = new_catch_list[["EM_pars"]],
+      write_dat = TRUE,
       impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 234567 + yr)

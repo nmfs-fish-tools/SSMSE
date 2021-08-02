@@ -805,13 +805,14 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     overwrite = TRUE
   )
   # get the catch values by MS.
-  l_yr <- max(dat[["catch"]][["year"]]) # get the last year in the catch data frame
+  # l_yr <- min(yrs) # get the last year before sample value target years
+  # l_yr <- max(dat[["catch"]][dat[["catch"]][,"year"]<l_yr,"year"])
   catch <- dat[["catch"]] # get the catch df
-  catch_by_fleet <- catch[catch[["year"]] == l_yr, c("fleet", "seas", "catch")]
+  # catch_by_fleet <- catch[catch[["year"]] == l_yr, c("fleet", "seas", "catch")]
 
-  if (MS == "no_catch") {
-    catch_by_fleet[["catch"]] <- 0
-  }
+  # if (MS == "no_catch") {
+  #   catch_by_fleet[["catch"]] <- 0
+  # }
   # find combinations of catch needed seas and fleet
   flt_combo <- unique(catch[, c("seas", "fleet")])
   se <- get_input_value(catch,
@@ -825,9 +826,22 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
       # get the catch_se
       tmp_catch_se <- se[se[["fleet"]] == flt_combo[["fleet"]][flt], "catch_se"]
       # get the catch value
-      tmp_catch <-
-        catch_by_fleet[catch_by_fleet[["fleet"]] == flt_combo[["fleet"]][flt] &
-          catch_by_fleet[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+      # tmp_catch <-
+      #   catch_by_fleet[catch_by_fleet[["fleet"]] == flt_combo[["fleet"]][flt] &
+      #     catch_by_fleet[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+      # 
+      if(MS == "no_catch"){
+        tmp_catch <- 0
+      }else{
+      l_yr <- min(yrs) # get the last year before sample value target years
+      l_yr <- max(dat[["catch"]][dat[["catch"]][,"year"]<l_yr & 
+                                 dat[["catch"]][,"fleet"]==flt_combo[["fleet"]][flt] &
+                                 dat[["catch"]][,"seas"]==flt_combo[["seas"]][flt],"year"])
+      
+      tmp_catch <- catch[catch[["year"]] == l_yr &
+                              catch[["fleet"]] == flt_combo[["fleet"]][flt] & 
+                              catch[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+      }
       # Add SE and catch to df
       tmp_df_list[[pos]] <- data.frame(
         year = y,
