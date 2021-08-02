@@ -13,7 +13,8 @@ update_basevals_env(
   temp_ctl,
   dat,
   base_range,
-  base_bounds
+  base_bounds,
+  parlist
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ update_basevals_env(
 \item{base_range}{the difference between the base parameters max and min bounds}
 
 \item{base_bounds}{The min and max bounds of the base parameter}
+
+\item{parlist}{The list of parameters as read in by r4ss::SS_readpar_3.30}
 }
 \value{
 A modified parameter series that incorporates the appropriate time varying environmental effects.

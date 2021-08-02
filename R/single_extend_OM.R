@@ -179,10 +179,10 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
               if(is.element(temp_ctl[current_par,c("dev_link")], c(1,21))){
                 
                 #Block effects are implemented first so if applicable update the base_vals sequence based on these block effects
-                base_vals <- update_basevals_blocks(base_vals,base_dev_years,temp_block,current_par,ctl,dat,temp_ctl,base_range,baseparm,base_bounds)
+                base_vals <- update_basevals_blocks(base_vals,base_dev_years,temp_block,current_par,ctl,dat,temp_ctl,base_range,baseparm = base_val,base_bounds)
                 
                 #Now update base_vals based on environmental effects if applicable
-                base_vals <- update_basevals_env(base_vals,base_dev_years,temp_env,current_par,timeseries,temp_ctl,dat,base_range,base_bounds)
+                base_vals <- update_basevals_env(base_vals,base_dev_years,temp_env,current_par,timeseries,temp_ctl,dat,base_range,base_bounds, parlist  = parlist)
                   
                 #Now update base_vals based on existing deviations in their original link function format
                 final_vals <- update_basevals_dev(base_vals,
@@ -202,10 +202,10 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
                 for(j in 2:length(scale_devs)){converted_devs[j]<-converted_devs[j]+converted_devs[j-1]*temp_dev[2,"ESTIM"]}
               }else if(is.element(temp_ctl[current_par,c("dev_link")], c(5,25))){
                 #Block effects are implemented first so if applicable update the base_vals sequence based on these block effects
-                base_vals <- update_basevals_blocks(base_vals,base_dev_years,temp_block,current_par,ctl,dat,temp_ctl,base_range,baseparm,base_bounds)
+                base_vals <- update_basevals_blocks(base_vals,base_dev_years,temp_block,current_par,ctl,dat,temp_ctl,base_range,baseparm = base_val,base_bounds)
                 
                 #Now if update base_vals based on environmental effects if applicable
-                base_vals <- update_basevals_env(base_vals,base_dev_years,temp_env,current_par,timeseries,temp_ctl,dat,base_range,base_bounds)
+                base_vals <- update_basevals_env(base_vals,base_dev_years,temp_env,current_par,timeseries,temp_ctl,dat,base_range,base_bounds, parlist = parlist)
                 
                 #Now update base_vals based on existing deviations in their original link function format
                 final_vals <- update_basevals_dev(base_vals,
@@ -267,7 +267,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
           dev_existing <- dev_existing[dev_existing>current_par]
         }
       }else if(length(dev_existing)>1){
-        for(j in dev_existing[-lengthdev_existing]){
+        for(j in dev_existing[-length(dev_existing)]){
           new_par_devs<-c(new_par_devs,old_par_devs[[1]])
           names(new_par_devs)[length(new_par_devs)]<-names(old_par_devs)[1]
           old_par_devs<-old_par_devs[-1]
@@ -458,11 +458,11 @@ update_basevals_blocks <- function(base_vals,base_years,temp_block,current_par,c
     }
     slope <- temp_block[3,"ESTIM"]
     
-    norm_styr <- pnorm((dat[["styr"]] -infl_year)/slope)
-    norm_endyr <- pnorm((dat[["endyr"]] -infl_year)/slope)
+    norm_styr <- stats::pnorm((dat[["styr"]] -infl_year)/slope)
+    norm_endyr <- stats::pnorm((dat[["endyr"]] -infl_year)/slope)
     temp <- (endtrend-baseparm) / (norm_endyr-norm_styr);  # //  delta in cumulative probability between styr and endyr
     
-    base_vals <- base_vals + temp*(pnorm((base_years-infl_year)/slope)-norm_styr)
+    base_vals <- base_vals + temp*(stats::pnorm((base_years-infl_year)/slope)-norm_styr)
   }
   return(base_vals)
 }
@@ -478,12 +478,13 @@ update_basevals_blocks <- function(base_vals,base_years,temp_block,current_par,c
 #' @param dat A datafile as read in by r4ss::SS_readdat
 #' @param base_range the difference between the base parameters max and min bounds
 #' @param base_bounds The min and max bounds of the base parameter 
+#' @param parlist The list of parameters as read in by r4ss::SS_readpar_3.30
 #' 
 #' @author Nathan Vaughan
 #' @return A modified parameter series that incorporates the appropriate time varying environmental effects.
 #' 
 
-update_basevals_env <- function(base_vals,base_years,temp_env,current_par,timeseries,temp_ctl,dat,base_range,base_bounds){
+update_basevals_env <- function(base_vals,base_years,temp_env,current_par,timeseries,temp_ctl,dat,base_range,base_bounds, parlist){
   if(temp_ctl[current_par,c("env_var&link")] > 0){
     env_link <- floor((temp_ctl[current_par,c("env_var&link")]/100))
     env_index <- floor(temp_ctl[current_par,c("env_var&link")]-100*env_link)

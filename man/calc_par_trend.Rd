@@ -36,7 +36,7 @@ will reference, if using a relative method.}
 
 \item{par_section}{Which parameter section should this variabile be in?}
 
-\item{The}{data file read in using r4ss}
+\item{dat}{The data file read in using r4ss}
 }
 \value{
 A vector of values with length ncol(vals_df), the number of future

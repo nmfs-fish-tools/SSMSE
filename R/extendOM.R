@@ -263,7 +263,7 @@ update_OM <- function(OM_dir,
   
   if(!is.null(EM_pars)){
     for(i in grep("rec_devs",names(EM_pars))){
-      matches<-lapply(EM_pars[["year"]],FUN=function(x,y){which(y==x)},y=test[,"year"])
+      matches<-lapply(EM_pars[["year"]],FUN=function(x,y){which(y==x)},y=parlist[["recdev_forecast"]][,"year"])
       locations<-rep(EM_pars[["year"]],unlist(lapply(matches,length)))
       parlist[["recdev_forecast"]][unlist(matches),c("year","recdev")] <- EM_pars[locations,c(1,i)]
     }

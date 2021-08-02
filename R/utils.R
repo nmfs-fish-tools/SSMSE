@@ -48,6 +48,11 @@
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
+#' @param sample_struct_hist_list An optional list of lists including which 
+#'  years should be sampled for the historical period for the data generated 
+#'  from the OM. If this is left as NULL, then the same sampling scheme will be
+#'  used as in the OM's data file. If it is not NULL, then only the data specified
+#'  in the list will be sampled.
 #' @param interim_struct_list A optional list of lists including the parameters
 #'  for an interim assessment that modify the number of years to average over
 #'  for index deviations (MA_years: single value), the Beta sensitity parameters
