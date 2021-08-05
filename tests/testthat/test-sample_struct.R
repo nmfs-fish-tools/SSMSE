@@ -9,12 +9,15 @@ test_that("assumptions about r4ss colnames are true.", {
   # if this test is not passing, modifications need to be made to
   # convert_to_r4ss_names function.
   # mock some values outside modle year in the modesl
-  OM_dat_orig <- r4ss::SS_readdat(OM_dat_path, verbose = FALSE)
+  OM_dat_orig <-   dat_all_types <- r4ss::SS_readdat(
+    system.file("extdata", "test_dat_all_types.dat", package = "SSMSE"))
   r4ss_names <- list(
     catch = colnames(OM_dat_orig[["catch"]]),
     CPUE = colnames(OM_dat_orig[["CPUE"]]),
     lencomp = colnames(OM_dat_orig[["lencomp"]]),
-    agecomp = colnames(OM_dat_orig[["agecomp"]])
+    agecomp = colnames(OM_dat_orig[["agecomp"]]),
+    meanbodywt = colnames(OM_dat_orig[["meanbodywt"]]),
+    MeanSize_at_Age_obs = colnames(OM_dat_orig[["MeanSize_at_Age_obs"]])
   )
   assumed_str <- list(
     catch = data.frame(year = 101:106, seas = 1, fleet = 1, catch_se = 0.005),
@@ -27,6 +30,22 @@ test_that("assumptions about r4ss colnames are true.", {
       Yr = c(102, 105), Seas = 1, FltSvy = 2,
       Gender = 0, Part = 0, Ageerr = 1,
       Lbin_lo = -1, Lbin_hi = -1, Nsamp = 500
+    ),
+    meanbodywt = data.frame(
+      Year = c(1999, 1999, 2001, 2001),
+      Seas = 7,
+      Fleet = c(1,2,1,2),
+      Partition = 1,
+      Type = 1,
+      Std_in = 0.3
+    ),
+    MeanSize_at_Age_obs = data.frame(
+      Yr = c(1971, 1995), 
+      Seas = 7,
+      FltSvy = c(1,1,2,2), 
+      Gender = 3,
+      Part = 0,
+      AgeErr = 1
     )
   )
   return <- check_sample_struct(sample_struct = assumed_str, valid_names = r4ss_names)
@@ -77,7 +96,9 @@ test_that("create_sample_struct works", {
       Yr = seq(105, 120, by = 5), Seas = 1, FltSvy = 2,
       Sex = 0, Part = 0, Ageerr = 1, Lbin_lo = -1,
       Lbin_hi = -1, Nsamp = 500
-    )
+    ), 
+    meanbodywt = NA,
+    MeanSize_at_Age_obs = NA
   )
   expect_equal(sample_struct, expect_sample_struct)
   # try using one where missing lencomp data
@@ -145,3 +166,30 @@ test_that("get_full_sample_struct works", {
   # TODO: add some more complex examples to verify that this will work in all
   # situations that it should?
 })
+
+test_that("sample_str works with other data types", {
+  dat_all_types <- r4ss::SS_readdat(
+    system.file("extdata", "test_dat_all_types.dat", package = "SSMSE"))
+  # can add this later if want to add generalized size comp sampling. Has not
+  # yet been added.
+  # dat_gen_size_comp <- r4ss::SS_readdat(
+  #   system.file("extdata","test_dat_gen_size_comp.ss", package = "SSMSE"))
+  # TODO: make type of the rows/columns standardized?
+  struct <- create_sample_struct(dat_all_types, nyrs = 5)
+  expect_equivalent(struct[["meanbodywt"]], data.frame(Yr = c(2003, 2005), 
+                                                  Seas = 7,
+                                                  FltSvy = c(1,1,2,2),
+                                                  Part = 1,
+                                                  Type = 1,
+                                                  SE = 0.3))
+  expect_equivalent(struct[["MeanSize_at_Age_obs"]], 
+               data.frame(Yr = as.logical(NA), 
+                          Seas = "7",
+                          FltSvy = c("1","2"), 
+                          Sex = "3",
+                          Part = "0", 
+                          Ageerr = "1",
+                          Nsamp = 20))
+  })
+
+
