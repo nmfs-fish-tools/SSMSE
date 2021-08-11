@@ -261,6 +261,9 @@ create_OM <- function(OM_out_dir,
     "F_fleet_", new_F_rate[["fleet"]], "_YR_", new_F_rate[["year"]], "_s_",
     new_F_rate[["seas"]]
   )
+  # remove any years higher than the update_F_years (could have been in long 
+  # forecast in original model)
+  new_F_rate <-  new_F_rate[new_F_rate[["year"]] <= max(update_F_years), , drop = FALSE]
   
   parlist[["F_rate"]]<-new_F_rate  
   
