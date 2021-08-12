@@ -184,11 +184,11 @@ test_that("sample_str works with other data types", {
                                                   SE = 0.3))
   expect_equivalent(struct[["MeanSize_at_Age_obs"]], 
                data.frame(Yr = as.logical(NA), 
-                          Seas = "7",
-                          FltSvy = c("1","2"), 
-                          Sex = "3",
-                          Part = "0", 
-                          Ageerr = "1",
+                          Seas = 7,
+                          FltSvy = c(1,2), 
+                          Sex = 3,
+                          Part = 0, 
+                          Ageerr = 1,
                           Nsamp = 20))
   })
 

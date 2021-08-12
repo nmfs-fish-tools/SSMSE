@@ -290,6 +290,8 @@ create_sample_struct <- function(dat, nyrs) {
     },
     dat = dat
   )
+  sample_struct <- lapply(sample_struct, 
+                          function(x) utils::type.convert(x, as.is = TRUE))
   names(sample_struct) <- list_name
   sample_struct
 }
