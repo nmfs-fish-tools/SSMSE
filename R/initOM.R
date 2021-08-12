@@ -288,16 +288,13 @@ create_OM <- function(OM_out_dir,
                              "error"=rep(1,nyrs))
   }
   
-  dat[["endyr"]] <- dat[["endyr"]] + nyrs # SINGLE_RUN_MODS: 
-  
   # modify dat file ----
+  dat[["endyr"]] <- dat[["endyr"]] + nyrs # because OM goes through the last simulated year.
   # remove the sampling components not needed
   dat <- rm_sample_struct_hist(sample_struct = sample_struct_hist, dat = dat)
   # Add in the historical sampling structure, as defined by the user
-  dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat, 
-                           nyrs_extend = 0)
-  dat <- add_sample_struct(sample_struct = sample_struct, dat = dat, 
-                           nyrs_extend = 0)
+  dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat)
+  dat <- add_sample_struct(sample_struct = sample_struct, dat = dat)
   # make sure tail compression is off.
   # turn off tail compression
   if (isTRUE(any(dat[["len_info"]][["mintailcomp"]] >= 0)) |
@@ -313,6 +310,7 @@ create_OM <- function(OM_out_dir,
     if (!is.null(dat[["age_info"]])) dat[["age_info"]][["mintailcomp"]] <- -1
   }
   
+
   
   # write all files
   r4ss::SS_writectl(
@@ -481,7 +479,8 @@ run_OM <- function(OM_dir,
 #' @param dat_types Types of data to include
 # get the initial sampling values
 get_init_samp_scheme <- function(dat,
-                                 dat_types = c("CPUE", "lencomp", "agecomp")) {
+                                 dat_types = c("CPUE", "lencomp", "agecomp",
+                                         "meanbodywt", "MeanSize_at_Age_obs")) {
   # TODO: write this. Can be used for EM and OM.
 }
 
@@ -512,6 +511,16 @@ rm_sample_struct_hist <- function(sample_struct_hist, dat) {
                               colnames = c("Yr", "Seas", "FltSvy", "Gender", 
                                            "Part", "Ageerr", "Lbin_lo", 
                                            "Lbin_hi"))
+  dat[["meanbodywt"]] <- rm_vals(
+    return_obj = dat,
+    compare_obj = sample_struct_hist,
+    name_in_obj = "meanbodywt", 
+    colnames = c("Year", "Seas", "Fleet", "Partition", "Type", "Std_in"))
+  dat[["MeanSize_at_Age_obs"]] <- rm_vals(
+    return_obj = dat,
+    compare_obj = sample_struct_hist,
+    name_in_obj = "MeanSize_at_Age_obs", 
+    colnames = c("Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr", "N_"))
   dat
 }
 
@@ -550,4 +559,154 @@ rm_vals <- function(return_obj, compare_obj, name_in_obj, colnames) {
     return_obj[[name_in_obj]][["combo"]] %in% to_keep,
     !(colnames(return_obj[[name_in_obj]]) %in% "combo")]
   to_return
+}
+
+#' Add in years of sampling data needed
+#' 
+#' @param sample_struct The sampling structure, as specified by the user.
+#' @param dat A datafile as read in by r4ss::SS_readdat
+add_sample_struct <- function(sample_struct, dat) {
+  if (is.null(sample_struct)) {
+    return(dat)
+  }
+  subset_yr_start <- dat[["styr"]]
+  subset_yr_end <- dat[["endyr"]]
+  
+  tmp_CPUE <- sample_struct[["CPUE"]]
+  if (!is.null(tmp_CPUE)) {
+    tmp_CPUE <- tmp_CPUE[tmp_CPUE[["year"]] >= subset_yr_start &
+                           tmp_CPUE[["year"]] <= subset_yr_end, ]
+    if (nrow(tmp_CPUE) > 0) {
+      tmp_CPUE[["obs"]] <- 1 # dummy observation
+      tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
+      tmp_CPUE[["index"]] <- -abs(tmp_CPUE[["index"]])
+      dat[["CPUE"]] <- rbind(dat[["CPUE"]], tmp_CPUE)
+    }
+  }
+  
+  # This method of adding new data doesn't work if len comp is not already
+  # turned on. Add warninig for now, but could potentially turn on len comp
+  # for the user in the OM?
+  if (dat[["use_lencomp"]] == 0 & !is.null(sample_struct[["lencomp"]])) {
+    warning(
+      "Length composition is not specified in the OM, but the lencomp ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "length comp in the OM to allow lencomp sampling."
+    )
+  }
+  if (dat[["use_lencomp"]] == 1 & !is.null(sample_struct[["lencomp"]])) {
+    tmp_lencomp <- sample_struct[["lencomp"]]
+    tmp_lencomp <- tmp_lencomp[tmp_lencomp[["Yr"]] >= subset_yr_start &
+                                 tmp_lencomp[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_lencomp) > 0) {
+      # get col names
+      lencomp_dat_colnames <- colnames(dat[["lencomp"]])[7:ncol(dat[["lencomp"]])]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_lencomp),
+                           ncol = length(lencomp_dat_colnames)
+      )
+      colnames(tmp_df_dat) <- lencomp_dat_colnames
+      tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
+      tmp_lencomp[["FltSvy"]] <- -abs(tmp_lencomp[["FltSvy"]]) # make sure negative
+      dat[["lencomp"]] <- rbind(dat[["lencomp"]], tmp_lencomp)
+    }
+  }
+  # TODO: can write code that adds age comp obs when dat[["agecomp"]] is NULL.
+  if (is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
+    warning(
+      "Age composition is not specified in the OM, but the agecomp ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "age comp in the OM by adding at least  to allow agecomp ",
+      "sampling."
+    )
+  }
+  if (!is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
+    tmp_agecomp <- sample_struct[["agecomp"]]
+    tmp_agecomp <- tmp_agecomp[tmp_agecomp[["Yr"]] >= subset_yr_start &
+                                 tmp_agecomp[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_agecomp) > 0) {
+      # get col names
+      agecomp_dat_colnames <- colnames(dat[["agecomp"]])[10:ncol(dat[["agecomp"]])]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_agecomp),
+                           ncol = length(agecomp_dat_colnames)
+      )
+      colnames(tmp_df_dat) <- agecomp_dat_colnames
+      tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
+      tmp_agecomp[["FltSvy"]] <- -abs(tmp_agecomp[["FltSvy"]]) # make sure negative
+      dat[["agecomp"]] <- rbind(dat[["agecomp"]], tmp_agecomp)
+    }
+  }
+  ##Mean size ----
+  if (is.null(dat[["meanbodywt"]]) & !is.null(sample_struct[["meanbodywt"]])) {
+    warning(
+      "Mean Size data is not specified in the OM, but the ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "mean size data (i.e., meanbodywt) in the OM to allow mean size data ",
+      "sampling."
+    )
+  }
+  if (!is.null(dat[["meanbodywt"]]) & !is.null(sample_struct[["meanbodywt"]])) {
+    tmp_meanbodywt <- sample_struct[["meanbodywt"]]
+    tmp_meanbodywt <- tmp_meanbodywt[tmp_meanbodywt[["Year"]] >= subset_yr_start &
+                                       tmp_meanbodywt[["Year"]] <= subset_yr_end, ]
+  if (nrow(tmp_meanbodywt) > 0) {
+    # dummy observation negative to exclued from NLL? (or should the fleet be neg?)
+    tmp_meanbodywt[["Value"]] <- -1
+    tmp_meanbodywt <- tmp_meanbodywt[, c("Year", "Seas", "Fleet", "Partition",
+                                         "Type", "Value", "Std_in")]
+    tmp_meanbodywt[["Value"]] <- -abs(tmp_meanbodywt[["Value"]])
+    dat[["meanbodywt"]] <- rbind(dat[["meanbodywt"]], tmp_meanbodywt)
+    }
+  }
+  # Mean size at age ----
+  if (is.null(dat[["MeanSize_at_Age_obs"]]) & !is.null(sample_struct[["MeanSize_at_Age_obs"]])) {
+    warning(
+      "Mean Size at age data is not specified in the OM, but the ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "mean size at age data (i.e., MeanSize_at_Age_obs) in the OM to allow mean size at age data ",
+      "sampling."
+    )
+  }
+  if (!is.null(dat[["MeanSize_at_Age_obs"]]) & !is.null(sample_struct[["MeanSize_at_Age_obs"]])) {
+    tmp_MeanSize_at_Age_obs <- sample_struct[["MeanSize_at_Age_obs"]]
+    tmp_MeanSize_at_Age_obs <- tmp_MeanSize_at_Age_obs[tmp_MeanSize_at_Age_obs[["Yr"]] >= subset_yr_start &
+                                                         tmp_MeanSize_at_Age_obs[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_MeanSize_at_Age_obs) > 0) {
+      # get col names
+      sample_colnames <- grep("^[fm]\\d+$",  colnames(dat[["MeanSize_at_Age_obs"]]), 
+                           ignore.case = FALSE, value = TRUE)
+      MeanSize_at_Age_obs_dat_colnames <- colnames(dat[["MeanSize_at_Age_obs"]])[10:ncol(dat[["MeanSize_at_Age_obs"]])]
+      tmp_sample_df <- matrix(-1, #use negative 1, as this should exclude vals from the neg log likelihood
+                           nrow = nrow(tmp_MeanSize_at_Age_obs),
+                           ncol = length(sample_colnames)
+      )
+      colnames(tmp_sample_df) <- sample_colnames
+      # Need a sample size for each of the female and male obs in the row; SSMSE
+      # can only use the same sample size for all in a row currently.
+      N_colnames <- grep("^N_[fm]\\d+$", colnames(dat[["MeanSize_at_Age_obs"]]),
+                         ignore.case = FALSE, value = TRUE)
+      tmp_N_df <- lapply(tmp_MeanSize_at_Age_obs[["N_"]],
+                         function(x, y){
+                           vec <- rep(x, times = length(y)) 
+                           tmp_df <- data.frame(matrix(vec, nrow = 1,
+                                                       ncol = length(vec)))
+                           colnames(tmp_df) <- N_colnames
+                           tmp_df
+                         },
+                    y = N_colnames)
+      tmp_N_df <- do.call(rbind, tmp_N_df)
+      tmp_MeanSize_at_Age_obs <- tmp_MeanSize_at_Age_obs[, -7] #rm the sample size col
+      tmp_MeanSize_at_Age_obs[["Ignore"]] <- 2 # column for future features
+      tmp_MeanSize_at_Age_obs <- cbind(tmp_MeanSize_at_Age_obs,
+                                       as.data.frame(tmp_sample_df), 
+                                       tmp_N_df)
+      # TODO: need to make fleet negative??? no sure for this data type.
+      #tmp_agecomp[["FltSvy"]] <- -abs(tmp_agecomp[["FltSvy"]]) # make sure negative
+      dat[["MeanSize_at_Age_obs"]] <- rbind(dat[["MeanSize_at_Age_obs"]], 
+                                            tmp_MeanSize_at_Age_obs)
+    }
+  }
+
+  dat
 }

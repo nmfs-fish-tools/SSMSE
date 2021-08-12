@@ -20,7 +20,6 @@ file.rename(
   file.path(temp_path, "cod_initOM1")
 )
 
-
 # create a catch dataframe to add to add to the model
 # just repeat the catch and se from the last year.
 new_catch <- data.frame(
@@ -205,17 +204,19 @@ test_that(" add_sample_struct works for adding data during model years and for f
   init_dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM1", "data.ss"),
                                verbose = FALSE)
   # no change
-  no_change_dat <- add_sample_struct(sample_struct = NULL, dat = init_dat, nyrs_extend = 4)
+  init_endyr <- init_dat[["endyr"]]
+  init_dat[["endyr"]] <- init_dat[["endyr"]] + 4 # assume extend forward by 4 yrs.
+  no_change_dat <- add_sample_struct(sample_struct = NULL, dat = init_dat)
   expect_equal(init_dat, no_change_dat)
   # for future years
   future_dat <- add_sample_struct(sample_struct = extend_vals, 
-                                     dat = init_dat, nyrs_extend = 4)
+                                     dat = init_dat)
   expect_true(length(future_dat[["CPUE"]][future_dat[["CPUE"]][["year"]] > 
-                                           future_dat[["endyr"]], "year"]) == 2)
+                                            init_endyr, "year"]) == 2)
   expect_true(length(future_dat[["lencomp"]][future_dat[["lencomp"]][["Yr"]] > 
-                                            future_dat[["endyr"]], "Yr"]) == 3)
+                                               init_endyr, "Yr"]) == 3)
   expect_true(length(future_dat[["agecomp"]][future_dat[["agecomp"]][["Yr"]] > 
-                                            future_dat[["endyr"]], "Yr"]) == 4)
+                                               init_endyr, "Yr"]) == 4)
   no_neg_dat <- init_dat
   no_neg_dat[["CPUE"]] <- no_neg_dat[["CPUE"]][no_neg_dat[["CPUE"]][["index"]] > 0, ]
   no_neg_dat[["lencomp"]] <- no_neg_dat[["lencomp"]][no_neg_dat[["lencomp"]][["FltSvy"]] > 0,]
@@ -226,7 +227,7 @@ test_that(" add_sample_struct works for adding data during model years and for f
   hist_samples[["agecomp"]][["Yr"]] <- 31:34
   # for historical years
   hist_dat <- add_sample_struct(sample_struct = hist_samples, 
-                                  dat = no_neg_dat, nyrs_extend = 0)
+                                  dat = no_neg_dat)
   expect_true(
     length(hist_dat[["CPUE"]][hist_dat[["CPUE"]][["index"]] < 0, "index"]) == 
       length(31:33))
