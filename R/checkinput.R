@@ -108,13 +108,49 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     paste0(colnames(EM_dat[["agecomp"]]), collapse = "")) {
     stop(
       "Column names for age composition were not the same for the OM ",
-      "and EM. Please make the age comp bins the same."
+      "and EM. Please make the age comp bins the same or use a ",
+      "custom management strategy that includes steps to rebin the data."
     )
   }
   check_avail_dat(
     EM_dat = EM_dat, OM_dat = OM_dat, list_item = "agecomp",
     colnames = c("Yr", "Seas", "FltSvy")
   )
+  # check mean size
+  if(EM_dat$use_meanbodywt == 1) {
+    if(OM_dat$use_meanbodywt == 0) {
+      stop(
+        "The EM expects meanbodywt (mean body size) data, but the OM does not ",
+        "have any. Please add meanbodywt to the OM."
+      )
+    }
+    check_avail_dat(
+      EM_dat = EM_dat, OM_dat = OM_dat, list_item = "meanbodywt",
+      colnames = c("Year", "Seas", "Fleet", "Type")
+    )
+  }
+  # check mean size at age
+  if(EM_dat$use_MeanSize_at_Age_obs == 1) {
+    if(OM_dat$use_MeanSize_at_Age_obs == 0) {
+      stop(
+        "The EM expects MeanSize_at_Age_obs (mean size at age) data, but the ", 
+        "OM does not have any. Please add meanbodywt to the OM."
+      )
+    }
+    check_avail_dat(
+      EM_dat = EM_dat, OM_dat = OM_dat, list_item = "MeanSize_at_Age_obs",
+      colnames = c("Yr", "Seas", "FltSvy", "AgeErr")
+    )
+    if (paste0(colnames(OM_dat[["MeanSize_at_Age_obs"]]), collapse = "") !=
+        paste0(colnames(EM_dat[["MeanSize_at_Age_obs"]]), collapse = "")) {
+      stop(
+        "Column names for MeanSize_at_Age_obs were not the same for the OM ",
+        "and EM. Please make the age comp bins the same or use a ",
+        "custom management strategy that includes steps to rebin the data."
+      )
+    }
+  }
+
   invisible(OM_dat)
 }
 
