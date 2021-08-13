@@ -5,7 +5,6 @@ temp_path <- file.path(tempdir(), "test-runSSMSE")
 dir.create(temp_path, showWarnings = FALSE)
 wd <- getwd()
 on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
-
 extdat_path <- system.file("extdata", package = "SSMSE")
 
 
@@ -23,7 +22,6 @@ test_that("run_SSMSE_iter runs with no EM", {
   )
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
-  # add more specific tests
 })
 
 
@@ -34,6 +32,8 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   # use sample_struct to determine its structure
   sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
   sample_struct$lencomp <- NULL
+  sample_struct$meanbodywt <- NULL
+  sample_struct$MeanSize_at_Age_obs <- NULL
   result <- run_SSMSE(
     scen_name_vec = "H-ctl", # name of the scenario
     out_dir_scen_vec = temp_path, # directory in which to run the scenario
@@ -87,6 +87,8 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   # use sample_struct to determine its structure
   sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
   sample_struct$lencomp <- NULL
+  sample_struct$meanbodywt <- NULL
+  sample_struct$MeanSize_at_Age_obs <- NULL
   result <- run_SSMSE(
     scen_name_vec = c("H-ctl", "H-scen-2"), # name of the scenario
     out_dir_scen_vec = new_temp_path, # directory in which to run the scenario
@@ -170,4 +172,54 @@ test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE wo
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_EM_106", "data.ss_new")))
   expect_true(result)
+})
+
+test_that("run_SSMSE runs with mean size at age and mean body length", {
+  skip_on_cran()
+  # this test is skipped unless the model it needs to run is available.
+  # model from https://github.com/nmfs-stock-synthesis/ss-test-models/tree/main/models/Simple_with_Discard
+  skip_if(!file.exists(file.path(extdat_path, "models", "Simple_with_Discard")))
+  size_age_temp_path <- file.path(temp_path, "Simple_with_Discard")
+  dir.create(size_age_temp_path)
+  sample_struct <- create_sample_struct(
+    dat = file.path(extdat_path, "models", "Simple_with_Discard", "data.ss"), 
+    nyrs = 6
+  )
+  sample_struct$CPUE <- na.omit(sample_struct$CPUE)
+  sample_struct$lencomp$Part <- 0
+  sample_struct$agecomp$Part <- 0
+  sample_struct$meanbodywt$Yr <- 2002
+  sample_struct$meanbodywt$Part <- 1
+  sample_struct$MeanSize_at_Age_obs$Yr <- c(2002, 2004)
+  sample_struct$MeanSize_at_Age_obs$Part <- 0
+  
+  result <- run_SSMSE(
+    scen_name_vec = "test_1",
+    out_dir_scen_vec = size_age_temp_path,
+    iter_vec = 1,
+    OM_in_dir_vec = file.path(extdat_path, "models", "Simple_with_Discard"),
+    EM_in_dir_vec = file.path(extdat_path, "models", "Simple_with_Discard"),
+    MS_vec = "EM",
+    nyrs_assess_vec = 3,
+    nyrs_vec = 6,
+    sample_struct_list = list(sample_struct))
+  expect_true(result[[1]][["errored_iterations"]] == "No errored iterations")
+  # read in the data file produced from the last EM to make sure sampling occured
+  out_dat <- r4ss::SS_readdat(file.path(temp_path, "Simple_with_Discard", "test_1", "1",
+                                        "Simple_with_Discard_EM_2004", "data.ss_new"), 
+                              section = 1)
+  # convert to r4ss names so colnames match
+  sample_struct_converted <- convert_to_r4ss_names(sample_struct)
+  # check that all mean size rows were added
+  matches_meanbodywt <- merge(sample_struct_converted$meanbodywt, 
+                              out_dat$meanbodywt, 
+                              by = colnames(sample_struct_converted$meanbodywt), 
+                              all = FALSE) 
+  expect_true(NROW(matches_meanbodywt) == NROW(sample_struct$meanbodywt))
+  # check that all mean size at age rows were added
+  matches_at_age <- merge(sample_struct_converted$MeanSize_at_Age_obs, 
+                          out_dat$MeanSize_at_Age_obs, 
+                          by = colnames(sample_struct_converted$MeanSize_at_Age_obs)[-7], 
+                          all = FALSE) 
+  expect_true(NROW(matches_at_age) == NROW(sample_struct$MeanSize_at_Age_obs))
 })

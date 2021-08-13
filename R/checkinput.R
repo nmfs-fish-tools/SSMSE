@@ -78,14 +78,6 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     EM_dat = EM_dat, OM_dat = OM_dat, list_item = "CPUE",
     colnames = c("year", "seas", "index")
   )
-  # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
-  # TODO: add in capabilities to deal with this type of data and remove stop msgs
-  if (OM_dat[["use_meanbodywt"]] == 1) {
-    warning("Mean body size observations are not yet sampled in SSMSE")
-  }
-  if (OM_dat[["use_MeanSize_at_Age_obs"]] == 1) {
-    warning("Mean size-at-age observations are not yet sampled in SSMSE")
-  }
   # check population length bins
   # check lcomp bins and lcomp bins (if exists)
   if (EM_dat[["use_lencomp"]] == 1) {
@@ -166,11 +158,16 @@ check_sample_struct <- function(sample_struct,
                                 valid_names = list(
                                   catch = c("Yr", "Seas", "FltSvy", "SE"),
                                   CPUE = c("Yr", "Seas", "FltSvy", "SE"),
-                                  lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"),
+                                  lencomp = c("Yr", "Seas", "FltSvy", "Sex", 
+                                              "Part", "Nsamp"),
                                   agecomp = c(
                                     "Yr", "Seas", "FltSvy", "Sex", "Part",
                                     "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"
-                                  )
+                                  ), 
+                                  meanbodywt = c("Yr", "Seas", "FltSvy", "Part",
+                                                 "Type", "SE"),
+                                  MeanSize_at_Age_obs = c("Yr", "Seas",
+                                    "FltSvy", "Sex", "Part", "Ageerr", "Nsamp")
                                 )) {
   # list components should have same names as in r4ss
   # check no repeat names

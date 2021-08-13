@@ -207,8 +207,12 @@ add_new_dat <- function(OM_dat,
     mapply(
       function(df, df_name, OM_dat) {
         OM_df <- OM_dat[[df_name]]
-        OM_df[, 3] <- abs(OM_df[, 3]) # get rid of negative fleet values from OM
-
+        # get rid of negative fleet values from OM
+        if(is.integer(OM_df[1,3]) | is.numeric(OM_df[1,3])) {
+          OM_df[, 3] <- abs(OM_df[, 3])
+        } else if(is.character(OM_df[1,3])) {
+          OM_df[, 3] <- as.character(abs(as.integer(OM_df[, 3])))
+        }
         by_val <- switch(df_name,
           "catch" = c("year", "seas", "fleet"),
           "CPUE" = c("year", "seas", "index"),
@@ -216,7 +220,10 @@ add_new_dat <- function(OM_dat,
           "agecomp" = c(
             "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr",
             "Lbin_lo", "Lbin_hi"
-          )
+          ), 
+           "meanbodywt" = c("Year", "Seas", "Fleet", "Partition", "Type"), 
+          "MeanSize_at_Age_obs" = c("Yr", "Seas", "FltSvy", "Gender", "Part",
+                                    "AgeErr")
         )
         new_dat <- merge(df, OM_df, by = by_val, all.x = TRUE, all.y = FALSE)
         # Sample sizes are likely different from user inputs if there is
@@ -234,6 +241,14 @@ add_new_dat <- function(OM_dat,
         if ("Nsamp.y" %in% colnames(new_dat)) {
           new_dat[["Nsamp.x"]] <- NULL
           colnames(new_dat)[which(colnames(new_dat) == "Nsamp.y")] <- "Nsamp"
+        }
+        if ("Std_in.y" %in% colnames(new_dat)) {
+          new_dat[["Std_in.x"]] <- NULL
+          colnames(new_dat)[which(colnames(new_dat) == "Std_in.y")] <- "Std_in"
+        }
+        if("N_" %in% colnames(new_dat)) {
+          n_col <- which(colnames(new_dat) == "N_")
+          new_dat <- new_dat[, -n_col]
         }
         # warn if there were matches not found for OM_df, but remove to continue
         if (any(is.na(new_dat))) {
