@@ -167,6 +167,45 @@ test_that("get_full_sample_struct works", {
   # situations that it should?
 })
 
+test_that("get_full_sample_struct works with mean size, mean size at age", {
+  skip_if(!file.exists(system.file("extdata", "models", "Simple_with_Discard",
+                                   "data.ss", package = "SSMSE")))
+  spl_str <- list(
+    catch = data.frame(Yr = 101:110),
+    CPUE = data.frame(Yr = c(105, 110), FltSvy = 2),
+    lencomp = data.frame(Yr = seq(102, 110, by = 2), FltSvy = 1, Part = 0),
+    agecomp = data.frame(Yr = seq(102, 110, by = 4), FltSvy = 2),
+    meanbodywt = data.frame(Yr = seq(102, 110, by = 4), 
+                            Part = 1),
+    MeanSize_at_Age_obs = data.frame(Yr = seq(102, 110, by = 2), 
+                                     FltSvy = 1, Part = 0, N_= 20)
+  )
+  full_spl_str <- get_full_sample_struct(
+    spl_str,
+    system.file("extdata", "models", "Simple_with_Discard", package = "SSMSE")
+  )
+  # reference to compare against
+  full_spl_str_ref <- list(
+    catch = data.frame(Yr = 101:110, Seas = 1, FltSvy = 1, SE = 0.05),
+    CPUE = data.frame(Yr = c(105, 110), Seas = 7, FltSvy = 2, SE = 0.3),
+    lencomp = data.frame(
+      Yr = seq(102, 110, by = 2), Seas = 7, FltSvy = 1,
+      Sex = 3, Part = 0, Nsamp = 125
+    ),
+    agecomp = data.frame(
+      Yr = seq(102, 110, by = 4), Seas = 7, FltSvy = 2,
+      Sex = 3, Part = 0, Ageerr = 2, Lbin_lo = 1,
+      Lbin_hi = -1, Nsamp = 75
+    ), 
+    meanbodywt = data.frame(Yr = seq(102, 110, by = 4), Seas = 7, FltSvy = 1, 
+                            Part = 1, Type = 1, Std_in = 0.3),
+    MeanSize_at_Age_obs = data.frame(Yr = seq(102, 110, by = 2), Seas = 7,
+                                     FltSvy = 1, Sex = 3, Part = 0, Ageerr = 1,
+                                     N_= 20)
+  )
+  expect_equal(full_spl_str, full_spl_str_ref)
+})
+
 test_that("sample_str works with other data types", {
   dat_all_types <- r4ss::SS_readdat(
     system.file("extdata", "test_dat_all_types.dat", package = "SSMSE"))
