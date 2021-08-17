@@ -203,7 +203,7 @@ check_sample_struct <- function(sample_struct,
                                   meanbodywt = c("Yr", "Seas", "FltSvy", "Part",
                                                  "Type", "SE"),
                                   MeanSize_at_Age_obs = c("Yr", "Seas",
-                                    "FltSvy", "Sex", "Part", "Ageerr", "Nsamp")
+                                    "FltSvy", "Sex", "Part", "Ageerr", "N_")
                                 )) {
   # list components should have same names as in r4ss
   # check no repeat names

@@ -23,7 +23,7 @@ convert_to_r4ss_names <- function(sample_struct,
                                       # generalized size comp
                                       # meansize at age - note sample sizes are for each bin and sex, but
                                       # currently SSMSE only allows repeating the same sample sizes.
-                                      "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "N_"
+                                      "Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr", "N_"
                                       # Tags releases
                                       #"Area", "Yr", "Season", "Gender", "Age", "Nrelease",
                                       # Morph comp
@@ -35,10 +35,10 @@ convert_to_r4ss_names <- function(sample_struct,
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
                                       "Lbin_lo", "Lbin_hi", "Nsamp",
                                       # mean weight or length (depends on Type)
-                                      "Yr", "Seas", "FltSvy", "Part", "Type", "SE",
+                                      "Yr", "Seas", "FltSvy", "Part", "Type", "Std_in",
                                       # generalized size comp - to add later
                                       # mean size at age
-                                      "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Nsamp"
+                                      "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "N_"
                                       # Tag releases
                                       #"Area", "Yr", "Seas", "Sex", "Age", "Nrelease",
                                       # Tags return - may not need?
@@ -279,9 +279,9 @@ create_sample_struct <- function(dat, nyrs) {
                                  df[[flt_col]] == tmp_flt, n_col])
           tmp_n <- unique(as.numeric(tmp_n))
           if (length(tmp_n) == 1) {
-            future_pat[["Nsamp"]] <- tmp_n
+            future_pat[["N_"]] <- tmp_n
           } else {
-            future_pat[["Nsamp"]] <- NA
+            future_pat[["N_"]] <- NA
           }
         }
         fill_vec[[i]] <- future_pat
@@ -300,7 +300,9 @@ create_sample_struct <- function(dat, nyrs) {
 #'
 #' Get the ful sample structure from user input by looking at the OM data. If it
 #' cannot be unambigously determined, this function will return an error
-#' describing what additional user input is required
+#' describing what additional user input is required. 
+#' @return A list of the full sample structure, using names as input by the user
+#' input by the user (not r4ss names).
 #'
 #' @param sample_struct The sample structure, as defined by the user. This need
 #'  not define all the sampling structure if it can be unambiguously determined
