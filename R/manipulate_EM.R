@@ -32,6 +32,7 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
   OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = FALSE)
 
   # remove extra years of data in the OM data file.
+  #TODO: check if this is really necessary?
   new_EM_dat <- get_EM_dat(
     OM_dat = OM_dat, EM_dat = EM_dat,
     do_checks = do_checks
@@ -46,9 +47,9 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
   return(new_EM_dat)
 }
 
-#' Change the OM data to match the format of the EM data
+#' Change the OM data to match the format of the original EM data
 #'
-#' This does the technical part of changing the EM data
+#' This does the technical part of changing the EM data. Note this may be unnecessary
 #' @param OM_dat An SS data file read in by as a list read in using r4ss from
 #'  the operating model
 #' @param EM_dat An SS data file read in by as a list read in using r4ss from
@@ -97,7 +98,26 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   }
   # TODO: check this for other types of data, esp. mean size at age, k
   # and mean size.
-
+  if (!is.null(dat[["meanbodywt"]])) {
+    meansize <- lapply(dat, function(x) {
+      tmp <- combine_cols(
+        x, "meanbodywt",
+        c("Year", "Seas", "Fleet", "Partition", "Type", "Std_in")
+      )
+    })
+    matches_meansize <- which(meansize[[1]][, "combo"] %in% meansize[[2]][, "combo"])
+    new_dat[["meanbodywt"]] <- meansize[[1]][matches_meansize, -ncol(meansize[[1]])]
+  }
+  if (!is.null(dat[["MeanSize_at_Age_obs"]])) {
+    size_at_age <- lapply(dat, function(x) {
+      tmp <- combine_cols(
+        x, "MeanSize_at_Age_obs",
+        c("Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr")
+      )
+    })
+    matches_size_at_age <- which(size_at_age[[1]][, "combo"] %in% size_at_age[[2]][, "combo"])
+    new_dat[["size_at_age"]] <- size_at_age[[1]][matches_size_at_age, -ncol(size_at_age[[1]])]
+  }
   # return
   new_dat
 }
@@ -245,6 +265,10 @@ add_new_dat <- function(OM_dat,
         if ("Std_in.y" %in% colnames(new_dat)) {
           new_dat[["Std_in.x"]] <- NULL
           colnames(new_dat)[which(colnames(new_dat) == "Std_in.y")] <- "Std_in"
+        }
+        if("Ignore.y" %in% colnames(new_dat)) {
+          new_dat[["Ignore.y"]] <- NULL
+          colnames(new_dat)[which(colnames(new_dat) == "Ignore.x")] <- "Ignore"
         }
         if("N_" %in% colnames(new_dat)) {
           n_col <- which(colnames(new_dat) == "N_")
