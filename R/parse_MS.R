@@ -495,6 +495,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       )
       # make sure the data file has the correct formatting (use existing data
       # file in the EM directory to make sure)??
+      #TODO: is this necessary, given we have sample structures?
       new_EM_dat <- change_dat(
         OM_datfile = new_datfile_name,
         EM_datfile = orig_datfile_name,

@@ -80,6 +80,18 @@ test_that("check_OM_dat works", {
   })
 })
 
+test_that("check_OM_dat works with mean size at age data", {
+  skip_if(!file.exists(file.path(extdat_path, "models", "Simple_with_Discard", 
+                                 "data.ss")))
+  OM_dat <- r4ss::SS_readdat(
+    file.path(extdat_path, "models", "Simple_with_Discard" ,"data.ss"),
+    verbose = FALSE
+  )
+  EM_dat <- OM_dat # make the same so know that there should be no errors
+  return_dat <- check_OM_dat(OM_dat = OM_dat, EM_dat = EM_dat)
+  expect_equal(OM_dat, return_dat)
+})
+
 test_that("check_sample_struct works", {
   # works with all inputs
   good_sample_struct <- list(
