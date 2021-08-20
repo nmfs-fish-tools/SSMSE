@@ -276,7 +276,11 @@ create_OM <- function(OM_out_dir,
   ctl[["F_iter"]] <- NULL # make sure list components used by other F methods are NULL:
   ctl[["F_setup2"]] <- NULL # make sure list components used by other F methods are NULL:
 
-  single_run_files <- add_OM_devs(ctl=ctl, dat=dat, parlist=parlist, timeseries=outlist[["timeseries"]], future_om_dat=future_om_dat) 
+  if(!is.list(future_om_dat)){
+    future_om_dat<-list()
+    
+  }
+  single_run_files <- add_OM_devs(ctl=ctl, dat=dat, parlist=parlist, timeseries=outlist[["timeseries"]], future_om_dat=future_om_dat$dev_vals) 
   
   dat<-single_run_files[["data"]] # SINGLE_RUN_MODS: 
   ctl<-single_run_files[["control"]] # SINGLE_RUN_MODS: 

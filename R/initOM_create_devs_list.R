@@ -166,14 +166,12 @@ match_parname <- function(list_pars, par) {
 #' @param ar_1_phi The phi (coefficient) value for an ar 1 process. Should be 
 #'  between -1 and 1. 0 means an AR 1 process will NOT be used. 1 indicates a
 #'  random walk. A single value or vector.
-#' @param seed The seed that will be set before sampling
 #' @param ndevs The number of sampled values to expect
 #' @param dist The distribution to sample from.
 #' @author Kathryn Doering
 sample_vals <- function(mean,
                         sd,
                         ar_1_phi = 0,
-                        seed,
                         ndevs, 
                         dist = c("normal", "lognormal")) {
   # checks
@@ -190,7 +188,7 @@ sample_vals <- function(mean,
   }
   assertive.properties::assert_is_of_length(sd, ndevs)
   # sample
-  set.seed(seed)
+  #set.seed(seed)
   if(isTRUE(is.na(ar_1_phi) | unique(ar_1_phi) == 0)) {
     samps <- switch(dist,
            normal = stats::rnorm(n = ndevs, mean = mean, sd = sd), 
@@ -280,7 +278,19 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
       stop("sd and cv both specified as a ts_param in the input dataframe. ", 
       "Please specify only one or the other. ")
     }
+    #Here we set the random number generator seed to the base iteration value
+    set.seed(seed=fut_list$seed)
+    #We then save the full random number generator state which is a 626 value long 
+    #integer vector created from the above random seed. The second value in this vector
+    #specifies the location in the psuedorandom sequence.
+    seed_loc<-.Random.seed
     for(i in where_par$pars) {
+      #Adjusting the location in the sequence rather than the seed allows for a much 
+      #greater number of random values to be drawn as only 2^32 seed values are possible 
+      #while the random number sequence has a period of 2^19937 - 1 values. 
+      seed_loc[2]<-as.integer(10000*(as.integer(row.names(where_par)[which(where_par$pars==i)])-1)+1) #The ten thousand value step assumes no MSE is ever going to run for that many years which is a safe bet even for a months as years model
+      #Here we directly replace the random state (rather than adjusting the seed)
+      .Random.seed<-seed_loc
       # find the mean: 1) is a mean specified? If not, use the most recent
       # value. 
         # do some calcs to figure out the mean value
@@ -343,7 +353,7 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
       # find the sd: 2) is the sd specified? If not, use sd of 1 to sample (or historical sd?)
       samp_vals <- sample_vals(mean = mean, sd = sd, ar_1_phi = ar_1_phi,
                                ndevs = nyrs,
-                               seed = fut_list$seed, dist = fut_list$pattern[2])
+                               dist = fut_list$pattern[2])
 
       vals_df[[i]] <- samp_vals
     }
