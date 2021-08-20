@@ -191,13 +191,12 @@ run_SSMSE <- function(scen_name_vec,
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)
   # check future OM list with the scen_list
-  check_future_om_list_vals(future_om_list = future_om_list,
+  future_om_list <- check_future_om_list_vals(future_om_list = future_om_list,
                             scen_list = scen_list)
   
   # First reset the R random seed
   set.seed(seed = NULL)
   # Now set the global, scenario, and iteration seeds that will be used as needed
-
   seed <- set_MSE_seeds(
     seed = seed,
     iter_vec = unlist(lapply(scen_list, function(scen) scen["iter"]))
