@@ -18,8 +18,8 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
       late_years <- dat[["endyr"]]-dat[["MainRdevYrLast"]]
       }else{late_years<-0}
       late_devs <- parlist[["recdev_forecast"]][0:late_years,"recdev"]
-      parlist[["recdev_forecast"]] <- data.frame("year"=(dat[["endyr"]]-late_years+1):(dat[["endyr"]]+length(future_om_dat[,i])),
-                                                 "recdev"=c(late_devs,future_om_dat[,i]))
+      parlist[["recdev_forecast"]] <- data.frame("year"=(dat[["endyr"]]-late_years+1):(dat[["endyr"]]+length(future_om_dat[,i])+1),
+                                                 "recdev"=c(late_devs, future_om_dat[,i], 0)) # 0 added b/c of 1 year of forecasting in OM, which need a recdev
     }
     
     #Next check for environmental index projections and add them
