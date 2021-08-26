@@ -105,10 +105,10 @@ test_that("create_sample_struct works", {
   dat <- r4ss::SS_readdat(system.file("extdata", "models", "cod", "ss3.dat",
     package = "SSMSE"
   ), verbose = FALSE)
-  dat$lencomp <- NULL
+  dat[["lencomp"]] <- NULL
   sample_nolen <- create_sample_struct(dat, nyrs = 20)
   expect <- expect_sample_struct
-  expect$lencomp <- NA
+  expect[["lencomp"]] <- NA
   expect_equal(sample_nolen, expect)
   # give bad input
   expect_error(
@@ -116,13 +116,13 @@ test_that("create_sample_struct works", {
     "nyrs is not of class 'numeric'"
   )
   # make sure NA in sampling col works as expected.
-  dat$catch$catch_se[5] <- 0.01
+  dat[["catch"]][["catch_se"]][5] <- 0.01
   expect_warning(
     sample_struct_mult_SE <- create_sample_struct(dat, nyrs = 20),
     "NA included in column"
   )
   expect_mult_SE <- expect
-  expect_mult_SE$catch$SE <- NA
+  expect_mult_SE[["catch"]][["SE"]] <- NA
   expect_equal(sample_struct_mult_SE, expect_mult_SE)
   # todo: maybe need to expand this to account for CAL data?
 

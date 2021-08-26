@@ -23,14 +23,14 @@ file.rename(
 # create a catch dataframe to add to add to the model
 # just repeat the catch and se from the last year.
 new_catch <- data.frame(
-  year = (dat$endyr + 1):(dat$endyr + 3),
-  seas = unique(dat$catch$seas)[1],
-  fleet = unique(dat$catch$fleet)[1],
-  catch = dat$catch$catch[nrow(dat$catch)],
-  catch_se = dat$catch$catch_se[nrow(dat$catch)]
+  year = (dat[["endyr"]] + 1):(dat[["endyr"]] + 3),
+  seas = unique(dat[["catch"]][["seas"]])[1],
+  fleet = unique(dat[["catch"]][["fleet"]])[1],
+  catch = dat[["catch"]][["catch"]][nrow(dat[["catch"]])],
+  catch_se = dat[["catch"]][["catch_se"]][nrow(dat[["catch"]])]
 )
 
-new_yrs <- new_catch$year
+new_yrs <- new_catch[["year"]]
 
 # create a dataframe here.
 extend_vals <- list(
@@ -66,26 +66,26 @@ extend_vals <- list(
 #     verbose = FALSE
 #   )
 #   # check catch
-#   new_rows <- return_dat$catch[
-#     (nrow(return_dat$catch) - nrow(new_catch) + 1):nrow(return_dat$catch),
+#   new_rows <- return_dat[["catch"]][
+#     (nrow(return_dat[["catch"]]) - nrow(new_catch) + 1):nrow(return_dat[["catch"]]),
 #   ]
 #   lapply(colnames(new_catch), function(x) {
 #     expect_equal(new_rows[, x], new_catch[, x])
 #   })
 #   # check CPUE # wrap first exp. in abs() b/c fleet negative in OM as a switch.
 #   expect_equivalent(
-#     abs(return_dat$CPUE[101:102, c("year", "seas", "index", "se_log")]),
-#     extend_vals$CPUE[extend_vals$CPUE$year <= return_dat$endyr, ]
+#     abs(return_dat[["CPUE"]][101:102, c("year", "seas", "index", "se_log")]),
+#     extend_vals[["CPUE"]][extend_vals[["CPUE"]][["year"]] <= return_dat[["endyr"]], ]
 #   )
 #   # check lencomp
 #   expect_equivalent(
-#     abs(return_dat$lencomp[101:103, colnames(extend_vals$lencomp)]),
-#     extend_vals$lencomp[extend_vals$lencomp$Yr <= return_dat$endyr, ]
+#     abs(return_dat[["lencomp"]][101:103, colnames(extend_vals[["lencomp"]])]),
+#     extend_vals[["lencomp"]][extend_vals[["lencomp"]][["Yr"]] <= return_dat[["endyr"]], ]
 #   )
 #   # check agecomp
 #   expect_equivalent( # wrap both exp. in abs b/c of neg in fleet and in lbin/lbinhi
-#     abs(return_dat$agecomp[101:103, colnames(extend_vals$agecomp)]),
-#     abs(extend_vals$agecomp[extend_vals$agecomp$Yr <= return_dat$endyr, ])
+#     abs(return_dat[["agecomp"]][101:103, colnames(extend_vals[["agecomp"]])]),
+#     abs(extend_vals[["agecomp"]][extend_vals[["agecomp"]][["Yr"]] <= return_dat[["endyr"]], ])
 #   )
 # })
 
@@ -160,7 +160,7 @@ test_that("check_future_catch works", {
   )
   expect_equal(return_catch, new_catch)
   summary <- r4ss::SS_read_summary(file.path(temp_path, "cod_initOM3", "ss_summary.sso"))
-  summary <- summary$biomass
+  summary <- summary[["biomass"]]
   large_catch <- new_catch
   large_catch_val <- summary["TotBio_100", "Value"] + 1000
   large_catch[2, "catch"] <- large_catch_val

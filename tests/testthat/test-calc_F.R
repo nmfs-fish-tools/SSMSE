@@ -38,10 +38,10 @@ test_fleetnames <- c("Fishery", "Survey")
 test_that("get_F works with multi yrs, fleets, and seasons", {
   F_list <- get_F(timeseries = test_timeseries, fleetnames = test_fleetnames)
 
-  expect_true(NROW(F_list$F_df) == nfleets * NROW(test_timeseries))
+  expect_true(NROW(F_list[["F_df"]]) == nfleets * NROW(test_timeseries))
   expect_true(length(F_list) == 4) # b/c 4 components of output
   expect_equal(
-    F_list$F_rate$name,
+    F_list[["F_rate"]][["name"]],
     c(
       "F_fleet_1_YR_1_s_1", "F_fleet_1_YR_1_s_2", "F_fleet_1_YR_2_s_1",
       "F_fleet_1_YR_2_s_2", "F_fleet_1_YR_3_s_1", "F_fleet_1_YR_3_s_2",
@@ -49,28 +49,28 @@ test_that("get_F works with multi yrs, fleets, and seasons", {
       "F_fleet_2_YR_2_s_2", "F_fleet_2_YR_3_s_1", "F_fleet_2_YR_3_s_2"
     )
   )
-  expect_length(F_list$init_F, 3)
+  expect_length(F_list[["init_F"]], 3)
   expect_equal(
-    names(F_list$init_F),
+    names(F_list[["init_F"]]),
     c(
       "InitF_seas_1_flt_1Fishery", "InitF_seas_2_flt_1Fishery",
       "InitF_seas_2_flt_2Survey"
     )
   )
   expect_equal(
-    F_list$F_rate_fcast$name,
+    F_list[["F_rate_fcast"]][["name"]],
     c("F_fleet_1_YR_4_s_1", "F_fleet_1_YR_4_s_2")
   )
 })
 
 test_that("get_F works with multi yrs, fleets, and seasons but no init F", {
   no_init_F_timeseries <- test_timeseries
-  no_init_F_timeseries[no_init_F_timeseries$Era == "INIT", c("F:_1", "F:_2")] <- 0
+  no_init_F_timeseries[no_init_F_timeseries[["Era"]] == "INIT", c("F:_1", "F:_2")] <- 0
   F_list <- get_F(timeseries = no_init_F_timeseries, fleetnames = test_fleetnames)
-  expect_true(NROW(F_list$F_df) == nfleets * NROW(no_init_F_timeseries))
+  expect_true(NROW(F_list[["F_df"]]) == nfleets * NROW(no_init_F_timeseries))
   expect_true(length(F_list) == 4) # b/c 4 components of output
   expect_equal(
-    F_list$F_rate$name,
+    F_list[["F_rate"]][["name"]],
     c(
       "F_fleet_1_YR_1_s_1", "F_fleet_1_YR_1_s_2", "F_fleet_1_YR_2_s_1",
       "F_fleet_1_YR_2_s_2", "F_fleet_1_YR_3_s_1", "F_fleet_1_YR_3_s_2",
@@ -80,19 +80,19 @@ test_that("get_F works with multi yrs, fleets, and seasons but no init F", {
   )
   expect_null(F_list[["init_F"]])
   expect_equal(
-    F_list$F_rate_fcast$name,
+    F_list[["F_rate_fcast"]][["name"]],
     c("F_fleet_1_YR_4_s_1", "F_fleet_1_YR_4_s_2")
   )
 })
 
 test_that("get_F works with multi yrs, fleets, and seasons but no F_rate_fcast", {
   no_fcast_F_timeseries <- test_timeseries
-  no_fcast_F_timeseries[no_fcast_F_timeseries$Era == "FORE", c("F:_1", "F:_2")] <- 0
+  no_fcast_F_timeseries[no_fcast_F_timeseries[["Era"]] == "FORE", c("F:_1", "F:_2")] <- 0
   F_list <- get_F(timeseries = no_fcast_F_timeseries, fleetnames = test_fleetnames)
-  expect_true(NROW(F_list$F_df) == nfleets * NROW(no_fcast_F_timeseries))
+  expect_true(NROW(F_list[["F_df"]]) == nfleets * NROW(no_fcast_F_timeseries))
   expect_true(length(F_list) == 4) # b/c 4 components of output
   expect_equal(
-    F_list$F_rate$name,
+    F_list[["F_rate"]][["name"]],
     c(
       "F_fleet_1_YR_1_s_1", "F_fleet_1_YR_1_s_2", "F_fleet_1_YR_2_s_1",
       "F_fleet_1_YR_2_s_2", "F_fleet_1_YR_3_s_1", "F_fleet_1_YR_3_s_2",
@@ -100,15 +100,15 @@ test_that("get_F works with multi yrs, fleets, and seasons but no F_rate_fcast",
       "F_fleet_2_YR_2_s_2", "F_fleet_2_YR_3_s_1", "F_fleet_2_YR_3_s_2"
     )
   )
-  expect_length(F_list$init_F, 3)
+  expect_length(F_list[["init_F"]], 3)
   expect_equal(
-    names(F_list$init_F),
+    names(F_list[["init_F"]]),
     c(
       "InitF_seas_1_flt_1Fishery", "InitF_seas_2_flt_1Fishery",
       "InitF_seas_2_flt_2Survey"
     )
   )
-  expect_null(F_list$F_rate_fcast$name)
+  expect_null(F_list[["F_rate_fcast"]][["name"]])
 })
 
 test_that("get_F can catch bad input", {
@@ -131,8 +131,8 @@ test_that("get_retained_catch works", {
   )
   expect_type(ret_catch, "list")
   expect_s3_class(ret_catch, "data.frame")
-  expect_equal(unique(ret_catch[ret_catch$Fleet == 1, "Units"]), "retain(B)")
-  expect_equal(unique(ret_catch[ret_catch$Fleet == 2, "Units"]), "retain(N)")
+  expect_equal(unique(ret_catch[ret_catch[["Fleet"]] == 1, "Units"]), "retain(B)")
+  expect_equal(unique(ret_catch[ret_catch[["Fleet"]] == 2, "Units"]), "retain(N)")
   expect_equivalent(ncol(ret_catch), 6)
   expect_equal(
     colnames(ret_catch),

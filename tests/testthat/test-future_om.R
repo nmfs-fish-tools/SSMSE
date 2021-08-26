@@ -216,13 +216,13 @@ test_that("checks with scen info doesnt error with valid input", {
    return_list_2 <- check_future_om_list_vals(future_om_list = future_om_list_3, 
                                          scen_list = scen_list)
    expect_return <- future_om_list_3
-   expect_return[[1]]$scen <- c("replicate", "scen1", "scen2", "scen3")
-   expect_return[[2]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_return[[1]][["scen"]] <- c("replicate", "scen1", "scen2", "scen3")
+   expect_return[[2]][["scen"]] <- c("replicate", "scen1", "scen2", "scen3")
    expect_equal(return_list_2, expect_return)
    return_list_3 <- check_future_om_list_vals(future_om_list = future_om_list_4, 
                                               scen_list = scen_list)
    expect_return <- future_om_list_4
-   expect_return[[1]]$scen <- c("replicate", "scen1", "scen2", "scen3")
+   expect_return[[1]][["scen"]] <- c("replicate", "scen1", "scen2", "scen3")
    expect_equal(return_list_3, expect_return)
 })
 
@@ -272,13 +272,13 @@ test_that("Creating the devs df works with sampling", {
     scen_name = "scen2",
     niter  = 1,
     om_mod_path = om_path, nyrs = 10)
-  devs_df <- devs_list$dev_vals
+  devs_df <- devs_list[["dev_vals"]]
   expect_true(nrow(devs_df) == 10)
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SizeSel_P_3_Fishery(1)"))
-  expect_equivalent(devs_df$yrs, 101:110)
+  expect_equivalent(devs_df[["yrs"]], 101:110)
   expect_equivalent(devs_df[["SizeSel_P_3_Fishery(1)"]], c(rep(0, 2), rep(4.5-5.275309, 8)), tolerance = 0.0001)
-  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 > (-0.03))) # very unlikely to be less than 3 sds away, but possible...
-  expect_true(all(devs_df$NatM_p_1_Fem_GP_1 < (0.03))) # very unlikely to be greater than 3 sds away, but possible
+  expect_true(all(devs_df[["NatM_p_1_Fem_GP_1"]] > (-0.03))) # very unlikely to be less than 3 sds away, but possible...
+  expect_true(all(devs_df[["NatM_p_1_Fem_GP_1"]] < (0.03))) # very unlikely to be greater than 3 sds away, but possible
 })
 test_that("Creating the devs df works with custom", {
   ext_files <- system.file(package = "SSMSE")
@@ -292,7 +292,7 @@ test_that("Creating the devs df works with custom", {
     niter  = 1,
     om_mod_path = om_path, nyrs = 9 # note: replaces years 107 to 110 with 0s since no values provided.
     )
-  devs_df <- devs_list$dev_vals
+  devs_df <- devs_list[["dev_vals"]]
   expect_true(nrow(devs_df) == 9)
   expect_equal(colnames(devs_df) , c("yrs", "VonBert_K_Fem_GP_1", "LnQ_base_Survey(2)"))
   expect_equivalent(devs_df[["yrs"]], 101:109)
@@ -345,7 +345,7 @@ test_that("Creating the devs df works with log normal dist", {
     niter  = 1,
     om_mod_path = om_path, nyrs = 12
   )
-  devs_df <- devs_list$dev_vals
+  devs_df <- devs_list[["dev_vals"]]
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
@@ -370,13 +370,13 @@ test_that("Creating the devs df works for recdevs, implementation error", {
     niter  = 3,
     om_mod_path = om_path, nyrs = 6
   )
-  devs_df <- devs_list$dev_vals
+  devs_df <- devs_list[["dev_vals"]]
   # modify the following expectations
   expect_true(nrow(devs_df) == 6)
   expect_equal(colnames(devs_df) , c("yrs", "rec_devs", "impl_error"))
   expect_equivalent(devs_df[["yrs"]], 101:106)
   # TODO:add better expectation for recdevs (not sure how this would work for multi area models)
-  expect_true(all(devs_df$rec_devs != 0))
+  expect_true(all(devs_df[["rec_devs"]] != 0))
   expect_true(all(devs_df[["impl_error"]] == 1.1))
   
 })
@@ -425,7 +425,7 @@ test_that("Creating the devs df works with time series options", {
     om_mod_path = om_path, nyrs = 12
   )
 
-  devs_df <- devs_list$dev_vals
+  devs_df <- devs_list[["dev_vals"]]
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)
   expect_equal(colnames(devs_df) , c("yrs", "NatM_p_1_Fem_GP_1", "SR_BH_steep"))
@@ -439,9 +439,9 @@ test_that("Creating the devs df works with time series options", {
   # compare sampled values with arima
   # want theses:
   # not quite sure how to do this?
-  # devs_list$abs_vals$SR_BH_steep
-  # devs_list$future_om_list[[1]]$seed # the seed
-  # set.seed(devs_list$future_om_list[[1]]$seed)
+  # devs_list[["abs_vals"]][["SR_BH_steep"]]
+  # devs_list[["future_om_list"]][[1]][["seed"]] # the seed
+  # set.seed(devs_list[["future_om_list"]][[1]][["seed"]])
   # # first value:
   # #first_val <- rnorm(1, mean = 0, sd = 0)
   # 0.65 + arima.sim(list(order = c(1,1,0), ar = 0.8), n = 11, sd = 0.02)
@@ -461,14 +461,14 @@ test_that("creating the devs df works with cv", {
     niter  = 1,
     om_mod_path = om_path, nyrs = 12
   )
-  devs_df <- devs_list$dev_vals
+  devs_df <- devs_list[["dev_vals"]]
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)
   expect_length(colnames(devs_df), 38)
   expect_equivalent(devs_df[["yrs"]], 101:112)
-  base_M <- unique(devs_list$base_vals$NatM_p_1_Fem_GP_1)
-  base_sel <- unique(devs_list$base_vals[["SizeSel_P_4_Fishery(1)"]])
-  cv_val <- tmp_future_om_list[[1]]$input[tmp_future_om_list[[1]]$input$ts_param == "cv", "value"]
+  base_M <- unique(devs_list[["base_vals"]][["NatM_p_1_Fem_GP_1"]])
+  base_sel <- unique(devs_list[["base_vals"]][["SizeSel_P_4_Fishery(1)"]])
+  cv_val <- tmp_future_om_list[[1]][["input"]][tmp_future_om_list[[1]][["input"]][["ts_param"]] == "cv", "value"]
   # The following tests could fail, but are unlikely to. Test that the values 
   # are within +/- 3 sigma.
   expect_true(sum(devs_df[,"NatM_p_1_Fem_GP_1"] <= (3*base_M*cv_val))>10 &
@@ -488,15 +488,15 @@ test_that("Creating the devs df works with timevarying pars in initial model", {
   future_om_list <- check_future_om_list_vals(future_om_list = future_om_list,
                                               scen_list =  scen_list)
   test_list <- future_om_list
-  test_list[[1]]$input$first_yr_averaging <- 1990
-  test_list[[1]]$input$last_yr_averaging <- 2009
-  test_list[[1]]$input$last_yr_orig_val <- 2009
-  test_list[[1]]$input$first_yr_final_val <- 2010
-  test_list[[2]]$pars <- "AgeSel_P_3_Fish1(1)"
-  test_list[[2]]$input$first_yr_averaging <- 2000
-  test_list[[2]]$input$last_yr_averaging <- 2009
-  test_list[[2]]$input$last_yr_orig_val <- 2011
-  test_list[[2]]$input$first_yr_final_val <- 2012
+  test_list[[1]][["input"]][["first_yr_averaging"]] <- 1990
+  test_list[[1]][["input"]][["last_yr_averaging"]] <- 2009
+  test_list[[1]][["input"]][["last_yr_orig_val"]] <- 2009
+  test_list[[1]][["input"]][["first_yr_final_val"]] <- 2010
+  test_list[[2]][["pars"]] <- "AgeSel_P_3_Fish1(1)"
+  test_list[[2]][["input"]][["first_yr_averaging"]] <- 2000
+  test_list[[2]][["input"]][["last_yr_averaging"]] <- 2009
+  test_list[[2]][["input"]][["last_yr_orig_val"]] <- 2011
+  test_list[[2]][["input"]][["first_yr_final_val"]] <- 2012
 
   # add another change LnQ_base_Surv1(3), which already has parameter devs.
   tmp_list <- list(pars = "LnQ_base_Surv1(3)", 
@@ -516,21 +516,21 @@ test_that("Creating the devs df works with timevarying pars in initial model", {
     scen_name = "scen2",
     niter  = 1,
     om_mod_path = om_path, nyrs = 10)
-  dev_vals <- devs_list$dev_vals
+  dev_vals <- devs_list[["dev_vals"]]
   dev_vals
   # check M are in the range expected
-  expect_true(all(dev_vals$NatM_p_1_Fem_GP_1 < 3*test_list[[1]]$input$value))
-  expect_true(all(dev_vals$NatM_p_1_Fem_GP_1 > -3*test_list[[1]]$input$value))
+  expect_true(all(dev_vals[["NatM_p_1_Fem_GP_1"]] < 3*test_list[[1]][["input"]][["value"]]))
+  expect_true(all(dev_vals[["NatM_p_1_Fem_GP_1"]] > -3*test_list[[1]][["input"]][["value"]]))
   # check Sel vals in range expected
-  before_change_vals <- devs_list$abs_vals[devs_list$abs_vals$yrs <= test_list[[2]]$input$last_yr_orig_val, "AgeSel_P_3_Fish1(1)"]
-  after_change_vals <- devs_list$abs_vals[devs_list$abs_vals$yrs > test_list[[2]]$input$last_yr_orig_val, "AgeSel_P_3_Fish1(1)"]
-  base_vals_tmp <- unique(devs_list$base_vals$`AgeSel_P_3_Fish1(1)`)
-  change_vals_tmp <- test_list[[2]]$input$value
+  before_change_vals <- devs_list[["abs_vals"]][devs_list[["abs_vals"]][["yrs"]] <= test_list[[2]][["input"]][["last_yr_orig_val"]], "AgeSel_P_3_Fish1(1)"]
+  after_change_vals <- devs_list[["abs_vals"]][devs_list[["abs_vals"]][["yrs"]] > test_list[[2]][["input"]][["last_yr_orig_val"]], "AgeSel_P_3_Fish1(1)"]
+  base_vals_tmp <- unique(devs_list[["base_vals"]][["AgeSel_P_3_Fish1(1)"]])
+  change_vals_tmp <- test_list[[2]][["input"]][["value"]]
   expect_true(all(before_change_vals == base_vals_tmp))
   expect_true(all(after_change_vals == change_vals_tmp))
   # check Q vals in range expected
-  expect_true(all(dev_vals$`LnQ_base_Surv1(3)`[1:2] == 0))
-  expect_equivalent(dev_vals$`LnQ_base_Surv1(3)`[3:10], rep(-0.176569, length.out = 8))
+  expect_true(all(dev_vals[["LnQ_base_Surv1(3)"]][1:2] == 0))
+  expect_equivalent(dev_vals[["LnQ_base_Surv1(3)"]][3:10], rep(-0.176569, length.out = 8))
 })
 
 test_that("Tests a model with env link using historical values", {
@@ -554,14 +554,14 @@ test_that("Tests a model with env link using historical values", {
      scen_name = "scen2",
      niter  = 1,
      om_mod_path = om_path, nyrs = 10)
-   expect_length(unique(devs_list$dev_vals$`SR_LN(R0)`), 1)
+   expect_length(unique(devs_list[["dev_vals"]][["SR_LN(R0)"]]), 1)
    dat <- r4ss::SS_readdat(file.path(om_path, "data.ss_new"))
-   dat <- dat$envdat
-   env_vals <- dat[dat$Yr >= tmp_list[[1]]$input$first_yr_averaging &
-       dat$Yr <= tmp_list[[1]]$input$last_yr_averaging, "Value"]
+   dat <- dat[["envdat"]]
+   env_vals <- dat[dat[["Yr"]] >= tmp_list[[1]][["input"]][["first_yr_averaging"]] &
+       dat[["Yr"]] <= tmp_list[[1]][["input"]][["last_yr_averaging"]], "Value"]
    env_parval <- 0.862777  #hard coded based on the model used.
-   base_val <- mean(unique(devs_list$base_vals$`SR_LN(R0)`) + env_parval*env_vals)
-   expect_equivalent(unique(devs_list$abs_vals$`SR_LN(R0)`), base_val*1.1)
+   base_val <- mean(unique(devs_list[["base_vals"]][["SR_LN(R0)"]]) + env_parval*env_vals)
+   expect_equivalent(unique(devs_list[["abs_vals"]][["SR_LN(R0)"]]), base_val*1.1)
    
    new_change <- list(pars = "SR_LN(R0)", 
                       scen = c("replicate", "scen2"), 
@@ -579,12 +579,12 @@ test_that("Tests a model with env link using historical values", {
     scen_name = "scen2",
     niter  = 1,
     om_mod_path = om_path, nyrs = 10)
-  expect_length(unique(devs_list$dev_vals$`SR_LN(R0)`), 3)
-  env_vals <- dat[dat$Yr >= tmp_list[[2]]$input$first_yr_averaging &
-                    dat$Yr <= tmp_list[[2]]$input$last_yr_averaging, "Value"]
+  expect_length(unique(devs_list[["dev_vals"]][["SR_LN(R0)"]]), 3)
+  env_vals <- dat[dat[["Yr"]] >= tmp_list[[2]][["input"]][["first_yr_averaging"]] &
+                    dat[["Yr"]] <= tmp_list[[2]][["input"]][["last_yr_averaging"]], "Value"]
   env_parval <- 0.862777  #hard coded based on the model used.
-  base_val <- mean(unique(devs_list$base_vals$`SR_LN(R0)`) + env_parval*env_vals)
-  expect_equivalent(unique(devs_list$abs_vals$`SR_LN(R0)`[6:10]), base_val*1.2)
+  base_val <- mean(unique(devs_list[["base_vals"]][["SR_LN(R0)"]]) + env_parval*env_vals)
+  expect_equivalent(unique(devs_list[["abs_vals"]][["SR_LN(R0)"]][6:10]), base_val*1.2)
   
 })
 
@@ -617,13 +617,13 @@ test_that("Setting seeds works as intended", {
     niter  = 2,
     om_mod_path = om_path, nyrs = 12
   )
-  expect_equal(devs_list_1$dev_vals, devs_list_2$dev_vals)
+  expect_equal(devs_list_1[["dev_vals"]], devs_list_2[["dev_vals"]])
   # Need each iteration to be different when using replicate
-  expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
-                    devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  expect_true(all(devs_list_3[["dev_vals"]][["NatM_p_1_Fem_GP_1"]] != 
+                    devs_list_2[["dev_vals"]][["NatM_p_1_Fem_GP_1"]]))
   
   # now, check randomize option works.
-  tmp_future_om_list[[1]]$scen[1] <- "randomize"
+  tmp_future_om_list[[1]][["scen"]][1] <- "randomize"
   
   devs_list_1 <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list,
@@ -650,10 +650,10 @@ test_that("Setting seeds works as intended", {
     om_mod_path = om_path, nyrs = 12
   )
   
-  expect_true(all(devs_list_1$dev_vals$NatM_p_1_Fem_GP_1 != 
-                  devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  expect_true(all(devs_list_1[["dev_vals"]][["NatM_p_1_Fem_GP_1"]] != 
+                  devs_list_2[["dev_vals"]][["NatM_p_1_Fem_GP_1"]]))
   # Need each iteration to be different
-  expect_true(all(devs_list_3$dev_vals$NatM_p_1_Fem_GP_1 != 
-                    devs_list_2$dev_vals$NatM_p_1_Fem_GP_1))
+  expect_true(all(devs_list_3[["dev_vals"]][["NatM_p_1_Fem_GP_1"]] != 
+                    devs_list_2[["dev_vals"]][["NatM_p_1_Fem_GP_1"]]))
   expect_equal(devs_list_2, devs_list_2_dup) # the same iter and scen should be the same vals.
 })

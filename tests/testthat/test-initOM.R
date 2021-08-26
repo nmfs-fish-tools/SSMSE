@@ -39,25 +39,25 @@ test_that("create_OM can modify model", {
   names(new_dat_yrs) <- dat_types
   # check that no duplicated data
   expect_equal(
-    new_dat$CPUE[, c("year", "seas", "index")],
-    unique(new_dat$CPUE[, c("year", "seas", "index")])
+    new_dat[["CPUE"]][, c("year", "seas", "index")],
+    unique(new_dat[["CPUE"]][, c("year", "seas", "index")])
   )
   cols_lencomp <- c("Yr", "Seas", "FltSvy", "Gender", "Part")
   expect_equal(
-    new_dat$lencomp[, cols_lencomp],
-    unique(new_dat$lencomp[, cols_lencomp])
+    new_dat[["lencomp"]][, cols_lencomp],
+    unique(new_dat[["lencomp"]][, cols_lencomp])
   )
   cols_agecomp <- c(
     "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
     "Lbin_hi"
   )
   expect_equal(
-    new_dat$agecomp[, cols_agecomp],
-    unique(new_dat$agecomp[, cols_agecomp])
+    new_dat[["agecomp"]][, cols_agecomp],
+    unique(new_dat[["agecomp"]][, cols_agecomp])
   )
   # check that a valid model is produced by seeing if it can run.
   start <- r4ss::SS_readstarter(file.path(temp_path, "cod", "starter.ss"))
-  expect_true(start$init_values_src == 1) # b/c should be running from.par.
+  expect_true(start[["init_values_src"]] == 1) # b/c should be running from.par.
   file.remove(file.path(temp_path, "cod", "control.ss_new"))
   run_ss_model(file.path(temp_path, "cod"), "-maxfn 0 -phase 50 -nohess",
     verbose = FALSE

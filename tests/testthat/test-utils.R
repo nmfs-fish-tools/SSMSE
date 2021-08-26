@@ -262,8 +262,8 @@ test_that("get_input_value works as expected", {
     group = "value"
   )
   expect_true(is.data.frame(val))
-  expect_true(all(val$value %in% c(2, 3)))
-  expect_true(unique(val$se_log) == 0.2)
+  expect_true(all(val[["value"]] %in% c(2, 3)))
+  expect_true(unique(val[["se_log"]]) == 0.2)
   val <- get_input_value(
     data = dfr,
     method = "most_common_value",
@@ -271,8 +271,8 @@ test_that("get_input_value works as expected", {
     group = "value"
   )
   expect_true(is.data.frame(val))
-  expect_true(all(val$value %in% c(2, 3)))
-  expect_true(unique(val$se_log) == 0.2)
+  expect_true(all(val[["value"]] %in% c(2, 3)))
+  expect_true(unique(val[["se_log"]]) == 0.2)
   # switch the cols used
   val <- get_input_value(
     data = dfr,
@@ -282,8 +282,8 @@ test_that("get_input_value works as expected", {
   )
   expect_true(is.data.frame(val))
   expect_true(nrow(val) == 1)
-  expect_true(val$value == 2)
-  expect_true(val$se_log == 0.2)
+  expect_true(val[["value"]] == 2)
+  expect_true(val[["se_log"]] == 0.2)
 
   expect_error(
     get_input_value(
@@ -293,7 +293,7 @@ test_that("get_input_value works as expected", {
     ),
     "Multiple unique values were found in data"
   )
-  dfr$new_cat <- c("G1", "G2", "G1", "G1", "G1")
+  dfr[["new_cat"]] <- c("G1", "G2", "G1", "G1", "G1")
   expect_error(
     get_input_value(
       data = dfr,
@@ -483,23 +483,23 @@ test_that("clean init_mod_files_works", {
   EM_dir <- file.path(out_dir, "copy_model_files", "EM")
   OM_dat_orig <- SS_readdat(file.path(OM_dir, "ss3.dat"), verbose = FALSE)
   dat <- SS_readdat(file.path(EM_dir, "ss3.dat"), verbose = FALSE)
-  dat$CPUE[1, "year"] <- -dat$CPUE[1, "year"]
-  dat$agecomp[1, "Yr"] <- -dat$agecomp[1, "Yr"]
-  neg_val_CPUE <- dat$CPUE[1, "year"]
-  neg_val_agecomp <- dat$agecomp[1, "Yr"]
+  dat[["CPUE"]][1, "year"] <- -dat[["CPUE"]][1, "year"]
+  dat[["agecomp"]][1, "Yr"] <- -dat[["agecomp"]][1, "Yr"]
+  neg_val_CPUE <- dat[["CPUE"]][1, "year"]
+  neg_val_agecomp <- dat[["agecomp"]][1, "Yr"]
   r4ss::SS_writedat(dat, file.path(EM_dir, "ss3.dat"), verbose = FALSE)
 
   clean_dat_list <- clean_init_mod_files(OM_out_dir = OM_dir, EM_out_dir = EM_dir)
-  expect_true(all(clean_dat_list$EM_dat$CPUE$year >= 0))
-  expect_true(all(clean_dat_list$EM_dat$agecomp$Yr >= 0))
-  expect_true(all(clean_dat_list$OM_dat$CPUE$year == OM_dat_orig$CPUE$year))
-  expect_true(all(clean_dat_list$OM_dat$lencomp$Yr == OM_dat_orig$lencomp$Yr))
+  expect_true(all(clean_dat_list[["EM_dat"]][["CPUE"]][["year"]] >= 0))
+  expect_true(all(clean_dat_list[["EM_dat"]][["agecomp"]][["Yr"]] >= 0))
+  expect_true(all(clean_dat_list[["OM_dat"]][["CPUE"]][["year"]] == OM_dat_orig[["CPUE"]][["year"]]))
+  expect_true(all(clean_dat_list[["OM_dat"]][["lencomp"]][["Yr"]] == OM_dat_orig[["lencomp"]][["Yr"]]))
   expect_true(!is.null(clean_dat_list[["EM_start"]]))
   expect_equivalent(clean_dat_list[["EM_start"]][["init_values_src"]], 0)
 
   clean_dat_list_2 <- clean_init_mod_files(OM_out_dir = OM_dir, EM_out_dir = NULL)
-  expect_true(all(clean_dat_list_2$EM_dat$CPUE$year >= 0))
-  expect_true(all(clean_dat_list_2$EM_dat$agecomp$Yr >= 0))
+  expect_true(all(clean_dat_list_2[["EM_dat"]][["CPUE"]][["year"]] >= 0))
+  expect_true(all(clean_dat_list_2[["EM_dat"]][["agecomp"]][["Yr"]] >= 0))
   expect_true(is.null(clean_dat_list_2[[2]]))
   expect_true(is.null(clean_dat_list_2[["EM_start"]]))
 })
@@ -508,9 +508,9 @@ test_that("setting seeds works", {
   iter_vec <- c(2, 3)
   seed_rand <- set_MSE_seeds(iter_vec = iter_vec)
   expect_true(length(seed_rand) == 3)
-  expect_true(length(seed_rand$scenario) == length(iter_vec))
-  expect_true(length(seed_rand$iter[[1]]) == iter_vec[1])
-  expect_true(length(seed_rand$iter[[2]]) == iter_vec[2])
+  expect_true(length(seed_rand[["scenario"]]) == length(iter_vec))
+  expect_true(length(seed_rand[["iter"]][[1]]) == iter_vec[1])
+  expect_true(length(seed_rand[["iter"]][[2]]) == iter_vec[2])
   seed_1 <- set_MSE_seeds(
     seed = 123,
     iter_vec = iter_vec
@@ -530,20 +530,20 @@ test_that("setting seeds works with diff expected seed inputs", {
     iter_vec = iter_vec
   )
   expect_length(seed_rand, 3)
-  expect_equal(seed_rand$global, 10)
-  expect_equal(seed_rand$scenario, c(20, 30))
-  expect_equal(length(seed_rand$iter[[1]]), iter_vec[1])
-  expect_equal(length(seed_rand$iter[[2]]), iter_vec[2])
+  expect_equal(seed_rand[["global"]], 10)
+  expect_equal(seed_rand[["scenario"]], c(20, 30))
+  expect_equal(length(seed_rand[["iter"]][[1]]), iter_vec[1])
+  expect_equal(length(seed_rand[["iter"]][[2]]), iter_vec[2])
   # seed of length 7
   seed_rand <- set_MSE_seeds(
     seed = c(10, 20, 30, 40, 50, 60, 70, 80),
     iter_vec = iter_vec
   )
   expect_length(seed_rand, 3)
-  expect_equal(seed_rand$global, 10)
-  expect_equal(seed_rand$scenario, c(20, 30))
-  expect_equal(seed_rand$iter[[1]], c(40, 50))
-  expect_equal(seed_rand$iter[[2]], c(60, 70, 80))
+  expect_equal(seed_rand[["global"]], 10)
+  expect_equal(seed_rand[["scenario"]], c(20, 30))
+  expect_equal(seed_rand[["iter"]][[1]], c(40, 50))
+  expect_equal(seed_rand[["iter"]][[2]], c(60, 70, 80))
 })
 
 test_that("setting seeds works with list inputs", {
@@ -573,11 +573,11 @@ test_that("setting seeds exits on error with bad input", {
 
 test_that("locate_in_dirs works", {
   OM_dir <- locate_in_dirs(OM_name = "cod", OM_in_dir = NULL)
-  expect_true(basename(OM_dir$OM_in_dir) == "cod")
+  expect_true(basename(OM_dir[["OM_in_dir"]]) == "cod")
   OM_dir <- locate_in_dirs(OM_name = NULL, OM_in_dir = "path/to/model")
-  expect_true(OM_dir$OM_in_dir == "path/to/model")
+  expect_true(OM_dir[["OM_in_dir"]] == "path/to/model")
   OM_dir <- locate_in_dirs(OM_name = "cod", OM_in_dir = "path/to/model")
-  expect_true(OM_dir$OM_in_dir == "path/to/model")
+  expect_true(OM_dir[["OM_in_dir"]] == "path/to/model")
   expect_error(
     locate_in_dirs(OM_name = NULL, OM_in_dir = NULL),
     "OM_name and OM_in_dir are both NULL"

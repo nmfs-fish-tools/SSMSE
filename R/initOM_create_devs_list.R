@@ -39,7 +39,7 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
   
   #add seeds (alternative to this would be adding the seeds to this list earlier)
   future_om_list <- mapply(function(fut_list, seed) {
-    fut_list$seed <- seed
+    fut_list[["seed"]] <- seed
     fut_list
   }, fut_list = future_om_list, seed = seeds_to_use, SIMPLIFY = FALSE)
   
@@ -68,8 +68,8 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
   ctl <- r4ss::SS_readctl(file.path(om_mod_path, start[["ctlfile"]]), 
                           datlist = dat)
   par <- r4ss::SS_readpar_3.30(parfile = file.path(om_mod_path, "ss.par"),
-                               datsource = file.path(om_mod_path, start$datfile),
-                               ctlsource = file.path(om_mod_path, start$ctlfile),
+                               datsource = file.path(om_mod_path, start[["datfile"]]),
+                               ctlsource = file.path(om_mod_path, start[["ctlfile"]]),
                                verbose = FALSE)
   where_par <- match_parname(list_pars = pars_to_change, par = par)
   vals_df <- data.frame(yrs = seq_len(nyrs) + dat[["endyr"]])
@@ -78,8 +78,8 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
     where_par[["pars"]])
   vals_df <- cbind(vals_df, tmp_vals)
   # Get the base values for these parameters.
-  for(p in where_par$pars) {
-    vals_df[[p]] <- where_par[where_par$pars == p, "est"]
+  for(p in where_par[["pars"]]) {
+    vals_df[[p]] <- where_par[where_par[["pars"]] == p, "est"]
   }
   base_vals <- vals_df
   #now, add changes on top of this. Note this is the TOTAL value.
@@ -90,12 +90,12 @@ convert_future_om_list_to_devs_df <- function(future_om_list, scen_name,
   # remove base values from pars? I think soo...
   vals_df
   dev_vals_df <- vals_df - base_vals
-  if(!all(dev_vals_df$yrs == 0)) {
+  if(!all(dev_vals_df[["yrs"]] == 0)) {
     stop("Incorrect assumption made regarding dataframe addition, please open ",
     "an issue in the SSMSE repository.")
   } 
   # correct the years
-  dev_vals_df$yrs <- vals_df$yrs
+  dev_vals_df[["yrs"]] <- vals_df[["yrs"]]
   
   # return the base vals, deviations, and absolute vals, also the future_om_list values
   return_list <- list(base_vals = base_vals,
@@ -258,37 +258,37 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
     # dev_vals_df[,seq_len(ncol(dev_vals_df))[-1]] <- 0 # Fill with 0s b/c just want the devs.
     # now, parse the input part (and pattern[2])
 
-    if(fut_list$scen[1] == "randomize") {
+    if(fut_list[["scen"]][1] == "randomize") {
       # need a different seed for each scenario and iteration
-      set.seed(fut_list$seed)
-      tmp_scen_seed <- stats::runif(length(fut_list$scen), 0, 999999)[which(fut_list$scen == scen)]
+      set.seed(fut_list[["seed"]])
+      tmp_scen_seed <- stats::runif(length(fut_list[["scen"]]), 0, 999999)[which(fut_list[["scen"]] == scen)]
       tmp_iter_seed <- tmp_scen_seed + iter
-      fut_list$seed <- tmp_iter_seed
-      fut_list$seed <- fut_list$seed + which(fut_list$scen == scen)
-    } else if (fut_list$scen[1] == "replicate") {
+      fut_list[["seed"]] <- tmp_iter_seed
+      fut_list[["seed"]] <- fut_list[["seed"]] + which(fut_list[["scen"]] == scen)
+    } else if (fut_list[["scen"]][1] == "replicate") {
       # use the same seed for the same number iteration of different scenarios.
-      fut_list$seed <- fut_list$seed + iter
+      fut_list[["seed"]] <- fut_list[["seed"]] + iter
     }
     
     # if there are no tv devs in the original model, than taking a historical
     # average is unnecessary.
     # Users are not allowed to input both sd and cv, so add a check for this.
-    if(length(which(fut_list$input$ts_param == "sd")) == 1 & 
-       length(which(fut_list$input$ts_param == "cv")) == 1) {
+    if(length(which(fut_list[["input"]][["ts_param"]] == "sd")) == 1 & 
+       length(which(fut_list[["input"]][["ts_param"]] == "cv")) == 1) {
       stop("sd and cv both specified as a ts_param in the input dataframe. ", 
       "Please specify only one or the other. ")
     }
     #Here we set the random number generator seed to the base iteration value
-    set.seed(seed=fut_list$seed)
+    set.seed(seed=fut_list[["seed"]])
     #We then save the full random number generator state which is a 626 value long 
     #integer vector created from the above random seed. The second value in this vector
     #specifies the location in the psuedorandom sequence.
     seed_loc<-.Random.seed
-    for(i in where_par$pars) {
+    for(i in where_par[["pars"]]) {
       #Adjusting the location in the sequence rather than the seed allows for a much 
       #greater number of random values to be drawn as only 2^32 seed values are possible 
       #while the random number sequence has a period of 2^19937 - 1 values. 
-      seed_loc[2]<-as.integer(10000*(as.integer(row.names(where_par)[which(where_par$pars==i)])-1)+1) #The ten thousand value step assumes no MSE is ever going to run for that many years which is a safe bet even for a months as years model
+      seed_loc[2]<-as.integer(10000*(as.integer(row.names(where_par)[which(where_par[["pars"]]==i)])-1)+1) #The ten thousand value step assumes no MSE is ever going to run for that many years which is a safe bet even for a months as years model
       #Here we directly replace the random state (rather than adjusting the seed)
       .Random.seed<-seed_loc
       # find the mean: 1) is a mean specified? If not, use the most recent
@@ -296,34 +296,34 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
         # do some calcs to figure out the mean value
         # this holds if the parameter isn't time varying 
         # calculate the mean. The  below holds with or without a trend
-        mean <- calc_par_trend(val_info = fut_list$input, 
+        mean <- calc_par_trend(val_info = fut_list[["input"]], 
                                val_line = "mean",
                                par = par,
-                               ref_parm_value = where_par[where_par$pars == i, "est"],
+                               ref_parm_value = where_par[where_par[["pars"]] == i, "est"],
                                vals_df = vals_df, # use to potentially get trend start value.
                                parname = i,
                                ctl = ctl,
-                               par_section = where_par[where_par$pars == i, "obj"], 
+                               par_section = where_par[where_par[["pars"]] == i, "obj"], 
                                dat = dat
                                )
-        sd <- calc_par_trend(val_info = fut_list$input, 
+        sd <- calc_par_trend(val_info = fut_list[["input"]], 
                              val_line = "sd",
                              par = par,
                              ref_parm_value = 0, # may not always be correct?
                              vals_df = vals_df, # use to get trend start value, and last yr. 
                              parname = i,
                              ctl = ctl,
-                             par_section = where_par[where_par$pars == i, "obj"],
+                             par_section = where_par[where_par[["pars"]] == i, "obj"],
                              dat = dat
                              )
-        cv <-  calc_par_trend(val_info = fut_list$input, 
+        cv <-  calc_par_trend(val_info = fut_list[["input"]], 
                               val_line = "cv",
                               par = par,
                               ref_parm_value = 0, # may not always be correct?
                               vals_df = vals_df, # use to get trend start value, and last yr. 
                               parname = i,
                               ctl = ctl, 
-                              par_section = where_par[where_par$pars == i, "obj"],
+                              par_section = where_par[where_par[["pars"]] == i, "obj"],
                               dat = dat
                              )
         if(any(cv != 0)) {
@@ -340,7 +340,7 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
           sd <- abs(cv*mean)
         }
 
-        ar_1_phi <- calc_par_trend(val_info = fut_list$input, 
+        ar_1_phi <- calc_par_trend(val_info = fut_list[["input"]], 
                                    val_line = "ar_1_phi",
                                    par = par,
                                    ref_parm_value = 0, # may not always be correct?
@@ -353,19 +353,19 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
       # find the sd: 2) is the sd specified? If not, use sd of 1 to sample (or historical sd?)
       samp_vals <- sample_vals(mean = mean, sd = sd, ar_1_phi = ar_1_phi,
                                ndevs = nyrs,
-                               dist = fut_list$pattern[2])
+                               dist = fut_list[["pattern"]][2])
 
       vals_df[[i]] <- samp_vals
     }
-  } else if (fut_list$pattern[1] == "custom") {
+  } else if (fut_list[["pattern"]][1] == "custom") {
     # custom ----
-    for (i in where_par$pars) {
-      tmp_base <- where_par[where_par$pars == i, "est"]
+    for (i in where_par[["pars"]]) {
+      tmp_base <- where_par[where_par[["pars"]] == i, "est"]
       # custom will just replace any values for the pattern.
       #filter out the columns needed for the given scenario and iteration
-      custom_vals <- fut_list$input[fut_list$input$scen %in% c("all", scen) &
-                               fut_list$input$par == i &
-                               fut_list$input$iter == iter,]
+      custom_vals <- fut_list[["input"]][fut_list[["input"]][["scen"]] %in% c("all", scen) &
+                               fut_list[["input"]][["par"]] == i &
+                               fut_list[["input"]][["iter"]] == iter,]
       custom_vals <- dplyr::select(custom_vals, .data[["yr"]], .data[["value"]]) %>%
         dplyr::rename(yrs = .data[["yr"]])
       vals_df <- dplyr::left_join(vals_df, custom_vals, by = "yrs") %>% 
@@ -402,14 +402,14 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
     # determine historical value, if necessary. This will replace the ref_parm_value
     # determine the ref_parm_value
     
-    if(isTRUE(!is.na(val_info[val_info$ts_param == val_line, "first_yr_averaging"]) &
-              !is.na(val_info[val_info$ts_param == val_line, "last_yr_averaging"]))) {
+    if(isTRUE(!is.na(val_info[val_info[["ts_param"]] == val_line, "first_yr_averaging"]) &
+              !is.na(val_info[val_info[["ts_param"]] == val_line, "last_yr_averaging"]))) {
       if(parname == "rec_devs") {
-        tmp_vals <- data.frame(yrs = par$recdev1[,1], rec_devs = par$recdev1[,2])
-        tmp_vals_2 <- data.frame(yrs = vals_df$yrs, rec_devs = vals_df$rec_devs)
+        tmp_vals <- data.frame(yrs = par[["recdev1"]][,1], rec_devs = par[["recdev1"]][,2])
+        tmp_vals_2 <- data.frame(yrs = vals_df[["yrs"]], rec_devs = vals_df[["rec_devs"]])
         tmp_vals <- rbind(tmp_vals, tmp_vals_2)
-        to_include <- which(tmp_vals$yr >= val_info[val_info$ts_param == val_line, "first_yr_averaging"] &
-                              tmp_vals$yr <= val_info[val_info$ts_param == val_line, "last_yr_averaging"])
+        to_include <- which(tmp_vals[["yr"]] >= val_info[val_info[["ts_param"]] == val_line, "first_yr_averaging"] &
+                              tmp_vals[["yr"]] <= val_info[val_info[["ts_param"]] == val_line, "last_yr_averaging"])
         tmp_vals <- tmp_vals[to_include, "rec_devs"]
         ref_parm_value <- switch(val_line, 
                                  mean = mean(tmp_vals), 
@@ -418,10 +418,10 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
                                  ar_1_phi = stats::arima(tmp_vals, order = c(1,0,0))$coef[1])
       } else { # for all other parameters
         # check for tv devs
-        ctl$S_parms <- rbind(ctl[["size_selex_parms"]], ctl[["age_selex_parms"]], 
+        ctl[["S_parms"]] <- rbind(ctl[["size_selex_parms"]], ctl[["age_selex_parms"]], 
                              ctl[["dirichlet_parms"]])
-        if(!is.null(ctl$age_selex_parms_tv) | !is.null(ctl$size_selex_parms_tv)) {
-          ctl$S_parms_tv <- rbind(ctl$size_selex_parms_tv, ctl$age_selex_parms_tv)
+        if(!is.null(ctl[["age_selex_parms_tv"]]) | !is.null(ctl[["size_selex_parms_tv"]])) {
+          ctl[["S_parms_tv"]] <- rbind(ctl[["size_selex_parms_tv"]], ctl[["age_selex_parms_tv"]])
         }
         tv_par_def <- ctl[[par_section]][rownames(ctl[[par_section]]) == parname,
                                        c("env_var&link", "dev_link", "Block")]
@@ -433,7 +433,7 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
           first_tv <- TRUE # switch to determine if this is the first tv defined or not.
           temp_ctl <- ctl[[par_section]]
           current_par <- which(row.names(temp_ctl) == parname)
-          if(tv_par_def$Block != 0) {
+          if(tv_par_def[["Block"]] != 0) {
             # pull out the block and/or trend parameters
 
             parfile_par_block_loc <- 
@@ -445,12 +445,12 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
             parfile_base_val <- par[[par_section]][parname, "ESTIM"]
             if(first_tv == TRUE) {
               vals <- rep(parfile_base_val, 
-                          length.out = length(val_info$first_yr_averaging:val_info$last_yr_averaging))
+                          length.out = length(val_info[["first_yr_averaging"]]:val_info[["last_yr_averaging"]]))
             } # note that otherwise, vals is already defined.
             
             vals <- update_basevals_blocks(
               base_vals = vals,
-              base_years = val_info$first_yr_averaging:val_info$last_yr_averaging,
+              base_years = val_info[["first_yr_averaging"]]:val_info[["last_yr_averaging"]],
               temp_block = parfile_par_block, 
               current_par = current_par, 
               dat = dat,
@@ -466,20 +466,20 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
           if(tv_par_def[["env_var&link"]] != 0) {
             parfile_base_val <- par[[par_section]][parname, "ESTIM"]
             if(first_tv == TRUE) {
-              vals <- rep(parfile_base_val, length.out = length(val_info$first_yr_averaging:val_info$last_yr_averaging))
+              vals <- rep(parfile_base_val, length.out = length(val_info[["first_yr_averaging"]]:val_info[["last_yr_averaging"]]))
             } # note that otherwise, vals is already defined.
             temp_env <- par[[par_section]][grep(paste0(parname, "_ENV"),
                                                 rownames(par[[par_section]]),
                                                 fixed = TRUE), ]
             if(ctl[[par_section]][current_par, "env_var&link"] < 0) {
-              out <- r4ss::SS_output(dirname(dat$sourcefile), verbose = FALSE)
-              timeseries <- out$timeseries
+              out <- r4ss::SS_output(dirname(dat[["sourcefile"]]), verbose = FALSE)
+              timeseries <- out[["timeseries"]]
             } else {
               timeseries <- NA # shouldnt need unless using biology.
             }
             vals <- update_basevals_env(
               base_vals = vals,
-              base_years = val_info$first_yr_averaging:val_info$last_yr_averaging,
+              base_years = val_info[["first_yr_averaging"]]:val_info[["last_yr_averaging"]],
               temp_env = temp_env,
               current_par = current_par,
               timeseries = timeseries,
@@ -497,7 +497,7 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
             parfile_base_val <- par[[par_section]][parname, "ESTIM"]
             if(first_tv == TRUE) {
               vals <- rep(parfile_base_val,
-                length.out = length(val_info$first_yr_averaging:val_info$last_yr_averaging))
+                length.out = length(val_info[["first_yr_averaging"]]:val_info[["last_yr_averaging"]]))
             } # note that otherwise, vals is already defined.
             dev_par <- grep(paste0(parname,"_dev"),
                             row.names(par[[par_section]]), fixed = TRUE)
@@ -531,62 +531,62 @@ add_dev_changes <- function(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl) 
     }
  
     # determine start val
-    if(isTRUE(length(val_info[val_info$ts_param == val_line, "last_yr_orig_val"]) == 1 & 
+    if(isTRUE(length(val_info[val_info[["ts_param"]] == val_line, "last_yr_orig_val"]) == 1 & 
               val_line == "mean")) {
-      start_val_yr <- val_info[val_info$ts_param == val_line, "last_yr_orig_val"]
-      if(start_val_yr %in% vals_df$yrs) {
-      start_val <- vals_df[vals_df$yrs == start_val_yr, parname] 
+      start_val_yr <- val_info[val_info[["ts_param"]] == val_line, "last_yr_orig_val"]
+      if(start_val_yr %in% vals_df[["yrs"]]) {
+      start_val <- vals_df[vals_df[["yrs"]] == start_val_yr, parname] 
       } else {
         # This should only be used when the start value is 1 year before the 
         # devs start.
-        assert_is_identical_to_true(start_val_yr == (vals_df$yrs[1]) -1 )
+        assert_is_identical_to_true(start_val_yr == (vals_df[["yrs"]][1]) -1 )
         start_val <- ref_parm_value # Note: this may not be true if orig. val is time varying?
       }
     } else { # just use the base value
       start_val <- ref_parm_value # I'm not sure this is right or not for the sd???
     }
     last_yr <- vals_df[nrow(vals_df), "yrs"]
-    if(isFALSE(val_line %in% val_info$ts_param)) {
+    if(isFALSE(val_line %in% val_info[["ts_param"]])) {
       # use the start value
       return(start_val)
     }
-    yrs_out <- val_info[val_info$ts_param == val_line, "first_yr_final_val"] -
-      val_info[val_info$ts_param == val_line, "last_yr_orig_val"] + 1
+    yrs_out <- val_info[val_info[["ts_param"]] == val_line, "first_yr_final_val"] -
+      val_info[val_info[["ts_param"]] == val_line, "last_yr_orig_val"] + 1
     if(is.na((yrs_out))) yrs_out <- 2 # this is just a ste
     # get end value
     #I think this should catch any NA values or NULL values for the value param value which should avoid crashes in the end value calculation below
-    if(is.na(val_info[val_info$ts_param == val_line, "value"])){
-      val_info[val_info$ts_param == val_line, "value"] <- switch(
-        val_info[val_info$ts_param == val_line, "method"], 
+    if(is.na(val_info[val_info[["ts_param"]] == val_line, "value"])){
+      val_info[val_info[["ts_param"]] == val_line, "value"] <- switch(
+        val_info[val_info[["ts_param"]] == val_line, "method"], 
         absolute = ref_parm_value, 
         additive = 0,
         multiplier = 1)
     }
-    if(is.null(val_info[val_info$ts_param == val_line, "value"])){
-      val_info[val_info$ts_param == val_line, "value"] <- switch(
-        val_info[val_info$ts_param == val_line, "method"], 
+    if(is.null(val_info[val_info[["ts_param"]] == val_line, "value"])){
+      val_info[val_info[["ts_param"]] == val_line, "value"] <- switch(
+        val_info[val_info[["ts_param"]] == val_line, "method"], 
         absolute = ref_parm_value, 
         additive = 0,
         multiplier = 1)
     }
     end <- switch(
-      val_info[val_info$ts_param == val_line, "method"], 
-      absolute = val_info[val_info$ts_param == val_line, "value"], 
-      additive = val_info[val_info$ts_param == val_line, "value"]+ref_parm_value,
-      multiplier = val_info[val_info$ts_param == val_line, "value"]*ref_parm_value)
+      val_info[val_info[["ts_param"]] == val_line, "method"], 
+      absolute = val_info[val_info[["ts_param"]] == val_line, "value"], 
+      additive = val_info[val_info[["ts_param"]] == val_line, "value"]+ref_parm_value,
+      multiplier = val_info[val_info[["ts_param"]] == val_line, "value"]*ref_parm_value)
     # Calculate a linear trend in between them
     trend <- seq(from = start_val, to = end, length.out = yrs_out)
     trend <- trend[-1] # because don't want to keep the year with the original value
     # after, want to keep the trend at the same value.
     end_val <- rep(end, length.out = last_yr - 
-      val_info[val_info$ts_param == val_line, "first_yr_final_val"] )
+      val_info[val_info[["ts_param"]] == val_line, "first_yr_final_val"] )
     trend <- c(trend, end_val)
     # before, want to keep the trend at the original value. This is not always needed.
-    if(val_info[val_info$ts_param == val_line, "last_yr_orig_val"] >= 
-       vals_df$yrs[1]) {
+    if(val_info[val_info[["ts_param"]] == val_line, "last_yr_orig_val"] >= 
+       vals_df[["yrs"]][1]) {
       beg_val <- rep(start_val, 
-        length.out =  val_info[val_info$ts_param == val_line,
-                               "last_yr_orig_val"] - vals_df$yrs[1] + 1)
+        length.out =  val_info[val_info[["ts_param"]] == val_line,
+                               "last_yr_orig_val"] - vals_df[["yrs"]][1] + 1)
       trend <- c(beg_val, trend)
     }
     trend

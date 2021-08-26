@@ -18,29 +18,29 @@ test_that("get_EM_dat works", {
   OM_dat <- EM_dat # for simplicity, mock OM/EM dat.
   rm_ind <- c(1, 2) # index of obs to move
   # manipulate EM_dat so that it has less observations than OM
-  EM_dat$CPUE <- EM_dat$CPUE[-rm_ind, ] # remove the first 2 rows
-  EM_dat$lencomp <- EM_dat$lencomp[-rm_ind, ]
-  EM_dat$agecomp <- EM_dat$agecomp[-rm_ind, ]
+  EM_dat[["CPUE"]] <- EM_dat[["CPUE"]][-rm_ind, ] # remove the first 2 rows
+  EM_dat[["lencomp"]] <- EM_dat[["lencomp"]][-rm_ind, ]
+  EM_dat[["agecomp"]] <- EM_dat[["agecomp"]][-rm_ind, ]
 
-  EM_dat$CPUE$obs <- 999 # to make it easier to identify if the values change
+  EM_dat[["CPUE"]][["obs"]] <- 999 # to make it easier to identify if the values change
   new_dat <- get_EM_dat(OM_dat, EM_dat, do_checks = FALSE)
   row_names <- c("year", "seas", "index")
   lapply(row_names, function(x) {
-    expect_equal(EM_dat$CPUE[x], new_dat$CPUE[x])
+    expect_equal(EM_dat[["CPUE"]][x], new_dat[["CPUE"]][x])
   })
-  expect_equal(OM_dat$CPUE$obs[-rm_ind], new_dat$CPUE$obs)
+  expect_equal(OM_dat[["CPUE"]][["obs"]][-rm_ind], new_dat[["CPUE"]][["obs"]])
   # check length comps changed
   row_names <- c("Yr", "Seas", "FltSvy")
   lapply(row_names, function(x) {
-    expect_equal(EM_dat$lencomp[x], new_dat$lencomp[x])
+    expect_equal(EM_dat[["lencomp"]][x], new_dat[["lencomp"]][x])
   })
-  expect_equal(OM_dat$lencomp$obs[-rm_ind], new_dat$lencomp$obs)
+  expect_equal(OM_dat[["lencomp"]][["obs"]][-rm_ind], new_dat[["lencomp"]][["obs"]])
   # chack age comps changed
   row_names <- c("Yr", "Seas", "FltSvy")
   lapply(row_names, function(x) {
-    expect_equal(EM_dat$agecomp[x], new_dat$agecomp[x])
+    expect_equal(EM_dat[["agecomp"]][x], new_dat[["agecomp"]][x])
   })
-  expect_equal(OM_dat$agecomp$obs[-rm_ind], new_dat$agecomp$obs)
+  expect_equal(OM_dat[["agecomp"]][["obs"]][-rm_ind], new_dat[["agecomp"]][["obs"]])
 })
 # add tests for change_dat
 
@@ -56,7 +56,7 @@ test_that("run_EM works", {
   start <- r4ss::SS_readstarter(file.path(temp_path, "cod", "starter.ss"),
     verbose = FALSE
   )
-  expect_equivalent(start$init_values_src, 1)
+  expect_equivalent(start[["init_values_src"]], 1)
   expect_true(file.exists(file.path(temp_path, "cod", "control.ss_new")))
 })
 
@@ -76,23 +76,23 @@ test_that("add_new_dat works", {
   
   # Modify the EM_dat to use in the function, because want to mock the OM having
   # data that the EM does not.
-  EM_dat$endyr  <- OM_dat$endyr - 3
-  EM_dat$catch <- EM_dat$catch[1:98, ]
+  EM_dat[["endyr"]]  <- OM_dat[["endyr"]] - 3
+  EM_dat[["catch"]] <- EM_dat[["catch"]][1:98, ]
   # just get rid of last val for the following, because all data are within the 
   # range from start year to the new endyr:
-  EM_dat$CPUE <- EM_dat$CPUE[-nrow(EM_dat$CPUE), ]
-  EM_dat$lencomp <- EM_dat$lencomp[-nrow(EM_dat$lencomp), ]
-  EM_dat$agecomp <- EM_dat$agecomp[-nrow(EM_dat$agecomp), ]
+  EM_dat[["CPUE"]] <- EM_dat[["CPUE"]][-nrow(EM_dat[["CPUE"]]), ]
+  EM_dat[["lencomp"]] <- EM_dat[["lencomp"]][-nrow(EM_dat[["lencomp"]]), ]
+  EM_dat[["agecomp"]] <- EM_dat[["agecomp"]][-nrow(EM_dat[["agecomp"]]), ]
   #write the file because the function requires it
   r4ss::SS_writedat(EM_dat, file.path(temp_path, "cod_EM_dat.ss"),
                     overwrite = TRUE, verbose = FALSE
   )
   # define sampling (with r4ss names), beyond the last year of EM_dat currently
   # This is basically just what has been excluded from the EM:
-  ca <- EM_dat_orig$catch[99:101, 1:3] #
-  CP <- EM_dat_orig$CPUE[nrow(EM_dat_orig$CPUE), 1:3, drop = FALSE]
-  LC <- EM_dat_orig$lencomp[nrow(EM_dat_orig$lencomp), 1:6, drop = FALSE]
-  AC <- EM_dat_orig$agecomp[nrow(EM_dat_orig$agecomp), 1:9, drop = FALSE]
+  ca <- EM_dat_orig[["catch"]][99:101, 1:3] #
+  CP <- EM_dat_orig[["CPUE"]][nrow(EM_dat_orig[["CPUE"]]), 1:3, drop = FALSE]
+  LC <- EM_dat_orig[["lencomp"]][nrow(EM_dat_orig[["lencomp"]]), 1:6, drop = FALSE]
+  AC <- EM_dat_orig[["agecomp"]][nrow(EM_dat_orig[["agecomp"]]), 1:9, drop = FALSE]
   sample_struct <- list(
     catch = ca,
     CPUE = CP,
@@ -123,26 +123,26 @@ test_that("add_new_dat works when meansize at age obs", {
                                  "data.ss")))
   OM_dat <- r4ss::SS_readdat(file.path(extdat_path, "models", 
                                        "Simple_with_Discard", "data.ss"))
-  OM_dat$meanbodywt <- rbind(OM_dat$meanbodywt, OM_dat$meanbodywt)
-  OM_dat$meanbodywt$Year <- c(1995, 1995, 2000, 2000)
-  OM_dat$MeanSize_at_Age_obs <- rbind(OM_dat$MeanSize_at_Age_obs, OM_dat$MeanSize_at_Age_obs)
-  OM_dat$MeanSize_at_Age_obs$Yr <- c(1971, 1995, 1995, 1995, 1971, 1995, 
+  OM_dat[["meanbodywt"]] <- rbind(OM_dat[["meanbodywt"]], OM_dat[["meanbodywt"]])
+  OM_dat[["meanbodywt"]][["Year"]] <- c(1995, 1995, 2000, 2000)
+  OM_dat[["MeanSize_at_Age_obs"]] <- rbind(OM_dat[["MeanSize_at_Age_obs"]], OM_dat[["MeanSize_at_Age_obs"]])
+  OM_dat[["MeanSize_at_Age_obs"]][["Yr"]] <- c(1971, 1995, 1995, 1995, 1971, 1995, 
                                      1997, 1998, 1998, 1998, 1999, 2000)
   EM_dat <- OM_dat # for simplicity, mock OM/EM dat.
   EM_dat_orig <- EM_dat # keep the original data
-  EM_dat$endyr <- EM_dat$endyr - 5 # roll back 5 years
+  EM_dat[["endyr"]] <- EM_dat[["endyr"]] - 5 # roll back 5 years
   
   # get rid of data after the new end yr in EM_dat
-  EM_dat$catch <- EM_dat$catch[1:27, ]
-  EM_dat$CPUE <- EM_dat$CPUE[2:17, ]
-  EM_dat$meanbodywt <- EM_dat$meanbodywt[1:2, ]
-  EM_dat$MeanSize_at_Age_obs <- EM_dat$MeanSize_at_Age_obs[1:6, ]
+  EM_dat[["catch"]] <- EM_dat[["catch"]][1:27, ]
+  EM_dat[["CPUE"]] <- EM_dat[["CPUE"]][2:17, ]
+  EM_dat[["meanbodywt"]] <- EM_dat[["meanbodywt"]][1:2, ]
+  EM_dat[["MeanSize_at_Age_obs"]] <- EM_dat[["MeanSize_at_Age_obs"]][1:6, ]
   
   # specify the sampling structure
-  Ca <- EM_dat_orig$catch[28:32, 1:3]
-  CP <- EM_dat_orig$CPUE[c(1, 18:23), 1:3]
-  Mean <- EM_dat_orig$meanbodywt[3:4, 1:5]
-  SAA <- EM_dat_orig$MeanSize_at_Age_obs[7:12, 1:7]
+  Ca <- EM_dat_orig[["catch"]][28:32, 1:3]
+  CP <- EM_dat_orig[["CPUE"]][c(1, 18:23), 1:3]
+  Mean <- EM_dat_orig[["meanbodywt"]][3:4, 1:5]
+  SAA <- EM_dat_orig[["MeanSize_at_Age_obs"]][7:12, 1:7]
 
   sample_struct <- list(
     catch = Ca,
@@ -173,11 +173,11 @@ test_that("add_new_dat warns as expected", {
   OM_dat <- r4ss::SS_readdat(file.path(cod_mod, "ss3.dat"), verbose = FALSE)
   EM_dat <- OM_dat # for simplicity, mock OM/EM dat.
   # get rid of a few years of data
-  catch <- EM_dat$catch[(nrow(EM_dat$catch) - 2):nrow(EM_dat$catch), 1:3]
-  catch$year[3] <- 200
-  CP <- EM_dat$CPUE[nrow(EM_dat$CPUE), 1:3, drop = FALSE]
-  EM_dat$catch <- EM_dat$catch[-((nrow(EM_dat$catch) - 2):nrow(EM_dat$catch)), ]
-  EM_dat$CPUE <- EM_dat$CPUE[-nrow(EM_dat$CPUE), ]
+  catch <- EM_dat[["catch"]][(nrow(EM_dat[["catch"]]) - 2):nrow(EM_dat[["catch"]]), 1:3]
+  catch[["year"]][3] <- 200
+  CP <- EM_dat[["CPUE"]][nrow(EM_dat[["CPUE"]]), 1:3, drop = FALSE]
+  EM_dat[["catch"]] <- EM_dat[["catch"]][-((nrow(EM_dat[["catch"]]) - 2):nrow(EM_dat[["catch"]])), ]
+  EM_dat[["CPUE"]] <- EM_dat[["CPUE"]][-nrow(EM_dat[["CPUE"]]), ]
   # the data structure is the
   sample_struct <- list(
     catch = catch,
@@ -212,9 +212,9 @@ test_that("change_yrs_fcast works without allocation", {
     mod_styr = styr,
     mod_endyr = endyr
   )
-  expect_true(all(new_fore$Bmark_years <= 0))
-  expect_true(all(new_fore$Fcast_years <= 0))
-  expect_true(new_fore$Nforecastyrs == 15)
+  expect_true(all(new_fore[["Bmark_years"]] <= 0))
+  expect_true(all(new_fore[["Fcast_years"]] <= 0))
+  expect_true(new_fore[["Nforecastyrs"]] == 15)
   nyrs_inc <- 3
   new_fore <- change_yrs_fcast(fore,
     make_yrs_rel = FALSE,
@@ -222,11 +222,11 @@ test_that("change_yrs_fcast works without allocation", {
     mod_styr = 1,
     mod_endyr = 100
   )
-  expect_true(all(new_fore$Bmark_years == fore$Bmark_years))
-  expect_true(all(new_fore$Fcast_years == fore$Fcast_years))
-  expect_true(new_fore$FirstYear_for_caps_and_allocations > (endyr + nyrs_inc))
-  expect_true(new_fore$FirstYear_for_caps_and_allocations ==
-    (fore$FirstYear_for_caps_and_allocations + nyrs_inc))
+  expect_true(all(new_fore[["Bmark_years"]] == fore[["Bmark_years"]]))
+  expect_true(all(new_fore[["Fcast_years"]] == fore[["Fcast_years"]]))
+  expect_true(new_fore[["FirstYear_for_caps_and_allocations"]] > (endyr + nyrs_inc))
+  expect_true(new_fore[["FirstYear_for_caps_and_allocations"]] ==
+    (fore[["FirstYear_for_caps_and_allocations"]] + nyrs_inc))
 })
 test_that("change_yrs_fcast works/errors with allocation as expected", {
 
@@ -244,9 +244,9 @@ test_that("change_yrs_fcast works/errors with allocation as expected", {
     mod_styr = styr,
     mod_endyr = endyr
   )
-  expect_true(all(new_fore$Bmark_years <= 0))
-  expect_true(all(new_fore$Fcast_years <= 0))
-  expect_true(new_fore$Nforecastyrs == 15)
+  expect_true(all(new_fore[["Bmark_years"]] <= 0))
+  expect_true(all(new_fore[["Fcast_years"]] <= 0))
+  expect_true(new_fore[["Nforecastyrs"]] == 15)
   nyrs_inc <- 3
   endyr <- endyr + nyrs_inc
   new_fore <- change_yrs_fcast(fore,
@@ -255,12 +255,12 @@ test_that("change_yrs_fcast works/errors with allocation as expected", {
     mod_styr = styr,
     mod_endyr = endyr
   )
-  expect_true(all(new_fore$Bmark_years == fore$Bmark_years))
-  expect_true(all(new_fore$Fcast_years == fore$Fcast_years))
-  expect_true(new_fore$FirstYear_for_caps_and_allocations > endyr)
-  expect_true(new_fore$FirstYear_for_caps_and_allocations ==
-    (fore$FirstYear_for_caps_and_allocations + nyrs_inc))
-  expect_true(new_fore$allocation_among_groups$Year == endyr + 1)
+  expect_true(all(new_fore[["Bmark_years"]] == fore[["Bmark_years"]]))
+  expect_true(all(new_fore[["Fcast_years"]] == fore[["Fcast_years"]]))
+  expect_true(new_fore[["FirstYear_for_caps_and_allocations"]] > endyr)
+  expect_true(new_fore[["FirstYear_for_caps_and_allocations"]] ==
+    (fore[["FirstYear_for_caps_and_allocations"]] + nyrs_inc))
+  expect_true(new_fore[["allocation_among_groups"]][["Year"]] == endyr + 1)
   # change to have time varying allocation (which SSMSE cannot handle currently)
   fore[["allocation_among_groups"]] <- data.frame(
     Year = c(endyr - 3, endyr - 2),
