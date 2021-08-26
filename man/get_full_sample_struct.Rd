@@ -13,8 +13,12 @@ from the OM data file.}
 
 \item{OM_out_dir}{The directory containing the operating model files}
 }
+\value{
+A list of the full sample structure, using names as input by the user
+input by the user (not r4ss names).
+}
 \description{
 Get the ful sample structure from user input by looking at the OM data. If it
 cannot be unambigously determined, this function will return an error
-describing what additional user input is required
+describing what additional user input is required.
 }

@@ -5,14 +5,7 @@
 \title{Sample vals from normal random, lognormal random, or modified AR-1 
 process.}
 \usage{
-sample_vals(
-  mean,
-  sd,
-  ar_1_phi = 0,
-  seed,
-  ndevs,
-  dist = c("normal", "lognormal")
-)
+sample_vals(mean, sd, ar_1_phi = 0, ndevs, dist = c("normal", "lognormal"))
 }
 \arguments{
 \item{mean}{A single value or vector of mean parameters}
@@ -22,8 +15,6 @@ sample_vals(
 \item{ar_1_phi}{The phi (coefficient) value for an ar 1 process. Should be 
 between -1 and 1. 0 means an AR 1 process will NOT be used. 1 indicates a
 random walk. A single value or vector.}
-
-\item{seed}{The seed that will be set before sampling}
 
 \item{ndevs}{The number of sampled values to expect}
 

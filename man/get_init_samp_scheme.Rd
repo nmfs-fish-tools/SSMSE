@@ -4,7 +4,10 @@
 \alias{get_init_samp_scheme}
 \title{Get the sampling scheme in a data file.}
 \usage{
-get_init_samp_scheme(dat, dat_types = c("CPUE", "lencomp", "agecomp"))
+get_init_samp_scheme(
+  dat,
+  dat_types = c("CPUE", "lencomp", "agecomp", "meanbodywt", "MeanSize_at_Age_obs")
+)
 }
 \arguments{
 \item{dat}{An SS data file}

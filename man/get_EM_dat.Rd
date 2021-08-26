@@ -2,7 +2,7 @@
 % Please edit documentation in R/manipulate_EM.R
 \name{get_EM_dat}
 \alias{get_EM_dat}
-\title{Change the OM data to match the format of the EM data}
+\title{Change the OM data to match the format of the original EM data}
 \usage{
 get_EM_dat(OM_dat, EM_dat, do_checks = TRUE)
 }
@@ -21,7 +21,7 @@ A data list in the same format that can be read/written by r4ss that
  EM_dat.
 }
 \description{
-This does the technical part of changing the EM data
+This does the technical part of changing the EM data. Note this may be unnecessary
 }
 \author{
 Kathryn Doering
