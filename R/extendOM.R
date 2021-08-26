@@ -13,18 +13,18 @@
 #' @param harvest_rate A dataframe of harvest rate (F) values and associated information to
 #'  add to the OM. The column names are as in an SS datafile. If harvest rate is input without
 #'  a corresponding catch the OM will assume effort based management an use harvest rate directly
-#'  with implementation error added. 
+#'  with implementation error added.
 #' @param catch_basis data frame with columns year, seas, fleet, basis that specifies if catch
-#'  should reference retained biomass (1) or dead biomass (2). Any year/season/fleet not listed will assume 
+#'  should reference retained biomass (1) or dead biomass (2). Any year/season/fleet not listed will assume
 #'  a value of 1 referencing retained biomass. Entering -99 for any of year, season, or fleet will
 #'  apply the basis across all values of that variable (i.e. a single row with -99, -99, -99, 1 would implement
-#'  retained biomass for all cases)  
-#' @param F_limit data frame with columns year, fleet, season, limit that specifies a maximum F 
-#'  allowed in the OM or a negative value to specify a multiple of the historic maximum F. Any year/season/fleet 
+#'  retained biomass for all cases)
+#' @param F_limit data frame with columns year, fleet, season, limit that specifies a maximum F
+#'  allowed in the OM or a negative value to specify a multiple of the historic maximum F. Any year/season/fleet
 #'  not listed will assume a value of 1.5. Entering -99 for any of year, season, or fleet will
 #'  apply the limit across all values of that variable (i.e. a single row with -99, -99, -99, -2 would implement
-#'  a cap of twice the historic maximum F for all cases)  
-#' @param EM_pars a dataframe of parameter value updates to modify OM 
+#'  a cap of twice the historic maximum F for all cases)
+#' @param EM_pars a dataframe of parameter value updates to modify OM
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
 #' @param impl_error The implementation error
 #' @param seed A random initialization seed for SS to allow reproducibility
@@ -39,19 +39,19 @@ update_OM <- function(OM_dir,
                       F_limit = NULL,
                       EM_pars = NULL,
                       write_dat = TRUE,
-                      impl_error = NULL, 
+                      impl_error = NULL,
                       verbose = FALSE,
                       seed = NULL) {
   # input checks
 
-  if(is.null(catch) & is.null(harvest_rate)){
+  if (is.null(catch) & is.null(harvest_rate)) {
     stop("You have to input either a catch or a harvest rate")
   }
-  if(!is.null(catch)){
+  if (!is.null(catch)) {
     check_catch_df(catch)
   }
   check_dir(OM_dir)
-  
+
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
     verbose = FALSE
@@ -73,11 +73,11 @@ update_OM <- function(OM_dir,
     datsource = dat, ctlsource = ctl,
     verbose = FALSE
   )
-  
 
-  # SINGLE_RUN_MODS: No real need for this check as we are working in Fs that we can cap. Better just to give a 
+
+  # SINGLE_RUN_MODS: No real need for this check as we are working in Fs that we can cap. Better just to give a
   # warning that the fishery bounded at an F limit.
-  
+
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
   }
@@ -93,220 +93,222 @@ update_OM <- function(OM_dir,
   # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM  # SINGLE_RUN_MODS: delete
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
-  
-  catch_intended<-rbind(catch,harvest_rate)
-  catch_intended<-catch_intended[!duplicated(catch_intended[,1:3]),]
-  catch_intended<-cbind(catch_intended,catch_intended[,"catch"],catch_intended[,"catch"],rep(1,length(catch_intended[,"catch"])),rep(1,length(catch_intended[,"catch"])),rep(1,length(catch_intended[,"catch"])),rep(1.5,length(catch_intended[,"catch"])),rep(2,length(catch_intended[,"catch"])))
-  colnames(catch_intended)<-c("year", "seas", "fleet", "catch","F","F_ref","Catch_ref","basis","basis_2","scale","F_lim","last_adjust")
-  for(i in seq_along(catch_intended[,"catch"])){
-    
-    if(!is.null(F_limit)){
+
+  catch_intended <- rbind(catch, harvest_rate)
+  catch_intended <- catch_intended[!duplicated(catch_intended[, 1:3]), ]
+  catch_intended <- cbind(catch_intended, catch_intended[, "catch"], catch_intended[, "catch"], rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1.5, length(catch_intended[, "catch"])), rep(2, length(catch_intended[, "catch"])))
+  colnames(catch_intended) <- c("year", "seas", "fleet", "catch", "F", "F_ref", "Catch_ref", "basis", "basis_2", "scale", "F_lim", "last_adjust")
+  for (i in seq_along(catch_intended[, "catch"])) {
+    if (!is.null(F_limit)) {
       F_lim <- F_limit[(F_limit[, "year"] == catch_intended[i, "year"]) &
-                         (F_limit[, "seas"] == catch_intended[i, "seas"]) &
-                         (F_limit[, "fleet"] == catch_intended[i, "fleet"]), "limit"]
-      if(length(F_lim)!=1){
+        (F_limit[, "seas"] == catch_intended[i, "seas"]) &
+        (F_limit[, "fleet"] == catch_intended[i, "fleet"]), "limit"]
+      if (length(F_lim) != 1) {
         F_lim <- 1.5
       }
-    }else{
+    } else {
       F_lim <- 1.5
     }
-    catch_intended[i,"F_lim"] <- F_lim
-    
-    if(!is.null(catch_basis)){
+    catch_intended[i, "F_lim"] <- F_lim
+
+    if (!is.null(catch_basis)) {
       basis_2 <- catch_basis[(catch_basis[, "year"] == catch_intended[i, "year"]) &
-                         (catch_basis[, "seas"] == catch_intended[i, "seas"]) &
-                         (catch_basis[, "fleet"] == catch_intended[i, "fleet"]), "basis"]
-      if(length(basis_2)!=1){
+        (catch_basis[, "seas"] == catch_intended[i, "seas"]) &
+        (catch_basis[, "fleet"] == catch_intended[i, "fleet"]), "basis"]
+      if (length(basis_2) != 1) {
         basis_2 <- 1
       }
-    }else{
+    } else {
       basis_2 <- 1
     }
-    catch_intended[i,"basis_2"] <- basis_2
-    
-    last_F <- parlist[["F_rate"]][which(parlist[["F_rate"]][,c("year")]==(catch_intended[i,c("year")]-1) & 
-                                          parlist[["F_rate"]][,c("seas")]==catch_intended[i,c("seas")] &
-                                          parlist[["F_rate"]][,c("fleet")]==catch_intended[i,c("fleet")]),"F"]
-    
-    if(length(last_F)==0){
-      last_F<-0
+    catch_intended[i, "basis_2"] <- basis_2
+
+    last_F <- parlist[["F_rate"]][which(parlist[["F_rate"]][, c("year")] == (catch_intended[i, c("year")] - 1) &
+      parlist[["F_rate"]][, c("seas")] == catch_intended[i, c("seas")] &
+      parlist[["F_rate"]][, c("fleet")] == catch_intended[i, c("fleet")]), "F"]
+
+    if (length(last_F) == 0) {
+      last_F <- 0
     }
-    
-    last_catch <- dat[["catch"]][which(dat[["catch"]][,c("year")]==(catch_intended[i,c("year")]-1) & 
-                                         dat[["catch"]][,c("seas")]==catch_intended[i,c("seas")] &
-                                         dat[["catch"]][,c("fleet")]==catch_intended[i,c("fleet")]),"catch"]
-    
-    if(length(last_catch)==0){
-      last_catch<-0
+
+    last_catch <- dat[["catch"]][which(dat[["catch"]][, c("year")] == (catch_intended[i, c("year")] - 1) &
+      dat[["catch"]][, c("seas")] == catch_intended[i, c("seas")] &
+      dat[["catch"]][, c("fleet")] == catch_intended[i, c("fleet")]), "catch"]
+
+    if (length(last_catch) == 0) {
+      last_catch <- 0
     }
-    
-    if(length(which(parlist[["F_rate"]][,c("year")]==catch_intended[i,c("year")] & 
-                    parlist[["F_rate"]][,c("seas")]==catch_intended[i,c("seas")] &
-                    parlist[["F_rate"]][,c("fleet")]==catch_intended[i,c("fleet")]))==1){
-    catch_intended[i,"F_ref"] <- which(parlist[["F_rate"]][,c("year")]==catch_intended[i,c("year")] & 
-                                  parlist[["F_rate"]][,c("seas")]==catch_intended[i,c("seas")] &
-                                  parlist[["F_rate"]][,c("fleet")]==catch_intended[i,c("fleet")])
-    }else{catch_intended[i,"F_ref"]<-NA}
-    
-    catch_intended[i,"Catch_ref"] <- which(dat[["catch"]][,c("year")]==catch_intended[i,c("year")] & 
-                                      dat[["catch"]][,c("seas")]==catch_intended[i,c("seas")] &
-                                      dat[["catch"]][,c("fleet")]==catch_intended[i,c("fleet")])
-    
-    if(is.na(catch_intended[i,"F_ref"])){
-      catch_intended[i,"F"] <- 0
-    }else{
-      catch_intended[i,"F"] <- parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"]
+
+    if (length(which(parlist[["F_rate"]][, c("year")] == catch_intended[i, c("year")] &
+      parlist[["F_rate"]][, c("seas")] == catch_intended[i, c("seas")] &
+      parlist[["F_rate"]][, c("fleet")] == catch_intended[i, c("fleet")])) == 1) {
+      catch_intended[i, "F_ref"] <- which(parlist[["F_rate"]][, c("year")] == catch_intended[i, c("year")] &
+        parlist[["F_rate"]][, c("seas")] == catch_intended[i, c("seas")] &
+        parlist[["F_rate"]][, c("fleet")] == catch_intended[i, c("fleet")])
+    } else {
+      catch_intended[i, "F_ref"] <- NA
     }
-    
-    if(is.na(catch_intended[i,"Catch_ref"])){
-      catch_intended[i,"catch"] <- 0
-    }else{
-      catch_intended[i,"catch"] <- dat[["catch"]][catch_intended[i,"Catch_ref"],"catch"]
+
+    catch_intended[i, "Catch_ref"] <- which(dat[["catch"]][, c("year")] == catch_intended[i, c("year")] &
+      dat[["catch"]][, c("seas")] == catch_intended[i, c("seas")] &
+      dat[["catch"]][, c("fleet")] == catch_intended[i, c("fleet")])
+
+    if (is.na(catch_intended[i, "F_ref"])) {
+      catch_intended[i, "F"] <- 0
+    } else {
+      catch_intended[i, "F"] <- parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"]
     }
-    
-    if(!is.null(catch)){
-      temp_catch <- catch[catch[,"year"]==catch_intended[i,"year"] & 
-                          catch[,"seas"]==catch_intended[i,"seas"] & 
-                          catch[,"fleet"]==catch_intended[i,"fleet"], "catch"]
-      if(length(temp_catch)==1){
-        catch_intended[i,"catch"] <- temp_catch
-        catch_intended[i,"basis"] <- 1
-      }else{
-        catch_intended[i,"catch"] <- 0.001
-        catch_intended[i,"basis"] <- 2
+
+    if (is.na(catch_intended[i, "Catch_ref"])) {
+      catch_intended[i, "catch"] <- 0
+    } else {
+      catch_intended[i, "catch"] <- dat[["catch"]][catch_intended[i, "Catch_ref"], "catch"]
+    }
+
+    if (!is.null(catch)) {
+      temp_catch <- catch[catch[, "year"] == catch_intended[i, "year"] &
+        catch[, "seas"] == catch_intended[i, "seas"] &
+        catch[, "fleet"] == catch_intended[i, "fleet"], "catch"]
+      if (length(temp_catch) == 1) {
+        catch_intended[i, "catch"] <- temp_catch
+        catch_intended[i, "basis"] <- 1
+      } else {
+        catch_intended[i, "catch"] <- 0.001
+        catch_intended[i, "basis"] <- 2
       }
-    }else{
-      catch_intended[i,"catch"] <- 0.001
-      catch_intended[i,"basis"] <- 2
+    } else {
+      catch_intended[i, "catch"] <- 0.001
+      catch_intended[i, "basis"] <- 2
     }
-    
-    if(!is.null(harvest_rate)){
-      temp_harvest_rate <- harvest_rate[harvest_rate[,"year"]==catch_intended[i,"year"] & 
-                                        harvest_rate[,"seas"]==catch_intended[i,"seas"] & 
-                                        harvest_rate[,"fleet"]==catch_intended[i,"fleet"], "catch"]
-      if(length(temp_harvest_rate)==1){
-        catch_intended[i,"F"] <- temp_harvest_rate
-      }else{
-        if(last_catch<=0){
-          if(catch_intended[i,"catch"]==0){
-            catch_intended[i,"F"] <- 0
-          }else{
-            if(last_F==0){
-              catch_intended[i,"F"] <- 0.01
-            }else{
-              catch_intended[i,"F"] <- last_F
+
+    if (!is.null(harvest_rate)) {
+      temp_harvest_rate <- harvest_rate[harvest_rate[, "year"] == catch_intended[i, "year"] &
+        harvest_rate[, "seas"] == catch_intended[i, "seas"] &
+        harvest_rate[, "fleet"] == catch_intended[i, "fleet"], "catch"]
+      if (length(temp_harvest_rate) == 1) {
+        catch_intended[i, "F"] <- temp_harvest_rate
+      } else {
+        if (last_catch <= 0) {
+          if (catch_intended[i, "catch"] == 0) {
+            catch_intended[i, "F"] <- 0
+          } else {
+            if (last_F == 0) {
+              catch_intended[i, "F"] <- 0.01
+            } else {
+              catch_intended[i, "F"] <- last_F
             }
           }
-        }else{
-          
-          catch_intended[i,"F"] <- (-log(1-((catch_intended[i,"catch"]/max(last_catch,0.01))*(1-exp(-max(last_F,0.01))))))
+        } else {
+          catch_intended[i, "F"] <- (-log(1 - ((catch_intended[i, "catch"] / max(last_catch, 0.01)) * (1 - exp(-max(last_F, 0.01))))))
         }
       }
-      
-      if(catch_intended[i,"basis"] == 2){
-        catch_intended[i,"catch"] <- max(last_catch,0.01)*(1-exp(-catch_intended[i,"F"]))/(1-exp(-max(last_F,0.01)))
+
+      if (catch_intended[i, "basis"] == 2) {
+        catch_intended[i, "catch"] <- max(last_catch, 0.01) * (1 - exp(-catch_intended[i, "F"])) / (1 - exp(-max(last_F, 0.01)))
       }
-    }else{
-      if(last_catch<=0){
-        if(catch_intended[i,"catch"]==0){
-          catch_intended[i,"F"] <- 0
-        }else{
-          if(last_F==0){
-            catch_intended[i,"F"] <- 0.01
-          }else{
-            catch_intended[i,"F"] <- last_F
+    } else {
+      if (last_catch <= 0) {
+        if (catch_intended[i, "catch"] == 0) {
+          catch_intended[i, "F"] <- 0
+        } else {
+          if (last_F == 0) {
+            catch_intended[i, "F"] <- 0.01
+          } else {
+            catch_intended[i, "F"] <- last_F
           }
         }
-      }else{
-        catch_intended[i,"F"] <- (-log(1-((catch_intended[i,"catch"]/max(last_catch,0.01))*(1-exp(-max(last_F,0.01))))))
+      } else {
+        catch_intended[i, "F"] <- (-log(1 - ((catch_intended[i, "catch"] / max(last_catch, 0.01)) * (1 - exp(-max(last_F, 0.01))))))
       }
     }
-    
-    
-    if(!is.null(impl_error)){
-      # temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"] & 
-      #                               impl_error[,"seas"]==temp_catch[i,"seas"] & 
+
+
+    if (!is.null(impl_error)) {
+      # temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"] &
+      #                               impl_error[,"seas"]==temp_catch[i,"seas"] &
       #                               impl_error[,"fleet"]==temp_catch[i,"fleet"] ,"error"]
-      temp_impl_error <- impl_error[impl_error[,"year"]==catch_intended[i,"year"],"error"]
-      if(length(temp_impl_error)==1){
-        if(temp_impl_error>=0){
-         catch_intended[i,c("catch","F")] <- catch_intended[i,c("catch","F")] * temp_impl_error
+      temp_impl_error <- impl_error[impl_error[, "year"] == catch_intended[i, "year"], "error"]
+      if (length(temp_impl_error) == 1) {
+        if (temp_impl_error >= 0) {
+          catch_intended[i, c("catch", "F")] <- catch_intended[i, c("catch", "F")] * temp_impl_error
         }
       }
     }
-    if(!is.na(catch_intended[i,"Catch_ref"])){
-      dat[["catch"]][catch_intended[i,"Catch_ref"],"catch"] <- catch_intended[i,"catch"]
-      if(catch_intended[i,"catch"]==0){
-        dat[["catch"]] <- dat[["catch"]][-catch_intended[i,"Catch_ref"],]
-        catch_intended[i,"Catch_ref"] <- NA
+    if (!is.na(catch_intended[i, "Catch_ref"])) {
+      dat[["catch"]][catch_intended[i, "Catch_ref"], "catch"] <- catch_intended[i, "catch"]
+      if (catch_intended[i, "catch"] == 0) {
+        dat[["catch"]] <- dat[["catch"]][-catch_intended[i, "Catch_ref"], ]
+        catch_intended[i, "Catch_ref"] <- NA
       }
     }
-    if(!is.na(catch_intended[i,"F_ref"])){
-      parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"] <- catch_intended[i,"F"]
-      if(catch_intended[i,"F"]==0){
-        parlist[["F_rate"]] <- parlist[["F_rate"]][-catch_intended[i,"F_ref"],]
-        catch_intended[i,"F_ref"] <- NA
+    if (!is.na(catch_intended[i, "F_ref"])) {
+      parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] <- catch_intended[i, "F"]
+      if (catch_intended[i, "F"] == 0) {
+        parlist[["F_rate"]] <- parlist[["F_rate"]][-catch_intended[i, "F_ref"], ]
+        catch_intended[i, "F_ref"] <- NA
       }
     }
-    
-    if(catch_intended[i,"catch"]==0 | catch_intended[i,"F"]==0){
-      catch_intended[catch_intended[,"year"] > catch_intended[i,"year"],"Catch_ref"] <- pmax(0,catch_intended[catch_intended[,"year"] > catch_intended[i,"year"],"Catch_ref"] - 1)
-      catch_intended[catch_intended[,"year"] > catch_intended[i,"year"],"F_ref"] <- pmax(0,catch_intended[catch_intended[,"year"] > catch_intended[i,"year"],"F_ref"] - 1)
+
+    if (catch_intended[i, "catch"] == 0 | catch_intended[i, "F"] == 0) {
+      catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "Catch_ref"] <- pmax(0, catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "Catch_ref"] - 1)
+      catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "F_ref"] <- pmax(0, catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "F_ref"] - 1)
     }
   }
-  
-  catch_intended <- catch_intended[catch_intended[,"catch"]>0,,drop=FALSE]
-  catch_intended <- catch_intended[catch_intended[,"F"]>0,,drop=FALSE]
-  
-  #dat[["catch"]] <-  dat[["catch"]][dat[["catch"]][,"catch"]>0,]
-  #parlist[["F_rate"]] <- parlist[["F_rate"]][parlist[["F_rate"]][,"F"]>0,]
-  
-  if(!is.null(EM_pars)){
-    for(i in grep("rec_devs",names(EM_pars))){
-      matches<-lapply(EM_pars[["year"]],FUN=function(x,y){which(y==x)},y=parlist[["recdev_forecast"]][,"year"])
-      locations<-rep(EM_pars[["year"]],unlist(lapply(matches,length)))
-      parlist[["recdev_forecast"]][unlist(matches),c("year","recdev")] <- EM_pars[locations,c(1,i)]
+
+  catch_intended <- catch_intended[catch_intended[, "catch"] > 0, , drop = FALSE]
+  catch_intended <- catch_intended[catch_intended[, "F"] > 0, , drop = FALSE]
+
+  # dat[["catch"]] <-  dat[["catch"]][dat[["catch"]][,"catch"]>0,]
+  # parlist[["F_rate"]] <- parlist[["F_rate"]][parlist[["F_rate"]][,"F"]>0,]
+
+  if (!is.null(EM_pars)) {
+    for (i in grep("rec_devs", names(EM_pars))) {
+      matches <- lapply(EM_pars[["year"]], FUN = function(x, y) {
+        which(y == x)
+      }, y = parlist[["recdev_forecast"]][, "year"])
+      locations <- rep(EM_pars[["year"]], unlist(lapply(matches, length)))
+      parlist[["recdev_forecast"]][unlist(matches), c("year", "recdev")] <- EM_pars[locations, c(1, i)]
     }
-    
-    for(i in grep("Env_",names(EM_pars))){
-      dat[["envdat"]][is.element(dat[["envdat"]]["Yr"],EM_pars[["year"]]) & is.element(dat[["envdat"]]["Variable"],as.numeric(strsplit(names(EM_pars)[i],"Env_")[[1]][2])), c("yr","Value")] <- EM_pars[,c(1,i)]
+
+    for (i in grep("Env_", names(EM_pars))) {
+      dat[["envdat"]][is.element(dat[["envdat"]]["Yr"], EM_pars[["year"]]) & is.element(dat[["envdat"]]["Variable"], as.numeric(strsplit(names(EM_pars)[i], "Env_")[[1]][2])), c("yr", "Value")] <- EM_pars[, c(1, i)]
     }
-    
-    dev_names <- paste0(names(EM_pars),"_dev_seq")
-    for(i in which(is.element(names(parlist[["parm_devs"]]),dev_names))){
-      parlist[["parm_devs"]][[i]][is.element(parlist[["parm_devs"]][[i]][,"year"],EM_pars[,"year"]),] <- EM_pars[,c(1,i)]
+
+    dev_names <- paste0(names(EM_pars), "_dev_seq")
+    for (i in which(is.element(names(parlist[["parm_devs"]]), dev_names))) {
+      parlist[["parm_devs"]][[i]][is.element(parlist[["parm_devs"]][[i]][, "year"], EM_pars[, "year"]), ] <- EM_pars[, c(1, i)]
     }
   }
-  
+
   # write new files
-  r4ss::SS_writepar_3.30( 
+  r4ss::SS_writepar_3.30(
     parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
-    overwrite = TRUE, verbose = FALSE 
-  ) 
-  
-  r4ss::SS_writedat(dat,
-                    outfile = file.path(OM_dir, start[["datfile"]]),
-                    overwrite = TRUE,
-                    verbose = FALSE
+    overwrite = TRUE, verbose = FALSE
   )
-  
-  if(length(catch_intended[,1])>0){
+
+  r4ss::SS_writedat(dat,
+    outfile = file.path(OM_dir, start[["datfile"]]),
+    overwrite = TRUE,
+    verbose = FALSE
+  )
+
+  if (length(catch_intended[, 1]) > 0) {
     achieved_Catch <- FALSE
-  }else{
+  } else {
     achieved_Catch <- TRUE
   }
   search_loops <- 0
   while (achieved_Catch == FALSE) {
-    if(max(abs(catch_intended[,"last_adjust"]-1))>0.001 & search_loops < 20){
+    if (max(abs(catch_intended[, "last_adjust"] - 1)) > 0.001 & search_loops < 20) {
       achieved_Catch <- FALSE
-      
-      r4ss::SS_writepar_3.30( 
+
+      r4ss::SS_writepar_3.30(
         parlist = parlist, outfile = file.path(OM_dir, "ss.par"),
-        overwrite = TRUE, verbose = FALSE 
+        overwrite = TRUE, verbose = FALSE
       )
-    
+
       search_loops <- search_loops + 1
-      
+
       # Run SS with the new catch set as forecast targets. This will use SS to
       # calculate the F required in the OM to achieve these catches.
       run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess",
@@ -318,112 +320,111 @@ update_OM <- function(OM_dir,
         verbose = FALSE, printstats = FALSE,
         covar = FALSE, warn = FALSE, readwt = FALSE
       )
-      
-      # Extract the achieved F and Catch 
-      F_list <- get_F( 
+
+      # Extract the achieved F and Catch
+      F_list <- get_F(
         timeseries = outlist[["timeseries"]],
         fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
       )
-  
+
       units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"]
-  
+
       names(units_of_catch) <- as.character(which(dat[["fleetinfo"]][["type"]] %in% c(1, 2)))
-  
+
       ret_catch <- get_retained_catch(
         timeseries = outlist[["timeseries"]],
         units_of_catch = units_of_catch
       )
-      
+
       dead_catch <- get_dead_catch(
         timeseries = outlist[["timeseries"]],
         units_of_catch = units_of_catch
       )
-      
-      F_achieved <- F_list[["F_df"]][, c("Yr", "Seas", "Fleet", "F")]  
+
+      F_achieved <- F_list[["F_df"]][, c("Yr", "Seas", "Fleet", "F")]
       colnames(F_achieved) <- c("year", "seas", "fleet", "F")
-      
-      for (i in 1:length(catch_intended[,1])) {
+
+      for (i in 1:length(catch_intended[, 1])) {
         scale_ratio <- catch_intended[i, "basis"]
-  
-        if(catch_intended[i, "basis"]==1){
+
+        if (catch_intended[i, "basis"] == 1) {
           intended_landings <- catch_intended[i, "catch"]
-          
-          if(catch_intended[i, "basis_2"]==1){
+
+          if (catch_intended[i, "basis_2"] == 1) {
             achieved_landings <- ret_catch[ret_catch[, "Yr"] == catch_intended[i, "year"] &
-                                        ret_catch[, "Seas"] == catch_intended[i, "seas"] &
-                                        ret_catch[, "Fleet"] == catch_intended[i, "fleet"], "retained_catch"]
-          }else if(catch_intended[i, "basis_2"]==2){
+              ret_catch[, "Seas"] == catch_intended[i, "seas"] &
+              ret_catch[, "Fleet"] == catch_intended[i, "fleet"], "retained_catch"]
+          } else if (catch_intended[i, "basis_2"] == 2) {
             achieved_landings <- dead_catch[dead_catch[, "Yr"] == catch_intended[i, "year"] &
-                                          dead_catch[, "Seas"] == catch_intended[i, "seas"] &
-                                          dead_catch[, "Fleet"] == catch_intended[i, "fleet"], "retained_catch"]
-          }else{
+              dead_catch[, "Seas"] == catch_intended[i, "seas"] &
+              dead_catch[, "Fleet"] == catch_intended[i, "fleet"], "retained_catch"]
+          } else {
             stop("intended basis 2 should be equal to 1 or 2 but it is not")
           }
-          
+
           achieved_F <- F_achieved[F_achieved[, "year"] == catch_intended[i, "year"] &
-                                     F_achieved[, "seas"] == catch_intended[i, "seas"] &
-                                     F_achieved[, "fleet"] == catch_intended[i, "fleet"], "F"]
-          
-          if(intended_landings==0){
+            F_achieved[, "seas"] == catch_intended[i, "seas"] &
+            F_achieved[, "fleet"] == catch_intended[i, "fleet"], "F"]
+
+          if (intended_landings == 0) {
             target_F <- 0
-          }else if(achieved_landings==0){
-            if(achieved_F > 0){
+          } else if (achieved_landings == 0) {
+            if (achieved_F > 0) {
               catch_intended[i, "basis_2"] <- 2
-            }else{
+            } else {
               target_F <- catch_intended[i, "F"] + 0.01
               catch_intended[i, "F"] <- target_F
             }
-          }else{
-            target_F <- (-log(1-((intended_landings/achieved_landings)*(1-exp(-achieved_F)))))
+          } else {
+            target_F <- (-log(1 - ((intended_landings / achieved_landings) * (1 - exp(-achieved_F)))))
           }
-        }else if(catch_intended[i, "basis"]==2){
+        } else if (catch_intended[i, "basis"] == 2) {
           target_F <- catch_intended[i, "F"]
-          
+
           achieved_F <- F_achieved[F_achieved[, "year"] == catch_intended[i, "year"] &
-                                     F_achieved[, "seas"] == catch_intended[i, "seas"] &
-                                     F_achieved[, "fleet"] == catch_intended[i, "fleet"], "F"]
-          
-        }else{
+            F_achieved[, "seas"] == catch_intended[i, "seas"] &
+            F_achieved[, "fleet"] == catch_intended[i, "fleet"], "F"]
+        } else {
           stop("Something is wrong basis should be 1 or 2")
         }
-        
-        if(target_F == 0){
-          catch_intended[i,"last_adjust"] <- 1
+
+        if (target_F == 0) {
+          catch_intended[i, "last_adjust"] <- 1
           catch_intended[i, "scale"] <- 0
-        }else if(achieved_F==0){
-          catch_intended[i,"last_adjust"] <- 1
+        } else if (achieved_F == 0) {
+          catch_intended[i, "last_adjust"] <- 1
           catch_intended[i, "scale"] <- 1
-        }else{
-          catch_intended[i,"last_adjust"] <- target_F/achieved_F
-          catch_intended[i, "scale"] <- catch_intended[i, "scale"]*((target_F/achieved_F)-1)*(1-exp(stats::runif(1,-5,0)))
+        } else {
+          catch_intended[i, "last_adjust"] <- target_F / achieved_F
+          catch_intended[i, "scale"] <- catch_intended[i, "scale"] * ((target_F / achieved_F) - 1) * (1 - exp(stats::runif(1, -5, 0)))
         }
-        
-        if(!is.na(catch_intended[i,"F_ref"])){
-          parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"] <- max(0,min(catch_intended[i,"F"]*catch_intended[i, "scale"],catch_intended[i,"F_lim"]))
-          if(parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"]==0 | parlist[["F_rate"]][catch_intended[i,"F_ref"],"F"]==catch_intended[i,"F_lim"]){
-            catch_intended[i,"last_adjust"] <- 1
+
+        if (!is.na(catch_intended[i, "F_ref"])) {
+          parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] <- max(0, min(catch_intended[i, "F"] * catch_intended[i, "scale"], catch_intended[i, "F_lim"]))
+          if (parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] == 0 | parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] == catch_intended[i, "F_lim"]) {
+            catch_intended[i, "last_adjust"] <- 1
           }
         }
       }
-    }else {
+    } else {
       achieved_Catch <- TRUE
-        
+
       parlist <- r4ss::SS_readpar_3.30(
         parfile = file.path(OM_dir, "ss.par"),
         datsource = dat, ctlsource = ctl,
         verbose = FALSE
       )
-      
+
       if (search_loops == 20) {
         utils::write.csv("The catch search loop ran for 20 iterations without achieving targets",
-                           file = file.path(OM_dir, "search_took_too_long.csv")
+          file = file.path(OM_dir, "search_took_too_long.csv")
         )
       }
     }
   }
-  
+
   # TODO: need to add code to overwrite OM parameter devs if updates are input from a custom EM
-  
+
   invisible(dat)
 }
 

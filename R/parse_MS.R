@@ -54,7 +54,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       )
     }
   }
-  
+
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
@@ -208,8 +208,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         verbose = FALSE
       )
       new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = Reference_dat)
-      
-      # NOte: this is where we need to change which years are being subset for the 
+
+      # NOte: this is where we need to change which years are being subset for the
       # new catch list.
       if (!is.null(new_catch_list[["catch"]])) {
         new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]], dat_yrs), ]
@@ -495,7 +495,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       )
       # make sure the data file has the correct formatting (use existing data
       # file in the EM directory to make sure)??
-      #TODO: is this necessary, given we have sample structures?
+      # TODO: is this necessary, given we have sample structures?
       new_EM_dat <- change_dat(
         OM_datfile = new_datfile_name,
         EM_datfile = orig_datfile_name,
@@ -833,18 +833,18 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
       # tmp_catch <-
       #   catch_by_fleet[catch_by_fleet[["fleet"]] == flt_combo[["fleet"]][flt] &
       #     catch_by_fleet[["seas"]] == flt_combo[["seas"]][flt], "catch"]
-      # 
-      if(MS == "no_catch"){
+      #
+      if (MS == "no_catch") {
         tmp_catch <- 0
-      }else{
-      l_yr <- min(yrs) # get the last year before sample value target years
-      l_yr <- max(dat[["catch"]][dat[["catch"]][,"year"]<l_yr & 
-                                 dat[["catch"]][,"fleet"]==flt_combo[["fleet"]][flt] &
-                                 dat[["catch"]][,"seas"]==flt_combo[["seas"]][flt],"year"])
-      
-      tmp_catch <- catch[catch[["year"]] == l_yr &
-                              catch[["fleet"]] == flt_combo[["fleet"]][flt] & 
-                              catch[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+      } else {
+        l_yr <- min(yrs) # get the last year before sample value target years
+        l_yr <- max(dat[["catch"]][dat[["catch"]][, "year"] < l_yr &
+          dat[["catch"]][, "fleet"] == flt_combo[["fleet"]][flt] &
+          dat[["catch"]][, "seas"] == flt_combo[["seas"]][flt], "year"])
+
+        tmp_catch <- catch[catch[["year"]] == l_yr &
+          catch[["fleet"]] == flt_combo[["fleet"]][flt] &
+          catch[["seas"]] == flt_combo[["seas"]][flt], "catch"]
       }
       # Add SE and catch to df
       tmp_df_list[[pos]] <- data.frame(

@@ -52,7 +52,7 @@ extend_vals <- list(
 )
 
 
-#TODO: implement future_om_list use in these tests
+# TODO: implement future_om_list use in these tests
 #      also need to modify to update OM and have a basic OM file that
 #      already has years extended to full MSE timeseries length
 # In the meantime, comment out
@@ -112,7 +112,7 @@ test_that("extend_OM exits on error when it should", {
   #   ),
   #   "The maximum year input for catch"
   # )
-  
+
   # Missing a column in the catch dataframe
   unlink(file.path(temp_path, "cod_initOM2"), recursive = TRUE)
   file.copy(cod_mod, temp_path, recursive = TRUE)
@@ -202,41 +202,53 @@ test_that("check_future_catch works", {
 
 test_that(" add_sample_struct works for adding data during model years and for future years", {
   init_dat <- r4ss::SS_readdat(file.path(temp_path, "cod_initOM1", "data.ss"),
-                               verbose = FALSE)
+    verbose = FALSE
+  )
   # no change
   init_endyr <- init_dat[["endyr"]]
   init_dat[["endyr"]] <- init_dat[["endyr"]] + 4 # assume extend forward by 4 yrs.
   no_change_dat <- add_sample_struct(sample_struct = NULL, dat = init_dat)
   expect_equal(init_dat, no_change_dat)
   # for future years
-  future_dat <- add_sample_struct(sample_struct = extend_vals, 
-                                     dat = init_dat)
-  expect_true(length(future_dat[["CPUE"]][future_dat[["CPUE"]][["year"]] > 
-                                            init_endyr, "year"]) == 2)
-  expect_true(length(future_dat[["lencomp"]][future_dat[["lencomp"]][["Yr"]] > 
-                                               init_endyr, "Yr"]) == 3)
-  expect_true(length(future_dat[["agecomp"]][future_dat[["agecomp"]][["Yr"]] > 
-                                               init_endyr, "Yr"]) == 4)
+  future_dat <- add_sample_struct(
+    sample_struct = extend_vals,
+    dat = init_dat
+  )
+  expect_true(length(future_dat[["CPUE"]][future_dat[["CPUE"]][["year"]] >
+    init_endyr, "year"]) == 2)
+  expect_true(length(future_dat[["lencomp"]][future_dat[["lencomp"]][["Yr"]] >
+    init_endyr, "Yr"]) == 3)
+  expect_true(length(future_dat[["agecomp"]][future_dat[["agecomp"]][["Yr"]] >
+    init_endyr, "Yr"]) == 4)
   no_neg_dat <- init_dat
   no_neg_dat[["CPUE"]] <- no_neg_dat[["CPUE"]][no_neg_dat[["CPUE"]][["index"]] > 0, ]
-  no_neg_dat[["lencomp"]] <- no_neg_dat[["lencomp"]][no_neg_dat[["lencomp"]][["FltSvy"]] > 0,]
-  no_neg_dat[["agecomp"]] <- no_neg_dat[["agecomp"]][no_neg_dat[["agecomp"]][["FltSvy"]] > 0,]
+  no_neg_dat[["lencomp"]] <- no_neg_dat[["lencomp"]][no_neg_dat[["lencomp"]][["FltSvy"]] > 0, ]
+  no_neg_dat[["agecomp"]] <- no_neg_dat[["agecomp"]][no_neg_dat[["agecomp"]][["FltSvy"]] > 0, ]
   hist_samples <- extend_vals
   hist_samples[["CPUE"]][["year"]] <- 31:33
   hist_samples[["lencomp"]][["Yr"]] <- 27:29
   hist_samples[["agecomp"]][["Yr"]] <- 31:34
   # for historical years
-  hist_dat <- add_sample_struct(sample_struct = hist_samples, 
-                                  dat = no_neg_dat)
+  hist_dat <- add_sample_struct(
+    sample_struct = hist_samples,
+    dat = no_neg_dat
+  )
   expect_true(
-    length(hist_dat[["CPUE"]][hist_dat[["CPUE"]][["index"]] < 0, "index"]) == 
-      length(31:33))
+    length(hist_dat[["CPUE"]][hist_dat[["CPUE"]][["index"]] < 0, "index"]) ==
+      length(31:33)
+  )
   expect_true(
-    length(hist_dat[["lencomp"]][hist_dat[["lencomp"]][["FltSvy"]] < 0, 
-                                 "FltSvy"]) == 
-      length(27:29))
+    length(hist_dat[["lencomp"]][
+      hist_dat[["lencomp"]][["FltSvy"]] < 0,
+      "FltSvy"
+    ]) ==
+      length(27:29)
+  )
   expect_true(
-    length(hist_dat[["agecomp"]][hist_dat[["agecomp"]][["FltSvy"]] < 0,
-                                 "FltSvy"]) == 
-      length(31:34))
+    length(hist_dat[["agecomp"]][
+      hist_dat[["agecomp"]][["FltSvy"]] < 0,
+      "FltSvy"
+    ]) ==
+      length(31:34)
+  )
 })

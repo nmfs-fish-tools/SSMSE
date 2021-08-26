@@ -184,7 +184,7 @@ test_that("run_SSMSE runs with mean size at age and mean body length", {
   size_age_temp_path <- file.path(temp_path, "Simple_with_Discard")
   dir.create(size_age_temp_path)
   sample_struct <- create_sample_struct(
-    dat = file.path(extdat_path, "models", "Simple_with_Discard", "data.ss"), 
+    dat = file.path(extdat_path, "models", "Simple_with_Discard", "data.ss"),
     nyrs = 6
   )
   sample_struct[["CPUE"]] <- na.omit(sample_struct[["CPUE"]])
@@ -194,7 +194,7 @@ test_that("run_SSMSE runs with mean size at age and mean body length", {
   sample_struct[["meanbodywt"]][["Part"]] <- 1
   sample_struct[["MeanSize_at_Age_obs"]][["Yr"]] <- c(2002, 2004)
   sample_struct[["MeanSize_at_Age_obs"]][["Part"]] <- 0
-  
+
   result <- run_SSMSE(
     scen_name_vec = "test_1",
     out_dir_scen_vec = size_age_temp_path,
@@ -204,24 +204,30 @@ test_that("run_SSMSE runs with mean size at age and mean body length", {
     MS_vec = "EM",
     nyrs_assess_vec = 3,
     nyrs_vec = 6,
-    sample_struct_list = list(sample_struct))
+    sample_struct_list = list(sample_struct)
+  )
   expect_true(result[[1]][["errored_iterations"]] == "No errored iterations")
   # read in the data file produced from the last EM to make sure sampling occured
-  out_dat <- r4ss::SS_readdat(file.path(temp_path, "Simple_with_Discard", "test_1", "1",
-                                        "Simple_with_Discard_EM_2004", "data.ss_new"), 
-                              section = 1)
+  out_dat <- r4ss::SS_readdat(file.path(
+    temp_path, "Simple_with_Discard", "test_1", "1",
+    "Simple_with_Discard_EM_2004", "data.ss_new"
+  ),
+  section = 1
+  )
   # convert to r4ss names so colnames match
   sample_struct_converted <- convert_to_r4ss_names(sample_struct)
   # check that all mean size rows were added
-  matches_meanbodywt <- merge(sample_struct_converted[["meanbodywt"]], 
-                              out_dat[["meanbodywt"]], 
-                              by = colnames(sample_struct_converted[["meanbodywt"]]), 
-                              all = FALSE) 
+  matches_meanbodywt <- merge(sample_struct_converted[["meanbodywt"]],
+    out_dat[["meanbodywt"]],
+    by = colnames(sample_struct_converted[["meanbodywt"]]),
+    all = FALSE
+  )
   expect_true(NROW(matches_meanbodywt) == NROW(sample_struct[["meanbodywt"]]))
   # check that all mean size at age rows were added
-  matches_at_age <- merge(sample_struct_converted[["MeanSize_at_Age_obs"]], 
-                          out_dat[["MeanSize_at_Age_obs"]], 
-                          by = colnames(sample_struct_converted[["MeanSize_at_Age_obs"]])[-7], 
-                          all = FALSE) 
+  matches_at_age <- merge(sample_struct_converted[["MeanSize_at_Age_obs"]],
+    out_dat[["MeanSize_at_Age_obs"]],
+    by = colnames(sample_struct_converted[["MeanSize_at_Age_obs"]])[-7],
+    all = FALSE
+  )
   expect_true(NROW(matches_at_age) == NROW(sample_struct[["MeanSize_at_Age_obs"]]))
 })

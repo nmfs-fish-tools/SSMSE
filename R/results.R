@@ -129,7 +129,7 @@ SSMSE_summary_iter <- function(dir) {
 
 #' Plot index data, expected values, and sampled data for 1 scenario
 #'
-#' Creates a plot that can be used to see how sampling lines up with 
+#' Creates a plot that can be used to see how sampling lines up with
 #' data and expected values for the index of abundance
 #' @param dir Path to the directory containing 1 scenario. Defaults to
 #'  the current working directory.
@@ -218,7 +218,7 @@ plot_index_sampling <- function(dir = getwd()) {
 
 #' Plot comp data, expected values, and sampled data for 1 scenario
 #'
-#' Creates a plot that can be used to see how sampling lines up with 
+#' Creates a plot that can be used to see how sampling lines up with
 #' data and expected values for the index of abundance
 #' @param dir Path to the directory containing 1 scenario. Defaults to
 #'  the current working directory.
@@ -230,29 +230,33 @@ plot_index_sampling <- function(dir = getwd()) {
 #' @return A list containing 2 components: 1) the ggplot object and 2) the
 #'  dataframe used to make the ggplot object
 plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp")) {
-  
   comp_type <- match.arg(as.character(comp_type), choices = c("agecomp", "lencomp"))
   # get the iterations
   iters <- list.dirs(dir, recursive = FALSE, full.names = FALSE)
   scenario <- basename(dir)
   # get the OM data values
   om_name <- grep("OM", list.dirs(file.path(dir, iters[1]),
-                                  recursive = FALSE,
-                                  full.names = FALSE
+    recursive = FALSE,
+    full.names = FALSE
   ), value = TRUE)
   assertive.types::assert_is_a_string(om_name)
   # non-NULL compfile input provided and file exists
-  out_OM <- r4ss::SS_output(file.path(dir, as.character(iters[1]),
-                                      om_name),
-                            verbose = FALSE, 
-                            printstats = FALSE, 
-                            hidewarn = TRUE)
-  
-  if(comp_type == "agecomp") comp_dbase <- out_OM[["agedbase"]]
-  if(comp_type == "lencomp") comp_dbase <- out_OM[["lendbase"]]
-  if(isTRUE(nrow(comp_dbase) == 0)) {
-    stop("The comp database from the operating model has no rows, so must not ", 
-    "have been any historical data in the OM.")
+  out_OM <- r4ss::SS_output(file.path(
+    dir, as.character(iters[1]),
+    om_name
+  ),
+  verbose = FALSE,
+  printstats = FALSE,
+  hidewarn = TRUE
+  )
+
+  if (comp_type == "agecomp") comp_dbase <- out_OM[["agedbase"]]
+  if (comp_type == "lencomp") comp_dbase <- out_OM[["lendbase"]]
+  if (isTRUE(nrow(comp_dbase) == 0)) {
+    stop(
+      "The comp database from the operating model has no rows, so must not ",
+      "have been any historical data in the OM."
+    )
   }
   comp_dbase <- utils::type.convert(comp_dbase)
   comp_dbase[["iteration"]] <- 1
@@ -262,34 +266,39 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
   # get the EM init values
   # em name is the same across iterations
   em_name <- grep("EM_init$", list.dirs(file.path(dir, iters[1]),
-                                        recursive = FALSE,
-                                        full.names = FALSE
+    recursive = FALSE,
+    full.names = FALSE
   ), value = TRUE)
   assertive.types::assert_is_a_string(em_name)
   for (i in iters) {
-    tmp_out_EM <- r4ss::SS_output(file.path( dir, as.character(i),
-                                             em_name),
-                                  verbose = FALSE, 
-                                  printstats = FALSE, 
-                                  hidewarn = TRUE)
-    if(comp_type == "agecomp") tmp_comp_dbase <- tmp_out_EM[["agedbase"]]
-    if(comp_type == "lencomp") tmp_comp_dbase <- tmp_out_EM[["lendbase"]]
-    
+    tmp_out_EM <- r4ss::SS_output(file.path(
+      dir, as.character(i),
+      em_name
+    ),
+    verbose = FALSE,
+    printstats = FALSE,
+    hidewarn = TRUE
+    )
+    if (comp_type == "agecomp") tmp_comp_dbase <- tmp_out_EM[["agedbase"]]
+    if (comp_type == "lencomp") tmp_comp_dbase <- tmp_out_EM[["lendbase"]]
+
     tmp_comp_dbase[["iteration"]] <- i
     tmp_comp_dbase[["scenario"]] <- scenario
     tmp_comp_dbase[["model_run"]] <- "em"
     comp_dbase <- rbind(comp_dbase, tmp_comp_dbase)
   }
   # get expected and observations in the same column
-  comp_dbase <- tidyr::gather(comp_dbase, "type_obs", "obs_value", 17:18) %>% 
-             dplyr::filter(.data[["model_run"]] == "om" | 
-                          (.data[["model_run"]] == "em" & .data[["type_obs"]] == "Obs"))
-  comp_dbase[["model_type_obs"]] <- paste0(comp_dbase[["model_run"]], "_", 
-                                           comp_dbase[["type_obs"]])
-  comp_dbase <- tidyr::spread(comp_dbase, .data[["model_type_obs"]], .data[["obs_value"]]) %>% 
-                  dplyr::mutate(Yr_lab = paste0("Yr: ", .data[["Yr"]])) %>%
-                  dplyr::mutate(Seas_lab = paste0("Seas: ", .data[["Seas"]])) %>% 
-                  dplyr::mutate(Sex_lab = paste0("Sex: ", .data[["Sex"]]))
+  comp_dbase <- tidyr::gather(comp_dbase, "type_obs", "obs_value", 17:18) %>%
+    dplyr::filter(.data[["model_run"]] == "om" |
+      (.data[["model_run"]] == "em" & .data[["type_obs"]] == "Obs"))
+  comp_dbase[["model_type_obs"]] <- paste0(
+    comp_dbase[["model_run"]], "_",
+    comp_dbase[["type_obs"]]
+  )
+  comp_dbase <- tidyr::spread(comp_dbase, .data[["model_type_obs"]], .data[["obs_value"]]) %>%
+    dplyr::mutate(Yr_lab = paste0("Yr: ", .data[["Yr"]])) %>%
+    dplyr::mutate(Seas_lab = paste0("Seas: ", .data[["Seas"]])) %>%
+    dplyr::mutate(Sex_lab = paste0("Sex: ", .data[["Sex"]]))
   # Make the plot ----
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     warning(
@@ -298,24 +307,26 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
     )
     return(list(comp_dat = comp_dbase, plot = NA))
   }
-  if(comp_type == "agecomp") xlab_val <- "Age"
-  if(comp_type == "lencomp") xlab_val <- "Size Bins"
+  if (comp_type == "agecomp") xlab_val <- "Age"
+  if (comp_type == "lencomp") xlab_val <- "Size Bins"
   # need a loop for multiple fleets (I think we just want a plot per fleet)
   # Need to add in better labels for sex
   comp_plot <- vector(mode = "list", length = length(unique(comp_dbase[["Fleet"]])))
-  for(f in unique(comp_dbase[["Fleet"]])) {
+  for (f in unique(comp_dbase[["Fleet"]])) {
     ind <- which(unique(comp_dbase[["Fleet"]]) == f)
     tmp_dbase_subset <- comp_dbase[comp_dbase[["Fleet"]] == f, ]
-    comp_plot[[ind]] <-  ggplot(tmp_dbase_subset, aes(x = .data[["Bin"]], y = .data[["om_Exp"]])) +
-      geom_area(fill = "grey")+
-      geom_point(aes(y = .data[["om_Obs"]]), color = "red", size = 2)+
-      geom_point(aes(y = .data[["em_Obs"]], shape = .data[["iteration"]]), color = "black")+
-      facet_wrap(vars(.data[["Yr_lab"]], .data[["Seas_lab"]], .data[["Sex_lab"]]))+
-       scale_shape_manual(values = 
-         rep(15, length(unique(comp_dbase[["iteration"]]))))+
-      ylab("Proportion")+
-      xlab(xlab_val)+
-      ggtitle(paste0("Fleet ", f ))+
+    comp_plot[[ind]] <- ggplot(tmp_dbase_subset, aes(x = .data[["Bin"]], y = .data[["om_Exp"]])) +
+      geom_area(fill = "grey") +
+      geom_point(aes(y = .data[["om_Obs"]]), color = "red", size = 2) +
+      geom_point(aes(y = .data[["em_Obs"]], shape = .data[["iteration"]]), color = "black") +
+      facet_wrap(vars(.data[["Yr_lab"]], .data[["Seas_lab"]], .data[["Sex_lab"]])) +
+      scale_shape_manual(
+        values =
+          rep(15, length(unique(comp_dbase[["iteration"]])))
+      ) +
+      ylab("Proportion") +
+      xlab(xlab_val) +
+      ggtitle(paste0("Fleet ", f)) +
       theme_classic()
   }
 
@@ -323,37 +334,42 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
 }
 
 #' get basic data to calculate performance metrics
-#' @param dir Path to the directory containing the scenarios, either relative 
+#' @param dir Path to the directory containing the scenarios, either relative
 #'  or absolute. Defaults to the working directory.
 #' @param use_SSMSE_summary_all If it exists, should the summmary files generated
 #'  by SSMSE_summary_all be used? Defaults to TRUE.
 #' @param quantities Quantites from the operating model to add
-get_performance_metrics <- function(dir = getwd(), 
+get_performance_metrics <- function(dir = getwd(),
                                     use_SSMSE_summary_all = TRUE,
                                     quantities = c("catch", "SpawnBio")) {
-  quantities <- match.arg(quantities, choices = c("catch", "SpawnBio"),
-                          several.ok = TRUE)
+  quantities <- match.arg(quantities,
+    choices = c("catch", "SpawnBio"),
+    several.ok = TRUE
+  )
   perf_metrics_df <- NULL
-  if("catch" %in% quantities) {
+  if ("catch" %in% quantities) {
     scens <- list.dirs(dir, full.names = TRUE, recursive = FALSE)
-    catch <- lapply(scens, function (x) {
+    catch <- lapply(scens, function(x) {
       iters <- list.dirs(x, full.names = TRUE, recursive = FALSE)
       tmp_catch_df <- NULL
       for (i in iters) {
         tmp_mods <- list.dirs(i, full.names = TRUE, recursive = FALSE)
         tmp_mods_basename <- list.dirs(i, full.names = FALSE, recursive = FALSE)
         om_mod <- grep("OM$", tmp_mods_basename, ignore.case = TRUE)
-        if(length(om_mod) != 1) {
-          stop("The regular expression 'OM$' (not case sensitive) did not match 1 model in the ", 
-               "directory ", i , "; it matched ", length(om_mod), " models.", 
-               "Please make sure only the OM will match this expression to use", 
-               "get_performance_metrics.")
+        if (length(om_mod) != 1) {
+          stop(
+            "The regular expression 'OM$' (not case sensitive) did not match 1 model in the ",
+            "directory ", i, "; it matched ", length(om_mod), " models.",
+            "Please make sure only the OM will match this expression to use",
+            "get_performance_metrics."
+          )
         }
         om_mod_path <- tmp_mods[om_mod]
         dat <- r4ss::SS_readdat(file.path(om_mod_path, "data.ss_new"),
-                                section = 1, verbose = FALSE)
+          section = 1, verbose = FALSE
+        )
         tmp_catch <- dat[["catch"]]
-        tmp_catch <- tmp_catch[,c("year", "fleet", "catch")]
+        tmp_catch <- tmp_catch[, c("year", "fleet", "catch")]
         colnames(tmp_catch) <- c("year", "fleet", "value")
         tmp_catch[["quantity"]] <- "catch"
         tmp_catch[["model_run"]] <- tmp_mods_basename[om_mod]
@@ -367,18 +383,22 @@ get_performance_metrics <- function(dir = getwd(),
     catch_df <- do.call("rbind", catch)
     perf_metrics_df <- rbind(perf_metrics_df, catch_df)
   }
-  if("SpawnBio" %in% quantities) {
-    if(use_SSMSE_summary_all == TRUE) {
+  if ("SpawnBio" %in% quantities) {
+    if (use_SSMSE_summary_all == TRUE) {
       ts_df <- utils::read.csv(file.path(dir, "SSMSE_ts.csv"))
       keep_rows <- grep("OM$", ts_df[["model_run"]], ignore.case = TRUE)
       ts_df <- ts_df[keep_rows, ]
       ts_df[["fleet"]] <- NA
       ts_df[["quantity"]] <- "SpawnBio"
       ts_df[["model_type"]] <- "OM"
-      ts_df <- ts_df[ , c("year", "fleet", "SpawnBio", "quantity", "model_run",
-                          "model_type", "iteration", "scenario")]
-      colnames(ts_df) <- c("year", "fleet", "value", "quantity", "model_run",
-                           "model_type", "iteration", "scenario")
+      ts_df <- ts_df[, c(
+        "year", "fleet", "SpawnBio", "quantity", "model_run",
+        "model_type", "iteration", "scenario"
+      )]
+      colnames(ts_df) <- c(
+        "year", "fleet", "value", "quantity", "model_run",
+        "model_type", "iteration", "scenario"
+      )
       perf_metrics_df <- rbind(perf_metrics_df, ts_df)
     } else {
       warning("use_SSMSE_summary_all needs to be TRUE to read in SSB")

@@ -77,10 +77,12 @@ test_that("check_OM_dat works", {
 })
 
 test_that("check_OM_dat works with mean size at age data", {
-  skip_if(!file.exists(file.path(extdat_path, "models", "Simple_with_Discard", 
-                                 "data.ss")))
+  skip_if(!file.exists(file.path(
+    extdat_path, "models", "Simple_with_Discard",
+    "data.ss"
+  )))
   OM_dat <- r4ss::SS_readdat(
-    file.path(extdat_path, "models", "Simple_with_Discard" ,"data.ss"),
+    file.path(extdat_path, "models", "Simple_with_Discard", "data.ss"),
     verbose = FALSE
   )
   EM_dat <- OM_dat # make the same so know that there should be no errors
