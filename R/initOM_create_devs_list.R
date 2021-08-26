@@ -450,8 +450,8 @@ calc_par_trend <- function(val_info,
       tmp_vals <- data.frame(yrs = par[["recdev1"]][, 1], rec_devs = par[["recdev1"]][, 2])
       tmp_vals_2 <- data.frame(yrs = vals_df[["yrs"]], rec_devs = vals_df[["rec_devs"]])
       tmp_vals <- rbind(tmp_vals, tmp_vals_2)
-      to_include <- which(tmp_vals[["yr"]] >= val_info[val_info[["ts_param"]] == val_line, "first_yr_averaging"] &
-        tmp_vals[["yr"]] <= val_info[val_info[["ts_param"]] == val_line, "last_yr_averaging"])
+      to_include <- which(tmp_vals[["yrs"]] >= val_info[val_info[["ts_param"]] == val_line, "first_yr_averaging"] &
+        tmp_vals[["yrs"]] <= val_info[val_info[["ts_param"]] == val_line, "last_yr_averaging"])
       tmp_vals <- tmp_vals[to_include, "rec_devs"]
       ref_parm_value <- switch(val_line,
         mean = mean(tmp_vals),
