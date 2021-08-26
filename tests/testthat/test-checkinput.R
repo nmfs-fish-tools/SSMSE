@@ -42,10 +42,6 @@ test_that("check_OM_dat works", {
   # Check that exits on error if wrong years
   OM_dat_wrong_yr <- OM_dat
   OM_dat_wrong_yr$endyr <- 80 # should go to 100
-  expect_error(
-    check_OM_dat(OM_dat_wrong_yr, EM_dat),
-    "OM_dat years should at least cover all EM_dat years."
-  )
   # check that exits on error if missing lcomps columns in OM
   OM_dat_miss_lcompcol <- OM_dat
   OM_dat_miss_lcompcol$lencomp <- OM_dat_miss_lcompcol$lencomp[, -7]
