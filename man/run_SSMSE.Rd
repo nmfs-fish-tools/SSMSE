@@ -18,12 +18,8 @@ run_SSMSE(
   use_SS_boot_vec = TRUE,
   nyrs_vec,
   nyrs_assess_vec,
-  scope = c("2", "1", "3"),
-  rec_dev_pattern = c("none", "rand", "AutoCorr_rand", "AutoCorr_Spec", "vector"),
-  rec_dev_pars = NULL,
-  impl_error_pattern = c("none", "rand", "user"),
-  impl_error_pars = NULL,
   sample_struct_list = NULL,
+  future_om_list = NULL,
   sample_struct_hist_list = NULL,
   interim_struct_list = NULL,
   verbose = FALSE,
@@ -91,47 +87,18 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{scope}{Assign the scope of random deviations for rec devs and implementation error.
-single integer value input where 1=values are identical across all scenarios and iterations
-(if rec_dev_pattern=user input a vector of length nyrs_vec), 2 (default)=values are random
-across iterations but the same iterations are used across scenarios
-(if rec_dev_pattern=user input a matrix with ncols=nyrs_vec and nrows=number of iterations),
-3=values are random across all iterations and scenarios (if rec_dev_pattern=user input
-a matrix with ncols=nyrs_vec and nrows=(number of iterations)*(number of scenarios)).}
-
-\item{rec_dev_pattern}{Parameter to specify future rec devs. Input options include:
-1) "none" to set all future devs to zero (default). 2) "rand" automatically assign normally
-distributed random recruitment deviations. Input a vector of two values to rec_dev_pars
-to specify the max number of years over which the sum of rec_devs can diverge from
-zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates
-random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars
-to specify the max number of years over which the sum of rec_devs can diverge from
-zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 4) "AutoCorr_Spec"
-generates auto-correlated recruitment deviations from an MA time-series model with user specified
-parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of
-length equal nyrs input the vector/matrix to rec_dev-pars.}
-
-\item{rec_dev_pars}{Input the required parameters as specified by rec_dev_pattern choice.}
-
-\item{impl_error_pattern}{Parameter to specify future implementation error. Input options include:
-1) "none" to set all future catches equal to expected (default). 2) "rand" automatically assign
-achieved catch relative to expected catch as log normally distributed. Input
-a vector of ((nseas x nfleet x 2)+ 1) values to impl_error_pars to specify the max number
-of years over which the achieved mean catch can diverge from the mean specified, the mean
-(default 1 such that achieved=expected), and the standard devation. If impl_error__pars=NULL defaults to
-c(nyrs_assess, rep(1,(nfleetxnseas)), rep(0,(nfleetxnseas))). 3) "user" applys a user input vector
-or matrix of implementation errors of length/columns equal to nyrs x nseas x Nfleets
-and rows based on assigned scope. Input the vector/matrix to impl_error_pars.}
-
-\item{impl_error_pars}{Input the required parameters as specified by impl_error_pattern choice.}
-
 \item{sample_struct_list}{A optional list of lists including which years, seasons,
 and fleets should be  added from the OM into the EM for different types of
 data. If NULL, the data structure will try to be infered from the pattern
 found for each of the datatypes within the EM datafiles. Include this
 strucutre for the number of years to extend the model out.}
+
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. To see an example, try
+running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+that the model will be extended forward in time assuming the original model
+structure.}
 
 \item{sample_struct_hist_list}{An optional list of lists including which years should be
 sampled for the historical period for the data generated from the OM. If 

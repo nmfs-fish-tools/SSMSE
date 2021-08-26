@@ -47,37 +47,6 @@
 #'  (NOTE: This could be made more flexible by instead reading in a vector of
 #'  assessment years, so users could specify irregular numbers of yrs between
 #'  assessments.)
-#' @param scope Assign the scope of random deviations for rec devs and implementation error.
-#' single integer value input where 1=values are identical across all scenarios and iterations
-#' (if rec_dev_pattern=user input a vector of length nyrs_vec), 2 (default)=values are random
-#' across iterations but the same iterations are used across scenarios
-#' (if rec_dev_pattern=user input a matrix with ncols=nyrs_vec and nrows=number of iterations),
-#' 3=values are random across all iterations and scenarios (if rec_dev_pattern=user input
-#' a matrix with ncols=nyrs_vec and nrows=(number of iterations)*(number of scenarios)).
-#' @param rec_dev_pattern Parameter to specify future rec devs. Input options include:
-#' 1) "none" to set all future devs to zero (default). 2) "rand" automatically assign normally
-#' distributed random recruitment deviations. Input a vector of two values to rec_dev_pars
-#' to specify the max number of years over which the sum of rec_devs can diverge from
-#' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 3) "AutoCorr_rand" automatically calculates
-#' random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars
-#' to specify the max number of years over which the sum of rec_devs can diverge from
-#' zero and a scalar multiplyer of standard deviation relative to the historic OM. if
-#' rec_dev_pars=NULL defaults to c(nyrs_assess, 1). 4) "AutoCorr_Spec"
-#' generates auto-correlated recruitment deviations from an MA time-series model with user specified
-#' parameters. 5) "user" applys a user input vector or matrix of recruitement deviations of
-#' length equal nyrs input the vector/matrix to rec_dev-pars.
-#' @param rec_dev_pars Input the required parameters as specified by rec_dev_pattern choice.
-#' @param impl_error_pattern Parameter to specify future implementation error. Input options include:
-#' 1) "none" to set all future catches equal to expected (default). 2) "rand" automatically assign
-#' achieved catch relative to expected catch as log normally distributed. Input
-#' a vector of ((nseas x nfleet x 2)+ 1) values to impl_error_pars to specify the max number
-#' of years over which the achieved mean catch can diverge from the mean specified, the mean
-#' (default 1 such that achieved=expected), and the standard devation. If impl_error__pars=NULL defaults to
-#' c(nyrs_assess, rep(1,(nfleetxnseas)), rep(0,(nfleetxnseas))). 3) "user" applys a user input vector
-#' or matrix of implementation errors of length/columns equal to nyrs x nseas x Nfleets
-#' and rows based on assigned scope. Input the vector/matrix to impl_error_pars.
-#' @param impl_error_pars Input the required parameters as specified by impl_error_pattern choice.
 #' @param sample_struct_list A optional list of lists including which years, seasons,
 #'  and fleets should be  added from the OM into the EM for different types of
 #'  data. If NULL, the data structure will try to be infered from the pattern
@@ -87,6 +56,12 @@
 #'  sampled for the historical period for the data generated from the OM. If 
 #'  this is left as NULL, then the same sampling scheme will be used as in the
 #'  OM's data file. If it is not NULL, then each year 
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. To see an example, try
+#'  running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+#'  that the model will be extended forward in time assuming the original model
+#'  structure.
 #' @param interim_struct_list A optional list of parameters to control an interim assessment
 #'  with an example structure below, where Beta=a positive value that is inversely proportional to risk,
 #'  MA_years= the number of years to average index observations of when calculating deviations,
@@ -176,15 +151,8 @@ run_SSMSE <- function(scen_name_vec,
                       use_SS_boot_vec = TRUE,
                       nyrs_vec,
                       nyrs_assess_vec,
-                      scope = c("2", "1", "3"),
-                      rec_dev_pattern = c(
-                        "none", "rand", "AutoCorr_rand",
-                        "AutoCorr_Spec", "vector"
-                      ),
-                      rec_dev_pars = NULL,
-                      impl_error_pattern = c("none", "rand", "user"),
-                      impl_error_pars = NULL,
                       sample_struct_list = NULL,
+                      future_om_list = NULL,
                       sample_struct_hist_list = NULL,
                       interim_struct_list = NULL,
                       verbose = FALSE,
@@ -197,16 +165,6 @@ run_SSMSE <- function(scen_name_vec,
   }
   
   # input checks
-  scope <- match.arg(as.character(scope), choices = c("2", "1", "3"))
-  rec_dev_pattern <- match.arg(rec_dev_pattern,
-    choices = c(
-      "none", "rand", "AutoCorr_rand",
-      "AutoCorr_Spec", "vector"
-    )
-  )
-  impl_error_pattern <- match.arg(impl_error_pattern,
-    choices = c("none", "rand", "user")
-  )
   if (!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
     invalid_MS <- MS_vec[unlist(lapply(MS_vec, function(x) !exists(x)))]
     invalid_MS <- invalid_MS[!invalid_MS %in% c("EM", "no_catch", "Interim")]
@@ -219,6 +177,8 @@ run_SSMSE <- function(scen_name_vec,
       )
     }
   }
+  # check and add implicit inputs to the future_om_list
+  future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
   # Note that all input checks are done in the check_scen_list function.
   # construct scen_list from other parameters.
   scen_list <- create_scen_list(
@@ -239,76 +199,24 @@ run_SSMSE <- function(scen_name_vec,
   )
   # check list and change if need to duplicate values.
   scen_list <- check_scen_list(scen_list, verbose = verbose)
+  # check future OM list with the scen_list
+  future_om_list <- check_future_om_list_vals(future_om_list = future_om_list,
+                            scen_list = scen_list)
+  
   # First reset the R random seed
   set.seed(seed = NULL)
   # Now set the global, scenario, and iteration seeds that will be used as needed
-
   seed <- set_MSE_seeds(
     seed = seed,
     iter_vec = unlist(lapply(scen_list, function(scen) scen["iter"]))
   )
-  # Get directory of base OM files for each scenario as they may be different
-  rec_stddev <- rep(0, length(scen_list))
-  n_impl_error_groups <- rep(0, length(scen_list))
-  rec_autoCorr <- vector(mode = "list", length = length(scen_list))
-  for (i in 1:length(scen_list)) {
-    tmp_scen_list <- scen_list[[i]]
-    if (is.null(tmp_scen_list[["OM_in_dir"]])) {
-      OM_dir <- locate_in_dirs(OM_name = tmp_scen_list[["OM_name"]])
-    } else {
-      OM_dir <- locate_in_dirs(OM_in_dir = tmp_scen_list[["OM_in_dir"]])
-    }
-    # Read in starter file
-    start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
-      verbose = FALSE
-    )
-    # Read in data file
-    dat <- r4ss::SS_readdat(file.path(OM_dir, start[["datfile"]]),
-      section = 1,
-      verbose = FALSE
-    )
-    # Read in control file
-    ctl <- r4ss::SS_readctl(
-      file = file.path(OM_dir, start[["ctlfile"]]),
-      use_datlist = TRUE, datlist = dat,
-      verbose = FALSE
-    )
-    # Read in parameter file
-    parlist <- r4ss::SS_readpar_3.30(
-      parfile = file.path(OM_dir, "ss.par"),
-      datsource = dat, ctlsource = ctl,
-      verbose = FALSE
-    )
-
-    # Calculate the standard deviation and autocorrelation of historic recruitment deviations
-    rec_dev_comb <- rbind(parlist[["recdev1"]], parlist[["recdev2"]])
-    rec_stddev[i] <- stats::sd(rec_dev_comb[, 2])
-    n_impl_error_groups[i] <- dat[["nseas"]] * dat[["Nfleet"]]
-
-    if (rec_dev_pattern == "AutoCorr_rand" | rec_dev_pattern == "AutoCorr_Spec") {
-      rec_autoCorr[[i]] <- stats::arima(x = rec_dev_comb[, 2], order = c(0, 0, 4))
-    }
-  }
-
-  if (is.null(rec_dev_pars)) {
-    # to do: make this a better default value.
-    rec_dev_pars <- c(ceiling(mean(nyrs_vec)), 1)
-  }
 
   # make sure values are the correct length
   nyrs_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs"]))
   nyrs_assess_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs_assess"]))
   iter_vec <- unlist(lapply(scen_list, function(scen) scen["iter"]))
 
-  rec_dev_list <- build_rec_devs(yrs = nyrs_vec, scope = scope, rec_dev_pattern = rec_dev_pattern, rec_dev_pars = rec_dev_pars, stddev = rec_stddev, iter_vec = iter_vec, rec_autoCorr = rec_autoCorr, seed = seed)
-
-
-
-  impl_error <- build_impl_error(yrs = nyrs_vec, nyrs_assess = nyrs_assess_vec, n_impl_error_groups = n_impl_error_groups, scope = scope, impl_error_pattern = impl_error_pattern, impl_error_pars = impl_error_pars, n_scenarios = length(scen_list), iter_vec = iter_vec, seed = seed)
-  # add recdevs, impl_err, and seed to scen_list
   for (i in seq_along(scen_list)) {
-    scen_list[[i]][["rec_devs"]] <- rec_dev_list[[i]]
-    scen_list[[i]][["impl_error"]] <- impl_error[[i]]
     scen_seed <- vector(mode = "list", length = 3)
     names(scen_seed) <- c("global", "scenario", "iter")
     scen_seed[["global"]] <- seed[["global"]]
@@ -343,6 +251,7 @@ run_SSMSE <- function(scen_name_vec,
     # run for each scenario
     return_df <- run_SSMSE_scen(
       scen_name = names(scen_list)[i],
+      nscen = i,
       out_dir_scen = tmp_scen[["out_dir_scen"]],
       iter = tmp_scen[["iter"]],
       OM_name = tmp_scen[["OM_name"]],
@@ -354,10 +263,11 @@ run_SSMSE <- function(scen_name_vec,
       use_SS_boot = tmp_scen[["use_SS_boot"]],
       nyrs = tmp_scen[["nyrs"]],
       nyrs_assess = tmp_scen[["nyrs_assess"]],
-      rec_devs_scen = tmp_scen[["rec_devs"]],
-      impl_error = tmp_scen[["impl_error"]],
+      # rec_devs_scen = tmp_scen[["rec_devs"]],
+      # impl_error = tmp_scen[["impl_error"]],
       scen_seed = tmp_scen[["scen_seed"]],
       sample_struct = tmp_scen[["sample_struct"]],
+      future_om_list = future_om_list,
       sample_struct_hist = tmp_scen[["sample_struct_hist"]],
       interim_struct = tmp_scen[["interim_struct"]],
       run_EM_last_yr = run_EM_last_yr,
@@ -381,6 +291,7 @@ run_SSMSE <- function(scen_name_vec,
 #' a management strategy evaluation using Stock Synthesis as the Operating Model
 #' @param scen_name Name of the scenario. The directory containing all the model
 #'  runs the scenario will be stored within a folder of this name.
+#' @param nscen Which scenario is this. Integer value >=1
 #' @param out_dir_scen The directory to which to write output. IF NULL, will
 #'  default to the working directory.
 #' @param iter The number of iterations for the scenario. A single integer
@@ -414,16 +325,18 @@ run_SSMSE <- function(scen_name_vec,
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param rec_devs_scen List containing a recruitment deviation vector for each
-#'   iteration.
-#' @param impl_error List containing an implementation error vector for each
-#'   iteration.
 #' @param scen_seed List containing fixed seeds for this scenario and its iterations.
 #' @param sample_struct A optional list including which years, seasons, and fleets
 #'  should be  added from the OM into the EM for different types of data.
 #'  If NULL, the data structure will try to be infered from the pattern found
 #'  for each of the datatypes within the EM datafiles. Include this strucutre
 #'  for the number of years to extend the model out.
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. To see an example, try
+#'  running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+#'  that the model will be extended forward in time assuming the original model
+#'  structure.
 #' @param sample_struct_hist An optional list including which years should be
 #'  sampled for the historical period for the data generated from the OM. If 
 #'  this is left as NULL, then the same sampling scheme will be used as in the
@@ -461,6 +374,7 @@ run_SSMSE <- function(scen_name_vec,
 #' }
 #'
 run_SSMSE_scen <- function(scen_name = "scen_1",
+                           nscen = 1,
                            out_dir_scen = NULL,
                            iter = 2,
                            OM_name = "cod",
@@ -473,10 +387,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            use_SS_boot = TRUE,
                            nyrs = 100,
                            nyrs_assess = 3,
-                           rec_devs_scen = NULL,
-                           impl_error = NULL,
                            scen_seed = NULL,
                            sample_struct = NULL,
+                           future_om_list = NULL,
                            sample_struct_hist = NULL,
                            interim_struct = NULL,
                            verbose = FALSE,
@@ -544,12 +457,13 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           use_SS_boot = use_SS_boot,
           nyrs = nyrs,
           nyrs_assess = nyrs_assess,
-          rec_dev_iter = rec_devs_scen[[i]],
-          impl_error = impl_error[[i]],
+          nscen = nscen,
+          scen_name = scen_name,
           niter = max_prev_iter + i,
           run_EM_last_yr = run_EM_last_yr,
           iter_seed = iter_seed,
           sample_struct = sample_struct,
+          future_om_list = future_om_list,
           sample_struct_hist = sample_struct_hist,
           interim_struct = interim_struct,
           verbose = verbose
@@ -575,12 +489,13 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         use_SS_boot = use_SS_boot,
         nyrs = nyrs,
         nyrs_assess = nyrs_assess,
-        rec_dev_iter = rec_devs_scen[[i]],
-        impl_error = impl_error[[i]],
+        nscen = nscen,
+        scen_name = scen_name,
         niter = max_prev_iter + i,
         run_EM_last_yr = run_EM_last_yr,
         iter_seed = iter_seed,
         sample_struct = sample_struct,
+        future_om_list = future_om_list,
         sample_struct_hist = sample_struct_hist,
         interim_struct = interim_struct,
         verbose = verbose
@@ -648,10 +563,11 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'   (NOTE: we could make this more flexible by instead reading in a vector of
 #'   assessment years, so users could specify irregular numbers of yrs between
 #'   assessments.)
-#' @param rec_dev_iter A recruitment deviation vector for the iteration.
-#'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
-#' @param impl_error An implementation error vector for the iteration.
-#'  Dimensions are nyrs_assess\*number of fleets \* number of seasons
+#' @param nyrs_lag number of years of lag in obtaining data. i.e. the number of years
+#'  post EM assessment end yr before advice can be implemented. defaults to 0.  
+#' @param nscen The scenario number.
+#' @param scen_name Name of the scenario. The directory containing all the model
+#'  runs the scenario will be stored within a folder of this name.
 #' @param niter The iteration number, which is also the name of the folder the
 #'  results will be written to.
 #' @param iter_seed List containing fixed seeds for this iteration.
@@ -665,6 +581,12 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #'  give an example of what this structure should be. Running the function
 #'  create_sample_struct() will also produce a sample_struct object in the
 #'  correct form. Can be NULL only when MS is not EM.
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. To see an example, try
+#'  running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+#'  that the model will be extended forward in time assuming the original model
+#'  structure.
 #' @param sample_struct_hist An optional list including which years should be
 #'  sampled for the historical period for the data generated from the OM. If 
 #'  this is left as NULL, then the same sampling scheme will be used as in the
@@ -732,11 +654,13 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            use_SS_boot = TRUE,
                            nyrs = 100,
                            nyrs_assess = 3,
-                           rec_dev_iter = NULL,
-                           impl_error = NULL,
+                           nyrs_lag = 0,
+                           nscen = 1,
+                           scen_name = NULL,
                            niter = 1,
                            iter_seed = NULL,
                            sample_struct = NULL,
+                           future_om_list = NULL,
                            sample_struct_hist = NULL,
                            interim_struct = NULL,
                            verbose = FALSE) {
@@ -747,6 +671,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_any_of(nyrs, c("integer", "numeric"))
   assertive.types::assert_is_any_of(nyrs_assess, c("integer", "numeric"))
   assertive.types::assert_is_any_of(niter, c("integer", "numeric"))
+  assertive.types::assert_is_any_of(nscen, c("integer", "numeric"))
   if (!is.null(sample_struct)) {
     assertive.types::assert_is_list(sample_struct)
     check_sample_struct(sample_struct)
@@ -812,18 +737,23 @@ run_SSMSE_iter <- function(out_dir = NULL,
     sample_struct <- convert_to_r4ss_names(sample_struct)
     sample_struct_hist <- convert_to_r4ss_names(sample_struct_hist)
   }
+  
+  #Convert the user input parameter modifications into vectors of annual additive deviations
+  future_om_dat <- convert_future_om_list_to_devs_df(future_om_list=future_om_list, scen_name=scen_name, niter=niter, om_mod_path=OM_out_dir, nyrs=nyrs, global_seed = (iter_seed[["iter"]][1] + 1234) )
+  
   # MSE first iteration ----
   # turn the stock assessment model into an OM
-  # This function is now needed in order to make changes such as run from
-  # the par file and potentially change F method to 2 to unify results.
-
-  create_OM(
+  init_mod <- create_OM(
     OM_out_dir = OM_out_dir, overwrite = TRUE,
-    sample_struct_hist = sample_struct_hist, verbose = verbose, writedat = TRUE,
-    nyrs_assess = nyrs_assess, rec_devs = rec_dev_iter,
+    sample_struct_hist = sample_struct_hist, 
+    sample_struct = sample_struct,
+    verbose = verbose, writedat = TRUE, nyrs = nyrs,
+    nyrs_assess = nyrs_assess, nscen = nscen, 
+    scen_name = scen_name, niter = niter, 
+    future_om_dat = future_om_dat,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
-
+  impl_error <- init_mod[["impl_error"]]
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(
@@ -838,6 +768,9 @@ run_SSMSE_iter <- function(out_dir = NULL,
     )
     # TODO: add sampling functions then run a future sampling function that would
     # make it into a dataset.
+    # The plan is to implement custom random data sampling similarly to how random 
+    # parameter changes in the OM are achieved. So that users can implement not only
+    # sample uncertainty but also systematic biases possible in real sampling.
   }
   message(
     "Finished running and sampling OM for the historical period for ",
@@ -847,25 +780,35 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
 
-
+  #nyrs_lag <- 0
+  #first_catch_yr <- (OM_dat[["endyr"]] - nyrs + 1)
+  #n_yrs_catch <- nyrs_assess + nyrs_lag
+  #EM_avail_dat <- OM_dat
+  #EM_avail_dat[[endyr]] <- first_catch_yr - (1 + nyrs_lag)
+  
+  # TODO: If we want to add in data lag then we will need to add a remove data 
+  # function I think as well as the ability to put in fixed catches for the
+  # interim years using the Forecatch section.
+  
   new_catch_list <- parse_MS(
     MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
-    OM_dat = OM_dat, OM_out_dir = OM_out_dir,
-    verbose = verbose, nyrs_assess = nyrs_assess,
-    interim_struct = interim_struct, dat_yrs = NA,
+    OM_dat = OM_dat, OM_out_dir = OM_out_dir, 
+    verbose = verbose, nyrs_assess = nyrs_assess, 
+    interim_struct = interim_struct, 
+    dat_yrs = (init_mod[["dat"]][["endyr"]] - nyrs + 1):(init_mod[["dat"]][["endyr"]] - nyrs + nyrs_assess),
     seed = (iter_seed[["iter"]][1] + 123456)
   )
-
+  
   message(
     "Finished getting catch (years ",
-    (OM_dat[["endyr"]] + 1), " to ", (OM_dat[["endyr"]] + nyrs_assess),
+    min(new_catch_list[["catch"]][,"year"]), " to ", max(new_catch_list[["catch"]][,"year"]),
     ") to feed into OM for iteration ", niter, "."
   )
 
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
-  # remove first value, because done in the intialization stage.
-  styr_MSE <- OM_dat[["endyr"]]
+  # remove first value, because done in the initialization stage.
+  styr_MSE <- OM_dat[["endyr"]] - nyrs
   assess_yrs <- seq(styr_MSE, styr_MSE + nyrs, nyrs_assess)
   assess_yrs <- assess_yrs[-1]
   # calculate years after the last assessment. The OM will need to run
@@ -878,33 +821,30 @@ run_SSMSE_iter <- function(out_dir = NULL,
   }
   # Loop over the assessment years.
   for (yr in assess_yrs) {
-    # checks, esp. to make sure future catch is not larger than the population
-    # biomass (or size, depending on units)
-    # TODO: improve this function below; we need better checks for all the
-    # new_catch_list components
-    # check_future_catch(catch = new_catch_list[["catch_bio"]],
-    #                    OM_dir = OM_out_dir,
-    #                    catch_units = "bio")
+    # SINGLE_RUN_MODS: By removing forecasts and switching to an F based search routine it 
+    # is no longer important to worry about high catch targets as we will input Fs and just 
+    # have to set a cap for how high F could possibly be. I think we should add that as a 
+    # user specification or maybe cap at a default 2 times the historic max?? SS has a built in cap 
+    # of F=1.5 for each fleet I think?
     if (verbose) {
       message(
         "Extending, running, and sampling from the OM though year ", yr,
         "."
       )
     }
-    rec_devs_chunk <- rec_dev_iter[1:nyrs_assess]
-    rec_dev_iter <- rec_dev_iter[-(1:nyrs_assess)]
-    impl_error_chunk <- impl_error[1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
-    impl_error <- impl_error[-(1:(nyrs_assess * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
-
-    extend_OM(
-      catch = new_catch_list[["catch"]],
-      discards = new_catch_list[["discards"]],
-      harvest_rate = new_catch_list[["catch_F"]],
+    
+    # SINGLE_RUN_MODS: Will need to update some things still but not all
+    # probably need an input for current year so we can update the correct 
+    # years of catch etc.
+    update_OM(
       OM_dir = OM_out_dir,
-      sample_struct = sample_struct,
-      nyrs_extend = nyrs_assess,
-      rec_devs = rec_devs_chunk,
-      impl_error = impl_error_chunk,
+      catch = new_catch_list[["catch"]],
+      harvest_rate = new_catch_list[["catch_F"]],
+      catch_basis = NULL,
+      F_limit = NULL,
+      EM_pars = new_catch_list[["EM_pars"]],
+      write_dat = TRUE,
+      impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 234567 + yr)
     )
@@ -935,7 +875,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       )
     }
     message(
-      "Finished running and sampling OM through year ", new_OM_dat[["endyr"]],
+      "Finished running and sampling OM through year ",  max(new_catch_list[["catch"]][,"year"]),
       "."
     )
     if (run_EM_last_yr == FALSE && isTRUE(yr == test_run_EM_yr)) {
@@ -962,6 +902,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       } else {
         tmp_EM_init_dir <- NULL
       }
+      
       new_catch_list <- parse_MS(
         MS = MS,
         EM_out_dir = EM_out_dir,
@@ -985,30 +926,23 @@ run_SSMSE_iter <- function(out_dir = NULL,
     message("Running the OM 1 final time, because last year extends past the last 
     assessment.")
     yr <- assess_yrs[length(assess_yrs)] + extra_yrs
-    # get recdevs, impl_error
-    rec_devs_chunk <- rec_dev_iter[1:extra_yrs]
-    rec_dev_iter <- rec_dev_iter[-(1:extra_yrs)]
-    impl_error_chunk <- impl_error[1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]])]
-    impl_error <- impl_error[-(1:(extra_yrs * OM_dat[["nseas"]] * OM_dat[["Nfleet"]]))]
-    # sanity checks
-    assertive.properties::assert_is_of_length(rec_dev_iter, 0)
-    assertive.properties::assert_is_of_length(impl_error, 0)
     subset_catch_list <- lapply(new_catch_list,
       function(x, yr) new_catch <- x[x[["year"]] <= yr, ],
       yr = yr
     )
-    extend_OM(
-      catch = subset_catch_list[["catch"]],
-      discards = subset_catch_list[["discards"]],
-      harvest_rate = subset_catch_list[["catch_F"]],
+    update_OM(# SINGLE_RUN_MODS: maybe change function name to update_OM?
       OM_dir = OM_out_dir,
-      sample_struct = sample_struct,
-      nyrs_extend = extra_yrs,
-      rec_devs = rec_devs_chunk,
-      impl_error = impl_error_chunk,
+      catch = subset_catch_list[["catch"]],
+      harvest_rate = subset_catch_list[["catch_F"]],
+      catch_basis = NULL,
+      F_limit = NULL,
+      EM_pars = subset_catch_list[["EM_pars"]],
+      #sample_struct = sample_struct,
+      impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 6789012)
     )
+    
     # Don't need bootstrapping, b/c not samplling
     run_OM(
       OM_dir = OM_out_dir, boot = FALSE, verbose = verbose,

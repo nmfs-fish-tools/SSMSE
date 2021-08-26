@@ -9,12 +9,12 @@ extend_EM_bias_adj(ctlfile, datlist_new, nyrs_assess, write_ctl)
 \arguments{
 \item{ctlfile}{Path to the control file.}
 
-\item{datlist_new}{A data file read in usint r4ss::SS_readdat that has already
+\item{datlist_new}{A data file read in using r4ss::SS_readdat that has already
 been extended forward}
 
 \item{nyrs_assess}{The number of years between assessments}
 
-\item{write_ctl}{Should the new controlfile be written, overwritting the old
+\item{write_ctl}{Should the new control file be written, overwriting the old
 one?}
 }
 \value{
@@ -22,6 +22,6 @@ The new control file with recdev values extended forward by
  nyrs_assess
 }
 \description{
-Extends the EN bias adjustment forward the same amount as the number of
+Extends the EM bias adjustment forward the same amount as the number of
 assessment years. A simple default way of doing this.
 }

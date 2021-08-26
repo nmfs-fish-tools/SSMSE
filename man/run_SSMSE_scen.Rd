@@ -6,6 +6,7 @@
 \usage{
 run_SSMSE_scen(
   scen_name = "scen_1",
+  nscen = 1,
   out_dir_scen = NULL,
   iter = 2,
   OM_name = "cod",
@@ -18,10 +19,9 @@ run_SSMSE_scen(
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
-  rec_devs_scen = NULL,
-  impl_error = NULL,
   scen_seed = NULL,
   sample_struct = NULL,
+  future_om_list = NULL,
   sample_struct_hist = NULL,
   interim_struct = NULL,
   verbose = FALSE,
@@ -32,6 +32,8 @@ run_SSMSE_scen(
 \arguments{
 \item{scen_name}{Name of the scenario. The directory containing all the model
 runs the scenario will be stored within a folder of this name.}
+
+\item{nscen}{Which scenario is this. Integer value >=1}
 
 \item{out_dir_scen}{The directory to which to write output. IF NULL, will
 default to the working directory.}
@@ -88,12 +90,6 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{rec_devs_scen}{List containing a recruitment deviation vector for each
-iteration.}
-
-\item{impl_error}{List containing an implementation error vector for each
-iteration.}
-
 \item{scen_seed}{List containing fixed seeds for this scenario and its iterations.}
 
 \item{sample_struct}{A optional list including which years, seasons, and fleets
@@ -101,6 +97,13 @@ should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre
 for the number of years to extend the model out.}
+
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. To see an example, try
+running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+that the model will be extended forward in time assuming the original model
+structure.}
 
 \item{sample_struct_hist}{An optional list including which years should be
 sampled for the historical period for the data generated from the OM. If 

@@ -9,6 +9,7 @@ add_new_dat(
   EM_datfile,
   sample_struct,
   EM_dir,
+  nyrs_assess,
   do_checks = TRUE,
   new_datfile_name = NULL,
   verbose = FALSE
@@ -27,6 +28,9 @@ structure will try to be infered from the pattern found for each of the
 datatypes within EM_datfile.}
 
 \item{EM_dir}{Absolute or relative path to the Estimation model directory.}
+
+\item{nyrs_assess}{The number of years between assessments. E.g., if an
+assessment is conducted every 3 years, put 3 here. A single integer value.}
 
 \item{do_checks}{Should checks on the data be performed? Defaults to TRUE.}
 

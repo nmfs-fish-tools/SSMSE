@@ -16,11 +16,13 @@ run_SSMSE_iter(
   use_SS_boot = TRUE,
   nyrs = 100,
   nyrs_assess = 3,
-  rec_dev_iter = NULL,
-  impl_error = NULL,
+  nyrs_lag = 0,
+  nscen = 1,
+  scen_name = NULL,
   niter = 1,
   iter_seed = NULL,
   sample_struct = NULL,
+  future_om_list = NULL,
   sample_struct_hist = NULL,
   interim_struct = NULL,
   verbose = FALSE
@@ -79,11 +81,13 @@ assessment is conducted every 3 years, put 3 here. A single integer value.
 assessment years, so users could specify irregular numbers of yrs between
 assessments.)}
 
-\item{rec_dev_iter}{A recruitment deviation vector for the iteration.
-Dimensions are nyrs_assess\*number of fleets \* number of seasons}
+\item{nyrs_lag}{number of years of lag in obtaining data. i.e. the number of years
+post EM assessment end yr before advice can be implemented. defaults to 0.}
 
-\item{impl_error}{An implementation error vector for the iteration.
-Dimensions are nyrs_assess\*number of fleets \* number of seasons}
+\item{nscen}{The scenario number.}
+
+\item{scen_name}{Name of the scenario. The directory containing all the model
+runs the scenario will be stored within a folder of this name.}
 
 \item{niter}{The iteration number, which is also the name of the folder the
 results will be written to.}
@@ -100,6 +104,13 @@ used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
 give an example of what this structure should be. Running the function
 create_sample_struct() will also produce a sample_struct object in the
 correct form. Can be NULL only when MS is not EM.}
+
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. To see an example, try
+running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+that the model will be extended forward in time assuming the original model
+structure.}
 
 \item{sample_struct_hist}{An optional list including which years should be
 sampled for the historical period for the data generated from the OM. If 

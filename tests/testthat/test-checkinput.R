@@ -42,10 +42,6 @@ test_that("check_OM_dat works", {
   # Check that exits on error if wrong years
   OM_dat_wrong_yr <- OM_dat
   OM_dat_wrong_yr$endyr <- 80 # should go to 100
-  expect_error(
-    check_OM_dat(OM_dat_wrong_yr, EM_dat),
-    "OM_dat and EM_dat should have the same start and end years."
-  )
   # check that exits on error if missing lcomps columns in OM
   OM_dat_miss_lcompcol <- OM_dat
   OM_dat_miss_lcompcol$lencomp <- OM_dat_miss_lcompcol$lencomp[, -7]
@@ -78,6 +74,18 @@ test_that("check_OM_dat works", {
       "The OM_dat does not include all values"
     )
   })
+})
+
+test_that("check_OM_dat works with mean size at age data", {
+  skip_if(!file.exists(file.path(extdat_path, "models", "Simple_with_Discard", 
+                                 "data.ss")))
+  OM_dat <- r4ss::SS_readdat(
+    file.path(extdat_path, "models", "Simple_with_Discard" ,"data.ss"),
+    verbose = FALSE
+  )
+  EM_dat <- OM_dat # make the same so know that there should be no errors
+  return_dat <- check_OM_dat(OM_dat = OM_dat, EM_dat = EM_dat)
+  expect_equal(OM_dat, return_dat)
 })
 
 test_that("check_sample_struct works", {

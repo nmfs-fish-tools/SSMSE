@@ -21,6 +21,10 @@
 #'   assessment is conducted every 3 years, put 3 here. A single integer value.
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
+#' @param future_om_list An optional list of lists including changes that should
+#'  be made after the end year of the input model. Each first level list element
+#'  outlines 1 change to be made to the operating model. This will identify which
+#'  parameters to turn deviations on for
 #' @param sample_struct An optional list including which years and fleets should be
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the
@@ -35,7 +39,7 @@
 
 parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
                      init_loop = TRUE, OM_dat, OM_out_dir = NULL,
-                     verbose = FALSE, nyrs_assess, dat_yrs,
+                     verbose = FALSE, nyrs_assess, dat_yrs, future_om_list = NULL,
                      sample_struct = NULL, interim_struct = NULL, seed = NULL) {
   if (verbose) {
     message("Parsing the management strategy.")
@@ -50,7 +54,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       )
     }
   }
-  # No
+  
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
@@ -204,17 +208,20 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         verbose = FALSE
       )
       new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = Reference_dat)
+      
+      # NOte: this is where we need to change which years are being subset for the 
+      # new catch list.
       if (!is.null(new_catch_list[["catch"]])) {
-        new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]], dat_yrs), ]
       }
       if (!is.null(new_catch_list[["discards"]])) {
-        new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["discards"]] <- new_catch_list[["discards"]][is.element(new_catch_list[["discards"]][["Yr"]], dat_yrs), ]
       }
       if (!is.null(new_catch_list[["catch_bio"]])) {
-        new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["catch_bio"]] <- new_catch_list[["catch_bio"]][is.element(new_catch_list[["catch_bio"]][["year"]], dat_yrs), ]
       }
       if (!is.null(new_catch_list[["catch_F"]])) {
-        new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]], (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess)), ]
+        new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]], dat_yrs), ]
       }
       utils::write.csv(
         new_catch_list[["catch"]],
@@ -309,12 +316,12 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         } else {
           sample_struct_sub <- NULL
         }
-
         new_EM_dat <- add_new_dat(
           OM_dat = OM_dat,
           EM_datfile = start[["datfile"]],
           sample_struct = sample_struct_sub,
           EM_dir = EM_init_dir,
+          nyrs_assess = nyrs_assess,
           do_checks = TRUE,
           new_datfile_name = start[["datfile"]],
           verbose = verbose
@@ -488,6 +495,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       )
       # make sure the data file has the correct formatting (use existing data
       # file in the EM directory to make sure)??
+      #TODO: is this necessary, given we have sample structures?
       new_EM_dat <- change_dat(
         OM_datfile = new_datfile_name,
         EM_datfile = orig_datfile_name,
@@ -509,6 +517,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         EM_datfile = new_datfile_name,
         sample_struct = sample_struct_sub,
         EM_dir = EM_out_dir,
+        nyrs_assess = nyrs_assess,
         do_checks = TRUE,
         new_datfile_name = new_datfile_name,
         verbose = verbose
@@ -569,7 +578,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
     }
     new_catch_list <- get_no_EM_catch_df(
       OM_dir = OM_out_dir,
-      yrs = (OM_dat[["endyr"]] + 1):(OM_dat[["endyr"]] + nyrs_assess),
+      yrs = dat_yrs,
       MS = MS
     )
   } else {
@@ -653,7 +662,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
       "retain(B):_",
       flt_units[["survey_number"]][fl]
     )
-    # Get the fleet appical F's to allow identification of unrealistically high fishing effort which may be a
+    # Get the fleet apical F's to allow identification of unrealistically high fishing effort which may be a
     # better check for MSE than just single year catch larger than the population.
     tmp_col_lab_F <- paste0(
       "F:_",
@@ -800,13 +809,14 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     overwrite = TRUE
   )
   # get the catch values by MS.
-  l_yr <- max(dat[["catch"]][["year"]]) # get the last year in the catch data frame
+  # l_yr <- min(yrs) # get the last year before sample value target years
+  # l_yr <- max(dat[["catch"]][dat[["catch"]][,"year"]<l_yr,"year"])
   catch <- dat[["catch"]] # get the catch df
-  catch_by_fleet <- catch[catch[["year"]] == l_yr, c("fleet", "seas", "catch")]
+  # catch_by_fleet <- catch[catch[["year"]] == l_yr, c("fleet", "seas", "catch")]
 
-  if (MS == "no_catch") {
-    catch_by_fleet[["catch"]] <- 0
-  }
+  # if (MS == "no_catch") {
+  #   catch_by_fleet[["catch"]] <- 0
+  # }
   # find combinations of catch needed seas and fleet
   flt_combo <- unique(catch[, c("seas", "fleet")])
   se <- get_input_value(catch,
@@ -820,9 +830,22 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
       # get the catch_se
       tmp_catch_se <- se[se[["fleet"]] == flt_combo[["fleet"]][flt], "catch_se"]
       # get the catch value
-      tmp_catch <-
-        catch_by_fleet[catch_by_fleet[["fleet"]] == flt_combo[["fleet"]][flt] &
-          catch_by_fleet[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+      # tmp_catch <-
+      #   catch_by_fleet[catch_by_fleet[["fleet"]] == flt_combo[["fleet"]][flt] &
+      #     catch_by_fleet[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+      # 
+      if(MS == "no_catch"){
+        tmp_catch <- 0
+      }else{
+      l_yr <- min(yrs) # get the last year before sample value target years
+      l_yr <- max(dat[["catch"]][dat[["catch"]][,"year"]<l_yr & 
+                                 dat[["catch"]][,"fleet"]==flt_combo[["fleet"]][flt] &
+                                 dat[["catch"]][,"seas"]==flt_combo[["seas"]][flt],"year"])
+      
+      tmp_catch <- catch[catch[["year"]] == l_yr &
+                              catch[["fleet"]] == flt_combo[["fleet"]][flt] & 
+                              catch[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+      }
       # Add SE and catch to df
       tmp_df_list[[pos]] <- data.frame(
         year = y,
@@ -909,13 +932,13 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
 
 #' Extend the EM bias adjustment forward in time
 #'
-#' Extends the EN bias adjustment forward the same amount as the number of
+#' Extends the EM bias adjustment forward the same amount as the number of
 #' assessment years. A simple default way of doing this.
 #' @param ctlfile Path to the control file.
-#' @param datlist_new A data file read in usint r4ss::SS_readdat that has already
+#' @param datlist_new A data file read in using r4ss::SS_readdat that has already
 #'  been extended forward
 #' @param nyrs_assess The number of years between assessments
-#' @param write_ctl Should the new controlfile be written, overwritting the old
+#' @param write_ctl Should the new control file be written, overwriting the old
 #'  one?
 #' @return The new control file with recdev values extended forward by
 #'  nyrs_assess

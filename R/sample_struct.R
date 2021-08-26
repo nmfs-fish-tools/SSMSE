@@ -9,21 +9,40 @@ convert_to_r4ss_names <- function(sample_struct,
                                   convert_key = data.frame(
                                     df_name = c(
                                       rep("catch", 4), rep("CPUE", 4), rep("lencomp", 6),
-                                      rep("agecomp", 9)
+                                      rep("agecomp", 9),  rep("meanbodywt", 6),
+                                      rep("MeanSize_at_Age_obs", 7)
                                     ),
                                     r4ss_name = c(
                                       "year", "seas", "fleet", "catch_se",
                                       "year", "seas", "index", "se_log",
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Nsamp",
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
-                                      "Lbin_hi", "Nsamp"
+                                      "Lbin_hi", "Nsamp", 
+                                      # mean size
+                                      "Year", "Seas", "Fleet", "Partition", "Type", "Std_in",
+                                      # generalized size comp
+                                      # meansize at age - note sample sizes are for each bin and sex, but
+                                      # currently SSMSE only allows repeating the same sample sizes.
+                                      "Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr", "N_"
+                                      # Tags releases
+                                      #"Area", "Yr", "Season", "Gender", "Age", "Nrelease",
+                                      # Morph comp
                                     ),
                                     sample_struct_name = c(
                                       "Yr", "Seas", "FltSvy", "SE",
                                       "Yr", "Seas", "FltSvy", "SE",
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp",
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
-                                      "Lbin_lo", "Lbin_hi", "Nsamp"
+                                      "Lbin_lo", "Lbin_hi", "Nsamp",
+                                      # mean weight or length (depends on Type)
+                                      "Yr", "Seas", "FltSvy", "Part", "Type", "Std_in",
+                                      # generalized size comp - to add later
+                                      # mean size at age
+                                      "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "N_"
+                                      # Tag releases
+                                      #"Area", "Yr", "Seas", "Sex", "Age", "Nrelease",
+                                      # Tags return - may not need?
+                                      # Morph comp - to add later
                                     ), stringsAsFactors = FALSE
                                   )) {
   # note test-utils includes a check that the default assumed
@@ -69,7 +88,8 @@ create_sample_struct <- function(dat, nyrs) {
     dat <- SS_readdat(dat, verbose = FALSE)
   }
 
-  list_name <- c("catch", "CPUE", "lencomp", "agecomp")
+  list_name <- c("catch", "CPUE", "lencomp", "agecomp", "meanbodywt",
+                 "MeanSize_at_Age_obs")
   sample_struct <- lapply(list_name,
     function(name, dat) {
       df <- dat[[name]]
@@ -78,12 +98,12 @@ create_sample_struct <- function(dat, nyrs) {
       }
       # get year, seas, fleet combo, ignoring -999 values.
       yr_col <- grep("year|yr", colnames(df), ignore.case = TRUE, value = TRUE)
-      seas_col <- grep("seas", colnames(df), ignore.case = TRUE, value = TRUE)
+      seas_col <- grep("seas|season", colnames(df), ignore.case = TRUE, value = TRUE)
       flt_col <- grep("FltSvy|fleet|index", colnames(df),
         ignore.case = TRUE,
         value = TRUE
       )
-      input_SE_col <- grep("_se|se_", colnames(df),
+      input_SE_col <- grep("_se|se_|Std_in", colnames(df),
         ignore.case = TRUE,
         value = TRUE
       ) # catch sample size
@@ -100,7 +120,8 @@ create_sample_struct <- function(dat, nyrs) {
       # b/c only Nsamp or SE should exist for a df
       assertive.base::assert_is_identical_to_true(
         (length(input_SE_col) == 0 & length(Nsamp_col) == 1) |
-          (length(input_SE_col) == 1 & length(Nsamp_col) == 0)
+          (length(input_SE_col) == 1 & length(Nsamp_col) == 0) |
+          (length(input_SE_col) == 0 & length(Nsamp_col) == 0) 
       )
       # find combinations of season and fleet in the df.
       df_combo <- unique(df[, c(seas_col, flt_col), drop = FALSE])
@@ -111,7 +132,7 @@ create_sample_struct <- function(dat, nyrs) {
         tmp_yrs <- df[df[[seas_col]] == tmp_seas &
           df[[flt_col]] == tmp_flt &
           df[[yr_col]] != -999, yr_col]
-        tmp_yrs <- unique(tmp_yrs)
+        tmp_yrs <- as.numeric(unique(tmp_yrs))
         tmp_yrs <- tmp_yrs[order(tmp_yrs)]
 
 
@@ -156,7 +177,7 @@ create_sample_struct <- function(dat, nyrs) {
             stringsAsFactors = FALSE
           )
         }
-        if (name %in% c("lencomp", "agecomp")) {
+        if (name %in% c("lencomp", "agecomp", "MeanSize_at_Age_obs")) {
           # Sex
           sex_col <- grep("Sex|Gender", colnames(df),
             ignore.case = TRUE,
@@ -169,24 +190,36 @@ create_sample_struct <- function(dat, nyrs) {
           } else {
             future_pat[["Sex"]] <- NA
           }
+        }
+        if (name %in% c("lencomp", "agecomp", "meanbodywt", "MeanSize_at_Age_obs")) {
           # partition
+          part_col <- grep("part", colnames(df),
+                           ignore.case = TRUE,
+                           value = TRUE
+          )
           tmp_part <- unique(df[df[[seas_col]] == tmp_seas &
-            df[[flt_col]] == tmp_flt, "Part"])
+                                  df[[flt_col]] == tmp_flt, part_col])
           if (length(tmp_part) == 1) {
             future_pat[["Part"]] <- tmp_part
           } else {
             future_pat[["Part"]] <- NA
           }
         }
-        if (name == "agecomp") {
-          # Ageerr, Lbin_lo, Lbin_hi
+        if(name %in% c("agecomp", "MeanSize_at_Age_obs")) {
+          # Ageerr
+          ageerr_col <- grep("ageerr", colnames(df),
+                             ignore.case = TRUE,
+                             value = TRUE)
           tmp_err <- unique(df[df[[seas_col]] == tmp_seas &
-            df[[flt_col]] == tmp_flt, "Ageerr"])
+                                 df[[flt_col]] == tmp_flt, ageerr_col])
+
           if (length(tmp_err) == 1) {
             future_pat[["Ageerr"]] <- tmp_err
           } else {
             future_pat[["Ageerr"]] <- NA
           }
+        }
+        if (name == "agecomp") {
           # Lbin_lo (expect should be -1)
           tmp_lo <- unique(df[df[[seas_col]] == tmp_seas &
             df[[flt_col]] == tmp_flt, "Lbin_lo"])
@@ -202,6 +235,15 @@ create_sample_struct <- function(dat, nyrs) {
             future_pat[["Lbin_hi"]] <- tmp_hi
           } else {
             future_pat[["Lbin_hi"]] <- NA
+          }
+        }
+        if (name == "meanbodywt") {
+          tmp_type <- unique(df[df[[seas_col]] == tmp_seas &
+                                df[[flt_col]] == tmp_flt, "Type"])
+          if (length(tmp_type) == 1) {
+            future_pat[["Type"]] <- tmp_type
+          } else {
+            future_pat[["Type"]] <- NA
           }
         }
         # add sample size, if possible
@@ -229,12 +271,28 @@ create_sample_struct <- function(dat, nyrs) {
             warning("NA included in column Nsamp for ", name, ".")
           }
         }
+        if(name == "MeanSize_at_Age_obs") {
+          # Ageerr
+          n_col <- grep("N_", colnames(df),
+                             ignore.case = FALSE,
+                             value = TRUE)
+          tmp_n <- unique(df[df[[seas_col]] == tmp_seas &
+                                 df[[flt_col]] == tmp_flt, n_col])
+          tmp_n <- unique(as.numeric(tmp_n))
+          if (length(tmp_n) == 1) {
+            future_pat[["N_"]] <- tmp_n
+          } else {
+            future_pat[["N_"]] <- NA
+          }
+        }
         fill_vec[[i]] <- future_pat
       }
       future_pat_all <- do.call("rbind", fill_vec)
     },
     dat = dat
   )
+  sample_struct <- lapply(sample_struct, 
+                          function(x) utils::type.convert(x, as.is = TRUE))
   names(sample_struct) <- list_name
   sample_struct
 }
@@ -243,7 +301,9 @@ create_sample_struct <- function(dat, nyrs) {
 #'
 #' Get the ful sample structure from user input by looking at the OM data. If it
 #' cannot be unambigously determined, this function will return an error
-#' describing what additional user input is required
+#' describing what additional user input is required. 
+#' @return A list of the full sample structure, using names as input by the user
+#' input by the user (not r4ss names).
 #'
 #' @param sample_struct The sample structure, as defined by the user. This need
 #'  not define all the sampling structure if it can be unambiguously determined
@@ -263,13 +323,13 @@ get_full_sample_struct <- function(sample_struct,
       error2 <- NULL
       if (!"Yr" %in% colnames(x)) {
         stop(
-          "Column Yr missing from 1 or more data frames in sample_struct, but",
+          "Column Yr missing from 1 or more data frames in sample_struct. Yr",
           " must always be specified"
         )
       }
       if (!"FltSvy" %in% colnames(x)) {
         # there must only be 1 fleet
-        flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
+        flt_colname <- grep("Flt|fleet|index", colnames(tmp_dat),
           ignore.case = TRUE,
           value = TRUE
         )
@@ -281,13 +341,15 @@ get_full_sample_struct <- function(sample_struct,
           error2 <- "FltSvy"
         }
       }
+      if("FltSvy" %in% colnames(x)) {
+        flt_colname <- grep("Flt|fleet|index", colnames(tmp_dat),
+                            ignore.case = TRUE,
+                            value = TRUE
+        )
+      }
       if (!"Seas" %in% colnames(x)) {
         x[["Seas"]] <- NA # initial value
         seas_colname <- grep("seas", colnames(tmp_dat),
-          ignore.case = TRUE,
-          value = TRUE
-        )
-        flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
           ignore.case = TRUE,
           value = TRUE
         )
@@ -301,12 +363,8 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
       }
-      if (x_name == "catch" | x_name == "CPUE") {
+      if (x_name == "catch" | x_name == "CPUE" | x_name == "discard_data") {
         if (!"SE" %in% colnames(x)) {
-          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
-          )
           se_colname <- grep("catch_se|se_log", colnames(tmp_dat),
             ignore.case = TRUE,
             value = TRUE
@@ -323,11 +381,12 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
       }
-      if (x_name == "lencomp" | x_name == "agecomp") {
+      if(x_name == "lencomp" | x_name == "agecomp"|
+         x_name == "MeanSize_at_Age_obs") {
         if (!"Sex" %in% colnames(x)) {
           flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
+                              ignore.case = TRUE,
+                              value = TRUE
           )
           x[["Sex"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
@@ -340,27 +399,26 @@ get_full_sample_struct <- function(sample_struct,
             }
           }
         }
+      }
+      if (x_name == "lencomp" | x_name == "agecomp"| x_name == "meanbodywt" |
+          x_name == "MeanSize_at_Age_obs") {
+
         if (!"Part" %in% colnames(x)) {
-          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
-          )
           x[["Part"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
-            tmp_pt <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Part"])
+            part_colname <- grep("part", colnames(tmp_dat), value = TRUE, ignore.case = TRUE)
+            tmp_pt <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, part_colname])
             if (length(tmp_pt) == 1) {
               x[x[["FltSvy"]] == i, "Part"] <- tmp_pt
             } else {
               error1 <- c(error1, x_name)
-              error2 <- c(error2, "Part")
+              error2 <- c(error2, part_colname)
             }
           }
         }
+      }
+      if(x_name == "lencomp" | x_name == "agecomp") {
         if (!"Nsamp" %in% colnames(x)) {
-          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
-          )
           x[["Nsamp"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
             tmp_nsamp <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Nsamp"])
@@ -376,10 +434,6 @@ get_full_sample_struct <- function(sample_struct,
       if (x_name == "agecomp") {
         # add Ageerr, Lbin_lo and Lbin_hi
         if (!"Ageerr" %in% colnames(x)) {
-          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
-          )
           x[["Ageerr"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
             tmp_err <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Ageerr"])
@@ -392,10 +446,6 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
         if (!"Lbin_lo" %in% colnames(x)) {
-          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
-          )
           for (i in unique(x[["FltSvy"]])) {
             x[["Lbin_lo"]] <- NA
             tmp_lbin <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Lbin_lo"])
@@ -408,10 +458,6 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
         if (!"Lbin_hi" %in% colnames(x)) {
-          flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
-          )
           for (i in unique(x[["FltSvy"]])) {
             x[["Lbin_hi"]] <- NA
             tmp_lbin <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Lbin_hi"])
@@ -424,14 +470,82 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
       }
-
+      if(x_name == "meanbodywt") {
+        if (!"Type" %in% colnames(x)) {
+          for (i in unique(x[["FltSvy"]])) {
+            x[["Type"]] <- NA
+            tmp_type <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Type"])
+            if (length(tmp_type) == 1) {
+              x[x[["FltSvy"]] == i, "Type"] <- tmp_type
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Type")
+            }
+          }
+        }
+        if (!"Std_in" %in% colnames(x)) {
+          for (i in unique(x[["FltSvy"]])) {
+            x[["Std_in"]] <- NA
+            tmp_std_in <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Std_in"])
+            if (length(tmp_std_in) == 1) {
+              x[x[["FltSvy"]] == i, "Std_in"] <- tmp_std_in
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Std_in")
+            }
+          }
+        }
+      }
+      if(x_name == "MeanSize_at_Age_obs"){
+        if (!"Ageerr" %in% colnames(x)) {
+          for (i in unique(x[["FltSvy"]])) {
+            x[["Ageerr"]] <- NA
+            tmp_ageerr <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "AgeErr"])
+            if (length(tmp_ageerr) == 1) {
+              x[x[["FltSvy"]] == i, "Ageerr"] <- tmp_ageerr
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "Ageerr")
+            }
+          }
+        }
+        if (!"Ignore" %in% colnames(x)) {
+          x[, "Ignore"] <- 2 # this value doesn't matter.
+        }
+        if (!"N_" %in% colnames(x)) {
+          for (i in unique(x[["FltSvy"]])) {
+            x[["N_"]] <- NA
+            n_cols <- grep("N_", colnames(tmp_dat))
+            tmp_n <- as.integer(unique(unlist(tmp_dat[tmp_dat[[flt_colname]] == i,
+                                                      n_cols])))
+            if (length(tmp_n) == 1) {
+              x[x[["FltSvy"]] == i, "N_"] <- tmp_n
+            } else {
+              error1 <- c(error1, x_name)
+              error2 <- c(error2, "N_")
+            }
+          }
+        }
+      }
       if (!is.null(error1)) {
         stop(
           "sample_struct could not be automatically expanded due to list ",
           "elements ", paste0(error1, collapse = ", "), "; colnames ",
           paste0(error2, collapse = ", ")
         )
+      } else {
+        # reorder columns
+       x <-  switch(x_name,
+               catch = x[ , c("Yr", "Seas", "FltSvy", "SE")],
+               CPUE = x[ , c("Yr", "Seas", "FltSvy", "SE")], 
+               lencomp = x[ ,c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp")],
+               agecomp = x[, c("Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
+                               "Lbin_lo", "Lbin_hi", "Nsamp")],
+               meanbodywt = x[ , c("Yr", "Seas", "FltSvy", "Part", "Type", "Std_in")],
+               MeanSize_at_Age_obs = x[, c("Yr", "Seas", "FltSvy", "Sex",
+                                           "Part", "Ageerr", "N_")])
       }
+      x <- utils::type.convert(x, as.is = TRUE)
       x
     },
     x = sample_struct, x_name = names(sample_struct),
@@ -453,5 +567,6 @@ get_full_sample_struct <- function(sample_struct,
   if (!is.null(full_samp_str[["agecomp"]])) {
     full_samp_str[["agecomp"]] <- full_samp_str[["agecomp"]][, tmp_colorder]
   }
+  
   full_samp_str
 }

@@ -9,10 +9,15 @@ create_OM(
   overwrite = TRUE,
   writedat = TRUE,
   verbose = FALSE,
+  nyrs = NULL,
   nyrs_assess = NULL,
-  rec_devs = NULL,
+  nscen = 1,
+  scen_name = NULL,
+  niter = 1,
+  future_om_dat = NULL,
   verify_OM = TRUE,
   sample_struct_hist = NULL,
+  sample_struct = NULL,
   seed = NULL
 )
 }
@@ -25,10 +30,21 @@ create_OM(
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
+\item{nyrs}{Number of years beyond the years included in the OM to run the
+MSE. A single integer value.}
+
 \item{nyrs_assess}{The number of years between assessments. This is used to
 structure the forecast file for use in the OM.}
 
-\item{rec_devs}{Vector of recruitment deviations for simulation.}
+\item{nscen}{The scenario number}
+
+\item{scen_name}{The scenario name}
+
+\item{niter}{the iteration number}
+
+\item{future_om_dat}{An optional data_frame including changes that should
+be made after the end year of the input model. Including parameter variations,
+recruitment deviations, and implementation errors.}
 
 \item{verify_OM}{Should the model be run without estimation and some basic
 checks done to verify that the OM can run? Defaults to TRUE.}
@@ -36,6 +52,9 @@ checks done to verify that the OM can run? Defaults to TRUE.}
 \item{sample_struct_hist}{The historical sample structure, if specified by 
 the user. Defaults to NULL, which means to use the same sample structure as
 the historical data.}
+
+\item{sample_struct}{Input sampling structure to ensure future data are listed in OM
+with correct SE.}
 
 \item{seed}{input seed to allow reproducible SS results.}
 }

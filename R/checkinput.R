@@ -77,14 +77,6 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     EM_dat = EM_dat, OM_dat = OM_dat, list_item = "CPUE",
     colnames = c("year", "seas", "index")
   )
-  # check for mean size and mean size at age ,etc (for now, warn that cannot sample.)
-  # TODO: add in capabilities to deal with this type of data and remove stop msgs
-  if (OM_dat[["use_meanbodywt"]] == 1) {
-    warning("Mean body size observations are not yet sampled in SSMSE")
-  }
-  if (OM_dat[["use_MeanSize_at_Age_obs"]] == 1) {
-    warning("Mean size-at-age observations are not yet sampled in SSMSE")
-  }
   # check population length bins
   # check lcomp bins and lcomp bins (if exists)
   if (EM_dat[["use_lencomp"]] == 1) {
@@ -115,13 +107,49 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     paste0(colnames(EM_dat[["agecomp"]]), collapse = "")) {
     stop(
       "Column names for age composition were not the same for the OM ",
-      "and EM. Please make the age comp bins the same."
+      "and EM. Please make the age comp bins the same or use a ",
+      "custom management strategy that includes steps to rebin the data."
     )
   }
   check_avail_dat(
     EM_dat = EM_dat, OM_dat = OM_dat, list_item = "agecomp",
     colnames = c("Yr", "Seas", "FltSvy")
   )
+  # check mean size
+  if(EM_dat$use_meanbodywt == 1) {
+    if(OM_dat$use_meanbodywt == 0) {
+      stop(
+        "The EM expects meanbodywt (mean body size) data, but the OM does not ",
+        "have any. Please add meanbodywt to the OM."
+      )
+    }
+    check_avail_dat(
+      EM_dat = EM_dat, OM_dat = OM_dat, list_item = "meanbodywt",
+      colnames = c("Year", "Seas", "Fleet", "Type")
+    )
+  }
+  # check mean size at age
+  if(EM_dat$use_MeanSize_at_Age_obs == 1) {
+    if(OM_dat$use_MeanSize_at_Age_obs == 0) {
+      stop(
+        "The EM expects MeanSize_at_Age_obs (mean size at age) data, but the ", 
+        "OM does not have any. Please add meanbodywt to the OM."
+      )
+    }
+    check_avail_dat(
+      EM_dat = EM_dat, OM_dat = OM_dat, list_item = "MeanSize_at_Age_obs",
+      colnames = c("Yr", "Seas", "FltSvy", "AgeErr")
+    )
+    if (paste0(colnames(OM_dat[["MeanSize_at_Age_obs"]]), collapse = "") !=
+        paste0(colnames(EM_dat[["MeanSize_at_Age_obs"]]), collapse = "")) {
+      stop(
+        "Column names for MeanSize_at_Age_obs were not the same for the OM ",
+        "and EM. Please make the age comp bins the same or use a ",
+        "custom management strategy that includes steps to rebin the data."
+      )
+    }
+  }
+
   invisible(OM_dat)
 }
 
@@ -165,11 +193,16 @@ check_sample_struct <- function(sample_struct,
                                 valid_names = list(
                                   catch = c("Yr", "Seas", "FltSvy", "SE"),
                                   CPUE = c("Yr", "Seas", "FltSvy", "SE"),
-                                  lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"),
+                                  lencomp = c("Yr", "Seas", "FltSvy", "Sex", 
+                                              "Part", "Nsamp"),
                                   agecomp = c(
                                     "Yr", "Seas", "FltSvy", "Sex", "Part",
                                     "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"
-                                  )
+                                  ), 
+                                  meanbodywt = c("Yr", "Seas", "FltSvy", "Part",
+                                                 "Type", "SE"),
+                                  MeanSize_at_Age_obs = c("Yr", "Seas",
+                                    "FltSvy", "Sex", "Part", "Ageerr", "N_")
                                 )) {
   # list components should have same names as in r4ss
   # check no repeat names

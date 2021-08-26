@@ -1,13 +1,13 @@
 Package: SSMSE
 Type: Package
 Title: Management Strategy Evaluation (MSE) using Stock Synthesis (SS)
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("Kathryn", "Doering", email = "kathryn.doering@noaa.gov",
       role = c("aut", "cre")),
     person("Nathan", "Vaughan", email = "nathan.vaughan@noaa.gov", 
       role = c("aut")))
-Description: SSMSE is an R package for performing Management Strategy Evaluation
+Description: An R package for performing Management Strategy Evaluation
     (MSE) using Stock Synthesis (SS). SS is used as the Operating Model (OM) 
     and, if the user desires, the Estimation model (EM). SSMSE allows existing 
     SS models to be used as the basis for an OM. These OMs are used in the MSE 
@@ -28,13 +28,15 @@ Imports:
     assertive.properties,
     assertive.base,
     tidyr,
-    ss3sim
+    ss3sim,
+    dplyr,
+    magrittr,
+    ggplot2
 Suggests: 
     testthat,
     doParallel,
     parallel,
-    foreach,
-    ggplot2
+    foreach
 Remotes:
     r4ss/r4ss@main,
     ss3sim/ss3sim@main,

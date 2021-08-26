@@ -225,6 +225,7 @@ plot_index_sampling <- function(dir = getwd()) {
 #' @param comp_type Type of composition data, age or length. Defaults to age.
 #' @export
 #' @import ggplot2
+#' @importFrom magrittr %>%
 #' @author Kathryn Doering
 #' @return A list containing 2 components: 1) the ggplot object and 2) the
 #'  dataframe used to make the ggplot object
@@ -253,7 +254,7 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
     stop("The comp database from the operating model has no rows, so must not ", 
     "have been any historical data in the OM.")
   }
-  comp_dbase <- type.convert(comp_dbase)
+  comp_dbase <- utils::type.convert(comp_dbase)
   comp_dbase[["iteration"]] <- 1
   comp_dbase[["scenario"]] <- scenario
   comp_dbase[["model_run"]] <- "om"
@@ -281,13 +282,14 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
   }
   # get expected and observations in the same column
   comp_dbase <- tidyr::gather(comp_dbase, "type_obs", "obs_value", 17:18) %>% 
-             dplyr::filter(model_run == "om" | (model_run == "em" & type_obs == "Obs"))
+             dplyr::filter(.data[["model_run"]] == "om" | 
+                          (.data[["model_run"]] == "em" & .data[["type_obs"]] == "Obs"))
   comp_dbase[["model_type_obs"]] <- paste0(comp_dbase[["model_run"]], "_", 
                                            comp_dbase[["type_obs"]])
-  comp_dbase <- tidyr::spread(comp_dbase, model_type_obs, obs_value) %>% 
-                  dplyr::mutate(Yr_lab = paste0("Yr: ", Yr)) %>%
-                  dplyr::mutate(Seas_lab = paste0("Seas: ", Seas)) %>% 
-                  dplyr::mutate(Sex_lab = paste0("Sex: ", Sex))
+  comp_dbase <- tidyr::spread(comp_dbase, .data[["model_type_obs"]], .data[["obs_value"]]) %>% 
+                  dplyr::mutate(Yr_lab = paste0("Yr: ", .data[["Yr"]])) %>%
+                  dplyr::mutate(Seas_lab = paste0("Seas: ", .data[["Seas"]])) %>% 
+                  dplyr::mutate(Sex_lab = paste0("Sex: ", .data[["Sex"]]))
   # Make the plot ----
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     warning(
@@ -304,11 +306,11 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
   for(f in unique(comp_dbase[["Fleet"]])) {
     ind <- which(unique(comp_dbase[["Fleet"]]) == f)
     tmp_dbase_subset <- comp_dbase[comp_dbase[["Fleet"]] == f, ]
-    comp_plot[[ind]] <-  ggplot(tmp_dbase_subset, aes(x = Bin, y = om_Exp)) +
+    comp_plot[[ind]] <-  ggplot(tmp_dbase_subset, aes(x = .data[["Bin"]], y = .data[["om_Exp"]])) +
       geom_area(fill = "grey")+
-      geom_point(aes(y = om_Obs), color = "red", size = 2)+
-      geom_point(aes(y = em_Obs, shape = iteration), color = "black")+
-      facet_wrap(vars(Yr_lab, Seas_lab, Sex_lab))+
+      geom_point(aes(y = .data[["om_Obs"]]), color = "red", size = 2)+
+      geom_point(aes(y = .data[["em_Obs"]], shape = .data[["iteration"]]), color = "black")+
+      facet_wrap(vars(.data[["Yr_lab"]], .data[["Seas_lab"]], .data[["Sex_lab"]]))+
        scale_shape_manual(values = 
          rep(15, length(unique(comp_dbase[["iteration"]]))))+
       ylab("Proportion")+
@@ -367,7 +369,7 @@ get_performance_metrics <- function(dir = getwd(),
   }
   if("SpawnBio" %in% quantities) {
     if(use_SSMSE_summary_all == TRUE) {
-      ts_df <- read.csv(file.path(dir, "SSMSE_ts.csv"))
+      ts_df <- utils::read.csv(file.path(dir, "SSMSE_ts.csv"))
       keep_rows <- grep("OM$", ts_df[["model_run"]], ignore.case = TRUE)
       ts_df <- ts_df[keep_rows, ]
       ts_df[["fleet"]] <- NA

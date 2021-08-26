@@ -7,15 +7,24 @@
 #' @author Kathryn Doering & Nathan Vaughan
 #' @param OM_out_dir The full path to the directory in which the OM is run.
 #' @param overwrite Overwrite existing files with matching names?
+#' @param nyrs Number of years beyond the years included in the OM to run the
+#'   MSE. A single integer value.
 #' @param nyrs_assess The number of years between assessments. This is used to
 #'  structure the forecast file for use in the OM.
+#' @param nscen The scenario number
+#' @param scen_name The scenario name
+#' @param niter the iteration number
 #' @param writedat Should a new datafile be written?
-#' @param rec_devs Vector of recruitment deviations for simulation.
+#' @param future_om_dat An optional data_frame including changes that should
+#'  be made after the end year of the input model. Including parameter variations,
+#'  recruitment deviations, and implementation errors.
 #' @param verify_OM Should the model be run without estimation and some basic
 #'  checks done to verify that the OM can run? Defaults to TRUE.
 #' @param sample_struct_hist The historical sample structure, if specified by 
 #'  the user. Defaults to NULL, which means to use the same sample structure as
 #'  the historical data.
+#' @param sample_struct Input sampling structure to ensure future data are listed in OM
+#'  with correct SE.
 #' @param seed input seed to allow reproducible SS results.
 #' @template verbose
 #' @return A modified datafile
@@ -24,10 +33,15 @@ create_OM <- function(OM_out_dir,
                       overwrite = TRUE,
                       writedat = TRUE,
                       verbose = FALSE,
+                      nyrs = NULL,
                       nyrs_assess = NULL,
-                      rec_devs = NULL,
+                      nscen = 1, 
+                      scen_name = NULL,
+                      niter = 1,
+                      future_om_dat = NULL,
                       verify_OM = TRUE,
                       sample_struct_hist = NULL,
+                      sample_struct = NULL,
                       seed = NULL) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"),
     verbose = FALSE
@@ -88,44 +102,12 @@ create_OM <- function(OM_out_dir,
 
   # modify forecast file ----
   currentNforecast <- forelist[["Nforecastyrs"]]
-  forelist[["Nforecastyrs"]] <- nyrs_assess
-  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs_assess + 1
-  forelist[["InputBasis"]] <- 3
-  forelist[["ControlRuleMethod"]] <- 1
-  forelist[["BforconstantF"]] <- 0.001
-  forelist[["BfornoF"]] <- 0.0001
-  forelist[["Flimitfraction"]] <- 1
-
-  # convert forecast year selectors to absolute form
-  for (i in 1:6) {
-    x <- forelist[["Fcast_years"]][i]
-    if (x == -999) {
-      forelist[["Fcast_years"]][i] <- dat[["styr"]]
-    } else if (x <= 0) {
-      forelist[["Fcast_years"]][i] <- dat[["endyr"]] + x
-    } else if (x < dat[["styr"]] | x > dat[["endyr"]]) {
-      stop("Forecast year should be <=0 or between start year and end year")
-    }
-  }
-  # put together a Forecatch dataframe using retained catch as a starting point for the OM
-  # this would only matter if an EM assessment is not run in the first year.
-  units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"]
-  names(units_of_catch) <- as.character(which(dat[["fleetinfo"]][["type"]] %in% c(1, 2)))
-  ret_catch <- get_retained_catch(
-    timeseries = outlist[["timeseries"]],
-    units_of_catch = units_of_catch
-  )
-  temp_fore <- ret_catch[
-    ret_catch[["Era"]] == "FORE",
-    c("Yr", "Seas", "Fleet", "retained_catch")
-  ]
-  row.names(temp_fore) <- NULL
-  names(temp_fore) <- c("Year", "Seas", "Fleet", "Catch or F")
-  # only put values in that are in the Fcas year range.
-  forelist[["ForeCatch"]] <- temp_fore[
-    is.element(temp_fore[["Year"]], (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs_assess)),
-  ]
-
+  
+  forelist[["benchmarks"]] <- 0 # 
+  forelist[["Forecast"]] <- 0 # 
+  forelist[["Nforecastyrs"]] <- 1 # 
+  forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs + 2 # 
+  
   # modify ctl file ----
   # in the context of an OM, do not want to use the bias adjustment ramp, so just
   # turn off and make the recdevs years always the same.
@@ -152,47 +134,49 @@ create_OM <- function(OM_out_dir,
     ctl[["N_Read_recdevs"]] <- 0
     ctl[["recdev_input"]] <- NULL
   }
+
+
+  if (ctl[["recdev_early_start"]] <= 0) {
+    first_year <- ctl[["MainRdevYrFirst"]] + ctl[["recdev_early_start"]]
+  } else if (ctl[["recdev_early_start"]] < ctl[["MainRdevYrFirst"]]) {
+    first_year <- ctl[["recdev_early_start"]]
+  } else {
+    (
+      first_year <- ctl[["MainRdevYrFirst"]]
+    )
+  }
+
   
   # modify par file ----
   # note: don't include early recdevs in in all_recdevs
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
-  # get recdevs for all model yeasrs
-  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= ctl[["MainRdevYrFirst"]] & all_recdevs[["year"]] <= (dat[["endyr"]] + forelist[["Nforecastyrs"]]), ]
-  # new_recdevs_df <- data.frame(year = dat[["styr"]]:dat[["endyr"]], recdev = NA)
-  new_recdevs_df <- data.frame(year = ctl[["MainRdevYrFirst"]]:ctl[["MainRdevYrLast"]], recdev = NA)
-  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]), recdev = NA)
-  for (i in seq_along(ctl[["MainRdevYrFirst"]]:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))) {
-    tmp_yr <- (ctl[["MainRdevYrFirst"]]:(dat[["endyr"]] + forelist[["Nforecastyrs"]]))[i]
+  # get recdevs for all model years
+  all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]]), ] # 
+  
+  new_recdevs_df <- data.frame(year = first_year:ctl[["MainRdevYrLast"]], recdev = NA)
+  fore_recdevs_df <- data.frame(year = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + nyrs + 1), recdev = NA) # 
+  temp_yrs<-(first_year:(dat[["endyr"]] + nyrs + 1))
+  for (i in seq_along(temp_yrs)) { # 
+    tmp_yr <- temp_yrs[i] #
     if (tmp_yr <= ctl[["MainRdevYrLast"]]) {
       step <- i
       if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
-        new_recdevs_df[i, "recdev"] <- 0 # just assume no recdevs
+        new_recdevs_df[i, "recdev"] <- 0 # just assume no rec devs
       } else {
         new_recdevs_df[i, "recdev"] <-
           all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
       }
-    } else if (tmp_yr <= dat[["endyr"]]) {
+    } else {
       if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
         fore_recdevs_df[(i - step), "recdev"] <- 0
       } else {
         fore_recdevs_df[(i - step), "recdev"] <-
           all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
       }
-    } else {
-      temp_recs <- get_rec_devs_matrix(
-        yrs = tmp_yr,
-        rec_devs = rec_devs
-      )
-      if (length(temp_recs[, "recdev"]) == 1) {
-        fore_recdevs_df[(i - step), "recdev"] <- temp_recs[1, "recdev"]
-      } else if (length(all_recdevs[all_recdevs[["year"]] == tmp_yr, "year"]) == 0) {
-        fore_recdevs_df[(i - step), "recdev"] <- 0
-      } else {
-        fore_recdevs_df[(i - step), "recdev"] <-
-          all_recdevs[all_recdevs[["year"]] == tmp_yr, "recdev"]
-      }
-    }
+    } 
   }
+  
+  # add recdevs to the parlist
   new_recdevs_mat <- as.matrix(new_recdevs_df)
   new_fore_recdevs_mat <- as.matrix(fore_recdevs_df)
   if (!is.null(parlist[["recdev1"]])) {
@@ -200,54 +184,124 @@ create_OM <- function(OM_out_dir,
   } else if (!is.null(parlist[["recdev2"]])) {
     parlist[["recdev2"]] <- new_recdevs_mat
   } else {
-    stop("no recdevs in initial OM model")
+    stop("no recdevs in initial OM model. something is wrong")
   }
 
+  parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
+  
   # use report.sso time series table to find the F's to put into the parlist.
   F_list <- get_F(
     timeseries = outlist[["timeseries"]],
     fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
   )
-  # modify the init_F and F_rate in parlist if used.
-  # note that F_list[["F_rate"]] and F_list[["F_init]] are NULL if they had 0
-  # rows.
-  parlist[["F_rate"]] <- F_list[["F_rate"]][, c("year", "seas", "fleet", "F")]
+  
+  # SINGLE_RUN_MODS:
+  update_F_years <- (dat[["endyr"]]+1):(dat[["endyr"]]+nyrs)
+  
+  default_Catch<-data.frame(year=sort(rep(update_F_years,(length(unique(dat[["catch"]][,"seas"]))*length(unique(dat[["catch"]][,"fleet"]))))),
+                            seas=rep(sort(rep(unique(dat[["catch"]][,"seas"]),length(unique(dat[["catch"]][,"fleet"])))),length(update_F_years)),
+                            fleet=rep(sort(unique(dat[["catch"]][,"fleet"])),(length(unique(dat[["catch"]][,"seas"]))*length(update_F_years))),
+                            catch=rep(0.001,(length(unique(dat[["catch"]][,"seas"]))*length(unique(dat[["catch"]][,"fleet"]))*length(update_F_years))),
+                            catch_se=rep(0.01,(length(unique(dat[["catch"]][,"seas"]))*length(unique(dat[["catch"]][,"fleet"]))*length(update_F_years)))
+                            )
+  
+  new_catch <- dat[["catch"]][((dat[["catch"]][,"year"]<=dat[["endyr"]] & dat[["catch"]][,"year"]>=(-dat[["endyr"]]))|dat[["catch"]][,"year"]==-9999),,drop=FALSE]
+  new_catch <- rbind(new_catch,default_Catch)
+  
+  new_catch <- new_catch[order(new_catch[, "fleet"], new_catch[, "year"], new_catch[, "seas"]), ]
+  
+  update_SE_catch <- function(new_catch,sample_struct_in){
+    temp_samp <- sample_struct_in[sample_struct_in[,"year"]==new_catch[1] &
+                                  sample_struct_in[,"seas"]==new_catch[2] &
+                                  sample_struct_in[,"fleet"]==new_catch[3], "catch_se"]
+    if(length(temp_samp)==1){
+      new_SE <- temp_samp
+    }else{
+      new_SE <- new_catch[5]
+    }
+    return(new_SE)
+  }
+  if(!is.null(sample_struct[["catch"]])){
+    new_catch[,"catch_se"] <- apply(new_catch,1,update_SE_catch,sample_struct_in = sample_struct[["catch"]])
+  }
+  
+  dat[["catch"]] <- new_catch
+  
+  
+  
+  default_F <- F_list[["F_rate"]][F_list[["F_rate"]][,"year"]==dat[["endyr"]],c("year", "seas", "fleet", "F")]  
+  new_F_rate <- rbind(F_list[["F_rate"]][, c("year", "seas", "fleet", "F")],F_list[["F_rate_fcast"]][,c("year", "seas", "fleet", "F")])  
+  rownames(new_F_rate) <- c(F_list[["F_rate"]][, c("name")],F_list[["F_rate_fcast"]][,c("name")])  
+  
+  for(i in update_F_years){  
+    for(j in unique(new_F_rate[,"seas"])){    
+      for(k in unique(new_F_rate[,"fleet"])){      
+        temp_F_rate <- new_F_rate[new_F_rate[,"year"]==i & new_F_rate[,"seas"]==j & new_F_rate[,"fleet"]==k,,drop=FALSE]        
+        if(length(temp_F_rate[,1])==0){        
+          if(length(default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"])==0){          
+            temp_F_rate[1,] <- c(i,j,k,0)
+            rownames(temp_F_rate[1,]) <-  paste0("F_fleet_", k, "_YR_", i, "_s_", j)
+            default_F <- rbind(default_F,temp_F_rate[1,,drop=FALSE])       
+            new_F_rate <- rbind(new_F_rate,temp_F_rate[1,,drop=FALSE])             
+          }else{           
+            temp_F_rate[1,] <- c(i,j,k,default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"][1])  
+            rownames(temp_F_rate[1,]) <-  paste0("F_fleet_", k, "_YR_", i, "_s_", j)
+            new_F_rate <- rbind(new_F_rate,temp_F_rate[1,,drop=FALSE])             
+          }
+        }else{   
+          if(length(default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,"F"])==0){   
+            default_F<-rbind(default_F,temp_F_rate[1,,drop=FALSE]) 
+          }else{         
+            default_F[default_F[,"seas"]==j & default_F[,"fleet"]==k,] <- temp_F_rate[1,,drop=FALSE]   
+          }
+        }  
+      } 
+    }
+  } 
+  new_F_rate <- new_F_rate[order(new_F_rate[, "fleet"], new_F_rate[, "year"], new_F_rate[, "seas"]), ]
+  
+  rownames(new_F_rate) <- paste0(
+    "F_fleet_", new_F_rate[["fleet"]], "_YR_", new_F_rate[["year"]], "_s_",
+    new_F_rate[["seas"]]
+  )
+  # remove any years higher than the update_F_years (could have been in long 
+  # forecast in original model)
+  new_F_rate <-  new_F_rate[new_F_rate[["year"]] <= max(update_F_years), , drop = FALSE]
+  
+  parlist[["F_rate"]]<-new_F_rate  
+  
   parlist[["init_F"]] <- F_list[["init_F"]]
-  # add recdevs to the parlist
-  parlist[["recdev_forecast"]] <- new_fore_recdevs_mat
-  # get_rec_devs_matrix(yrs = (ctl[["MainRdevYrLast"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]),
-  #                     rec_devs = rec_devs)
-  # want no implementation error for the forecast, so function adds in 0s.
-  parlist[["Fcast_impl_error"]] <-
-    get_impl_error_matrix(yrs = (dat[["endyr"]] + 1):(dat[["endyr"]] + forelist[["Nforecastyrs"]]))
-
+  
+  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(yrs = (dat[["endyr"]] + nyrs +1 ):(dat[["endyr"]] + nyrs + forelist[["Nforecastyrs"]]))
 
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
   ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM
   ctl[["F_iter"]] <- NULL # make sure list components used by other F methods are NULL:
   ctl[["F_setup2"]] <- NULL # make sure list components used by other F methods are NULL:
 
-  # write all files
-  r4ss::SS_writectl(
-    ctllist = ctl, outfile = file.path(OM_out_dir, start[["ctlfile"]]),
-    overwrite = TRUE, verbose = FALSE
-  )
-  r4ss::SS_writeforecast(
-    mylist = forelist, dir = OM_out_dir, writeAll = TRUE,
-    overwrite = TRUE, verbose = FALSE
-  )
-  r4ss::SS_writepar_3.30(
-    parlist = parlist,
-    outfile = file.path(OM_out_dir, "ss.par"),
-    overwrite = TRUE
-  )
+  if(!is.list(future_om_dat)){
+    future_om_dat<-list()
+    
+  }
+  single_run_files <- add_OM_devs(ctl=ctl, dat=dat, parlist=parlist, timeseries=outlist[["timeseries"]], future_om_dat=future_om_dat$dev_vals) 
+  
+  dat<-single_run_files[["data"]] # SINGLE_RUN_MODS: 
+  ctl<-single_run_files[["control"]] # SINGLE_RUN_MODS: 
+  parlist<-single_run_files[["parameter"]] # SINGLE_RUN_MODS: 
+  impl_error<-single_run_files[["impl_error"]]
+  
+  if(is.null(impl_error)){
+    impl_error <- data.frame("year"=(dat[["endyr"]]+1):(dat[["endyr"]]+nyrs),
+                             "error"=rep(1,nyrs))
+  }
+  
   # modify dat file ----
+  dat[["endyr"]] <- dat[["endyr"]] + nyrs # because OM goes through the last simulated year.
   # remove the sampling components not needed
   dat <- rm_sample_struct_hist(sample_struct = sample_struct_hist, dat = dat)
   # Add in the historical sampling structure, as defined by the user
-  dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat, 
-                           nyrs_extend = 0)
-  
+  dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat)
+  dat <- add_sample_struct(sample_struct = sample_struct, dat = dat)
   # make sure tail compression is off.
   # turn off tail compression
   if (isTRUE(any(dat[["len_info"]][["mintailcomp"]] >= 0)) |
@@ -262,6 +316,23 @@ create_OM <- function(OM_out_dir,
     if (!is.null(dat[["len_info"]])) dat[["len_info"]][["mintailcomp"]] <- -1
     if (!is.null(dat[["age_info"]])) dat[["age_info"]][["mintailcomp"]] <- -1
   }
+  
+
+  
+  # write all files
+  r4ss::SS_writectl(
+    ctllist = ctl, outfile = file.path(OM_out_dir, start[["ctlfile"]]),
+    overwrite = TRUE, verbose = FALSE
+  )
+  r4ss::SS_writeforecast(
+    mylist = forelist, dir = OM_out_dir, writeAll = TRUE,
+    overwrite = TRUE, verbose = FALSE
+  )
+  r4ss::SS_writepar_3.30(
+    parlist = parlist,
+    outfile = file.path(OM_out_dir, "ss.par"),
+    overwrite = TRUE
+  )
 
   if (writedat) {
     SS_writedat(dat, file.path(OM_out_dir, start[["datfile"]]),
@@ -294,6 +365,14 @@ create_OM <- function(OM_out_dir,
         "problem."
       )
     }
+    # check model runs without producing nans in the data file
+    tmp_new_dat <- readLines(file.path(OM_out_dir, "data.ss_new"))
+    nan_vals <- grep("nan", tmp_new_dat)
+    if(length(nan_vals) > 0) {
+      stop("NAN values present in the data.ss_new om file, suggesting an issue ",
+           "setting up the OM. See ", file.path(OM_out_dir, "data.ss_new"))
+    }
+    
     # check the names of F parameters in the Parameters section of the report
     # file.
     test_output <- r4ss::SS_output(OM_out_dir,
@@ -316,11 +395,11 @@ create_OM <- function(OM_out_dir,
       }
     }
     F_rate_pars <- par_df[grep("^F_fleet_", par_df[["Label"]]), ]
-    if (NROW(F_rate_pars) != NROW(F_list[["F_rate"]])) {
+    if (NROW(F_rate_pars) != NROW(parlist[["F_rate"]])) {
       stop("Wrong number of F_rate parameters assumed by create_OM function.")
     }
     if (NROW(F_rate_pars) > 0) {
-      if (!all(F_rate_pars[["Label"]] == F_list[["F_rate"]][["name"]])) {
+      if (!all(F_rate_pars[["Label"]] == rownames(parlist[["F_rate"]]))) {
         stop(
           "Names of F_rate parameters assumed by create_OM function and in\n",
           "the PARAMETERS table of Report.sso function do not match."
@@ -328,7 +407,9 @@ create_OM <- function(OM_out_dir,
       }
     }
   }
-  invisible(dat)
+  
+  ouput_list<-list(dat=dat,impl_error=impl_error)
+  return(ouput_list)
 }
 
 #' Initial run of the OM
@@ -413,7 +494,8 @@ run_OM <- function(OM_dir,
 #' @param dat_types Types of data to include
 # get the initial sampling values
 get_init_samp_scheme <- function(dat,
-                                 dat_types = c("CPUE", "lencomp", "agecomp")) {
+                                 dat_types = c("CPUE", "lencomp", "agecomp",
+                                         "meanbodywt", "MeanSize_at_Age_obs")) {
   # TODO: write this. Can be used for EM and OM.
 }
 
@@ -444,6 +526,16 @@ rm_sample_struct_hist <- function(sample_struct_hist, dat) {
                               colnames = c("Yr", "Seas", "FltSvy", "Gender", 
                                            "Part", "Ageerr", "Lbin_lo", 
                                            "Lbin_hi"))
+  dat[["meanbodywt"]] <- rm_vals(
+    return_obj = dat,
+    compare_obj = sample_struct_hist,
+    name_in_obj = "meanbodywt", 
+    colnames = c("Year", "Seas", "Fleet", "Partition", "Type", "Std_in"))
+  dat[["MeanSize_at_Age_obs"]] <- rm_vals(
+    return_obj = dat,
+    compare_obj = sample_struct_hist,
+    name_in_obj = "MeanSize_at_Age_obs", 
+    colnames = c("Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr", "N_"))
   dat
 }
 
@@ -482,4 +574,154 @@ rm_vals <- function(return_obj, compare_obj, name_in_obj, colnames) {
     return_obj[[name_in_obj]][["combo"]] %in% to_keep,
     !(colnames(return_obj[[name_in_obj]]) %in% "combo")]
   to_return
+}
+
+#' Add in years of sampling data needed
+#' 
+#' @param sample_struct The sampling structure, as specified by the user.
+#' @param dat A datafile as read in by r4ss::SS_readdat
+add_sample_struct <- function(sample_struct, dat) {
+  if (is.null(sample_struct)) {
+    return(dat)
+  }
+  subset_yr_start <- dat[["styr"]]
+  subset_yr_end <- dat[["endyr"]]
+  
+  tmp_CPUE <- sample_struct[["CPUE"]]
+  if (!is.null(tmp_CPUE)) {
+    tmp_CPUE <- tmp_CPUE[tmp_CPUE[["year"]] >= subset_yr_start &
+                           tmp_CPUE[["year"]] <= subset_yr_end, ]
+    if (nrow(tmp_CPUE) > 0) {
+      tmp_CPUE[["obs"]] <- 1 # dummy observation
+      tmp_CPUE <- tmp_CPUE[, c("year", "seas", "index", "obs", "se_log")]
+      tmp_CPUE[["index"]] <- -abs(tmp_CPUE[["index"]])
+      dat[["CPUE"]] <- rbind(dat[["CPUE"]], tmp_CPUE)
+    }
+  }
+  
+  # This method of adding new data doesn't work if len comp is not already
+  # turned on. Add warninig for now, but could potentially turn on len comp
+  # for the user in the OM?
+  if (dat[["use_lencomp"]] == 0 & !is.null(sample_struct[["lencomp"]])) {
+    warning(
+      "Length composition is not specified in the OM, but the lencomp ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "length comp in the OM to allow lencomp sampling."
+    )
+  }
+  if (dat[["use_lencomp"]] == 1 & !is.null(sample_struct[["lencomp"]])) {
+    tmp_lencomp <- sample_struct[["lencomp"]]
+    tmp_lencomp <- tmp_lencomp[tmp_lencomp[["Yr"]] >= subset_yr_start &
+                                 tmp_lencomp[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_lencomp) > 0) {
+      # get col names
+      lencomp_dat_colnames <- colnames(dat[["lencomp"]])[7:ncol(dat[["lencomp"]])]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_lencomp),
+                           ncol = length(lencomp_dat_colnames)
+      )
+      colnames(tmp_df_dat) <- lencomp_dat_colnames
+      tmp_lencomp <- cbind(tmp_lencomp, as.data.frame(tmp_df_dat))
+      tmp_lencomp[["FltSvy"]] <- -abs(tmp_lencomp[["FltSvy"]]) # make sure negative
+      dat[["lencomp"]] <- rbind(dat[["lencomp"]], tmp_lencomp)
+    }
+  }
+  # TODO: can write code that adds age comp obs when dat[["agecomp"]] is NULL.
+  if (is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
+    warning(
+      "Age composition is not specified in the OM, but the agecomp ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "age comp in the OM by adding at least  to allow agecomp ",
+      "sampling."
+    )
+  }
+  if (!is.null(dat[["agecomp"]]) & !is.null(sample_struct[["agecomp"]])) {
+    tmp_agecomp <- sample_struct[["agecomp"]]
+    tmp_agecomp <- tmp_agecomp[tmp_agecomp[["Yr"]] >= subset_yr_start &
+                                 tmp_agecomp[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_agecomp) > 0) {
+      # get col names
+      agecomp_dat_colnames <- colnames(dat[["agecomp"]])[10:ncol(dat[["agecomp"]])]
+      tmp_df_dat <- matrix(1,
+                           nrow = nrow(tmp_agecomp),
+                           ncol = length(agecomp_dat_colnames)
+      )
+      colnames(tmp_df_dat) <- agecomp_dat_colnames
+      tmp_agecomp <- cbind(tmp_agecomp, as.data.frame(tmp_df_dat))
+      tmp_agecomp[["FltSvy"]] <- -abs(tmp_agecomp[["FltSvy"]]) # make sure negative
+      dat[["agecomp"]] <- rbind(dat[["agecomp"]], tmp_agecomp)
+    }
+  }
+  ##Mean size ----
+  if (is.null(dat[["meanbodywt"]]) & !is.null(sample_struct[["meanbodywt"]])) {
+    warning(
+      "Mean Size data is not specified in the OM, but the ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "mean size data (i.e., meanbodywt) in the OM to allow mean size data ",
+      "sampling."
+    )
+  }
+  if (!is.null(dat[["meanbodywt"]]) & !is.null(sample_struct[["meanbodywt"]])) {
+    tmp_meanbodywt <- sample_struct[["meanbodywt"]]
+    tmp_meanbodywt <- tmp_meanbodywt[tmp_meanbodywt[["Year"]] >= subset_yr_start &
+                                       tmp_meanbodywt[["Year"]] <= subset_yr_end, ]
+  if (nrow(tmp_meanbodywt) > 0) {
+    # dummy observation negative to exclued from NLL? (or should the fleet be neg?)
+    tmp_meanbodywt[["Value"]] <- -1
+    tmp_meanbodywt <- tmp_meanbodywt[, c("Year", "Seas", "Fleet", "Partition",
+                                         "Type", "Value", "Std_in")]
+    tmp_meanbodywt[["Value"]] <- -abs(tmp_meanbodywt[["Value"]])
+    dat[["meanbodywt"]] <- rbind(dat[["meanbodywt"]], tmp_meanbodywt)
+    }
+  }
+  # Mean size at age ----
+  if (is.null(dat[["MeanSize_at_Age_obs"]]) & !is.null(sample_struct[["MeanSize_at_Age_obs"]])) {
+    warning(
+      "Mean Size at age data is not specified in the OM, but the ",
+      "sampling was requested through sample_struct. Please turn on ",
+      "mean size at age data (i.e., MeanSize_at_Age_obs) in the OM to allow mean size at age data ",
+      "sampling."
+    )
+  }
+  if (!is.null(dat[["MeanSize_at_Age_obs"]]) & !is.null(sample_struct[["MeanSize_at_Age_obs"]])) {
+    tmp_MeanSize_at_Age_obs <- sample_struct[["MeanSize_at_Age_obs"]]
+    tmp_MeanSize_at_Age_obs <- tmp_MeanSize_at_Age_obs[tmp_MeanSize_at_Age_obs[["Yr"]] >= subset_yr_start &
+                                                         tmp_MeanSize_at_Age_obs[["Yr"]] <= subset_yr_end, ]
+    if (nrow(tmp_MeanSize_at_Age_obs) > 0) {
+      # get col names
+      sample_colnames <- grep("^[fm]\\d+$",  colnames(dat[["MeanSize_at_Age_obs"]]), 
+                           ignore.case = FALSE, value = TRUE)
+      MeanSize_at_Age_obs_dat_colnames <- colnames(dat[["MeanSize_at_Age_obs"]])[10:ncol(dat[["MeanSize_at_Age_obs"]])]
+      tmp_sample_df <- matrix(-1, #use negative 1, as this should exclude vals from the neg log likelihood
+                           nrow = nrow(tmp_MeanSize_at_Age_obs),
+                           ncol = length(sample_colnames)
+      )
+      colnames(tmp_sample_df) <- sample_colnames
+      # Need a sample size for each of the female and male obs in the row; SSMSE
+      # can only use the same sample size for all in a row currently.
+      N_colnames <- grep("^N_[fm]\\d+$", colnames(dat[["MeanSize_at_Age_obs"]]),
+                         ignore.case = FALSE, value = TRUE)
+      tmp_N_df <- lapply(tmp_MeanSize_at_Age_obs[["N_"]],
+                         function(x, y){
+                           vec <- rep(x, times = length(y)) 
+                           tmp_df <- data.frame(matrix(vec, nrow = 1,
+                                                       ncol = length(vec)))
+                           colnames(tmp_df) <- N_colnames
+                           tmp_df
+                         },
+                    y = N_colnames)
+      tmp_N_df <- do.call(rbind, tmp_N_df)
+      tmp_MeanSize_at_Age_obs <- tmp_MeanSize_at_Age_obs[, -7] #rm the sample size col
+      tmp_MeanSize_at_Age_obs[["Ignore"]] <- 2 # column for future features
+      tmp_MeanSize_at_Age_obs <- cbind(tmp_MeanSize_at_Age_obs,
+                                       as.data.frame(tmp_sample_df), 
+                                       tmp_N_df)
+      # TODO: need to make fleet negative??? no sure for this data type.
+      #tmp_agecomp[["FltSvy"]] <- -abs(tmp_agecomp[["FltSvy"]]) # make sure negative
+      dat[["MeanSize_at_Age_obs"]] <- rbind(dat[["MeanSize_at_Age_obs"]], 
+                                            tmp_MeanSize_at_Age_obs)
+    }
+  }
+
+  dat
 }
