@@ -212,6 +212,7 @@ create_sample_struct <- function(dat, nyrs) {
                              value = TRUE)
           tmp_err <- unique(df[df[[seas_col]] == tmp_seas &
                                  df[[flt_col]] == tmp_flt, ageerr_col])
+
           if (length(tmp_err) == 1) {
             future_pat[["Ageerr"]] <- tmp_err
           } else {

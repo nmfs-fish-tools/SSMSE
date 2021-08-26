@@ -135,6 +135,7 @@ create_OM <- function(OM_out_dir,
     ctl[["recdev_input"]] <- NULL
   }
 
+
   if (ctl[["recdev_early_start"]] <= 0) {
     first_year <- ctl[["MainRdevYrFirst"]] + ctl[["recdev_early_start"]]
   } else if (ctl[["recdev_early_start"]] < ctl[["MainRdevYrFirst"]]) {
@@ -144,8 +145,10 @@ create_OM <- function(OM_out_dir,
       first_year <- ctl[["MainRdevYrFirst"]]
     )
   }
+
   
   # modify par file ----
+  # note: don't include early recdevs in in all_recdevs
   all_recdevs <- as.data.frame(rbind(parlist[["recdev1"]], parlist[["recdev2"]], parlist[["recdev_forecast"]]))
   # get recdevs for all model years
   all_recdevs <- all_recdevs[all_recdevs[["year"]] >= first_year & all_recdevs[["year"]] <= (dat[["endyr"]]), ] # 
@@ -346,6 +349,14 @@ create_OM <- function(OM_out_dir,
       verbose = verbose,
       debug_par_run = TRUE
     )
+    # TODO: maybe add the following check into the debug par run arg of run_ss_model?
+    check_par <- readLines(file.path(OM_out_dir, "ss.par"))
+    check_sum_val <- check_par[grep("checksum999", check_par)+1]
+    if(as.numeric(check_sum_val) != 999) {
+      stop("The OM model created is not valid; likely, the par file was not of", 
+           "the correct length because checksum999 of output is not 999.", 
+           "Please open an issue in the SSMSE repository for assistance.")
+    }
     if (!file.exists(file.path(OM_out_dir, "control.ss_new"))) {
       stop(
         "The OM model created is not valid; it did not run and produce a\n",

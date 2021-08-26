@@ -82,7 +82,7 @@ run_result_custom <- run_SSMSE(
 
 ## Sampling options
 
-Currently, the only available sampling option is to use the bootstrapping module within SS itself. This means specifying `use_SS_boot_vec = TRUE`. Details on how sampling is done using the bootstrapping module in SS is available in the "Bootstrap Data Files" section of the [SS user manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231).
+Currently, the only available sampling option is to use the bootstrapping module within SS itself. This means specifying `use_SS_boot_vec = TRUE`. Details on how sampling is done using the bootstrapping module in SS is available in the "Bootstrap Data Files" section of the [SS user manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231).
 
 Users also need to specify how and which data types should be sampled for each future year in the simulation in `sample_struct_list`. `sample_struct_list` is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.
 

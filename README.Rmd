@@ -39,7 +39,7 @@ knitr::opts_chunk$set(
   
 "The United States Department of Commerce (DOC) GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. DOC has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information. Any claims against the Department of Commerce stemming from the use of its GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
 
-<!-- - This project code is made available through GitHub but is managed by NOAA at https://vlab.ncep.noaa.gov/redmine/projects/integrated-fisheries-toolbox/files -->
+<!-- - This project code is made available through GitHub but is managed by NOAA at https://vlab.noaa.gov/redmine/projects/integrated-fisheries-toolbox/files -->
   
   ***** *******
 
@@ -159,7 +159,7 @@ fore$Nforecastyrs
 
 However, an assessment will be conducted every 3 years and 3 years of forecasting is required. SSMSE will modify this value to the appropriate number of forecasting years.
 
-More information on using the forecast module in SS to forecast catches is available in the [Stock Synthesis users manual](https://vlab.ncep.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
+More information on using the forecast module in SS to forecast catches is available in the [Stock Synthesis users manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
 
 ## Adding observation error: Specify how to sample data from the Operating model
@@ -343,8 +343,8 @@ unlink(run_SSMSE_dir, recursive = TRUE)
 
 Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:
 
-```{r}
-constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100, 
+```{r, eval = FALS}
+constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100, 
                               frac_catch = 0.5, ...) { # need to include ... to allow function to work
   # set catch the same as the previous year (sampled catch).
   # catch is in the same units as the operating model, in this case it is in
@@ -364,16 +364,18 @@ constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100,
                      discards = discards)
 }
 ```
+The function should be created in a separate file. In this case, assume this function is available in a file custom_funs.R.
 
 This function can then be used in a call to `run_SSMSE`:
 
-```{r}
+```{r, eval = FALSE}
 run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the scenario
                 out_dir_scen_vec = run_res_path, # directory in which to run the scenario
                 iter_vec = 1,
                 OM_name_vec = "cod", # specify directories instead
                 OM_in_dir_vec = NULL,
                 MS_vec = "constant_catch_MS", # use the custom function
+                custom_MS_source = "custom_funs.R", # File where the custom function is available.
                 use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling, the only option
                 nyrs_vec = 6,        # Years to project OM forward
                 nyrs_assess_vec = 3, # Years between assessments
