@@ -821,11 +821,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
   }
   # Loop over the assessment years.
   for (yr in assess_yrs) {
-    # SINGLE_RUN_MODS: By removing forecasts and switching to an F based search routine it
-    # is no longer important to worry about high catch targets as we will input Fs and just
-    # have to set a cap for how high F could possibly be. I think we should add that as a
-    # user specification or maybe cap at a default 2 times the historic max?? SS has a built in cap
-    # of F=1.5 for each fleet I think?
     if (verbose) {
       message(
         "Extending, running, and sampling from the OM though year ", yr,
@@ -833,9 +828,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
       )
     }
 
-    # SINGLE_RUN_MODS: Will need to update some things still but not all
-    # probably need an input for current year so we can update the correct
-    # years of catch etc.
     update_OM(
       OM_dir = OM_out_dir,
       catch = new_catch_list[["catch"]],
@@ -930,14 +922,13 @@ run_SSMSE_iter <- function(out_dir = NULL,
       function(x, yr) new_catch <- x[x[["year"]] <= yr, ],
       yr = yr
     )
-    update_OM( # SINGLE_RUN_MODS: maybe change function name to update_OM?
+    update_OM(
       OM_dir = OM_out_dir,
       catch = subset_catch_list[["catch"]],
       harvest_rate = subset_catch_list[["catch_F"]],
       catch_basis = NULL,
       F_limit = NULL,
       EM_pars = subset_catch_list[["EM_pars"]],
-      # sample_struct = sample_struct,
       impl_error = impl_error,
       verbose = verbose,
       seed = (iter_seed[["iter"]][1] + 6789012)
