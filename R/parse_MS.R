@@ -35,6 +35,7 @@
 #'  will stay constant during simulation while relative year will progress with simulation).
 #' @param seed a random seed to initialize SS runs
 #' @author Kathryn Doering & Nathan Vaughan
+#' @export
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
 
 parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,

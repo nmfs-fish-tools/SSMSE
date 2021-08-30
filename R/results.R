@@ -103,7 +103,6 @@ SSMSE_summary_all <- function(dir = getwd(), scenarios = NULL,
 #'  dataframes to dir.
 #' @seealso \code{\link[ss3sim]{get_results_scenario}}
 #' @importFrom ss3sim get_results_scenario
-#' @export
 SSMSE_summary_scen <- function(dir = getwd()) {
   res <- ss3sim::get_results_scenario(
     scenario = basename(dir),
@@ -122,7 +121,6 @@ SSMSE_summary_scen <- function(dir = getwd()) {
 #'  iteration.
 #' @seealso \code{\link[ss3sim]{get_results_iter}}
 #' @importFrom ss3sim get_results_iter
-#' @export
 SSMSE_summary_iter <- function(dir) {
   res <- ss3sim::get_results_iter(dir_1_iter = dir)
 }

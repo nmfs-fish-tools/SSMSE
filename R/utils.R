@@ -65,7 +65,6 @@
 #'  year while for values <=0 the observed index values will be compared to their
 #'  expected value with the reference value identifying the lag in years for availability
 #'  of the index (Ref_years: vector length n indices).
-#' @export
 #' @author Kathryn Doering
 #' @examples
 #' scen_list <- create_scen_list(
@@ -323,7 +322,6 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
 #' @details Note that this function was created intially to return a value to
 #'  use as the input uncertainty, but it should be generalizable to pulling a
 #'  value from a column in any data frame using the method specified.
-#' @export
 #' @examples
 #' dfr <- data.frame(
 #'   "year" = 1:5,
@@ -703,7 +701,6 @@ combine_cols <- function(dat_list, list_item, colnames) {
 #' @returns A list of length 3 with 1) the global seed value; 2) the scenario seed values; and 3) the iteration seed values.
 #' @examples
 #' seeds <- set_MSE_seeds(seed = seq(10, 80, by = 10), iter_vec = c(2, 3))
-#' @export
 set_MSE_seeds <- function(seed = NULL, iter_vec) {
   if (is.null(seed)) {
     seed <- list()
