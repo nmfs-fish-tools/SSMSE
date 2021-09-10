@@ -16,13 +16,13 @@ Relying on `ss3sim::get_results_all()`, this function creates:
 - For all scenarios, 2 cross-scenario .csv files named by default to `SSMSE_ts`and `SSMSE_scalar`.
 - For all scenarios, the function returns a list object containing data frames of timeseries (ts), scalar, and derived quantities (dq) summaries.
 
-Note that `run_parallel = TRUE` is only useful when there is more than once scenario and none of the scenario-level .csv files have been created yet. 
+Note that `run_parallel = TRUE` is only faster than `run_parallel FALSE` when there is more than once scenario and none of the scenario-level .csv files have been created yet. 
 
 By default, if a user doesn't specify `scenarios`, all scenarios in `dir` will be summarized.
 
 ## Checking estimation model convergence
 
-One of the first checks to do if using an estimation model after running an MSE analysis is to check that the estimation model has convereged. A number of checks could be done, but a  pretty basic one is checking the gradients for the estimation model (not the Operating models), which are added to the `SSMSE_scalar` summary sheet. 
+One of the first checks to do if using an estimation model after running an MSE analysis is to check that the estimation model has converged. A number of checks could be done, but a basic one is checking the gradients for the estimation model, which are added to the `SSMSE_scalar` summary sheet.
 
 ## Calculating performance metrics
 
@@ -34,4 +34,6 @@ Typically, a suite of performance metrics are used in MSE. [Punt et al. (2016)](
 
 # Plotting output and performance metrics
 
-*to be added*
+Currently, it has been left up to the user to plot summaries and performance metrics, as the potential options for plots and performance metrics users may desire are extensive. 
+
+There are currently diagnostic plots to examine how sampled data compares to the operating model values and data sets used to condition the operating models. `plot_index_sampling()` isv used to create the diagnostic plot for indices, while `plot_comp_sampling()` is used to create the plots for composition data.

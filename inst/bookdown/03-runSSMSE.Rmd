@@ -10,20 +10,20 @@ Note that multiple scenarios can be called in `run_SSMSE()`, often through vecto
 
 The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
 
-## The Management Strategy/procedure, including estimation method (EM)
+## The Management Strategy/procedure and (if applicable) Estimation model (EM)
 
 The management strategy (and EM) can be specified in one of two ways:
 
 1. Using an SS model
 2. Using a custom procedure via a function in R
 
-In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches.
+In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches by fleet.
 
 ### Specify the Management Strategy in a SS model
 
-A stock synthesis model can be set up as the Estimation Method for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS model as the EM, specify the path in `EM_in_dir_vec`.
+An SS model can be set up as the EM for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS model as the EM, specify the path in `EM_in_dir_vec`.
 
-Future catches will be determined from the forecasting file settings of the Stock Sythesis model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
+Future catches will be determined from the forecasting file settings of the SS model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
 
 
 ### Using a custom management strategy/procedure
@@ -31,7 +31,7 @@ Future catches will be determined from the forecasting file settings of the Stoc
 Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:
 
 ```{r eval=FALSE}
-constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100, 
+constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100, 
                               frac_catch = 0.5, ...) { # need to include ... to allow function to work
   # set catch the same as the previous year (sampled catch).
   # catch is in the same units as the operating model, in this case it is in
@@ -51,6 +51,7 @@ constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100,
                      discards = discards)
 }
 ```
+Let's assume this function is saved in a file within the working directory named constant_catch_MS.R.
 
 This function can then be used in a call to `run_SSMSE()`:
 
@@ -68,12 +69,10 @@ run_result_custom <- run_SSMSE(
                               OM_name_vec = "cod",
                               OM_in_dir_vec = NULL,
                               MS_vec = "constant_catch_MS", # use custom fun
+                              custom_MS_source = "constant_catch_MS.R",
                               use_SS_boot_vec = TRUE,
                               nyrs_vec = 6,
                               nyrs_assess_vec = 3,
-                              rec_dev_pattern = "rand", 
-                              scope = "2",
-                              impl_error_pattern = "none", 
                               run_EM_last_yr = FALSE,
                               run_parallel = FALSE,
                               sample_struct_list = list(sample_struct),
@@ -112,22 +111,22 @@ Note there is just one change specified here. For the change, there are four lis
 
 * `"rec_devs"` - For specifying recruitment deviations
 * `"impl_error` - For specifying implementation error in transforming a management procedure's specified future catch into realized catch.
-* `"all"` - Apply the change to all parameters in the model, with the exception of "SR_sigmaR", "SR_regime", "SR_autocorr", and "impl_error" parameters. Changing the first 3 stock recruitment related parameters would conflict with changes in recruitment deviations. Since implementation error  is not a parameter specified in the control file and SSMSE does not rely on the implementation error parameter created through the forecasting file, including the implementation error in "all" did not seem necessary.
+* `"all"` - Apply the change to all parameters in the model, with the exception of "SR_sigmaR", "SR_regime", "SR_autocorr", and "impl_error" parameters. Changing the first 3 stock recruitment related parameters would conflict with changes in recruitment deviations. Since implementation error is not a parameter specified in the control file and SSMSE does not rely on the implementation error parameter created through the forecasting file, including the implementation error in "all" did not seem appropriate.
 
 In this case, we just want to apply the change to the `SizeSel_P_3_Fishery(1)` parameter of the model.
 
-2. The second item is "scen", which contains a vector of information about how to apply the changes within and across scenarios. The first value is an option to specify how the change should be applied across scenario, either "randomize" (use a different value for each iteration of each scenario) or "replicate" (use the same set of values across scenarios for the same number iteration, but each value will be different across iterations within the same scenario). Note that the same values will be applied across iterations and scenarios if there isn't any stochasticity in the values being drawn (e.g., standard deviation set at 0), regardless if "randomize" or "replicate" is chosen. In the example above, there is no stochasticity, so specifying randomize or replicat does not matter. Following the first value are the names of the scenarios to apply the change to. If the change should be applied to scenarios, "all" can be used in place of naming every scenario. In this example, The change will only be applied to the scenario named "scen2", so the input for "scen" is `c("randomize", "scen2")`.
+2. The second item is "scen", which contains a vector of information about how to apply the changes within and across scenarios. The first value is an option to specify how the change should be applied among scenarios, either "randomize" (use a different value for each iteration of each scenario) or "replicate" (use the same set of values across scenarios for the same number iteration, but each value will be different across iterations within the same scenario). Note that the same values will be applied across iterations and scenarios if there isn't any stochasticity in the values being drawn (e.g., standard deviation set at 0), regardless if "randomize" or "replicate" is chosen. In the example above, there is no stochasticity, so specifying randomize or replicate does not matter. Following the first value are the names of the scenarios to apply the change to. If the change should be applied to all of the scenarios, "all" can be used in place of naming every scenario. In this example, The change will only be applied to the scenario named "scen2", so the input for "scen" is `c("randomize", "scen2")`.
 
 3. The "pattern" is a vector of character inputs. The first value should be either "model_change", meaning that SSMSE will calculate the change values, or "custom" which allows the user to directly put in the values that they want in the model. In this case, "model_change" is used. A second input can also be added when the "model_change" pattern is used, which specifies the distribution to pull from. This could be "normal" or "lognormal", but if no input is provided, a normal distribution will be used for sampling.
 
 4. The fourth item, named "input", is a dataframe, which contains different column name values depending on if the "model_change" pattern is used or if the "custom" pattern is used. For the model_change options, a dataframe in input specifies a change for the parameter of a distribution. Because we are using the model change option, we have the following columns:
-* `first_yr_averaging`: The first year to average historical values from the model, if using for the change (`NA` in our example)
-* `last_yr_averaging`: The last year to average historical values from the model, if using for the change (`NA` in our example)
+* `first_yr_averaging`: The first year to average historical values from the model, if using for the change. This should be `NA` if historical averaging will not be used.
+* `last_yr_averaging`: The last year to average historical values from the model, if using for the change. This should be `NA` if historical averaging will not be used.
 * `last_yr_orig_val`: The last year of the future deviations with the original model value. This value will not be changed, but the following year's value will be.
 * `first_yr_final_val`: The first year where the final value as specified will be reached. If no future changes are made, the final value will continue forward in the OM through all projected years. For step changes, the `first_yr_final_val` is just 1 year after the `last_yr_orig_val`. However, if a more gradual adjustment toward the final value is desired, this could be any number of years after the original value.
 * ts_param: The sampling parameter to modify. Options are "mean", "ar_1_phi" (if using autocorrelation), "sd", and "cv". If not included in the dataframe, "mean" is assumed to be the same as in the previous model year, sd is assumed to be 0, and we assume no autocorrelation (as specified through an autoregressive AR1 process). Phi should be between -1 and 1 (this creates a stationary process) and if phi = 1, this creates a random walk (as random walk is a special case of an AR1 model). Note that both sd and cv cannot be specified within the same input dataframe.
 * method: How to apply the change relative to the historical (if specified) or previous year's value (if first_yr_averaging and last_yr_averaging for that row are NA). Options are "multiplicative", "additive", and "absolute". This example uses "absolute", meaning that the number in "value" is directly used.
-* value. The value of the parameter change.
+* value. The value of the parameter change. This may be NA if historical averaging is used.
 
 ### Example of future_om_list denoting a gradual change
 
@@ -138,7 +137,7 @@ my_future_om_list[[1]][["input"]][1, "first_yr_final_val"] <- 106
 my_future_om_list[[1]]
 ```
 
-### Example of future_om_list with a random jitter
+### Example of future_om_list with a random deviations
 
 Suppose we now wanted the value of "SizeSel_P_3_Fishery(1)" to change randomly according to a normal distribution with a standard deviation of 0.1 around a mean of 4.5 from 104 onwards. This can be done by adding a line specifying a change in standard deviation (which for now, has been assumed to be 0) to the data frame: 
 
@@ -158,7 +157,7 @@ Note that the `last_yr_orig_val` and `first_yr_final_val` are different than the
 
 ### Example of using historical values for determining parameter values
 
-This example applies a random jitter to all parameters for scenarios scen2 and  scen3.
+This example applies random annual deviations to all parameters for scenarios scen2 and  scen3.
 
 ```{r}
 
@@ -190,7 +189,7 @@ custom_future_om_list
 
 ```
 
-The parameters are similar to using `pattern = model_change`, but there is no need to specify a distribution as the second vector input of "pattern" and the column names in input are different. Also that the change is "randomized", which indicates that a value for each scenario and each iteration are necessary, whereas if the first value of "scen" was "replicate", separate values for each scenario should not be specified, but rather a single value for "all" should be used. The columns in the dataframe are:
+The inputs required for `pattern = custom` are similar to using `pattern = model_change`, but there is no need to specify a distribution as the second vector input of "pattern" and the column names in input are different. Also that the change is "randomized", which indicates that a value for each scenario and each iteration are necessary, whereas if the first value of "scen" was "replicate", separate values for each scenario should not be specified, but rather a single value for "all" should be used. The columns in the dataframe are:
 
 * par: the parameter name or "all" if it should be applied to all parameters in the "pars" input
 * scen: which scenario the value should apply to, or "all" if "replicate" is used as the scenario input
@@ -200,32 +199,25 @@ The parameters are similar to using `pattern = model_change`, but there is no ne
 
 ### How is the operating modified to accomodate changes as specified in the future_OM_list?
 
-All changes are made by converting the parameter(s) with changes to be time varying by using additive parameter deviations. Because this is an operating model, Stock Synthesis is not run with estimation, so to get the changes into the OM, values (drawn or calculated in model_changes or specified by the user using "custom") are directly input as parameter deviations into the par file. 
+All changes are made by converting the parameter(s) with changes to be time varing by using additive annual parameter deviations. Because this is an operating model, Stock Synthesis is not run with estimation, so to get the changes into the OM, values (drawn or calculated in model_changes or specified by the user using "custom") are directly input as parameter deviations into the ss.par file. 
 
 If an OM already contains time varying parameters, these parameters will also be converted to additive parameter deviations before applying the changes specified in the future_OM_list.
 
-<!-- ## Recruitment deviations -->
+### Example of specifying recruitment deviations
 
-<!-- *Note: this approach will soon be replaced with a more comprehensive approach for all future changes in the operating model* -->
+This shows some code for putting recruitment deviations with a mean of 0 and the same standard deviation as the historical recruitment deviations in years 1 to 100:
 
-<!-- Future recruitment deviations to use in the simulation needs to be specified by the user. SSMSE can generate the recruitment deviations or users can specify them. The recruitment deviation pattern options (specified through `rec_dev_pattern`) are: -->
-
-<!-- - `"none"`: All future deviations set to 0. -->
-<!-- - `"rand"`: Assign normally distributed random recruitment deviations. `rec_dev_pars` needs to be considered as well when using this option. If `rec_dev_pars = NULL`, then SSMSE will default to using the same standard deviation as the historic operating model and the sum of the recruitment deviations is allowed to diverge from zero is the nyrs_assess (rec_dev_pars = NULL is the same as specifying rec_dev_pars = c(nyrs_assess, 1), If other settings are deisred, the user can input a vector of two values to rec_dev_pars to specify the max number of years over which the sum of rec_devs can diverge from zero and a scalar multiplyer of standard deviation relative to the historic OM. -->
-<!-- - `"AutoCorr_rand"`: Automatically calculates random auto-correlated rec-devs based on the distribution of historic deviations. Input a vector of two values to rec_dev_pars to specify the max number of years over which the sum of rec_devs can diverge from zero and a scalar multiplyer of standard deviation relative to the historic OM. if rec_dev_pars=NULL defaults to c(nyrs_assess, 1) -->
-<!-- - `"AutoCorr_Spec"`: Generates auto-correlated recruitment deviations from an MA time-series model with user specified parameters. -->
-<!-- - `"user"`: The user can specify a vector or (for multiple scenarios or iterations) matrix of recruitement deviations. This input should have the same length as `nyrs` for the scenario. The vector or matrix is specified in `rec_dev_pars`. -->
-
-<!-- *In the future, some example specifications will be shown here to better illustrate the options* -->
-
-<!-- ## Implementation error -->
-
-<!-- *Note: this approach will soon be replaced with a more comprehensive approach for all future changes in the operating model* -->
-
-<!-- Management strategies that specify a total allowable catch are not always implemented perfectly. Thus, there are options in SSMSE to specify implementation error, where the true catch does not perfectly match the catch forecasted from the management strategy. The user can specify the future implementation error by using `impl_error_pattern`. Options are: -->
-
-<!-- - `"none"` (the default) - Assume there is no implementation error. -->
-<!-- - `"rand"` -  automatically assign achieved catch relative to expected catch as log normally distributed. Input a vector of `((nseas x nfleet x 2)+ 1)` values to impl_error_pars to specify the max number of years over which the achieved mean catch can diverge from the mean specified, the mean (default 1 such that achieved=expected), and the standard devation. If `impl_error__pars = NULL`, defaults to `c(nyrs_assess, rep(1,(nfleetxnseas)), rep(0,(nfleetxnseas)))`. -->
-<!-- - `"user"` - applys a user input vector or matrix of implementation errors of length/columns equal to nyrs x nseas x Nfleets and rows based on assigned scope. Input the vector/matrix to `impl_error_pars`. -->
-
-<!-- *In the future, some example specifications will be shown here to better illustrate the options* -->
+```{r}
+template_mod_change <- create_future_om_list(list_length = 1)
+rec_dev_specify <- template_mod_change[[1]]
+rec_dev_specify$pars <- "rec_devs"
+rec_dev_specify$scen <- c("replicate", "all")
+rec_dev_specify$input$first_yr_averaging <- 1
+rec_dev_specify$input$last_yr_averaging <- 100
+rec_dev_specify$input$last_yr_orig_val <- 100
+rec_dev_specify$input$first_yr_final_val <- 101
+rec_dev_specify$input$ts_param <- "sd"
+rec_dev_specify$input$value <- NA
+rec_dev_list <- list(rec_dev_specify)
+rec_dev_list
+```
