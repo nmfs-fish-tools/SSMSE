@@ -42,8 +42,7 @@ default to the working directory.}
 value.}
 
 \item{OM_name}{Name of a valid Stock Synthesis stock assessment model from
-which to create the OM. Currently, only allows models in the package, so
-valid inputs are: \code{"cod"}.}
+which to create the OM. Valid inputs are: \code{"cod"}, NULL, or NA.}
 
 \item{OM_in_dir}{Relative or absolute path to the operating model, if using a
 model outside of the SSMSE package.}

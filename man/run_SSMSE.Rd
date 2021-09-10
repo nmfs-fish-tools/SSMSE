@@ -39,8 +39,8 @@ default to the working directory.}
 in the same order as scen_name_vec.}
 
 \item{OM_name_vec}{Name of a valid Stock Synthesis stock assessment model from
-which to create the OM. Currently, only allows models in the package, so
-valid inputs are: \code{"cod"}.}
+which to create the OM. Valid inputs are: \code{"cod"} or NA within the 
+vector, or NULL.}
 
 \item{OM_in_dir_vec}{Vector of relative or absolute paths to the operating
 model, if using a model outside of the SSMSE package.}

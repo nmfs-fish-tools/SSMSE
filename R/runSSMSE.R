@@ -9,8 +9,8 @@
 #' @param iter_vec The number of iterations per scenario. A vector of integers
 #'  in the same order as scen_name_vec.
 #' @param OM_name_vec Name of a valid Stock Synthesis stock assessment model from
-#'   which to create the OM. Currently, only allows models in the package, so
-#'   valid inputs are: \code{"cod"}.
+#'   which to create the OM. Valid inputs are: \code{"cod"} or NA within the 
+#'   vector, or NULL.
 #' @param OM_in_dir_vec Vector of relative or absolute paths to the operating
 #'  model, if using a model outside of the SSMSE package.
 #' @param EM_name_vec Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
@@ -297,8 +297,7 @@ run_SSMSE <- function(scen_name_vec,
 #' @param iter The number of iterations for the scenario. A single integer
 #'  value.
 #' @param OM_name Name of a valid Stock Synthesis stock assessment model from
-#'   which to create the OM. Currently, only allows models in the package, so
-#'   valid inputs are: \code{"cod"}.
+#'   which to create the OM. Valid inputs are: \code{"cod"}, NULL, or NA.
 #' @param OM_in_dir Relative or absolute path to the operating model, if using a
 #'   model outside of the SSMSE package.
 #' @param EM_name Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
@@ -535,7 +534,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @param out_dir The directory to which to write output. IF NULL, will default
 #'   to the working directory.
 #' @param OM_name Name of a valid Stock Synthesis stock assessment model from
-#'   which to create the OM. Currently, valid inputs are: \code{"cod"} or NULL,
+#'   which to create the OM. Currently, valid inputs are: \code{"cod"}, NA, or NULL,
 #'   if using a custom model with path specified in \code{OM_in_dir}.
 #' @param OM_in_dir Relative or absolute path to the operating model, if using a
 #'   model outside of the SSMSE package.
