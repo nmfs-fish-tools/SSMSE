@@ -3,7 +3,8 @@
 #' THis is a utility to help a user create new operating models starting from the
 #' same model. For now, it is only possible to adjust 1 parameter value
 #' @param OM_name Name of the original model, as in the SSMSE package. If not
-#'  using a model in the package, please specify its path in \code{OM_in_dir}
+#'  using a model in the package, please specify its path in \code{OM_in_dir}. 
+#'  Can be left NULL if specifying OM_in_dir.
 #' @param OM_in_dir Path to the original operating model. If using a model in
 #'  the SSMSE package, please specify its name in \code{OM_name} instead.
 #' @param out_dir Path where the new models will be written. Defaults to the
@@ -26,13 +27,17 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
   assertive.types::assert_is_a_bool(refit_OMs)
   if (is.null(OM_name) & is.null(OM_in_dir)) {
     stop(
-      "OM_name and OM_in_dir are both NULL. Please specify an OM_name or ",
+      "OM_name and OM_in_dir are both NULL. Please specify at least an OM_name or ",
       "OM_in_dir."
     )
   }
+  # create the out_dir folder if it doesn't exist
+  if(isTRUE(!file.exists(out_dir))) {
+    dir.create(out_dir)
+  }
   # get the path to the OM if it is in the external package data.
   # specify the OM_in_dir if only specified OM by name.
-  if (!is.null(OM_name)) {
+  if (!is.null(OM_name) & is.null(OM_in_dir)) {
     pkg_dirs <- list.dirs(system.file("extdata", "models", package = "SSMSE"))
     pkg_dirs <- pkg_dirs[-grep("models$", pkg_dirs)] # git rid of model directory.
     OM_in_dir <- pkg_dirs[grep(OM_name, pkg_dirs)]
@@ -68,12 +73,13 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
   } else {
     opts <- "-nohess"
   }
+  OM_out_name <- ifelse(!is.null(OM_name), OM_name, basename(OM_in_dir))
   for (i in par_vals) {
     # copy to a new location and rename to make a new model
     file.copy(from = OM_in_dir, to = out_dir, recursive = TRUE)
     tmp_mod_path <- file.path(
       out_dir,
-      paste0(basename(OM_in_dir), "_", par_name, "_", as.character(i))
+      paste0(OM_out_name, "_", par_name, "_", as.character(i))
     )
     file.rename(
       from = file.path(out_dir, basename(OM_in_dir)),

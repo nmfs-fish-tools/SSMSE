@@ -7,7 +7,7 @@ on.exit(unlink(temp_path, recursive = TRUE), add = TRUE)
 
 
 test_that("develop_OMs works as expected", {
-  skip_on_cran()
+  skip_on_cran() # because runs with no est
   develop_OMs(
     OM_name = "cod",
     out_dir = temp_path,
@@ -43,3 +43,28 @@ test_that("develop_OMs works as expected with refiting and specifying directory"
   )
   expect_true(file.exists(file.path(new_temp_path, "cod_SR_BH_steep_0.6", "control.ss_new")))
 })
+
+temp_path_mod_rename <- file.path(temp_path, "mod_rename")
+
+test_that("develop_OMs works as expected when renaming the model", {
+  skip_on_cran() #b/c runs without estimation
+  develop_OMs(
+    OM_name = "rename-mod-test",
+    OM_in_dir = cod_mod,
+    out_dir = temp_path_mod_rename,
+    par_name = "SR_BH_steep",
+    par_vals = c(0.4, 0.8),
+    refit_OMs = FALSE
+  )
+  expect_true(file.exists(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "control.ss_new")))
+  expect_true(file.exists(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.8", "control.ss_new")))
+  dat <- r4ss::SS_readdat(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "data.ss_new"),
+                          verbose = FALSE
+  )
+  ctl <- r4ss::SS_readctl(
+    file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "control.ss_new"),
+    use_datlist = TRUE, datlist = dat, verbose = FALSE
+  )
+  expect_true(ctl$SR_parms["SR_BH_steep", "INIT"] == 0.4)
+})
+
