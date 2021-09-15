@@ -542,9 +542,9 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
       EM_in_dir <- pkg_dirs[grep(EM_name, pkg_dirs)]
       if (length(EM_in_dir) != 1) {
         stop(
-          "OM_name ", OM_name, " matched ", length(OM_in_dir), " models in ",
+          "EM_name ", EM_name, " matched ", length(EM_in_dir), " models in ",
           "SSMSE external package data, but should match 1. Please ",
-          "change OM_name to match (or partially match unambiguously) with 1 ",
+          "change EM_name to match (or partially match unambiguously) with 1 ",
           "model in the models folder of the SSMSE external package data. ",
           "Model options are: ", paste0(basename(pkg_dirs), collapse = ", ")
         )
