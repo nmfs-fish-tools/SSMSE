@@ -192,14 +192,14 @@ get_dead_catch <- function(timeseries, units_of_catch) {
   nfleets <- length(grep("^F:_\\d+$", colnames(timeseries)))
   assertive.properties::assert_is_of_length(units_of_catch, nfleets)
   fleet_names <- strsplit(grep("^F:_\\d+$", colnames(timeseries), value = TRUE),
-                          "_",
-                          fixed = TRUE
+    "_",
+    fixed = TRUE
   )
   fleet_names <- unlist(lapply(fleet_names, function(x) x[2]))
   if (!is.null(names(units_of_catch))) {
     assertive.base::assert_all_are_true(fleet_names == names(units_of_catch))
   }
-  
+
   # calc retained catch
   units_catch_string <- ifelse(units_of_catch == 1, "B", "N")
   dead_catch_colnames <- paste0(
@@ -210,23 +210,23 @@ get_dead_catch <- function(timeseries, units_of_catch) {
   dead_catch_colnames <- dead_catch_colnames[
     dead_catch_colnames %in% colnames(timeseries)
   ]
-  
+
   # switch from wide to long format.
   dead_catch_df <- timeseries[, c("Yr", "Era", "Seas", dead_catch_colnames)]
   dead_catch_df <- tidyr::gather(dead_catch_df,
-                                   key = "tmp_units_fleet",
-                                   value = "retained_catch",
-                                   grep(
-                                     "^dead\\([BN]\\):_\\d+$",
-                                     colnames(dead_catch_df)
-                                   )
+    key = "tmp_units_fleet",
+    value = "retained_catch",
+    grep(
+      "^dead\\([BN]\\):_\\d+$",
+      colnames(dead_catch_df)
+    )
   )
   # make the fleet column just the numerical values. could maybe to with
   # strsplit instead?
   dead_catch_df <- tidyr::separate(dead_catch_df,
-                                     col = "tmp_units_fleet",
-                                     into = c("Units", "Fleet"),
-                                     sep = ":_", convert = TRUE
+    col = "tmp_units_fleet",
+    into = c("Units", "Fleet"),
+    sep = ":_", convert = TRUE
   )
   # units are not as concise as they could be, but leave for now.
 }

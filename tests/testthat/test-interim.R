@@ -14,11 +14,11 @@ test_that("run_SSMSE runs with interim assessment workflow", {
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to get the structure, then modify
   sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs)
-  sample_struct$CPUE <- data.frame(Yr = 101:110, Seas = 7, FltSvy = 2, SE = 0.2)
-  sample_struct$agecomp <- NULL
-  sample_struct$lencomp <- NULL
-  sample_struct$meanbodywt <- NULL
-  sample_struct$MeanSize_at_Age_obs <- NULL
+  sample_struct[["CPUE"]] <- data.frame(Yr = 101:110, Seas = 7, FltSvy = 2, SE = 0.2)
+  sample_struct[["agecomp"]] <- NULL
+  sample_struct[["lencomp"]] <- NULL
+  sample_struct[["meanbodywt"]] <- NULL
+  sample_struct[["MeanSize_at_Age_obs"]] <- NULL
   interim_struct_list <- list(
     MA_years = 3,
     assess_freq = 10,

@@ -24,7 +24,7 @@ test_that("develop_OMs works as expected", {
     file.path(temp_path, "cod_SR_BH_steep_0.4", "control.ss_new"),
     use_datlist = TRUE, datlist = dat, verbose = FALSE
   )
-  expect_true(ctl$SR_parms["SR_BH_steep", "INIT"] == 0.4)
+  expect_true(ctl[["SR_parms"]]["SR_BH_steep", "INIT"] == 0.4)
 })
 
 new_temp_path <- file.path(temp_path, "refit_OMs")

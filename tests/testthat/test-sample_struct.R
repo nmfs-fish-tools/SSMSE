@@ -9,8 +9,9 @@ test_that("assumptions about r4ss colnames are true.", {
   # if this test is not passing, modifications need to be made to
   # convert_to_r4ss_names function.
   # mock some values outside modle year in the modesl
-  OM_dat_orig <-   dat_all_types <- r4ss::SS_readdat(
-    system.file("extdata", "test_dat_all_types.dat", package = "SSMSE"))
+  OM_dat_orig <- dat_all_types <- r4ss::SS_readdat(
+    system.file("extdata", "test_dat_all_types.dat", package = "SSMSE")
+  )
   r4ss_names <- list(
     catch = colnames(OM_dat_orig[["catch"]]),
     CPUE = colnames(OM_dat_orig[["CPUE"]]),
@@ -34,15 +35,15 @@ test_that("assumptions about r4ss colnames are true.", {
     meanbodywt = data.frame(
       Year = c(1999, 1999, 2001, 2001),
       Seas = 7,
-      Fleet = c(1,2,1,2),
+      Fleet = c(1, 2, 1, 2),
       Partition = 1,
       Type = 1,
       Std_in = 0.3
     ),
     MeanSize_at_Age_obs = data.frame(
-      Yr = c(1971, 1995), 
+      Yr = c(1971, 1995),
       Seas = 7,
-      FltSvy = c(1,1,2,2), 
+      FltSvy = c(1, 1, 2, 2),
       Gender = 3,
       Part = 0,
       AgeErr = 1
@@ -96,7 +97,7 @@ test_that("create_sample_struct works", {
       Yr = seq(105, 120, by = 5), Seas = 1, FltSvy = 2,
       Sex = 0, Part = 0, Ageerr = 1, Lbin_lo = -1,
       Lbin_hi = -1, Nsamp = 500
-    ), 
+    ),
     meanbodywt = NA,
     MeanSize_at_Age_obs = NA
   )
@@ -105,10 +106,10 @@ test_that("create_sample_struct works", {
   dat <- r4ss::SS_readdat(system.file("extdata", "models", "cod", "ss3.dat",
     package = "SSMSE"
   ), verbose = FALSE)
-  dat$lencomp <- NULL
+  dat[["lencomp"]] <- NULL
   sample_nolen <- create_sample_struct(dat, nyrs = 20)
   expect <- expect_sample_struct
-  expect$lencomp <- NA
+  expect[["lencomp"]] <- NA
   expect_equal(sample_nolen, expect)
   # give bad input
   expect_error(
@@ -116,13 +117,13 @@ test_that("create_sample_struct works", {
     "nyrs is not of class 'numeric'"
   )
   # make sure NA in sampling col works as expected.
-  dat$catch$catch_se[5] <- 0.01
+  dat[["catch"]][["catch_se"]][5] <- 0.01
   expect_warning(
     sample_struct_mult_SE <- create_sample_struct(dat, nyrs = 20),
     "NA included in column"
   )
   expect_mult_SE <- expect
-  expect_mult_SE$catch$SE <- NA
+  expect_mult_SE[["catch"]][["SE"]] <- NA
   expect_equal(sample_struct_mult_SE, expect_mult_SE)
   # todo: maybe need to expand this to account for CAL data?
 
@@ -169,16 +170,22 @@ test_that("get_full_sample_struct works", {
 
 test_that("get_full_sample_struct works with mean size, mean size at age", {
   skip_if(!file.exists(system.file("extdata", "models", "Simple_with_Discard",
-                                   "data.ss", package = "SSMSE")))
+    "data.ss",
+    package = "SSMSE"
+  )))
   spl_str <- list(
     catch = data.frame(Yr = 101:110),
     CPUE = data.frame(Yr = c(105, 110), FltSvy = 2),
     lencomp = data.frame(Yr = seq(102, 110, by = 2), FltSvy = 1, Part = 0),
     agecomp = data.frame(Yr = seq(102, 110, by = 4), FltSvy = 2),
-    meanbodywt = data.frame(Yr = seq(102, 110, by = 4), 
-                            Part = 1),
-    MeanSize_at_Age_obs = data.frame(Yr = seq(102, 110, by = 2), 
-                                     FltSvy = 1, Part = 0, N_= 20)
+    meanbodywt = data.frame(
+      Yr = seq(102, 110, by = 4),
+      Part = 1
+    ),
+    MeanSize_at_Age_obs = data.frame(
+      Yr = seq(102, 110, by = 2),
+      FltSvy = 1, Part = 0, N_ = 20
+    )
   )
   full_spl_str <- get_full_sample_struct(
     spl_str,
@@ -196,39 +203,48 @@ test_that("get_full_sample_struct works with mean size, mean size at age", {
       Yr = seq(102, 110, by = 4), Seas = 7, FltSvy = 2,
       Sex = 3, Part = 0, Ageerr = 2, Lbin_lo = 1,
       Lbin_hi = -1, Nsamp = 75
-    ), 
-    meanbodywt = data.frame(Yr = seq(102, 110, by = 4), Seas = 7, FltSvy = 1, 
-                            Part = 1, Type = 1, Std_in = 0.3),
-    MeanSize_at_Age_obs = data.frame(Yr = seq(102, 110, by = 2), Seas = 7,
-                                     FltSvy = 1, Sex = 3, Part = 0, Ageerr = 1,
-                                     N_= 20)
+    ),
+    meanbodywt = data.frame(
+      Yr = seq(102, 110, by = 4), Seas = 7, FltSvy = 1,
+      Part = 1, Type = 1, Std_in = 0.3
+    ),
+    MeanSize_at_Age_obs = data.frame(
+      Yr = seq(102, 110, by = 2), Seas = 7,
+      FltSvy = 1, Sex = 3, Part = 0, Ageerr = 1,
+      N_ = 20
+    )
   )
   expect_equal(full_spl_str, full_spl_str_ref)
 })
 
 test_that("sample_str works with other data types", {
   dat_all_types <- r4ss::SS_readdat(
-    system.file("extdata", "test_dat_all_types.dat", package = "SSMSE"))
+    system.file("extdata", "test_dat_all_types.dat", package = "SSMSE")
+  )
   # can add this later if want to add generalized size comp sampling. Has not
   # yet been added.
   # dat_gen_size_comp <- r4ss::SS_readdat(
   #   system.file("extdata","test_dat_gen_size_comp.ss", package = "SSMSE"))
   # TODO: make type of the rows/columns standardized?
   struct <- create_sample_struct(dat_all_types, nyrs = 5)
-  expect_equivalent(struct[["meanbodywt"]], data.frame(Yr = c(2003, 2005), 
-                                                  Seas = 7,
-                                                  FltSvy = c(1,1,2,2),
-                                                  Part = 1,
-                                                  Type = 1,
-                                                  SE = 0.3))
-  expect_equivalent(struct[["MeanSize_at_Age_obs"]], 
-               data.frame(Yr = as.logical(NA), 
-                          Seas = 7,
-                          FltSvy = c(1,2), 
-                          Sex = 3,
-                          Part = 0, 
-                          Ageerr = 1,
-                          Nsamp = 20))
-  })
-
-
+  expect_equivalent(struct[["meanbodywt"]], data.frame(
+    Yr = c(2003, 2005),
+    Seas = 7,
+    FltSvy = c(1, 1, 2, 2),
+    Part = 1,
+    Type = 1,
+    SE = 0.3
+  ))
+  expect_equivalent(
+    struct[["MeanSize_at_Age_obs"]],
+    data.frame(
+      Yr = as.logical(NA),
+      Seas = 7,
+      FltSvy = c(1, 2),
+      Sex = 3,
+      Part = 0,
+      Ageerr = 1,
+      Nsamp = 20
+    )
+  )
+})

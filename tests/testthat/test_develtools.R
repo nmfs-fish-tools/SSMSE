@@ -16,7 +16,7 @@ orig_mod_dir <- file.path(temp_path, "cod")
 start_orig <- r4ss::SS_readstarter(file.path(orig_mod_dir, "starter.ss"),
   verbose = FALSE
 )
-start_orig$init_values_src <- 1 # read inits from ctl instead of par.
+start_orig[["init_values_src"]] <- 1 # read inits from ctl instead of par.
 r4ss::SS_writestarter(start_orig,
   dir = file.path(orig_mod_dir), overwrite = TRUE,
   verbose = FALSE, warn = FALSE
@@ -50,7 +50,7 @@ test_that("test_no_par works as expected", {
   fore <- r4ss::SS_readforecast(file.path(orig_mod_dir, "forecast.ss"),
     verbose = FALSE
   )
-  fore$benchmarks <- 3
+  fore[["benchmarks"]] <- 3
   r4ss::SS_writeforecast(fore,
     dir = orig_mod_dir,
     verbose = FALSE, overwrite = TRUE

@@ -41,17 +41,17 @@ test_that("check_OM_dat works", {
   expect_equal(OM_dat, return_dat)
   # Check that exits on error if wrong years
   OM_dat_wrong_yr <- OM_dat
-  OM_dat_wrong_yr$endyr <- 80 # should go to 100
+  OM_dat_wrong_yr[["endyr"]] <- 80 # should go to 100
   # check that exits on error if missing lcomps columns in OM
   OM_dat_miss_lcompcol <- OM_dat
-  OM_dat_miss_lcompcol$lencomp <- OM_dat_miss_lcompcol$lencomp[, -7]
+  OM_dat_miss_lcompcol[["lencomp"]] <- OM_dat_miss_lcompcol[["lencomp"]][, -7]
   expect_error(
     check_OM_dat(OM_dat_miss_lcompcol, EM_dat),
     "Column names for length composition were not the same"
   )
   # check that exits on error if missing agecomp cols in OM
   OM_dat_miss_agecompcol <- OM_dat
-  OM_dat_miss_agecompcol$agecomp <- OM_dat_miss_agecompcol$agecomp[, -10]
+  OM_dat_miss_agecompcol[["agecomp"]] <- OM_dat_miss_agecompcol[["agecomp"]][, -10]
   expect_error(
     check_OM_dat(OM_dat_miss_agecompcol, EM_dat),
     "Column names for age composition were not the same"
@@ -59,13 +59,13 @@ test_that("check_OM_dat works", {
   # test different version of same error together: missing values in CPUE,
   # lcomps, and agecomps
   OM_dat_miss_CPUE <- OM_dat
-  OM_dat_miss_CPUE$CPUE <- OM_dat_miss_CPUE$CPUE[-c(1, 2), ] # remove first 2
+  OM_dat_miss_CPUE[["CPUE"]] <- OM_dat_miss_CPUE[["CPUE"]][-c(1, 2), ] # remove first 2
   # check that exits on error if missing lcomps in OM
   OM_dat_miss_lcomp <- OM_dat
-  OM_dat_miss_lcomp$lencomp <- OM_dat_miss_lcomp$lencomp[-1, ]
+  OM_dat_miss_lcomp[["lencomp"]] <- OM_dat_miss_lcomp[["lencomp"]][-1, ]
   # check that exits on error if missing agecomps in OM
   OM_dat_miss_agecomp <- OM_dat
-  OM_dat_miss_agecomp$agecomp <- OM_dat_miss_agecomp$agecomp[-1, ]
+  OM_dat_miss_agecomp[["agecomp"]] <- OM_dat_miss_agecomp[["agecomp"]][-1, ]
   OM_dat_list <- list(OM_dat_miss_CPUE, OM_dat_miss_lcomp, OM_dat_miss_agecomp)
   # test together
   lapply(OM_dat_list, function(x) {
@@ -77,10 +77,12 @@ test_that("check_OM_dat works", {
 })
 
 test_that("check_OM_dat works with mean size at age data", {
-  skip_if(!file.exists(file.path(extdat_path, "models", "Simple_with_Discard", 
-                                 "data.ss")))
+  skip_if(!file.exists(file.path(
+    extdat_path, "models", "Simple_with_Discard",
+    "data.ss"
+  )))
   OM_dat <- r4ss::SS_readdat(
-    file.path(extdat_path, "models", "Simple_with_Discard" ,"data.ss"),
+    file.path(extdat_path, "models", "Simple_with_Discard", "data.ss"),
     verbose = FALSE
   )
   EM_dat <- OM_dat # make the same so know that there should be no errors
