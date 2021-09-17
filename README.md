@@ -1,29 +1,30 @@
-SSMSE: Management Strategy Evaluation for Stock Synthesis (SS)
+SSMSE: Management Strategy Evaluation for Stock Synthesis
 ================
 
   - [SSMSE build status](#ssmse-build-status)
   - [Motivation for developing SSMSE](#motivation-for-developing-ssmse)
+  - [Need Help?](#need-help)
   - [Installing the SSMSE R package](#installing-the-ssmse-r-package)
   - [Troubleshooting Installation](#troubleshooting-installation)
   - [An SSMSE example](#an-ssmse-example)
       - [Setup R workspace folders](#setup-r-workspace-folders)
       - [Create the operating models
         (OMs)](#create-the-operating-models-oms)
+      - [Adding process error through recruitment deviations and
+        time-varying
+        selectivity](#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity)
       - [Examine the management procedure
         used](#examine-the-management-procedure-used)
-      - [Adding observation error: Specify how to sample data from the
-        Operating
-        model](#adding-observation-error-specify-how-to-sample-data-from-the-operating-model)
-      - [Adding process error through recruitment
-        deviations](#adding-process-error-through-recruitment-deviations)
       - [Run SSMSE](#run-ssmse)
       - [run\_SSMSE output](#run_ssmse-output)
       - [Performance metrics](#performance-metrics)
       - [Summarize results](#summarize-results)
+      - [Simple Convergence Check](#simple-convergence-check)
+      - [Plot Spawning Stock Biomass
+        (SSB)](#plot-spawning-stock-biomass-ssb)
       - [Example MSE Results](#example-mse-results)
       - [Delete the files](#delete-the-files)
-  - [Advanced options: use a custom management
-    strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure)
+  - [Advanced options: use a custom management strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure-custom)
   - [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
   - [Roadmap: Where is SSMSE headed
     next?](#roadmap-where-is-ssmse-headed-next)
@@ -69,21 +70,24 @@ commercial product or activity by DOC or the United States Government.”
 
 # Motivation for developing SSMSE
 
-This package was developed to increase the ease of using SS directly as
-an operating model in an Management Strategy evaluation. The approach
-requires a conditioned Stock Synthesis model, which is treated as the
-Operating Model and a Stock Synthesis model to use as the Estimation
-Model (EM) and to specify the Management procedure through the Stock
-Synthesis forecasting model. In the future, we plan to make the choice
-of estimation method and management procedure more flexible.
+This package was developed to increase the ease of using Stock Synthesis
+(SS) directly as an operating model (OM) in an Management Strategy
+Evaluation (MSE). The approach requires a conditioned Stock Synthesis
+mode to use as the OM.
 
 Below, we’ll work through a simple example MSE as a way of introducing
 the SSMSE package.
 
-# Installing the SSMSE R package
+# Need Help?
 
-Note that the SSMSE is a work in progress and not yet a minimum viable
-product.
+  - Get questions answered in
+    [discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions).
+  - Submit bug reports and feature requests to
+    [issues](https://github.com/nmfs-fish-tools/SSMSE/issues).
+  - Alternatively, contact the develpers via email at
+    <nmfs.stock.synthesis@noaa.gov>.
+
+# Installing the SSMSE R package
 
 To install SSMSE from github:
 
@@ -101,10 +105,10 @@ You can read the help files with
 
 Here are some tips:
 
-  - Make sure you are using the development branch versions of R
-    packages `r4ss` and `ss3sim`. These can be installed separately
-    using `remotes::install_github("r4ss/r4ss", ref = "development")`
-    and `remotes::install_github("ss3sim/ss3sim", ref = "development")`.
+  - Make sure you are using the main branch versions of R packages
+    `r4ss` and `ss3sim`. These can be installed separately using
+    `remotes::install_github("r4ss/r4ss")` and
+    `remotes::install_github("ss3sim/ss3sim")`.
   - If R asks “Would you like to download from sources that need
     compilation?”, select “no”, as the older compiled versions should
     work fine.
@@ -123,15 +127,16 @@ Here are some tips:
     `remotes::install_github("nmfs-fish-tools/SSMSE")` again. This step
     may need to be done several times for different R packages.
 
-Still having trouble installing SSMSE? Please don’t hesitate to open an
-[issue](https://github.com/nmfs-fish-tools/SSMSE/issues).
+Still having trouble installing SSMSE? Please don’t hesitate to [post in
+discussions about the
+issue](https://github.com/nmfs-fish-tools/SSMSE/discussions/categories/q-a).
 
 # An SSMSE example
 
-Suppose we want to look at how well we are able to achieve a specified
-management procedure under uncertainty in the operating model (OM). We
-will look 2 scenarios, one where Steepness (h) is specified correctly
-and one where it is specified incorrectly in an estimation model (EM):
+Suppose we want to look at how well we are able to achieve a performance
+metric under uncertainty in the operating model (OM). We will look 2
+scenarios, one where Steepness (h) is specified correctly and one where
+it is specified incorrectly in an estimation model (EM):
 
 Scenario 1. **h-ctl**: Cod operating model (h = 0.65) with correctly
 specified cod model EM (fixed h = 0.65). The OM is the same as the EM.
@@ -141,14 +146,15 @@ model EM (fixed h = 0.65); The OM is not the same as the EM.
 
 Note that this is a simple example where the OM and EM structures for
 both scenarios are identical, except for different steepness between the
-OM and EM in scenario 2. We will assume we want to run the MSE loop for
-6 years, with a stock assessment occuring every 3 years (and forecasting
-catch to maintain 40% of unfished spawning stock biomass). The cod
-model’s last year is 100, so the OM is initially conditioned through
-year 100. Then, after conditioning the operating model through year 100,
-assessments will occur in years 100 and 103. The operating model runs
-through year 106. We chose not to run the assessment in year 106, as
-there was no need for its output in this example.
+OM and EM in scenario 2 and some process error we will include in the
+operating model. We will assume we want to run the MSE loop for 6 years,
+with a stock assessment occuring every 3 years (and forecasting catch to
+maintain 40% of unfished spawning stock biomass). The cod model’s last
+year is 100, so the OM is initially conditioned through year 100. Then,
+after conditioning the operating model through year 100, assessments
+will occur in years 100 and 103. The operating model runs through year
+106. We chose not to run the assessment in year 106, as there was no
+need for its output in this example.
 
 ## Setup R workspace folders
 
@@ -157,10 +163,13 @@ run the example:
 
 ``` r
 library(SSMSE) #load the package
-library(r4ss) #install using remotes::install_github("r4ss/r4ss@development)
+library(r4ss) #install using remotes::install_github("r4ss/r4ss)
 library(foreach) #if using run_parallel = TRUE
+## Warning: package 'foreach' was built under R version 4.0.3
 library(doParallel) #if using run_parallel = TRUE
+## Warning: package 'doParallel' was built under R version 4.0.3
 ## Loading required package: iterators
+## Warning: package 'iterators' was built under R version 4.0.3
 ## Loading required package: parallel
 ```
 
@@ -171,6 +180,8 @@ dir.create(run_SSMSE_dir)
 ```
 
 ## Create the operating models (OMs)
+
+### Specify alternative values for h
 
 The cod model with h = 0.65 (as in scenario 1) is included as external
 package data in SSMSE. However, we will need to modify it to use as an
@@ -193,14 +204,174 @@ develop_OMs(OM_name = "cod", out_dir = run_SSMSE_dir, par_name = "SR_BH_steep",
 cod_1_path <- file.path(run_SSMSE_dir, "cod_SR_BH_steep_1")
 ```
 
+## Adding process error through recruitment deviations and time-varying selectivity
+
+Recruitment deviations, implementation error, and changes in parameters
+in the projection period of the OM can be added through the
+`future_om_list` input to `run_SSMSE`.
+
+First, we’ll set up the list to add recruitment deviations in the
+projection period. The same recruitment deviation patterns are used
+across scenarios, but different patterns are use across iterations in
+the same scenario. We also want these deviations to have the same
+standard deviations as the historical deviations with 0 mean (the
+assumed default).
+
+``` r
+# Start from a list created by a helper function
+template_mod_change <- create_future_om_list() 
+# add recruitment deviations
+rec_dev_specify <- template_mod_change[[1]]
+rec_dev_specify$pars <- "rec_devs" # apply change to rec devs
+rec_dev_specify$scen <- c("replicate", "all")
+# using 1 to 100 means the sd or mean will be calculated by taking the sd across years
+# from 1 to 100
+rec_dev_specify$input$first_yr_averaging <- 1
+rec_dev_specify$input$last_yr_averaging <- 100
+# The following 2 lines suggest that this change is immediately applied in year
+# 101, with no transitory period for using sd 0 to the new sd.
+rec_dev_specify$input$last_yr_orig_val <- 100
+rec_dev_specify$input$first_yr_final_val <- 101
+rec_dev_specify$input$ts_param <- "sd" # this change is for the sd
+# no input value needed since it will be calclated from the historical rec devs.
+rec_dev_specify$input$value <- NA
+rec_dev_specify
+## $pars
+## [1] "rec_devs"
+## 
+## $scen
+## [1] "replicate" "all"      
+## 
+## $pattern
+## [1] "model_change"
+## 
+## $input
+##   first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val
+## 1                  1               100              100                101
+##   ts_param   method value
+## 1       sd absolute    NA
+```
+
+Next, suppose we want to allow selectivity to vary annually for 1
+selectivity parameter of the fishery throughout the projection period.
+The following specifies that the value for selectivity varies randomly
+around the base value with a sd of 0.2.
+
+``` r
+# put together the change for selectivity (random values around the orig val, with
+# an sd of 0.2)
+mod_change_sel <- template_mod_change[[1]]
+mod_change_sel$scen[2] <- "all" # apply to all scenarios
+# The following 2 lines suggest that this change is immediately applied in year
+# 101, with no transitory period for using sd 0 to the new sd.
+# historical values are NA in this case, because they are not used to determine
+# the sd to use.
+mod_change_sel$input$last_yr_orig_val <- 100
+mod_change_sel$input$first_yr_final_val <- 101
+mod_change_sel$input$ts_param <- "sd" # this change is for the sd
+mod_change_sel$input$value <- 0.2 # se to use in the projection period
+mod_change_sel
+## $pars
+## [1] "SizeSel_P_3_Fishery(1)"
+## 
+## $scen
+## [1] "replicate" "all"      
+## 
+## $pattern
+## [1] "model_change"
+## 
+## $input
+##   first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val
+## 1                 NA                NA              100                101
+##   ts_param   method value
+## 1       sd absolute   0.2
+```
+
+Finally, add these two changes together into an object to pass to
+`run_SSMSE`
+
+``` r
+future_om_list_recdevs_sel <- list(rec_dev_specify, 
+                                   mod_change_sel) 
+```
+
+### Add observation error through sampling from OM
+
+The argument `sample_struct` specifies the structure for sampling from
+the OM (and passing to the EM). The function `create_sample_struct` can
+be used to construct a simple sampling structure consistent with an
+input data file:
+
+``` r
+datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+sample_struct_1_scen <- create_sample_struct(dat = datfile, nyrs = 6) # note warning
+## Warning in FUN(X[[i]], ...): Pattern not found for lencomp: FltSvy 1, Seas 1.
+## Returning NA for Yr in this dataframe.
+sample_struct_1_scen
+## $catch
+##    Yr Seas FltSvy    SE
+## 1 101    1      1 0.005
+## 2 102    1      1 0.005
+## 3 103    1      1 0.005
+## 4 104    1      1 0.005
+## 5 105    1      1 0.005
+## 6 106    1      1 0.005
+## 
+## $CPUE
+##    Yr Seas FltSvy  SE
+## 1 105    7      2 0.2
+## 
+## $lencomp
+##   Yr Seas FltSvy Sex Part Nsamp
+## 1 NA    1      1   0    0   125
+## 
+## $agecomp
+##    Yr Seas FltSvy Sex Part Ageerr Lbin_lo Lbin_hi Nsamp
+## 1 105    1      2   0    0      1      -1      -1   500
+## 
+## $meanbodywt
+## [1] NA
+## 
+## $MeanSize_at_Age_obs
+## [1] NA
+```
+
+By default, `create_sample_struct` identifies sampling patterns from the
+historical period of the OM and replicates those patterns in the
+projection period. In our cod example, the sample structure specifies
+that catch will be added to the estimation model every year (years 101
+to 106), but an index of abundance (i.e., CPUE) and age composition
+(i.e., agecomp) will only be added in year 105. We will use the same
+sampling scheme for both scenarios, but it is possible to specify
+different sampling for each scenario. The user could modify this
+sampling strategy (for example, maybe age composition should also be
+sampled from FltSvy 2 in Yr 102; the user could add another line to the
+dataframe in `sample_struct$agecomp`).
+
+Note that length comp (lencomp) includes an `NA` value for year. This is
+because no consistent pattern was identified, so the user must define
+their own input. In this case, we will remove sampling length comps all
+together:
+
+``` r
+sample_struct_1_scen$lencomp <- NULL # don't use length sampling
+```
+
+The same sampling structure will be used for both scenarios, which we
+define in a list below:
+
+``` r
+sample_struct_list_all <- list("h-ctl" = sample_struct_1_scen, "h-1" = sample_struct_1_scen)
+```
+
 ## Examine the management procedure used
 
 We will use the same management procedure for both scenarios:
 
 1.  Conduct a stock assessment every 3 years to get stock status.
-2.  Forecast from this stock assessment using the SS forecast file to
-    get future catch.
-3.  Put this forecasted catch (without implementation error, in the case
+2.  Project from this stock assessment using the SS forecast file to get
+    projected future catch.
+3.  Put this projected catch (without implementation error, in the case
     of this example) back into the OM. Extend the OM forward in time to
     get the true values for the population.
 
@@ -222,12 +393,12 @@ fore$Btarget
 ```
 
 `fore$Forecast = 3` means our forecasts from the assessment will use
-fishing mortality (F) to achieve a relative (to unfished) spawning stock
-biomass. Based on `fore$Btarget`, the relative biomass target is 40% of
-unfished spawning stock biomass. Note also that the control rule
-`fore$BforconstantF` and `fore$BfornoF` values are set low to make it
-unlikely that they will be used (these parameters are used for a ramp
-harvest control rule, which we do not want to use here):
+fishing mortality (F) to attmpt to achieve a relative (to unfished)
+spawning stock biomass. Based on `fore$Btarget`, the relative biomass
+target is 40% of unfished spawning stock biomass. Note also that the
+control rule `fore$BforconstantF` and `fore$BfornoF` values are set low
+to make it unlikely that they will be used (these parameters are used
+for a ramp harvest control rule, which we do not want to use here):
 
 ``` r
 fore$BforconstantF
@@ -251,90 +422,15 @@ fore$Nforecastyrs
 ## [1] 1
 ```
 
-However, an assessment will be conducted every 3 years and 3 years of
-forecasting is required. SSMSE will modify this value to the appropriate
-number of forecasting years.
+However, an assessment will be conducted every 3 years and thus 3 years
+of projections is required. SSMSE will automatically modify this value
+in the estimation model to the appropriate number of forecasting years.
 
 More information on using the forecast module in SS to forecast catches
 is available in the [Stock Synthesis users
 manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
-## Adding observation error: Specify how to sample data from the Operating model
-
-The argument `sample_struct` specifies the structure for sampling from
-the OM (and passing to the EM). The function `create_sample_struct` can
-be used to construct a simple sampling structure consistent with an
-input data file:
-
-``` r
-datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
-sample_struct <- create_sample_struct(dat = datfile, nyrs = 6) # note warning
-## Warning in FUN(X[[i]], ...): Pattern not found for lencomp: FltSvy 1, Seas 1.
-## Returning NA for Yr in this dataframe.
-sample_struct
-## $catch
-##    Yr Seas FltSvy    SE
-## 1 101    1      1 0.005
-## 2 102    1      1 0.005
-## 3 103    1      1 0.005
-## 4 104    1      1 0.005
-## 5 105    1      1 0.005
-## 6 106    1      1 0.005
-## 
-## $CPUE
-##    Yr Seas FltSvy  SE
-## 1 105    7      2 0.2
-## 
-## $lencomp
-##   Yr Seas FltSvy Sex Part Nsamp
-## 1 NA    1      1   0    0   125
-## 
-## $agecomp
-##    Yr Seas FltSvy Sex Part Ageerr Lbin_lo Lbin_hi Nsamp
-## 1 105    1      2   0    0      1      -1      -1   500
-```
-
-By default, `create_sample_struct` identifies sampling patterns from the
-historical period of the OM and replicates those patterns in the
-projection period. In our cod example, the sample structure specifies
-that catch will be added to the estimation model every year (years 101
-to 106), but an index of abundance (i.e., CPUE) and age composition
-(i.e., agecomp) will only be added in year 105. We will use the same
-sampling scheme for both scenarios, but it is possible to specify
-different sampling for each scenario. The user could modify this
-sampling strategy (for example, maybe age composition should also be
-sampled from FltSvy 2 in Yr 102; the user could add another line to the
-dataframe in `sample_struct$agecomp`).
-
-Note that length comp (lencomp) includes an `NA` value for year. This is
-because no consistent pattern was identified, so the user must define
-their own input. In this case, we will remove sampling length comps all
-together:
-
-``` r
-sample_struct$lencomp <- NULL # don't use length sampling
-```
-
-The same sampling structure will be used for both scenarios, which we
-define in a list below:
-
-``` r
-sample_struct_list <- list("h-ctl" = sample_struct, "h-1" = sample_struct)
-```
-
-## Adding process error through recruitment deviations
-
-Process error can be added through the recruitment deviations. In this
-case, `rec_dev_pattern = "rand"` in the call to `run_SSMSE` is used to
-use random recruitment deviations with the same standard deviation as
-the historical recruitment deviation pattern. Set `scope = 2` so that
-the same recruitment deviation patterns are used across scenarios, but
-different patterns are use across iterations in the same scenario. For
-more information on the available options for `rec_dev_pattern` and
-`scope` please see the documentation for the `run_SSMSE` function
-(`?SSMSE::run_SSMSE`).
-
-<!-- TODO suggestion from CP: might be nice to introduce the other recruitment deviations options and scope options here, too. I don't really understand what the scope means.   -->
+Users can also specify their own custom management procedures.
 
 ## Run SSMSE
 
@@ -345,23 +441,22 @@ min):
 ``` r
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
-run_SSMSE(scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
-          out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-          iter_vec = c(5,5), # run with 5 iterations each
-          OM_name_vec = NULL, # specify directories instead
-          OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
-          EM_name_vec = c("cod", "cod"), # cod is included in package data
-          MS_vec = c("EM","EM"),       # The management strategy is specified in the EM
-          use_SS_boot_vec = c(TRUE, TRUE), # use the SS bootstrap module for sampling
-          nyrs_vec = c(6, 6),        # Years to project OM forward
-          nyrs_assess_vec = c(3, 3), # Years between assessments
-          rec_dev_pattern = "rand", # Use random recruitment devs
-          scope = "2", # to use the same recruitment devs across scenarios.
-          impl_error_pattern = "none", # Don't use implementation error
-          run_EM_last_yr = FALSE, # Run the EM in 106
-          run_parallel = TRUE, # Run iterations in parallel
-          sample_struct_list = sample_struct_list, # How to sample data for running the EM.
-          seed = 12345) #Set a fixed integer seed that allows replication 
+res <- run_SSMSE(
+    scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
+    out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+    iter_vec = c(5,5), # run with 5 iterations each
+    OM_name_vec = NULL, # specify directories instead
+    OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
+    EM_name_vec = c("cod", "cod"), # cod is included in package data
+    MS_vec = c("EM","EM"), # The management strategy is specified in the EM
+    nyrs_vec = c(6, 6), # Years to project OM forward
+    nyrs_assess_vec = c(3, 3), # Years between assessments
+    future_om_list = future_om_list_recdevs_sel,
+    run_parallel = TRUE, # Run iterations in parallel
+    sample_struct_list = sample_struct_list_all, # How to sample data for running the EM.
+    sample_struct_hist_list = NULL, # because this is null, will just use sampling
+    # as in the current OM data file for the historical period.
+    seed = 12345) #Set a fixed integer seed that allows replication 
 ```
 
 See `?run_SSMSE` for more details on function arguments. In a real MSE
@@ -450,8 +545,11 @@ shown in orange, and the scenarios are shown on different subplots:
 
 ``` r
 library(ggplot2) # use install.packages("ggplot2") to install package if needed
+## Warning: package 'ggplot2' was built under R version 4.0.5
 library(tidyr) # use install.packages("tidyr") to install package if needed
+## Warning: package 'tidyr' was built under R version 4.0.5
 library(dplyr) # use install.packages("dplyr") to install package if needed
+## Warning: package 'dplyr' was built under R version 4.0.5
 ## 
 ## Attaching package: 'dplyr'
 ## The following objects are masked from 'package:stats':
@@ -461,6 +559,53 @@ library(dplyr) # use install.packages("dplyr") to install package if needed
 ## 
 ##     intersect, setdiff, setequal, union
 ```
+
+## Simple Convergence Check
+
+Check there are no params on bounds or SSB that is way too small or way
+too large
+
+``` r
+check_convergence <- function(summary, min_yr = 101, max_yr = 120, n_EMs = 5) {
+  require(dplyr) # note: not the best way to do this
+  if(any(!is.na(summary$scalar$params_on_bound))) {
+    warning("Params on bounds")
+  } else {
+    message("No params on bounds")
+  }
+  summary$ts$model_type <- ifelse(grepl("_EM_", summary$ts$model_run), "EM", "OM")
+  calc_SSB <- summary$ts %>%
+    filter(year >= min_yr & year <= max_yr) %>% 
+    select(iteration, scenario, year, model_run, model_type, SpawnBio)
+  OM_vals <- calc_SSB %>% 
+              filter(model_type == "OM") %>% 
+              rename(SpawnBio_OM = SpawnBio ) %>% 
+              select(iteration, scenario, year, SpawnBio_OM)
+  EM_vals <- calc_SSB %>% 
+               filter(model_type == "EM") %>% 
+               rename(SpawnBio_EM = SpawnBio) %>% 
+               select(iteration, scenario, year, model_run, SpawnBio_EM)
+  bind_vals <- full_join(EM_vals, OM_vals, by = c("iteration", "scenario", "year")) %>% 
+                  mutate(SSB_ratio = SpawnBio_EM/SpawnBio_OM)
+  filter_SSB <- bind_vals %>% 
+    filter(SSB_ratio > 2 | SSB_ratio < 0.5)
+  if(nrow(filter_SSB) > 0 ) {
+    warning("Some large/small SSBs relative to OM")
+  } else {
+    message("All SSBs in EM are no greater than double and no less than half SSB vals in the OM")
+  }
+  return_val <- bind_vals
+}
+values <- check_convergence(summary = summary, min_yr = 101, max_yr = 106, n_EMs = 5)
+## No params on bounds
+## All SSBs in EM are no greater than double and no less than half SSB vals in the OM
+```
+
+## Plot Spawning Stock Biomass (SSB)
+
+This plot shows that SSB estimated does not match perfectly with the
+operating model. A similar plot could be made for any parameter of
+interest.
 
 ``` r
 # plot SSB by year and model run
@@ -473,42 +618,33 @@ ggplot2::ggplot(data = subset(summary$ts, model_run %in% c("cod_OM", "cod_SR_BH_
   ggplot2::guides(linetype = FALSE) +
   ggplot2::facet_wrap(. ~ scenario) +
   ggplot2::theme_classic()
+## Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> =
+## "none")` instead.
 ```
 
-![](man/figures/README-plot_SSB-1.png)<!-- --> This plot shows that SSB
-estimated does not match perfectly with the operating model. A similar
-plot could be made for anu parameter of interest.
+![](man/figures/README-plot_SSB-1.png)<!-- -->
 
-Now, we calculate and plot the performance metric.
+Now, we calculate and plot the performance metric, which is average
+spawning stock biomass (SSB) from years 104 to 106.
 
 ``` r
-# The get_rel_SSB_avg calculates the relative SSB in each year for each
+# get_SSB_avg calculates the SSB in each year for each
 # iteration of the operating model, then takes the average over the years from
 # min_yr, to max_year. It uses the summary object as input to do these
 # calculations.
-get_rel_SSB_avg <- function(summary, min_yr, max_yr) {
-  # Get just the result for the OMs and not for the EMs.
+get_SSB_avg <- function(summary, min_yr, max_yr) {
   OM_vals <- unique(summary$ts$model_run)
   OM_vals <- grep("_OM$", OM_vals, value = TRUE)
-  # find the unfished biomass fr the OMs
-  B_unfished <- summary$scalar %>% 
-    filter(model_run %in% OM_vals) %>% 
-    select(iteration, scenario,SSB_Unfished)
-  #  find the spawning stock biomass for the years of interest
   SSB_yr <- summary$ts %>% 
-    filter(year >= min_yr & year <= max_yr) %>% 
-    select(iteration, scenario, year, SpawnBio)
-  # Calculated the relative spawning stock biomass using B_unfished and SSB_yr
-  # dataframes, then take an average over years.
-  SSB_yr <- left_join(SSB_yr, B_unfished) %>% 
-    mutate(Rel_SSB = SpawnBio/SSB_Unfished) %>% 
-    group_by(iteration, scenario) %>% 
-    summarize(avg_SSB = mean(Rel_SSB), .groups = "keep") %>% 
-    ungroup()
-  SSB_yr # return SSB averaged over yrs for each iteration and each scenario.
+          filter(year >= min_yr & year <= max_yr) %>% 
+          filter(model_run %in% OM_vals) %>% 
+          select(iteration, scenario, year, SpawnBio) %>% 
+          group_by(iteration, scenario) %>% 
+          summarize(avg_SSB = mean(SpawnBio), .groups = "keep") %>% 
+          ungroup()
+  SSB_yr
 }
-rel_SSB <- get_rel_SSB_avg(summary, min_yr = 104, max_yr = 106)
-## Joining, by = c("iteration", "scenario")
+avg_SSB <- get_SSB_avg(summary, min_yr = 104, max_yr = 106)
 
 # function to summarize data in plot
 data_summary <- function(x) {
@@ -518,20 +654,18 @@ data_summary <- function(x) {
   return(c(y = m, ymin = ymin, ymax = ymax))
 }
 # Now, plot the average relative spawning stock biomass for years 104 - 106
-ggplot(data = rel_SSB, aes(x = scenario, y = avg_SSB)) +
-  geom_hline(yintercept = 0.4, color = "gray") +
+ggplot(data = avg_SSB, aes(x = scenario, y = avg_SSB)) +
   stat_summary(fun.data = data_summary, 
                position = position_dodge(width = 0.9), color = "blue") +
-  scale_y_continuous(limits = c(0, 0.8)) +
-  labs(title = "Long-term average relative SSB\n(years 104-106)", 
-       x = "Scenario", y = "SSB/SSB_unfished") +
+  labs(title = "Long-term average  SSB\n(years 104-106)", 
+       x = "Scenario", y = "SSB") +
   theme_classic()
 ```
 
-![](man/figures/README-plot_rel_SSB-1.png)<!-- -->
+![](man/figures/README-plot_SSB_avg-1.png)<!-- -->
 
-From the above plot, we see that the realized Spawning stock Biomass is
-higher than the target that was intended for both scenarios.
+From the above plot, we see differences in the average SSb between the 2
+scenarios.
 
 ## Example MSE Results
 
@@ -557,7 +691,7 @@ simple function that just sets future catches as half the sampled
 catches in a specified year:
 
 ``` r
-constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100, 
+constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100, 
                               frac_catch = 0.5, ...) { # need to include ... to allow function to work
   # set catch the same as the previous year (sampled catch).
   # catch is in the same units as the operating model, in this case it is in
@@ -578,6 +712,9 @@ constant_catch_MS <<- function(OM_dat, nyrs_assess, catch_yr = 100,
 }
 ```
 
+The function should be created in a separate file. In this case, assume
+this function is available in a file custom\_funs.R.
+
 This function can then be used in a call to `run_SSMSE`:
 
 ``` r
@@ -587,33 +724,21 @@ run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the s
                 OM_name_vec = "cod", # specify directories instead
                 OM_in_dir_vec = NULL,
                 MS_vec = "constant_catch_MS", # use the custom function
-                use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling, the only option
+                custom_MS_source = "custom_funs.R", # File where the custom function is available.
                 nyrs_vec = 6,        # Years to project OM forward
                 nyrs_assess_vec = 3, # Years between assessments
-                rec_dev_pattern = "rand", # Use random recruitment devs
-                scope = "2", # to use the same recruitment devs across scenarios, but not iterations
-                impl_error_pattern = "none", # Don't use implementation error
-                run_EM_last_yr = FALSE, # Don't run the EM in the last year
-                run_parallel = FALSE, # Run iterations in parallel
+                future_om_list = future_om_list_recdevs_sel,
                 sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
                 seed = 12345) #Set a fixed integer seed that allows replication 
-## Starting iteration 1.
-## Finished running and sampling OM for the historical period for iteration 1.
-## Finished getting catch (years 101 to 103) to feed into OM for iteration 1.
-## Finished running and sampling OM through year 103.
-## Finished getting catch (years 104 to 106) to feed into OM for iteration 1.
-## Finished running and sampling OM through year 106.
-## Finished iteration 1.
-## Completed all iterations for scenario constant-catch
-## Completed all SSMSE scenarios
 ```
 
 # How can I contribute to SSMSE?
 
 If you have thoughts about how to implement the [upcoming
 work](#roadmap-where-is-ssmse-headed-next) or are interested in helping
-develop SSMSE, please contact the developers by posting an issue in this
-repository or emailing <nmfs.stock.synthesis@noaa.gov>.
+develop SSMSE, please contact the developers through [github
+discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions) or by
+emailing <nmfs.stock.synthesis@noaa.gov>.
 
 If you are interested in contributing, please read the [NMFS Fisheries
 Toolbox R Contribution
@@ -626,15 +751,8 @@ unacceptable behavior to <fisheries.toolbox@noaa.gov>.
 
 # Roadmap: Where is SSMSE headed next?
 
-SSMSE is still a work in progress, with basic framework in development.
-Some new directions we hope to work on shortly:
-
-  - Adding more complex sampling options
-  - Adding functions to calculate performance metrics
-  - Adding functions to make some basic plots of diagonstics and results
-  - Adding more management procedure options.
-
-If you have thoughts about how to implement the upcoming work or are
-interested in helping develop SSMSE, please contact the developers by
-posting an issue in this repository or emailing
-<nmfs.stock.synthesis@noaa.gov>
+SSMSE will be applied to a number of problems. If you are interested in
+using SSMSE, please don’t hesitate to reach out to the developers via
+[github
+discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions) or by
+emailing <nmfs.stock.synthesis@noaa.gov>.
