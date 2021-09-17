@@ -674,7 +674,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_any_of(nscen, c("integer", "numeric"))
   if (!is.null(sample_struct)) {
     assertive.types::assert_is_list(sample_struct)
-    check_sample_struct(sample_struct)
+    sample_struct <- check_sample_struct(sample_struct)
   } else {
     if (MS == "EM") {
       stop(
