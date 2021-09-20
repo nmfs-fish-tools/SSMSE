@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>SSMSE user manual</title>
+  <title>3 Advanced options: use a custom management strategy/procedure | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
   <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="SSMSE user manual" />
+  <meta property="og:title" content="3 Advanced options: use a custom management strategy/procedure | SSMSE user manual" />
   <meta property="og:type" content="book" />
   <meta property="og:url" content="https://nmfs-fish-tools.github.io/SSMSE/manual/" />
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="nmfs-fish-tools/SSMSE" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="SSMSE user manual" />
+  <meta name="twitter:title" content="3 Advanced options: use a custom management strategy/procedure | SSMSE user manual" />
   
   <meta name="twitter:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="intro.html"/>
+<link rel="prev" href="simple.html"/>
+<link rel="next" href="SSMSE.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -205,47 +205,51 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">SSMSE user manual</h1>
-<p class="author"><em>Kathryn Doering and Nathan Vaughan</em></p>
-<p class="date"><em>2021-09-20</em></p>
-</div>
-<div id="preface" class="section level1 unnumbered">
-<h1>Preface</h1>
-<div class="figure">
-<img src="images/ssmse_icon_small.png" alt="Logo for the SSMSE package" />
-<p class="caption">Logo for the SSMSE package</p>
-</div>
-<p>This is the user manual for SSMSE, an R package for Management Strategy Evaluation with Stock Synthesis Operating models. This document is still a work in progress! If you would like to suggest changes, the R markdown files used to generate the user manual are available in a <a href="https://github.com/nmfs-fish-tools/SSMSE/tree/main/inst/bookdown">bookdown folder within the SSMSE repository</a>. Please feel free to open an <a href="https://github.com/nmfs-fish-tools/SSMSE/issues">issue</a> or <a href="https://github.com/nmfs-fish-tools/SSMSE/pulls">submit a pull request</a> to suggest changes.</p>
-<div id="r-session-information" class="section level2 unnumbered">
-<h2>R session information</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">sessionInfo</span>()</a></code></pre></div>
-<pre><code>R version 4.0.2 Patched (2020-07-15 r78861)
-Platform: x86_64-w64-mingw32/x64 (64-bit)
-Running under: Windows 10 x64 (build 18363)
+<div id="advanced-options-use-a-custom-management-strategyprocedure" class="section level1">
+<h1><span class="header-section-number">3</span> Advanced options: use a custom management strategy/procedure</h1>
+<p>Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">constant_catch_MS &lt;-<span class="st"> </span><span class="cf">function</span>(OM_dat, nyrs_assess, <span class="dt">catch_yr =</span> <span class="dv">100</span>, </a>
+<a class="sourceLine" id="cb47-2" title="2">                              <span class="dt">frac_catch =</span> <span class="fl">0.5</span>, ...) { <span class="co"># need to include ... to allow function to work</span></a>
+<a class="sourceLine" id="cb47-3" title="3">  <span class="co"># set catch the same as the previous year (sampled catch).</span></a>
+<a class="sourceLine" id="cb47-4" title="4">  <span class="co"># catch is in the same units as the operating model, in this case it is in</span></a>
+<a class="sourceLine" id="cb47-5" title="5">  <span class="co"># biomass.</span></a>
+<a class="sourceLine" id="cb47-6" title="6">  catch &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
+<a class="sourceLine" id="cb47-7" title="7">    <span class="dt">year =</span> (OM_dat<span class="op">$</span>endyr <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)<span class="op">:</span>(OM_dat<span class="op">$</span>endyr <span class="op">+</span><span class="st"> </span>nyrs_assess), <span class="co"># the years to project the model forward</span></a>
+<a class="sourceLine" id="cb47-8" title="8">    <span class="dt">seas =</span> <span class="dv">1</span>, <span class="co"># hard coded from looking at model </span></a>
+<a class="sourceLine" id="cb47-9" title="9">    <span class="dt">fleet =</span> <span class="dv">1</span>,  <span class="co"># hard coded from looking at model</span></a>
+<a class="sourceLine" id="cb47-10" title="10">    <span class="dt">catch =</span> OM_dat<span class="op">$</span>catch[OM_dat<span class="op">$</span>catch<span class="op">$</span>year <span class="op">==</span><span class="st"> </span>catch_yr, <span class="st">&quot;catch&quot;</span>]<span class="op">*</span>frac_catch,</a>
+<a class="sourceLine" id="cb47-11" title="11">    <span class="dt">catch_se =</span> <span class="fl">0.05</span>) <span class="co"># hard coded from looking at model</span></a>
+<a class="sourceLine" id="cb47-12" title="12">  catch_bio &lt;-<span class="st"> </span>catch <span class="co"># catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL</span></a>
+<a class="sourceLine" id="cb47-13" title="13">  catch_F &lt;-<span class="st"> </span><span class="ot">NULL</span> <span class="co"># catch in terms of F, can be left as NULL.</span></a>
+<a class="sourceLine" id="cb47-14" title="14">  discards &lt;-<span class="st"> </span><span class="ot">NULL</span> <span class="co"># discards can be left as NULL if there are no discards</span></a>
+<a class="sourceLine" id="cb47-15" title="15">  catch_list &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">catch =</span> catch,</a>
+<a class="sourceLine" id="cb47-16" title="16">                     <span class="dt">catch_bio =</span> catch_bio, </a>
+<a class="sourceLine" id="cb47-17" title="17">                     <span class="dt">catch_F =</span> catch_F,</a>
+<a class="sourceLine" id="cb47-18" title="18">                     <span class="dt">discards =</span> discards)</a>
+<a class="sourceLine" id="cb47-19" title="19">}</a></code></pre></div>
+<p>The function should be created in a separate file. In this case, assume this function is available in a file custom_funs.R.</p>
+<p>This function can then be used in a call to <code>run_SSMSE</code>:</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1">run_result_custom &lt;-<span class="st"> </span><span class="kw">run_SSMSE</span>(<span class="dt">scen_name_vec =</span> <span class="st">&quot;constant-catch&quot;</span>, <span class="co"># name of the scenario</span></a>
+<a class="sourceLine" id="cb48-2" title="2">                <span class="dt">out_dir_scen_vec =</span> run_res_path, <span class="co"># directory in which to run the scenario</span></a>
+<a class="sourceLine" id="cb48-3" title="3">                <span class="dt">iter_vec =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb48-4" title="4">                <span class="dt">OM_name_vec =</span> <span class="st">&quot;cod&quot;</span>, <span class="co"># specify directories instead</span></a>
+<a class="sourceLine" id="cb48-5" title="5">                <span class="dt">OM_in_dir_vec =</span> <span class="ot">NULL</span>,</a>
+<a class="sourceLine" id="cb48-6" title="6">                <span class="dt">MS_vec =</span> <span class="st">&quot;constant_catch_MS&quot;</span>, <span class="co"># use the custom function</span></a>
+<a class="sourceLine" id="cb48-7" title="7">                <span class="dt">custom_MS_source =</span> <span class="st">&quot;custom_funs.R&quot;</span>, <span class="co"># File where the custom function is available.</span></a>
+<a class="sourceLine" id="cb48-8" title="8">                <span class="dt">nyrs_vec =</span> <span class="dv">6</span>,        <span class="co"># Years to project OM forward</span></a>
+<a class="sourceLine" id="cb48-9" title="9">                <span class="dt">nyrs_assess_vec =</span> <span class="dv">3</span>, <span class="co"># Years between assessments</span></a>
+<a class="sourceLine" id="cb48-10" title="10">                <span class="dt">future_om_list =</span> future_om_list_recdevs_sel,</a>
+<a class="sourceLine" id="cb48-11" title="11">                <span class="dt">sample_struct_list =</span> <span class="kw">list</span>(sample_struct_list[[<span class="dv">1</span>]]), <span class="co"># How to sample data for running the MS.</span></a>
+<a class="sourceLine" id="cb48-12" title="12">                <span class="dt">seed =</span> <span class="dv">12345</span>) <span class="co">#Set a fixed integer seed that allows replication </span></a></code></pre></div>
 
-Matrix products: default
-
-locale:
-[1] LC_COLLATE=English_United States.1252  LC_CTYPE=English_United States.1252   
-[3] LC_MONETARY=English_United States.1252 LC_NUMERIC=C                          
-[5] LC_TIME=English_United States.1252    
-
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
-
-loaded via a namespace (and not attached):
-[1] ss3sim_1.1.6 r4ss_1.43.0 </code></pre>
-
-</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="intro.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="simple.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="SSMSE.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

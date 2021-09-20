@@ -8,7 +8,7 @@ This function allows users to change a parameter in a Stock Synthesis OM and, if
 
 ## Set up sampling for a scenario with `create_sample_struct()` {#samplelist}
 
-`run_SSMSE()` requires the input `sample_struct()`, which outlines the future sampling structure to use to generate data sets. This object could be difficult to create manually and users may want to just continue sampling as previously done in an existing SS model. `create_sample_struct()` will use the time patterns in sampling for different data types found in an SS data file and extend it forward in time. If no pattern is found, the function will return NAs and provide a warning to the user.
+`run_SSMSE()` requires the input `sample_struct`, which outlines the future sampling structure to use to generate data sets. This object could be difficult to create manually and users may want to just continue sampling as previously done in an existing SS model. `create_sample_struct()` will use the time patterns in sampling for different data types found in an SS data file and extend it forward in time. If no pattern is found, the function will return NAs and provide a warning to the user. If any NAs are returned (except to indicate that an entire data type is missing), the user will need to remove or fill in the NA value before usign the list as an input to `run_SSMSE()`.
 
 See [use of `create_sample_struct()` in simple example](#sample).
 

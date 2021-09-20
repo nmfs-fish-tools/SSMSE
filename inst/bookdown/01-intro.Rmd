@@ -2,7 +2,7 @@
 
 ## Purpose
 
-SSMSE was developed to increase the ease of using [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS) directly as an operating model in an Management Strategy evaluation. The approach requires a conditioned Stock Synthesis model, which is treated as the Operating Model (OM).
+SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS) as an operating model (OM) in an Management Strategy Evaluation (MSE). The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
 
 ## Functions in SSMSE {#funs}
 
@@ -13,7 +13,7 @@ Function               | Description
 `run_SSMSE()`            | Run the MSE simulations
 `SSMSE_summary_all()`    | Summarize MSE output
 
-The helper functions to create inputs to `run_SSMSE` are:
+The [helper functions](#helper) to create inputs to `run_SSMSE` are:
 
 Helper Function           | Description
 ------------------------- | ------------------
@@ -21,9 +21,8 @@ Helper Function           | Description
 `create_future_om_list()` | Helper function that provides examples of the structure for the future_om_list input to `run_SSMSE()`.
 `develop_OMs()`           | Helper function to turn one OM into many
 
-More information about helper functions is available in the [helper functions section](#helper).
+Exported functions that can be used for writing [custom management strategies](#custom-MS) are:
 
-Exported functions that can be used for writing custom management strategies are:
 Function    | Description
 -----------  | ------------
 `run_EM()`       |  Run an SS estimation model (uses run_ss_model)
@@ -32,6 +31,7 @@ Function    | Description
 `parse_MS()`     | Function that runs the management strategy and returns catch by fleet for the projections. A reference function for those setting up custom management strategies. 
 
 Finally, some plotting functions are available:
+
 Plotting Function | Description
 ----------------- | -----------
 `plot_index_sampling()` | Plot to compare the sampled index values to the operating model expected values and original operating model conditioning index data.
@@ -45,7 +45,7 @@ For each scenario, SSMSE starts with the user providing a fitted Stock Synthesis
 
 ### First run of the management strategy in the MSE simulation
 
-The bootstrapped dataset is then used in a Management strategy to forecast catch for the next $n$ years, where $n$ is the number of years between assessments.
+The bootstrapped dataset is then used in a Management strategy to project catch by fleet to use for the next $n$ years, where $n$ is the number of years between assessments.
 
 ### Feedback from managment strategy into OM: extending model years
 

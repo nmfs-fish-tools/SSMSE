@@ -36,4 +36,4 @@ Typically, a suite of performance metrics are used in MSE. [Punt et al. (2016)](
 
 Currently, it has been left up to the user to plot summaries and performance metrics, as the potential options for plots and performance metrics users may desire are extensive. 
 
-There are currently diagnostic plots to examine how sampled data compares to the operating model values and data sets used to condition the operating models. `plot_index_sampling()` isv used to create the diagnostic plot for indices, while `plot_comp_sampling()` is used to create the plots for composition data.
+There are currently diagnostic plots to examine how sampled data compares to the operating model values and data sets used to condition the operating models. `plot_index_sampling()` creates a diagnostic plot for indices, while `plot_comp_sampling()` creates diagnostic plots for composition data.

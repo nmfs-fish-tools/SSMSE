@@ -26,7 +26,7 @@ An SS model can be set up as the EM for the MSE. To use this option, specify `"E
 Future catches will be determined from the forecasting file settings of the SS model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
 
 
-### Using a custom management strategy/procedure
+### Using a custom management strategy/procedure {#custom-MS}
 
 Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:
 
@@ -147,6 +147,7 @@ new_vals <- data.frame(first_yr_averaging = NA,
                        last_yr_orig_val   = 103,
                        first_yr_final_val = 104, 
                        ts_param = "sd", 
+                       method = "absolute",
                        value = 0.1)
 
 my_future_om_list[[1]][["input"]] <- rbind(my_future_om_list[[1]][["input"]],
