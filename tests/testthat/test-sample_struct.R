@@ -50,7 +50,7 @@ test_that("assumptions about r4ss colnames are true.", {
     )
   )
   return <- check_sample_struct(sample_struct = assumed_str, valid_names = r4ss_names)
-  expect_equal(return, "no_error")
+  expect_equivalent(length(return), length(assumed_str))
 })
 
 test_that("convert_to_r4ss_names works", {
