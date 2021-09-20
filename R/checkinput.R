@@ -210,6 +210,16 @@ check_sample_struct <- function(sample_struct,
                                     "FltSvy", "Sex", "Part", "Ageerr", "N_"
                                   )
                                 )) {
+  # get rid of any NA components, first convert to NULLS
+  sample_struct <-
+    lapply(sample_struct, function(x) {
+      if(isTRUE(is.na(x))) {
+         x <- NULL
+      }
+      x
+    })
+  #Then remove the nulls
+  sample_struct <- sample_struct[lengths(sample_struct) != 0]
   # list components should have same names as in r4ss
   # check no repeat names
   if (length(unique(names(sample_struct))) != length(names(sample_struct))) {
@@ -266,7 +276,7 @@ check_sample_struct <- function(sample_struct,
       }
     })
   })
-  invisible("no_error")
+  sample_struct
 }
 
 #' Error if object is not an r4ss object

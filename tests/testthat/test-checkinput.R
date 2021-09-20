@@ -105,21 +105,21 @@ test_that("check_sample_struct works", {
     )
   )
   out <- check_sample_struct(good_sample_struct)
-  expect_equal(out, "no_error")
+  expect_equal(length(out), length(good_sample_struct))
   # works with only 2 cols
   good_sample_struct_2_col <- list(
     catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = 0.01),
     CPUE = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, SE = 0.2)
   )
   out_2 <- check_sample_struct(good_sample_struct_2_col)
-  expect_equal(out, "no_error")
+  expect_equal(length(out_2), length(good_sample_struct_2_col))
   # works when cols in different order
   good_dat_diff_order <- list(
     CPUE = data.frame(Yr = 2000:2002, Seas = 7, FltSvy = 2, SE = 0.01),
     catch = data.frame(Yr = 2000:2002, Seas = 1, FltSvy = 1, SE = 0.2)
   )
   out_diff_order <- check_sample_struct(good_dat_diff_order)
-  expect_equal(out, "no_error")
+  expect_equal(length(out_diff_order), length(good_dat_diff_order))
   # wrong column names
   wrong_colnames <- good_sample_struct
   colnames(wrong_colnames[[1]]) <- c("YEAR", "SEAS", "FLEET")

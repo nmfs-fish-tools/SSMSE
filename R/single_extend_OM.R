@@ -173,7 +173,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
           # If the current parameter to update with future om devs already has environmental effects copy these over
           # to the new parameter list and save them for possible use in converting parameter devs if needed
           if (is.element(current_par, env_existing)) {
-            env_par <- grep(paste0(row.names(temp_ctl)[current_par], "_ENV"), row.names(old_par_tv), fixed = TRUE) # used fixed = TRUE with grep if not using any regular expressions
+            env_par <- grep(paste0(row.names(temp_ctl)[current_par], "_ENV"), row.names(old_par_tv), fixed = TRUE)
             temp_env <- old_par_tv[env_par, ]
             new_tv <- rbind(new_tv, old_tv[env_par, ])
             old_tv <- old_tv[-env_par, , drop = FALSE]
