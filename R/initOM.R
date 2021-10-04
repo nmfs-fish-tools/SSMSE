@@ -92,6 +92,9 @@ create_OM <- function(OM_out_dir,
     datsource = dat, ctlsource = ctl,
     verbose = FALSE
   )
+  if(ctl[["EmpiricalWAA"]] == 1) {
+    stop("OM is an empirical weight at age model, which is not yet possible to use.")
+  }
   # model checks ----
   if (ctl[["F_Method"]] == 1) {
     stop(
