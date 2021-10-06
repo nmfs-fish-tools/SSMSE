@@ -504,7 +504,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
         do_checks = TRUE,
         verbose = verbose
       )
-      ctl <- SS_readctl(start[["ctlfile"]], datlist = new_EM_dat)
+      ctl <- SS_readctl(file.path(EM_out_dir, start[["ctlfile"]]),
+                        datlist = new_EM_dat)
       if(ctl[["EmpiricalWAA"]] == 1) {
         stop("EM uses empirical weight at age, which is not yet possible to use.")
       }
