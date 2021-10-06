@@ -32,13 +32,13 @@ a corresponding catch the OM will assume effort based management an use harvest 
 with implementation error added.}
 
 \item{catch_basis}{data frame with columns year, seas, fleet, basis that specifies if catch
-should reference retained biomass (1) or dead biomass (2). Any year/season/fleet not listed will assume 
+should reference retained biomass (1) or dead biomass (2). Any year/season/fleet not listed will assume
 a value of 1 referencing retained biomass. Entering -99 for any of year, season, or fleet will
 apply the basis across all values of that variable (i.e. a single row with -99, -99, -99, 1 would implement
 retained biomass for all cases)}
 
-\item{F_limit}{data frame with columns year, fleet, season, limit that specifies a maximum F 
-allowed in the OM or a negative value to specify a multiple of the historic maximum F. Any year/season/fleet 
+\item{F_limit}{data frame with columns year, fleet, season, limit that specifies a maximum F
+allowed in the OM or a negative value to specify a multiple of the historic maximum F. Any year/season/fleet
 not listed will assume a value of 1.5. Entering -99 for any of year, season, or fleet will
 apply the limit across all values of that variable (i.e. a single row with -99, -99, -99, -2 would implement
 a cap of twice the historic maximum F for all cases)}

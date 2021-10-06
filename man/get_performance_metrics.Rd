@@ -11,7 +11,7 @@ get_performance_metrics(
 )
 }
 \arguments{
-\item{dir}{Path to the directory containing the scenarios, either relative 
+\item{dir}{Path to the directory containing the scenarios, either relative
 or absolute. Defaults to the working directory.}
 
 \item{use_SSMSE_summary_all}{If it exists, should the summmary files generated

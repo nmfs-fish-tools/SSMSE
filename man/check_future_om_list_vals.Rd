@@ -9,7 +9,7 @@ check_future_om_list_vals(future_om_list, scen_list)
 \arguments{
 \item{future_om_list}{The future_om_list object to check.}
 
-\item{scen_list}{The list object of scenarios specifying inputs, typically 
+\item{scen_list}{The list object of scenarios specifying inputs, typically
 passed to or created by run_SSMSE.}
 }
 \value{

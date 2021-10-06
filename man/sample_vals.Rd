@@ -2,7 +2,7 @@
 % Please edit documentation in R/initOM_create_devs_list.R
 \name{sample_vals}
 \alias{sample_vals}
-\title{Sample vals from normal random, lognormal random, or modified AR-1 
+\title{Sample vals from normal random, lognormal random, or modified AR-1
 process.}
 \usage{
 sample_vals(mean, sd, ar_1_phi = 0, ndevs, dist = c("normal", "lognormal"))
@@ -12,7 +12,7 @@ sample_vals(mean, sd, ar_1_phi = 0, ndevs, dist = c("normal", "lognormal"))
 
 \item{sd}{A single value or vector of sd parameter}
 
-\item{ar_1_phi}{The phi (coefficient) value for an ar 1 process. Should be 
+\item{ar_1_phi}{The phi (coefficient) value for an ar 1 process. Should be
 between -1 and 1. 0 means an AR 1 process will NOT be used. 1 indicates a
 random walk. A single value or vector.}
 
@@ -21,7 +21,7 @@ random walk. A single value or vector.}
 \item{dist}{The distribution to sample from.}
 }
 \description{
-Sample vals from normal random, lognormal random, or modified AR-1 
+Sample vals from normal random, lognormal random, or modified AR-1
 process.
 }
 \author{

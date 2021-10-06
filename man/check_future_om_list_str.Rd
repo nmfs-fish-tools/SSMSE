@@ -13,7 +13,7 @@ check_future_om_list_str(future_om_list)
 The future_om_list with implicit arguments made explicit
 }
 \description{
-Checks that a future OM list is valid. If any values are implicit, 
+Checks that a future OM list is valid. If any values are implicit,
 then add these values. Does not check against arguments in the scenario,
 just the generic structure
 }
