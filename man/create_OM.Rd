@@ -49,7 +49,7 @@ recruitment deviations, and implementation errors.}
 \item{verify_OM}{Should the model be run without estimation and some basic
 checks done to verify that the OM can run? Defaults to TRUE.}
 
-\item{sample_struct_hist}{The historical sample structure, if specified by 
+\item{sample_struct_hist}{The historical sample structure, if specified by
 the user. Defaults to NULL, which means to use the same sample structure as
 the historical data.}
 

@@ -176,6 +176,11 @@ run_SSMSE <- function(scen_name_vec,
       )
     }
   }
+  
+  
+  # make sure the output directories exist
+  result <- lapply(out_dir_scen_vec, function(x) if(!dir.exists(x)) dir.create(x, showWarnings = FALSE))
+  
   # check and add implicit inputs to the future_om_list
   future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
   # Note that all input checks are done in the check_scen_list function.

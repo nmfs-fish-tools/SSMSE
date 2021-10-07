@@ -81,7 +81,6 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
 test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs", {
   # This tests takes a while to run, but is really helpful.
   new_temp_path <- file.path(temp_path, "mult_scenarios")
-  dir.create(new_temp_path)
   skip_on_cran()
   nyrs <- 6
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")

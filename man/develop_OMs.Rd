@@ -16,7 +16,8 @@ develop_OMs(
 }
 \arguments{
 \item{OM_name}{Name of the original model, as in the SSMSE package. If not
-using a model in the package, please specify its path in \code{OM_in_dir}}
+using a model in the package, please specify its path in \code{OM_in_dir}. 
+Can be left NULL if specifying OM_in_dir.}
 
 \item{OM_in_dir}{Path to the original operating model. If using a model in
 the SSMSE package, please specify its name in \code{OM_name} instead.}

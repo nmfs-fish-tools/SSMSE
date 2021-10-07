@@ -24,7 +24,7 @@ calc_par_trend(
 \item{ref_parm_value}{This is the historic parameter that the end trend value.
 Can be NA if the there is no line in val_info for the given parameter}
 
-\item{vals_df}{The dataframe of the parameter values by year. Use to get 
+\item{vals_df}{The dataframe of the parameter values by year. Use to get
 start val and last year}
 
 \item{parname}{Name of the parameter with devs from the SS model.

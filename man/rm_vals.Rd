@@ -26,7 +26,7 @@ return_obj[[name_in_obj]], modified to only include elements present
  in compare_obj[[name_in_obj]].
 }
 \description{
-From 2 list components with the same name, remove vals that aren't in the 
+From 2 list components with the same name, remove vals that aren't in the
 compare object
 }
 \author{

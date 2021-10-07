@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>4 Options for run_SSMSE | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="4 Options for run_SSMSE | SSMSE user manual" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2021-09-20" />
+<meta name="date" content="2021-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,7 +33,9 @@
   
 <link rel="prev" href="advanced-options-use-a-custom-management-strategyprocedure.html"/>
 <link rel="next" href="helper.html"/>
-<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -49,29 +51,32 @@
 
 
 
-
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -80,9 +85,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -115,6 +120,7 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+
 </head>
 
 <body>
@@ -127,25 +133,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a>
+<ul>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#r-session-information"><i class="fa fa-check"></i>R session information</a></li>
 </ul></li>
-<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
 <li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#purpose"><i class="fa fa-check"></i><b>1.1</b> Purpose</a></li>
 <li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#funs"><i class="fa fa-check"></i><b>1.2</b> Functions in SSMSE</a></li>
-<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure</a><ul>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure</a>
+<ul>
 <li class="chapter" data-level="1.3.1" data-path="intro.html"><a href="intro.html#conditioning-the-om-and-sampling-from-the-om"><i class="fa fa-check"></i><b>1.3.1</b> Conditioning the OM and sampling from the OM</a></li>
 <li class="chapter" data-level="1.3.2" data-path="intro.html"><a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation"><i class="fa fa-check"></i><b>1.3.2</b> First run of the management strategy in the MSE simulation</a></li>
 <li class="chapter" data-level="1.3.3" data-path="intro.html"><a href="intro.html#feedback-from-managment-strategy-into-om-extending-model-years"><i class="fa fa-check"></i><b>1.3.3</b> Feedback from managment strategy into OM: extending model years</a></li>
 <li class="chapter" data-level="1.3.4" data-path="intro.html"><a href="intro.html#subsequent-runs-of-the-management-strategy"><i class="fa fa-check"></i><b>1.3.4</b> Subsequent runs of the management strategy</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a><ul>
+<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a>
+<ul>
 <li class="chapter" data-level="2.1" data-path="simple.html"><a href="simple.html#setup-r-workspace-folders"><i class="fa fa-check"></i><b>2.1</b> Setup R workspace folders</a></li>
-<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a><ul>
+<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a>
+<ul>
 <li class="chapter" data-level="2.2.1" data-path="simple.html"><a href="simple.html#specify-alternative-values-for-h"><i class="fa fa-check"></i><b>2.2.1</b> Specify alternative values for h</a></li>
 </ul></li>
-<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"><i class="fa fa-check"></i><b>2.3</b> Adding process error through recruitment deviations and time-varying selectivity</a><ul>
+<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"><i class="fa fa-check"></i><b>2.3</b> Adding process error through recruitment deviations and time-varying selectivity</a>
+<ul>
 <li class="chapter" data-level="2.3.1" data-path="simple.html"><a href="simple.html#add-observation-error-through-sampling-from-om"><i class="fa fa-check"></i><b>2.3.1</b> Add observation error through sampling from OM</a></li>
 </ul></li>
 <li class="chapter" data-level="2.4" data-path="simple.html"><a href="simple.html#examine-the-management-procedure-used"><i class="fa fa-check"></i><b>2.4</b> Examine the management procedure used</a></li>
@@ -159,15 +171,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.12" data-path="simple.html"><a href="simple.html#delete-the-files"><i class="fa fa-check"></i><b>2.12</b> Delete the files</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="advanced-options-use-a-custom-management-strategyprocedure.html"><a href="advanced-options-use-a-custom-management-strategyprocedure.html"><i class="fa fa-check"></i><b>3</b> Advanced options: use a custom management strategy/procedure</a></li>
-<li class="chapter" data-level="4" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>4</b> Options for run_SSMSE</a><ul>
+<li class="chapter" data-level="4" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>4</b> Options for run_SSMSE</a>
+<ul>
 <li class="chapter" data-level="4.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>4.1</b> Scenarios in SSMSE</a></li>
 <li class="chapter" data-level="4.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>4.2</b> Operating model</a></li>
-<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a><ul>
+<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a>
+<ul>
 <li class="chapter" data-level="4.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss-model"><i class="fa fa-check"></i><b>4.3.1</b> Specify the Management Strategy in a SS model</a></li>
 <li class="chapter" data-level="4.3.2" data-path="SSMSE.html"><a href="SSMSE.html#custom-MS"><i class="fa fa-check"></i><b>4.3.2</b> Using a custom management strategy/procedure</a></li>
 </ul></li>
 <li class="chapter" data-level="4.4" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>4.4</b> Sampling options</a></li>
-<li class="chapter" data-level="4.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>4.5</b> Future changes to the operating model (#future)</a><ul>
+<li class="chapter" data-level="4.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>4.5</b> Future changes to the operating model (#future)</a>
+<ul>
 <li class="chapter" data-level="4.5.1" data-path="SSMSE.html"><a href="SSMSE.html#the-strucutre-of-future_om_list"><i class="fa fa-check"></i><b>4.5.1</b> The strucutre of <code>future_om_list</code></a></li>
 <li class="chapter" data-level="4.5.2" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-denoting-a-gradual-change"><i class="fa fa-check"></i><b>4.5.2</b> Example of future_om_list denoting a gradual change</a></li>
 <li class="chapter" data-level="4.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-a-random-deviations"><i class="fa fa-check"></i><b>4.5.3</b> Example of future_om_list with a random deviations</a></li>
@@ -177,17 +192,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.5.7" data-path="SSMSE.html"><a href="SSMSE.html#example-of-specifying-recruitment-deviations"><i class="fa fa-check"></i><b>4.5.7</b> Example of specifying recruitment deviations</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>5</b> Helper functions in SSMSE</a><ul>
+<li class="chapter" data-level="5" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>5</b> Helper functions in SSMSE</a>
+<ul>
 <li class="chapter" data-level="5.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>5.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
 <li class="chapter" data-level="5.2" data-path="helper.html"><a href="helper.html#samplelist"><i class="fa fa-check"></i><b>5.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
 <li class="chapter" data-level="5.3" data-path="helper.html"><a href="helper.html#omlist"><i class="fa fa-check"></i><b>5.3</b> Get examples of the <code>future_om_list</code> input with <code>create_future_om_list()</code></a></li>
 </ul></li>
-<li class="chapter" data-level="6" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>6</b> Output and Plots</a><ul>
+<li class="chapter" data-level="6" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>6</b> Output and Plots</a>
+<ul>
 <li class="chapter" data-level="6.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>6.1</b> Summarizing output</a></li>
 <li class="chapter" data-level="6.2" data-path="output.html"><a href="output.html#checking-estimation-model-convergence"><i class="fa fa-check"></i><b>6.2</b> Checking estimation model convergence</a></li>
 <li class="chapter" data-level="6.3" data-path="output.html"><a href="output.html#calculating-performance-metrics"><i class="fa fa-check"></i><b>6.3</b> Calculating performance metrics</a></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="plotting-output-and-performance-metrics.html"><a href="plotting-output-and-performance-metrics.html"><i class="fa fa-check"></i><b>7</b> Plotting output and performance metrics</a></li>
+<li class="chapter" data-level="8" data-path="glossary-of-mse-terms.html"><a href="glossary-of-mse-terms.html"><i class="fa fa-check"></i><b>8</b> Glossary of MSE terms</a></li>
 </ul>
 
       </nav>
@@ -205,92 +223,93 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="SSMSE" class="section level1">
+<div id="SSMSE" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> Options for run_SSMSE</h1>
 <p>Many inputs are possible for the <code>run_SSMSE()</code> option. Here, we will describe some of the options available. For detailed documentation, type <code>?SSMSE::run_SSMSE()</code> into the R console.</p>
-<div id="scenarios-in-ssmse" class="section level2">
+<div id="scenarios-in-ssmse" class="section level2" number="4.1">
 <h2><span class="header-section-number">4.1</span> Scenarios in SSMSE</h2>
 <p>Note that multiple scenarios can be called in <code>run_SSMSE()</code>, often through vector inputs to <code>run_SSMSE()</code>. Below, we will describe inputs needed to run 1 scenario.</p>
 </div>
-<div id="operating-model" class="section level2">
+<div id="operating-model" class="section level2" number="4.2">
 <h2><span class="header-section-number">4.2</span> Operating model</h2>
-<p>The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set <code>OM_name_vec = "cod"</code>. Otherwise, the path to the OM model should be specified in <code>OM_in_dir_vec</code>.</p>
+<p>The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model, except for models that use Empirical Weight at age. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set <code>OM_name_vec = "cod"</code>. Otherwise, the path to the OM model should be specified in <code>OM_in_dir_vec</code>.</p>
 </div>
-<div id="the-management-strategyprocedure-and-if-applicable-estimation-model-em" class="section level2">
+<div id="the-management-strategyprocedure-and-if-applicable-estimation-model-em" class="section level2" number="4.3">
 <h2><span class="header-section-number">4.3</span> The Management Strategy/procedure and (if applicable) Estimation model (EM)</h2>
 <p>The management strategy (and EM) can be specified in one of two ways:</p>
 <ol style="list-style-type: decimal">
-<li>Using an SS model</li>
+<li>Using an SS model and its forcast file to project catch by fleet</li>
 <li>Using a custom procedure via a function in R</li>
 </ol>
 <p>In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches by fleet.</p>
-<div id="specify-the-management-strategy-in-a-ss-model" class="section level3">
+<div id="specify-the-management-strategy-in-a-ss-model" class="section level3" number="4.3.1">
 <h3><span class="header-section-number">4.3.1</span> Specify the Management Strategy in a SS model</h3>
-<p>An SS model can be set up as the EM for the MSE. To use this option, specify <code>"EM"</code> as part of <code>MS_vec</code>. As with the OM, the built-in cod model could be used; just specify <code>"cod"</code> in the <code>EM_name_vec</code>. To use any other SS model as the EM, specify the path in <code>EM_in_dir_vec</code>.</p>
+<p>An SS model can be set up as the EM for the MSE. To use this option, specify <code>"EM"</code> as part of <code>MS_vec</code>. As with the OM, the built-in cod model could be used; just specify <code>"cod"</code> in the <code>EM_name_vec</code>. To use any other SS model as the EM, specify the path in <code>EM_in_dir_vec</code>.Note that models that use empirical weight at age can not yet be used as estimation models.</p>
 <p>Future catches will be determined from the forecasting file settings of the SS model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.</p>
 </div>
-<div id="custom-MS" class="section level3">
+<div id="custom-MS" class="section level3" number="4.3.2">
 <h3><span class="header-section-number">4.3.2</span> Using a custom management strategy/procedure</h3>
 <p>Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1">constant_catch_MS &lt;-<span class="st"> </span><span class="cf">function</span>(OM_dat, nyrs_assess, <span class="dt">catch_yr =</span> <span class="dv">100</span>, </a>
-<a class="sourceLine" id="cb49-2" title="2">                              <span class="dt">frac_catch =</span> <span class="fl">0.5</span>, ...) { <span class="co"># need to include ... to allow function to work</span></a>
-<a class="sourceLine" id="cb49-3" title="3">  <span class="co"># set catch the same as the previous year (sampled catch).</span></a>
-<a class="sourceLine" id="cb49-4" title="4">  <span class="co"># catch is in the same units as the operating model, in this case it is in</span></a>
-<a class="sourceLine" id="cb49-5" title="5">  <span class="co"># biomass.</span></a>
-<a class="sourceLine" id="cb49-6" title="6">  catch &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
-<a class="sourceLine" id="cb49-7" title="7">    <span class="dt">year =</span> (OM_dat<span class="op">$</span>endyr <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)<span class="op">:</span>(OM_dat<span class="op">$</span>endyr <span class="op">+</span><span class="st"> </span>nyrs_assess), <span class="co"># the years to project the model forward</span></a>
-<a class="sourceLine" id="cb49-8" title="8">    <span class="dt">seas =</span> <span class="dv">1</span>, <span class="co"># hard coded from looking at model </span></a>
-<a class="sourceLine" id="cb49-9" title="9">    <span class="dt">fleet =</span> <span class="dv">1</span>,  <span class="co"># hard coded from looking at model</span></a>
-<a class="sourceLine" id="cb49-10" title="10">    <span class="dt">catch =</span> OM_dat<span class="op">$</span>catch[OM_dat<span class="op">$</span>catch<span class="op">$</span>year <span class="op">==</span><span class="st"> </span>catch_yr, <span class="st">&quot;catch&quot;</span>]<span class="op">*</span>frac_catch,</a>
-<a class="sourceLine" id="cb49-11" title="11">    <span class="dt">catch_se =</span> <span class="fl">0.05</span>) <span class="co"># hard coded from looking at model</span></a>
-<a class="sourceLine" id="cb49-12" title="12">  catch_bio &lt;-<span class="st"> </span>catch <span class="co"># catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL</span></a>
-<a class="sourceLine" id="cb49-13" title="13">  catch_F &lt;-<span class="st"> </span><span class="ot">NULL</span> <span class="co"># catch in terms of F, can be left as NULL.</span></a>
-<a class="sourceLine" id="cb49-14" title="14">  discards &lt;-<span class="st"> </span><span class="ot">NULL</span> <span class="co"># discards can be left as NULL if there are no discards</span></a>
-<a class="sourceLine" id="cb49-15" title="15">  catch_list &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">catch =</span> catch,</a>
-<a class="sourceLine" id="cb49-16" title="16">                     <span class="dt">catch_bio =</span> catch_bio, </a>
-<a class="sourceLine" id="cb49-17" title="17">                     <span class="dt">catch_F =</span> catch_F,</a>
-<a class="sourceLine" id="cb49-18" title="18">                     <span class="dt">discards =</span> discards)</a>
-<a class="sourceLine" id="cb49-19" title="19">}</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="SSMSE.html#cb44-1" aria-hidden="true" tabindex="-1"></a>constant_catch_MS <span class="ot">&lt;-</span> <span class="cf">function</span>(OM_dat, nyrs_assess, <span class="at">catch_yr =</span> <span class="dv">100</span>, </span>
+<span id="cb44-2"><a href="SSMSE.html#cb44-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">frac_catch =</span> <span class="fl">0.5</span>, ...) { <span class="co"># need to include ... to allow function to work</span></span>
+<span id="cb44-3"><a href="SSMSE.html#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># set catch the same as the previous year (sampled catch).</span></span>
+<span id="cb44-4"><a href="SSMSE.html#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># catch is in the same units as the operating model, in this case it is in</span></span>
+<span id="cb44-5"><a href="SSMSE.html#cb44-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># biomass.</span></span>
+<span id="cb44-6"><a href="SSMSE.html#cb44-6" aria-hidden="true" tabindex="-1"></a>  catch <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb44-7"><a href="SSMSE.html#cb44-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> (OM_dat<span class="sc">$</span>endyr <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(OM_dat<span class="sc">$</span>endyr <span class="sc">+</span> nyrs_assess), <span class="co"># the years to project the model forward</span></span>
+<span id="cb44-8"><a href="SSMSE.html#cb44-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">seas =</span> <span class="dv">1</span>, <span class="co"># hard coded from looking at model </span></span>
+<span id="cb44-9"><a href="SSMSE.html#cb44-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fleet =</span> <span class="dv">1</span>,  <span class="co"># hard coded from looking at model</span></span>
+<span id="cb44-10"><a href="SSMSE.html#cb44-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">catch =</span> OM_dat<span class="sc">$</span>catch[OM_dat<span class="sc">$</span>catch<span class="sc">$</span>year <span class="sc">==</span> catch_yr, <span class="st">&quot;catch&quot;</span>]<span class="sc">*</span>frac_catch,</span>
+<span id="cb44-11"><a href="SSMSE.html#cb44-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">catch_se =</span> <span class="fl">0.05</span>) <span class="co"># hard coded from looking at model</span></span>
+<span id="cb44-12"><a href="SSMSE.html#cb44-12" aria-hidden="true" tabindex="-1"></a>  catch_bio <span class="ot">&lt;-</span> catch <span class="co"># catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL</span></span>
+<span id="cb44-13"><a href="SSMSE.html#cb44-13" aria-hidden="true" tabindex="-1"></a>  catch_F <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># catch in terms of F, can be left as NULL.</span></span>
+<span id="cb44-14"><a href="SSMSE.html#cb44-14" aria-hidden="true" tabindex="-1"></a>  discards <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># discards can be left as NULL if there are no discards</span></span>
+<span id="cb44-15"><a href="SSMSE.html#cb44-15" aria-hidden="true" tabindex="-1"></a>  catch_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">catch =</span> catch,</span>
+<span id="cb44-16"><a href="SSMSE.html#cb44-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">catch_bio =</span> catch_bio, </span>
+<span id="cb44-17"><a href="SSMSE.html#cb44-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">catch_F =</span> catch_F,</span>
+<span id="cb44-18"><a href="SSMSE.html#cb44-18" aria-hidden="true" tabindex="-1"></a>                     <span class="at">discards =</span> discards)</span>
+<span id="cb44-19"><a href="SSMSE.html#cb44-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s assume this function is saved in a file within the working directory named constant_catch_MS.R.</p>
 <p>This function can then be used in a call to <code>run_SSMSE()</code>:</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1"><span class="co"># define sample structure</span></a>
-<a class="sourceLine" id="cb50-2" title="2">datfile &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</a>
-<a class="sourceLine" id="cb50-3" title="3">sample_struct &lt;-<span class="st"> </span><span class="kw">create_sample_struct</span>(<span class="dt">dat =</span> datfile, <span class="dt">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></a>
-<a class="sourceLine" id="cb50-4" title="4">sample_struct<span class="op">$</span>lencomp &lt;-<span class="st"> </span><span class="ot">NULL</span> <span class="co"># don&#39;t use length sampling</span></a>
-<a class="sourceLine" id="cb50-5" title="5"></a>
-<a class="sourceLine" id="cb50-6" title="6"><span class="co"># run the SSMSE routine</span></a>
-<a class="sourceLine" id="cb50-7" title="7">run_result_custom &lt;-<span class="st"> </span><span class="kw">run_SSMSE</span>(</a>
-<a class="sourceLine" id="cb50-8" title="8">                              <span class="dt">scen_name_vec =</span> <span class="st">&quot;constant-catch&quot;</span>,</a>
-<a class="sourceLine" id="cb50-9" title="9">                              <span class="dt">out_dir_scen_vec =</span> <span class="st">&quot;my_results&quot;</span>,</a>
-<a class="sourceLine" id="cb50-10" title="10">                              <span class="dt">iter_vec =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb50-11" title="11">                              <span class="dt">OM_name_vec =</span> <span class="st">&quot;cod&quot;</span>,</a>
-<a class="sourceLine" id="cb50-12" title="12">                              <span class="dt">OM_in_dir_vec =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb50-13" title="13">                              <span class="dt">MS_vec =</span> <span class="st">&quot;constant_catch_MS&quot;</span>, <span class="co"># use custom fun</span></a>
-<a class="sourceLine" id="cb50-14" title="14">                              <span class="dt">custom_MS_source =</span> <span class="st">&quot;constant_catch_MS.R&quot;</span>,</a>
-<a class="sourceLine" id="cb50-15" title="15">                              <span class="dt">use_SS_boot_vec =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb50-16" title="16">                              <span class="dt">nyrs_vec =</span> <span class="dv">6</span>,</a>
-<a class="sourceLine" id="cb50-17" title="17">                              <span class="dt">nyrs_assess_vec =</span> <span class="dv">3</span>,</a>
-<a class="sourceLine" id="cb50-18" title="18">                              <span class="dt">run_EM_last_yr =</span> <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb50-19" title="19">                              <span class="dt">run_parallel =</span> <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb50-20" title="20">                              <span class="dt">sample_struct_list =</span> <span class="kw">list</span>(sample_struct),</a>
-<a class="sourceLine" id="cb50-21" title="21">                              <span class="dt">seed =</span> <span class="dv">12345</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="SSMSE.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define sample structure</span></span>
+<span id="cb45-2"><a href="SSMSE.html#cb45-2" aria-hidden="true" tabindex="-1"></a>datfile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
+<span id="cb45-3"><a href="SSMSE.html#cb45-3" aria-hidden="true" tabindex="-1"></a>sample_struct <span class="ot">&lt;-</span> <span class="fu">create_sample_struct</span>(<span class="at">dat =</span> datfile, <span class="at">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></span>
+<span id="cb45-4"><a href="SSMSE.html#cb45-4" aria-hidden="true" tabindex="-1"></a>sample_struct<span class="sc">$</span>lencomp <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># don&#39;t use length sampling</span></span>
+<span id="cb45-5"><a href="SSMSE.html#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="SSMSE.html#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run the SSMSE routine</span></span>
+<span id="cb45-7"><a href="SSMSE.html#cb45-7" aria-hidden="true" tabindex="-1"></a>run_result_custom <span class="ot">&lt;-</span> <span class="fu">run_SSMSE</span>(</span>
+<span id="cb45-8"><a href="SSMSE.html#cb45-8" aria-hidden="true" tabindex="-1"></a>                              <span class="at">scen_name_vec =</span> <span class="st">&quot;constant-catch&quot;</span>,</span>
+<span id="cb45-9"><a href="SSMSE.html#cb45-9" aria-hidden="true" tabindex="-1"></a>                              <span class="at">out_dir_scen_vec =</span> <span class="st">&quot;my_results&quot;</span>,</span>
+<span id="cb45-10"><a href="SSMSE.html#cb45-10" aria-hidden="true" tabindex="-1"></a>                              <span class="at">iter_vec =</span> <span class="dv">1</span>,</span>
+<span id="cb45-11"><a href="SSMSE.html#cb45-11" aria-hidden="true" tabindex="-1"></a>                              <span class="at">OM_name_vec =</span> <span class="st">&quot;cod&quot;</span>,</span>
+<span id="cb45-12"><a href="SSMSE.html#cb45-12" aria-hidden="true" tabindex="-1"></a>                              <span class="at">OM_in_dir_vec =</span> <span class="cn">NULL</span>,</span>
+<span id="cb45-13"><a href="SSMSE.html#cb45-13" aria-hidden="true" tabindex="-1"></a>                              <span class="at">MS_vec =</span> <span class="st">&quot;constant_catch_MS&quot;</span>, <span class="co"># use custom fun</span></span>
+<span id="cb45-14"><a href="SSMSE.html#cb45-14" aria-hidden="true" tabindex="-1"></a>                              <span class="at">custom_MS_source =</span> <span class="st">&quot;constant_catch_MS.R&quot;</span>,</span>
+<span id="cb45-15"><a href="SSMSE.html#cb45-15" aria-hidden="true" tabindex="-1"></a>                              <span class="at">use_SS_boot_vec =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb45-16"><a href="SSMSE.html#cb45-16" aria-hidden="true" tabindex="-1"></a>                              <span class="at">nyrs_vec =</span> <span class="dv">6</span>,</span>
+<span id="cb45-17"><a href="SSMSE.html#cb45-17" aria-hidden="true" tabindex="-1"></a>                              <span class="at">nyrs_assess_vec =</span> <span class="dv">3</span>,</span>
+<span id="cb45-18"><a href="SSMSE.html#cb45-18" aria-hidden="true" tabindex="-1"></a>                              <span class="at">run_EM_last_yr =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb45-19"><a href="SSMSE.html#cb45-19" aria-hidden="true" tabindex="-1"></a>                              <span class="at">run_parallel =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb45-20"><a href="SSMSE.html#cb45-20" aria-hidden="true" tabindex="-1"></a>                              <span class="at">sample_struct_list =</span> <span class="fu">list</span>(sample_struct),</span>
+<span id="cb45-21"><a href="SSMSE.html#cb45-21" aria-hidden="true" tabindex="-1"></a>                              <span class="at">seed =</span> <span class="dv">12345</span>)</span></code></pre></div>
 </div>
 </div>
-<div id="sampling-options" class="section level2">
+<div id="sampling-options" class="section level2" number="4.4">
 <h2><span class="header-section-number">4.4</span> Sampling options</h2>
 <p>Currently, the only available sampling option is to use the bootstrapping module within SS itself. This means specifying <code>use_SS_boot_vec = TRUE</code>. Details on how sampling is done using the bootstrapping module in SS is available in the “Bootstrap Data Files” section of the <a href="https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231">SS user manual</a>.</p>
 <p>Users also need to specify how and which data types should be sampled for each future year in the simulation in <code>sample_struct_list</code>. <code>sample_struct_list</code> is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.</p>
 <p>The helper function <code>create_sample_struct()</code> can be used to help users generate the list of dataframes for a scenario. See an example of this function’s use in the <a href="#sample">simple example</a> or by typing <code>?SSMSE::create_sample_struct()</code> into the R console.</p>
+<p>Currently, users can sample data for catches (treated as fixed), CPUE (i.e., indices of abundance), length and age composition, conditional length at age compositions, mean size at age, and mean size. It is not yet possible to sample data for generalized size compositions, tagging data, and morph compositions.</p>
 <p>Users can specify the sampling during the historical period of the model through the <code>sample_struct_hist</code> input to <code>run_SSMSE</code>. This is an optional input and has the same structure as <code>sample_struct_list</code>, but the years will be before the original end year of the OM.</p>
 </div>
-<div id="future-changes-to-the-operating-model-future" class="section level2">
+<div id="future-changes-to-the-operating-model-future" class="section level2" number="4.5">
 <h2><span class="header-section-number">4.5</span> Future changes to the operating model (#future)</h2>
 <p>By default, SSMSE will simply extend the structure of the OM into the future using the same parameter values as in the last year of the model. However, the user may want to allow changes in parameter values to occur as the OM is extended forward in time. Users can input values into the <code>future_om_list</code> to accomplish this. This input is a list of lists. For the first level of lists, each represents a separate change to make. Within the first level, there are 4 list components that outline the details of the change to make. There are 2 main choices: 1) to specify model changes by telling SSMSE how values should be sampled or 2) to input your own custom values for future values of a given parameter.</p>
-<div id="the-strucutre-of-future_om_list" class="section level3">
+<div id="the-strucutre-of-future_om_list" class="section level3" number="4.5.1">
 <h3><span class="header-section-number">4.5.1</span> The strucutre of <code>future_om_list</code></h3>
 <p>For example, here is an example list containing just one future change for the model. It shows that the model should be changed to 4.5 in year 103 and afterwards:</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1">my_future_om_list &lt;-<span class="st"> </span><span class="kw">create_future_om_list</span>(<span class="dt">list_length =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb51-2" title="2">my_future_om_list</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="SSMSE.html#cb46-1" aria-hidden="true" tabindex="-1"></a>my_future_om_list <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">list_length =</span> <span class="dv">1</span>)</span>
+<span id="cb46-2"><a href="SSMSE.html#cb46-2" aria-hidden="true" tabindex="-1"></a>my_future_om_list</span></code></pre></div>
 <pre><code>[[1]]
 [[1]]$pars
 [1] &quot;SizeSel_P_3_Fishery(1)&quot;
@@ -302,44 +321,42 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 [1] &quot;model_change&quot;
 
 [[1]]$input
-  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param
-1                 NA                NA              102                103     mean
-    method value
-1 absolute   4.5</code></pre>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1"><span class="kw">length</span>(my_future_om_list) <span class="co"># note has length 1 b/c 1 change</span></a></code></pre></div>
+  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param   method value
+1                 NA                NA              102                103     mean absolute   4.5</code></pre>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="SSMSE.html#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(my_future_om_list) <span class="co"># note has length 1 b/c 1 change</span></span></code></pre></div>
 <pre><code>[1] 1</code></pre>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="kw">length</span>(my_future_om_list[[<span class="dv">1</span>]]) <span class="co"># has length 4 because 4 list components, as for each change</span></a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="SSMSE.html#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(my_future_om_list[[<span class="dv">1</span>]]) <span class="co"># has length 4 because 4 list components, as for each change</span></span></code></pre></div>
 <pre><code>[1] 4</code></pre>
 <p>Note there is just one change specified here. For the change, there are four list items that are required for any specified change.</p>
 <ol style="list-style-type: decimal">
-<li>The first list item is named “pars”. It contains a vector of parameter name(s) to apply the change to. The names should be the same as the names in <code>r4ss::SS_read_pars()</code> or can include the following:</li>
+<li>The first list item is named “pars.” It contains a vector of parameter name(s) to apply the change to. The names should be the same as the names in <code>r4ss::SS_read_pars()</code> or can include the following:</li>
 </ol>
 <ul>
 <li><code>"rec_devs"</code> - For specifying recruitment deviations</li>
 <li><code>"impl_error</code> - For specifying implementation error in transforming a management procedure’s specified future catch into realized catch.</li>
-<li><code>"all"</code> - Apply the change to all parameters in the model, with the exception of “SR_sigmaR”, “SR_regime”, “SR_autocorr”, and “impl_error” parameters. Changing the first 3 stock recruitment related parameters would conflict with changes in recruitment deviations. Since implementation error is not a parameter specified in the control file and SSMSE does not rely on the implementation error parameter created through the forecasting file, including the implementation error in “all” did not seem appropriate.</li>
+<li><code>"all"</code> - Apply the change to all parameters in the model, with the exception of “SR_sigmaR,” “SR_regime,” “SR_autocorr,” and “impl_error” parameters. Changing the first 3 stock recruitment related parameters would conflict with changes in recruitment deviations. Since implementation error is not a parameter specified in the control file and SSMSE does not rely on the implementation error parameter created through the forecasting file, including the implementation error in “all” did not seem appropriate.</li>
 </ul>
 <p>In this case, we just want to apply the change to the <code>SizeSel_P_3_Fishery(1)</code> parameter of the model.</p>
 <ol start="2" style="list-style-type: decimal">
-<li><p>The second item is “scen”, which contains a vector of information about how to apply the changes within and across scenarios. The first value is an option to specify how the change should be applied among scenarios, either “randomize” (use a different value for each iteration of each scenario) or “replicate” (use the same set of values across scenarios for the same number iteration, but each value will be different across iterations within the same scenario). Note that the same values will be applied across iterations and scenarios if there isn’t any stochasticity in the values being drawn (e.g., standard deviation set at 0), regardless if “randomize” or “replicate” is chosen. In the example above, there is no stochasticity, so specifying randomize or replicate does not matter. Following the first value are the names of the scenarios to apply the change to. If the change should be applied to all of the scenarios, “all” can be used in place of naming every scenario. In this example, The change will only be applied to the scenario named “scen2”, so the input for “scen” is <code>c("randomize", "scen2")</code>.</p></li>
-<li><p>The “pattern” is a vector of character inputs. The first value should be either “model_change”, meaning that SSMSE will calculate the change values, or “custom” which allows the user to directly put in the values that they want in the model. In this case, “model_change” is used. A second input can also be added when the “model_change” pattern is used, which specifies the distribution to pull from. This could be “normal” or “lognormal”, but if no input is provided, a normal distribution will be used for sampling.</p></li>
-<li><p>The fourth item, named “input”, is a dataframe, which contains different column name values depending on if the “model_change” pattern is used or if the “custom” pattern is used. For the model_change options, a dataframe in input specifies a change for the parameter of a distribution. Because we are using the model change option, we have the following columns:</p></li>
+<li><p>The second item is “scen,” which contains a vector of information about how to apply the changes within and across scenarios. The first value is an option to specify how the change should be applied among scenarios, either “randomize” (use a different value for each iteration of each scenario) or “replicate” (use the same set of values across scenarios for the same number iteration, but each value will be different across iterations within the same scenario). Note that the same values will be applied across iterations and scenarios if there isn’t any stochasticity in the values being drawn (e.g., standard deviation set at 0), regardless if “randomize” or “replicate” is chosen. In the example above, there is no stochasticity, so specifying randomize or replicate does not matter. Following the first value are the names of the scenarios to apply the change to. If the change should be applied to all of the scenarios, “all” can be used in place of naming every scenario. In this example, The change will only be applied to the scenario named “scen2,” so the input for “scen” is <code>c("randomize", "scen2")</code>.</p></li>
+<li><p>The “pattern” is a vector of character inputs. The first value should be either “model_change,” meaning that SSMSE will calculate the change values, or “custom” which allows the user to directly put in the values that they want in the model. In this case, “model_change” is used. A second input can also be added when the “model_change” pattern is used, which specifies the distribution to pull from. This could be “normal” or “lognormal,” but if no input is provided, a normal distribution will be used for sampling.</p></li>
+<li><p>The fourth item, named “input,” is a dataframe, which contains different column name values depending on if the “model_change” pattern is used or if the “custom” pattern is used. For the model_change options, a dataframe in input specifies a change for the parameter of a distribution. Because we are using the model change option, we have the following columns:</p></li>
 </ol>
 <ul>
 <li><code>first_yr_averaging</code>: The first year to average historical values from the model, if using for the change. This should be <code>NA</code> if historical averaging will not be used.</li>
 <li><code>last_yr_averaging</code>: The last year to average historical values from the model, if using for the change. This should be <code>NA</code> if historical averaging will not be used.</li>
 <li><code>last_yr_orig_val</code>: The last year of the future deviations with the original model value. This value will not be changed, but the following year’s value will be.</li>
 <li><code>first_yr_final_val</code>: The first year where the final value as specified will be reached. If no future changes are made, the final value will continue forward in the OM through all projected years. For step changes, the <code>first_yr_final_val</code> is just 1 year after the <code>last_yr_orig_val</code>. However, if a more gradual adjustment toward the final value is desired, this could be any number of years after the original value.</li>
-<li>ts_param: The sampling parameter to modify. Options are “mean”, “ar_1_phi” (if using autocorrelation), “sd”, and “cv”. If not included in the dataframe, “mean” is assumed to be the same as in the previous model year, sd is assumed to be 0, and we assume no autocorrelation (as specified through an autoregressive AR1 process). Phi should be between -1 and 1 (this creates a stationary process) and if phi = 1, this creates a random walk (as random walk is a special case of an AR1 model). Note that both sd and cv cannot be specified within the same input dataframe.</li>
-<li>method: How to apply the change relative to the historical (if specified) or previous year’s value (if first_yr_averaging and last_yr_averaging for that row are NA). Options are “multiplicative”, “additive”, and “absolute”. This example uses “absolute”, meaning that the number in “value” is directly used.</li>
+<li>ts_param: The sampling parameter to modify. Options are “mean,” “ar_1_phi” (if using autocorrelation), “sd,” and “cv.” If not included in the dataframe, “mean” is assumed to be the same as in the previous model year, sd is assumed to be 0, and we assume no autocorrelation (as specified through an autoregressive AR1 process). Phi should be between -1 and 1 (this creates a stationary process) and if phi = 1, this creates a random walk (as random walk is a special case of an AR1 model). Note that both sd and cv cannot be specified within the same input dataframe.</li>
+<li>method: How to apply the change relative to the historical (if specified) or previous year’s value (if first_yr_averaging and last_yr_averaging for that row are NA). Options are “multiplicative,” “additive,” and “absolute.” This example uses “absolute,” meaning that the number in “value” is directly used.</li>
 <li>value. The value of the parameter change. This may be NA if historical averaging is used.</li>
 </ul>
 </div>
-<div id="example-of-future_om_list-denoting-a-gradual-change" class="section level3">
+<div id="example-of-future_om_list-denoting-a-gradual-change" class="section level3" number="4.5.2">
 <h3><span class="header-section-number">4.5.2</span> Example of future_om_list denoting a gradual change</h3>
 <p>Suppose we wanted to change the value of “SizeSel_P_3_Fishery(1)” in scen2 over 4 years after year 102 to arrive at a value of 4.5 in year 106. We can do this by using <code>my_future_om_list</code>, but changing the value in the first row of <code>first_yr_final_val</code> to 106:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1">my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]][<span class="dv">1</span>, <span class="st">&quot;first_yr_final_val&quot;</span>] &lt;-<span class="st"> </span><span class="dv">106</span></a>
-<a class="sourceLine" id="cb57-2" title="2">my_future_om_list[[<span class="dv">1</span>]]</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="SSMSE.html#cb52-1" aria-hidden="true" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]][<span class="dv">1</span>, <span class="st">&quot;first_yr_final_val&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">106</span></span>
+<span id="cb52-2"><a href="SSMSE.html#cb52-2" aria-hidden="true" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]]</span></code></pre></div>
 <pre><code>$pars
 [1] &quot;SizeSel_P_3_Fishery(1)&quot;
 
@@ -350,25 +367,23 @@ $pattern
 [1] &quot;model_change&quot;
 
 $input
-  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param
-1                 NA                NA              102                106     mean
-    method value
-1 absolute   4.5</code></pre>
+  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param   method value
+1                 NA                NA              102                106     mean absolute   4.5</code></pre>
 </div>
-<div id="example-of-future_om_list-with-a-random-deviations" class="section level3">
+<div id="example-of-future_om_list-with-a-random-deviations" class="section level3" number="4.5.3">
 <h3><span class="header-section-number">4.5.3</span> Example of future_om_list with a random deviations</h3>
 <p>Suppose we now wanted the value of “SizeSel_P_3_Fishery(1)” to change randomly according to a normal distribution with a standard deviation of 0.1 around a mean of 4.5 from 104 onwards. This can be done by adding a line specifying a change in standard deviation (which for now, has been assumed to be 0) to the data frame:</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1">new_vals &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">first_yr_averaging =</span> <span class="ot">NA</span>,</a>
-<a class="sourceLine" id="cb59-2" title="2">                       <span class="dt">last_yr_averaging  =</span> <span class="ot">NA</span>, </a>
-<a class="sourceLine" id="cb59-3" title="3">                       <span class="dt">last_yr_orig_val   =</span> <span class="dv">103</span>,</a>
-<a class="sourceLine" id="cb59-4" title="4">                       <span class="dt">first_yr_final_val =</span> <span class="dv">104</span>, </a>
-<a class="sourceLine" id="cb59-5" title="5">                       <span class="dt">ts_param =</span> <span class="st">&quot;sd&quot;</span>, </a>
-<a class="sourceLine" id="cb59-6" title="6">                       <span class="dt">method =</span> <span class="st">&quot;absolute&quot;</span>,</a>
-<a class="sourceLine" id="cb59-7" title="7">                       <span class="dt">value =</span> <span class="fl">0.1</span>)</a>
-<a class="sourceLine" id="cb59-8" title="8"></a>
-<a class="sourceLine" id="cb59-9" title="9">my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] &lt;-<span class="st"> </span><span class="kw">rbind</span>(my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]],</a>
-<a class="sourceLine" id="cb59-10" title="10">                                           new_vals)</a>
-<a class="sourceLine" id="cb59-11" title="11">my_future_om_list[[<span class="dv">1</span>]]</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="SSMSE.html#cb54-1" aria-hidden="true" tabindex="-1"></a>new_vals <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">first_yr_averaging =</span> <span class="cn">NA</span>,</span>
+<span id="cb54-2"><a href="SSMSE.html#cb54-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">last_yr_averaging  =</span> <span class="cn">NA</span>, </span>
+<span id="cb54-3"><a href="SSMSE.html#cb54-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">last_yr_orig_val   =</span> <span class="dv">103</span>,</span>
+<span id="cb54-4"><a href="SSMSE.html#cb54-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">first_yr_final_val =</span> <span class="dv">104</span>, </span>
+<span id="cb54-5"><a href="SSMSE.html#cb54-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">ts_param =</span> <span class="st">&quot;sd&quot;</span>, </span>
+<span id="cb54-6"><a href="SSMSE.html#cb54-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">&quot;absolute&quot;</span>,</span>
+<span id="cb54-7"><a href="SSMSE.html#cb54-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">value =</span> <span class="fl">0.1</span>)</span>
+<span id="cb54-8"><a href="SSMSE.html#cb54-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-9"><a href="SSMSE.html#cb54-9" aria-hidden="true" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">rbind</span>(my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]],</span>
+<span id="cb54-10"><a href="SSMSE.html#cb54-10" aria-hidden="true" tabindex="-1"></a>                                           new_vals)</span>
+<span id="cb54-11"><a href="SSMSE.html#cb54-11" aria-hidden="true" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]]</span></code></pre></div>
 <pre><code>$pars
 [1] &quot;SizeSel_P_3_Fishery(1)&quot;
 
@@ -379,38 +394,35 @@ $pattern
 [1] &quot;model_change&quot;
 
 $input
-  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param
-1                 NA                NA              102                106     mean
-2                 NA                NA              103                104       sd
-    method value
-1 absolute   4.5
-2 absolute   0.1</code></pre>
+  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param   method value
+1                 NA                NA              102                106     mean absolute   4.5
+2                 NA                NA              103                104       sd absolute   0.1</code></pre>
 <p>Note that the <code>last_yr_orig_val</code> and <code>first_yr_final_val</code> are different than the line for the mean, which is allowed.</p>
 </div>
-<div id="example-of-using-historical-values-for-determining-parameter-values" class="section level3">
+<div id="example-of-using-historical-values-for-determining-parameter-values" class="section level3" number="4.5.4">
 <h3><span class="header-section-number">4.5.4</span> Example of using historical values for determining parameter values</h3>
 <p>This example applies random annual deviations to all parameters for scenarios scen2 and scen3.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1">future_om_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="dt">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="dt">length =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb61-2" title="2">future_om_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">lapply</span>(future_om_list_<span class="dv">2</span>, <span class="cf">function</span> (x) x &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="dt">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="dt">length =</span> <span class="dv">4</span>))</a>
-<a class="sourceLine" id="cb61-3" title="3"><span class="kw">names</span>(future_om_list_<span class="dv">2</span>[[<span class="dv">1</span>]]) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;pars&quot;</span>, <span class="st">&quot;scen&quot;</span>, <span class="st">&quot;pattern&quot;</span>, <span class="st">&quot;input&quot;</span>)</a>
-<a class="sourceLine" id="cb61-4" title="4"></a>
-<a class="sourceLine" id="cb61-5" title="5">future_om_list_<span class="dv">2</span>[[<span class="dv">1</span>]][[<span class="st">&quot;pars&quot;</span>]] &lt;-<span class="st"> &quot;all&quot;</span></a>
-<a class="sourceLine" id="cb61-6" title="6">future_om_list_<span class="dv">2</span>[[<span class="dv">1</span>]][[<span class="st">&quot;scen&quot;</span>]] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;randomize&quot;</span>, <span class="st">&quot;scen2&quot;</span>, <span class="st">&quot;scen3&quot;</span>)</a>
-<a class="sourceLine" id="cb61-7" title="7">future_om_list_<span class="dv">2</span>[[<span class="dv">1</span>]][[<span class="st">&quot;pattern&quot;</span>]] &lt;-<span class="st"> &quot;model_change&quot;</span> <span class="co"># defaults to using normal dist</span></a>
-<a class="sourceLine" id="cb61-8" title="8">future_om_list_<span class="dv">2</span>[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">first_yr_averaging =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb61-9" title="9">                                               <span class="dt">last_yr_averaging =</span> <span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</a>
-<a class="sourceLine" id="cb61-10" title="10">                                               <span class="dt">last_yr_orig_val =</span> <span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</a>
-<a class="sourceLine" id="cb61-11" title="11">                                               <span class="dt">first_yr_final_val =</span> <span class="kw">c</span>(<span class="dv">101</span>, <span class="dv">101</span>), </a>
-<a class="sourceLine" id="cb61-12" title="12">                                               <span class="dt">ts_param =</span> <span class="kw">c</span>(<span class="st">&quot;cv&quot;</span>, <span class="st">&quot;mean&quot;</span>),</a>
-<a class="sourceLine" id="cb61-13" title="13">                                               <span class="dt">method =</span> <span class="kw">c</span>(<span class="st">&quot;absolute&quot;</span>, <span class="st">&quot;multiplier&quot;</span>), </a>
-<a class="sourceLine" id="cb61-14" title="14">                                               <span class="dt">value =</span> <span class="kw">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="SSMSE.html#cb56-1" aria-hidden="true" tabindex="-1"></a>future_om_list_2 <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="at">length =</span> <span class="dv">1</span>)</span>
+<span id="cb56-2"><a href="SSMSE.html#cb56-2" aria-hidden="true" tabindex="-1"></a>future_om_list_2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(future_om_list_2, <span class="cf">function</span> (x) x <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="at">length =</span> <span class="dv">4</span>))</span>
+<span id="cb56-3"><a href="SSMSE.html#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(future_om_list_2[[<span class="dv">1</span>]]) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;pars&quot;</span>, <span class="st">&quot;scen&quot;</span>, <span class="st">&quot;pattern&quot;</span>, <span class="st">&quot;input&quot;</span>)</span>
+<span id="cb56-4"><a href="SSMSE.html#cb56-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-5"><a href="SSMSE.html#cb56-5" aria-hidden="true" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;pars&quot;</span>]] <span class="ot">&lt;-</span> <span class="st">&quot;all&quot;</span></span>
+<span id="cb56-6"><a href="SSMSE.html#cb56-6" aria-hidden="true" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;scen&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;randomize&quot;</span>, <span class="st">&quot;scen2&quot;</span>, <span class="st">&quot;scen3&quot;</span>)</span>
+<span id="cb56-7"><a href="SSMSE.html#cb56-7" aria-hidden="true" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;pattern&quot;</span>]] <span class="ot">&lt;-</span> <span class="st">&quot;model_change&quot;</span> <span class="co"># defaults to using normal dist</span></span>
+<span id="cb56-8"><a href="SSMSE.html#cb56-8" aria-hidden="true" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">first_yr_averaging =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb56-9"><a href="SSMSE.html#cb56-9" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">last_yr_averaging =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</span>
+<span id="cb56-10"><a href="SSMSE.html#cb56-10" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">last_yr_orig_val =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</span>
+<span id="cb56-11"><a href="SSMSE.html#cb56-11" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">first_yr_final_val =</span> <span class="fu">c</span>(<span class="dv">101</span>, <span class="dv">101</span>), </span>
+<span id="cb56-12"><a href="SSMSE.html#cb56-12" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">ts_param =</span> <span class="fu">c</span>(<span class="st">&quot;cv&quot;</span>, <span class="st">&quot;mean&quot;</span>),</span>
+<span id="cb56-13"><a href="SSMSE.html#cb56-13" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">method =</span> <span class="fu">c</span>(<span class="st">&quot;absolute&quot;</span>, <span class="st">&quot;multiplier&quot;</span>), </span>
+<span id="cb56-14"><a href="SSMSE.html#cb56-14" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">value =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>))</span></code></pre></div>
 <p>Note that the choice of year range for historical values does not matter unless the parameter is already time-varying in the original operating model or has become time varying through a previous change. Otherwise, the base model parameter will be applied. If no historical years are included, then the base parameter value will be the basis of comparison for relative changes (i.e., method = multiplier or additive).</p>
 </div>
-<div id="example-using-custom-pattern-instead-of-model_change" class="section level3">
+<div id="example-using-custom-pattern-instead-of-model_change" class="section level3" number="4.5.5">
 <h3><span class="header-section-number">4.5.5</span> Example using “custom” pattern instead of “model_change”</h3>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1">custom_future_om_list &lt;-<span class="st"> </span><span class="kw">create_future_om_list</span>(<span class="dt">example_type =</span> <span class="st">&quot;custom&quot;</span>, </a>
-<a class="sourceLine" id="cb62-2" title="2">                                               <span class="dt">list_length =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb62-3" title="3">custom_future_om_list</a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="SSMSE.html#cb57-1" aria-hidden="true" tabindex="-1"></a>custom_future_om_list <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">example_type =</span> <span class="st">&quot;custom&quot;</span>, </span>
+<span id="cb57-2"><a href="SSMSE.html#cb57-2" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">list_length =</span> <span class="dv">1</span>)</span>
+<span id="cb57-3"><a href="SSMSE.html#cb57-3" aria-hidden="true" tabindex="-1"></a>custom_future_om_list</span></code></pre></div>
 <pre><code>[[1]]
 [[1]]$pars
 [1] &quot;impl_error&quot;
@@ -513,7 +525,7 @@ $input
 88 impl_error scen3    3 106  1.10
 89 impl_error scen3    4 106  1.10
 90 impl_error scen3    5 106  1.10</code></pre>
-<p>The inputs required for <code>pattern = custom</code> are similar to using <code>pattern = model_change</code>, but there is no need to specify a distribution as the second vector input of “pattern” and the column names in input are different. Also that the change is “randomized”, which indicates that a value for each scenario and each iteration are necessary, whereas if the first value of “scen” was “replicate”, separate values for each scenario should not be specified, but rather a single value for “all” should be used. The columns in the dataframe are:</p>
+<p>The inputs required for <code>pattern = custom</code> are similar to using <code>pattern = model_change</code>, but there is no need to specify a distribution as the second vector input of “pattern” and the column names in input are different. Also that the change is “randomized,” which indicates that a value for each scenario and each iteration are necessary, whereas if the first value of “scen” was “replicate,” separate values for each scenario should not be specified, but rather a single value for “all” should be used. The columns in the dataframe are:</p>
 <ul>
 <li>par: the parameter name or “all” if it should be applied to all parameters in the “pars” input</li>
 <li>scen: which scenario the value should apply to, or “all” if “replicate” is used as the scenario input</li>
@@ -522,26 +534,26 @@ $input
 <li>value: the value to apply to the model</li>
 </ul>
 </div>
-<div id="how-is-the-operating-modified-to-accomodate-changes-as-specified-in-the-future_om_list" class="section level3">
+<div id="how-is-the-operating-modified-to-accomodate-changes-as-specified-in-the-future_om_list" class="section level3" number="4.5.6">
 <h3><span class="header-section-number">4.5.6</span> How is the operating modified to accomodate changes as specified in the future_OM_list?</h3>
 <p>All changes are made by converting the parameter(s) with changes to be time varing by using additive annual parameter deviations. Because this is an operating model, Stock Synthesis is not run with estimation, so to get the changes into the OM, values (drawn or calculated in model_changes or specified by the user using “custom”) are directly input as parameter deviations into the ss.par file.</p>
 <p>If an OM already contains time varying parameters, these parameters will also be converted to additive parameter deviations before applying the changes specified in the future_OM_list.</p>
 </div>
-<div id="example-of-specifying-recruitment-deviations" class="section level3">
+<div id="example-of-specifying-recruitment-deviations" class="section level3" number="4.5.7">
 <h3><span class="header-section-number">4.5.7</span> Example of specifying recruitment deviations</h3>
 <p>This shows some code for putting recruitment deviations with a mean of 0 and the same standard deviation as the historical recruitment deviations in years 1 to 100:</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" title="1">template_mod_change &lt;-<span class="st"> </span><span class="kw">create_future_om_list</span>(<span class="dt">list_length =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb64-2" title="2">rec_dev_specify &lt;-<span class="st"> </span>template_mod_change[[<span class="dv">1</span>]]</a>
-<a class="sourceLine" id="cb64-3" title="3">rec_dev_specify<span class="op">$</span>pars &lt;-<span class="st"> &quot;rec_devs&quot;</span></a>
-<a class="sourceLine" id="cb64-4" title="4">rec_dev_specify<span class="op">$</span>scen &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</a>
-<a class="sourceLine" id="cb64-5" title="5">rec_dev_specify<span class="op">$</span>input<span class="op">$</span>first_yr_averaging &lt;-<span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb64-6" title="6">rec_dev_specify<span class="op">$</span>input<span class="op">$</span>last_yr_averaging &lt;-<span class="st"> </span><span class="dv">100</span></a>
-<a class="sourceLine" id="cb64-7" title="7">rec_dev_specify<span class="op">$</span>input<span class="op">$</span>last_yr_orig_val &lt;-<span class="st"> </span><span class="dv">100</span></a>
-<a class="sourceLine" id="cb64-8" title="8">rec_dev_specify<span class="op">$</span>input<span class="op">$</span>first_yr_final_val &lt;-<span class="st"> </span><span class="dv">101</span></a>
-<a class="sourceLine" id="cb64-9" title="9">rec_dev_specify<span class="op">$</span>input<span class="op">$</span>ts_param &lt;-<span class="st"> &quot;sd&quot;</span></a>
-<a class="sourceLine" id="cb64-10" title="10">rec_dev_specify<span class="op">$</span>input<span class="op">$</span>value &lt;-<span class="st"> </span><span class="ot">NA</span></a>
-<a class="sourceLine" id="cb64-11" title="11">rec_dev_list &lt;-<span class="st"> </span><span class="kw">list</span>(rec_dev_specify)</a>
-<a class="sourceLine" id="cb64-12" title="12">rec_dev_list</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="SSMSE.html#cb59-1" aria-hidden="true" tabindex="-1"></a>template_mod_change <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">list_length =</span> <span class="dv">1</span>)</span>
+<span id="cb59-2"><a href="SSMSE.html#cb59-2" aria-hidden="true" tabindex="-1"></a>rec_dev_specify <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
+<span id="cb59-3"><a href="SSMSE.html#cb59-3" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>pars <span class="ot">&lt;-</span> <span class="st">&quot;rec_devs&quot;</span></span>
+<span id="cb59-4"><a href="SSMSE.html#cb59-4" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>scen <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
+<span id="cb59-5"><a href="SSMSE.html#cb59-5" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_averaging <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb59-6"><a href="SSMSE.html#cb59-6" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_averaging <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb59-7"><a href="SSMSE.html#cb59-7" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb59-8"><a href="SSMSE.html#cb59-8" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
+<span id="cb59-9"><a href="SSMSE.html#cb59-9" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span></span>
+<span id="cb59-10"><a href="SSMSE.html#cb59-10" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb59-11"><a href="SSMSE.html#cb59-11" aria-hidden="true" tabindex="-1"></a>rec_dev_list <span class="ot">&lt;-</span> <span class="fu">list</span>(rec_dev_specify)</span>
+<span id="cb59-12"><a href="SSMSE.html#cb59-12" aria-hidden="true" tabindex="-1"></a>rec_dev_list</span></code></pre></div>
 <pre><code>[[1]]
 [[1]]$pars
 [1] &quot;rec_devs&quot;
@@ -553,10 +565,8 @@ $input
 [1] &quot;model_change&quot;
 
 [[1]]$input
-  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param
-1                  1               100              100                101       sd
-    method value
-1 absolute    NA</code></pre>
+  first_yr_averaging last_yr_averaging last_yr_orig_val first_yr_final_val ts_param   method value
+1                  1               100              100                101       sd absolute    NA</code></pre>
 
 </div>
 </div>
@@ -571,7 +581,6 @@ $input
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -590,6 +599,7 @@ gitbook.start({
 "weibo": false,
 "instapaper": false,
 "vk": false,
+"whatsapp": false,
 "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
@@ -610,6 +620,10 @@ gitbook.start({
 "text": null
 },
 "download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
 "toc": {
 "collapse": "subsection"
 }

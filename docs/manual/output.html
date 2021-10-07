@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>6 Output and Plots | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="6 Output and Plots | SSMSE user manual" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2021-09-20" />
+<meta name="date" content="2021-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,7 +33,9 @@
   
 <link rel="prev" href="helper.html"/>
 <link rel="next" href="plotting-output-and-performance-metrics.html"/>
-<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -49,29 +51,32 @@
 
 
 
-
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -80,9 +85,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -115,6 +120,7 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+
 </head>
 
 <body>
@@ -127,25 +133,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a>
+<ul>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#r-session-information"><i class="fa fa-check"></i>R session information</a></li>
 </ul></li>
-<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
 <li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#purpose"><i class="fa fa-check"></i><b>1.1</b> Purpose</a></li>
 <li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#funs"><i class="fa fa-check"></i><b>1.2</b> Functions in SSMSE</a></li>
-<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure</a><ul>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure</a>
+<ul>
 <li class="chapter" data-level="1.3.1" data-path="intro.html"><a href="intro.html#conditioning-the-om-and-sampling-from-the-om"><i class="fa fa-check"></i><b>1.3.1</b> Conditioning the OM and sampling from the OM</a></li>
 <li class="chapter" data-level="1.3.2" data-path="intro.html"><a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation"><i class="fa fa-check"></i><b>1.3.2</b> First run of the management strategy in the MSE simulation</a></li>
 <li class="chapter" data-level="1.3.3" data-path="intro.html"><a href="intro.html#feedback-from-managment-strategy-into-om-extending-model-years"><i class="fa fa-check"></i><b>1.3.3</b> Feedback from managment strategy into OM: extending model years</a></li>
 <li class="chapter" data-level="1.3.4" data-path="intro.html"><a href="intro.html#subsequent-runs-of-the-management-strategy"><i class="fa fa-check"></i><b>1.3.4</b> Subsequent runs of the management strategy</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a><ul>
+<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a>
+<ul>
 <li class="chapter" data-level="2.1" data-path="simple.html"><a href="simple.html#setup-r-workspace-folders"><i class="fa fa-check"></i><b>2.1</b> Setup R workspace folders</a></li>
-<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a><ul>
+<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a>
+<ul>
 <li class="chapter" data-level="2.2.1" data-path="simple.html"><a href="simple.html#specify-alternative-values-for-h"><i class="fa fa-check"></i><b>2.2.1</b> Specify alternative values for h</a></li>
 </ul></li>
-<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"><i class="fa fa-check"></i><b>2.3</b> Adding process error through recruitment deviations and time-varying selectivity</a><ul>
+<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"><i class="fa fa-check"></i><b>2.3</b> Adding process error through recruitment deviations and time-varying selectivity</a>
+<ul>
 <li class="chapter" data-level="2.3.1" data-path="simple.html"><a href="simple.html#add-observation-error-through-sampling-from-om"><i class="fa fa-check"></i><b>2.3.1</b> Add observation error through sampling from OM</a></li>
 </ul></li>
 <li class="chapter" data-level="2.4" data-path="simple.html"><a href="simple.html#examine-the-management-procedure-used"><i class="fa fa-check"></i><b>2.4</b> Examine the management procedure used</a></li>
@@ -159,15 +171,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.12" data-path="simple.html"><a href="simple.html#delete-the-files"><i class="fa fa-check"></i><b>2.12</b> Delete the files</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="advanced-options-use-a-custom-management-strategyprocedure.html"><a href="advanced-options-use-a-custom-management-strategyprocedure.html"><i class="fa fa-check"></i><b>3</b> Advanced options: use a custom management strategy/procedure</a></li>
-<li class="chapter" data-level="4" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>4</b> Options for run_SSMSE</a><ul>
+<li class="chapter" data-level="4" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>4</b> Options for run_SSMSE</a>
+<ul>
 <li class="chapter" data-level="4.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>4.1</b> Scenarios in SSMSE</a></li>
 <li class="chapter" data-level="4.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>4.2</b> Operating model</a></li>
-<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a><ul>
+<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a>
+<ul>
 <li class="chapter" data-level="4.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss-model"><i class="fa fa-check"></i><b>4.3.1</b> Specify the Management Strategy in a SS model</a></li>
 <li class="chapter" data-level="4.3.2" data-path="SSMSE.html"><a href="SSMSE.html#custom-MS"><i class="fa fa-check"></i><b>4.3.2</b> Using a custom management strategy/procedure</a></li>
 </ul></li>
 <li class="chapter" data-level="4.4" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>4.4</b> Sampling options</a></li>
-<li class="chapter" data-level="4.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>4.5</b> Future changes to the operating model (#future)</a><ul>
+<li class="chapter" data-level="4.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>4.5</b> Future changes to the operating model (#future)</a>
+<ul>
 <li class="chapter" data-level="4.5.1" data-path="SSMSE.html"><a href="SSMSE.html#the-strucutre-of-future_om_list"><i class="fa fa-check"></i><b>4.5.1</b> The strucutre of <code>future_om_list</code></a></li>
 <li class="chapter" data-level="4.5.2" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-denoting-a-gradual-change"><i class="fa fa-check"></i><b>4.5.2</b> Example of future_om_list denoting a gradual change</a></li>
 <li class="chapter" data-level="4.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-a-random-deviations"><i class="fa fa-check"></i><b>4.5.3</b> Example of future_om_list with a random deviations</a></li>
@@ -177,17 +192,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.5.7" data-path="SSMSE.html"><a href="SSMSE.html#example-of-specifying-recruitment-deviations"><i class="fa fa-check"></i><b>4.5.7</b> Example of specifying recruitment deviations</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>5</b> Helper functions in SSMSE</a><ul>
+<li class="chapter" data-level="5" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>5</b> Helper functions in SSMSE</a>
+<ul>
 <li class="chapter" data-level="5.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>5.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
 <li class="chapter" data-level="5.2" data-path="helper.html"><a href="helper.html#samplelist"><i class="fa fa-check"></i><b>5.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
 <li class="chapter" data-level="5.3" data-path="helper.html"><a href="helper.html#omlist"><i class="fa fa-check"></i><b>5.3</b> Get examples of the <code>future_om_list</code> input with <code>create_future_om_list()</code></a></li>
 </ul></li>
-<li class="chapter" data-level="6" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>6</b> Output and Plots</a><ul>
+<li class="chapter" data-level="6" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>6</b> Output and Plots</a>
+<ul>
 <li class="chapter" data-level="6.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>6.1</b> Summarizing output</a></li>
 <li class="chapter" data-level="6.2" data-path="output.html"><a href="output.html#checking-estimation-model-convergence"><i class="fa fa-check"></i><b>6.2</b> Checking estimation model convergence</a></li>
 <li class="chapter" data-level="6.3" data-path="output.html"><a href="output.html#calculating-performance-metrics"><i class="fa fa-check"></i><b>6.3</b> Calculating performance metrics</a></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="plotting-output-and-performance-metrics.html"><a href="plotting-output-and-performance-metrics.html"><i class="fa fa-check"></i><b>7</b> Plotting output and performance metrics</a></li>
+<li class="chapter" data-level="8" data-path="glossary-of-mse-terms.html"><a href="glossary-of-mse-terms.html"><i class="fa fa-check"></i><b>8</b> Glossary of MSE terms</a></li>
 </ul>
 
       </nav>
@@ -205,14 +223,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="output" class="section level1">
+<div id="output" class="section level1" number="6">
 <h1><span class="header-section-number">6</span> Output and Plots</h1>
-<div id="summarizing-output" class="section level2">
+<div id="summarizing-output" class="section level2" number="6.1">
 <h2><span class="header-section-number">6.1</span> Summarizing output</h2>
 <p>Output is summarized using <code>SSMSE_summary_all()</code>:</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" title="1">summary_list &lt;-<span class="st"> </span><span class="kw">SSMSE_summary_all</span>(<span class="dt">dir =</span> <span class="st">&quot;path/to/scenario/dir&quot;</span>,</a>
-<a class="sourceLine" id="cb66-2" title="2">                  <span class="dt">scenarios =</span> <span class="kw">c</span>(<span class="st">&quot;sample_low&quot;</span>, <span class="st">&quot;sample_high&quot;</span>),</a>
-<a class="sourceLine" id="cb66-3" title="3">                  <span class="dt">run_parallel =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="output.html#cb61-1" aria-hidden="true" tabindex="-1"></a>summary_list <span class="ot">&lt;-</span> <span class="fu">SSMSE_summary_all</span>(<span class="at">dir =</span> <span class="st">&quot;path/to/scenario/dir&quot;</span>,</span>
+<span id="cb61-2"><a href="output.html#cb61-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">scenarios =</span> <span class="fu">c</span>(<span class="st">&quot;sample_low&quot;</span>, <span class="st">&quot;sample_high&quot;</span>),</span>
+<span id="cb61-3"><a href="output.html#cb61-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">run_parallel =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Relying on <code>ss3sim::get_results_all()</code>, this function creates:</p>
 <ul>
 <li>For each scenario, 3 scenario level .csv files</li>
@@ -222,11 +240,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Note that <code>run_parallel = TRUE</code> is only faster than <code>run_parallel FALSE</code> when there is more than once scenario and none of the scenario-level .csv files have been created yet.</p>
 <p>By default, if a user doesn’t specify <code>scenarios</code>, all scenarios in <code>dir</code> will be summarized.</p>
 </div>
-<div id="checking-estimation-model-convergence" class="section level2">
+<div id="checking-estimation-model-convergence" class="section level2" number="6.2">
 <h2><span class="header-section-number">6.2</span> Checking estimation model convergence</h2>
 <p>One of the first checks to do if using an estimation model after running an MSE analysis is to check that the estimation model has converged. A number of checks could be done, but a basic one is checking the gradients for the estimation model, which are added to the <code>SSMSE_scalar</code> summary sheet.</p>
 </div>
-<div id="calculating-performance-metrics" class="section level2">
+<div id="calculating-performance-metrics" class="section level2" number="6.3">
 <h2><span class="header-section-number">6.3</span> Calculating performance metrics</h2>
 <p>Typically, a suite of performance metrics are used in MSE. <a href="https://doi.org/10.1111/faf.12104">Punt et al. (2016)</a> recommends at least using metrics related to:</p>
 <ul>
@@ -246,7 +264,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -265,6 +282,7 @@ gitbook.start({
 "weibo": false,
 "instapaper": false,
 "vk": false,
+"whatsapp": false,
 "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
@@ -285,6 +303,10 @@ gitbook.start({
 "text": null
 },
 "download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
 "toc": {
 "collapse": "subsection"
 }

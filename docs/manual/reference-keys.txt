@@ -46,3 +46,4 @@ summarizing-output
 checking-estimation-model-convergence
 calculating-performance-metrics
 plotting-output-and-performance-metrics
+glossary-of-mse-terms
