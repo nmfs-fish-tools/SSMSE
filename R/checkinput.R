@@ -216,6 +216,9 @@ check_sample_struct <- function(sample_struct,
       if(isTRUE(is.na(x))) {
          x <- NULL
       }
+      if(isTRUE(is.data.frame(x) & nrow(x) == 0)) {
+        x <- NULL
+      }
       x
     })
   #Then remove the nulls

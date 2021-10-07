@@ -30,10 +30,8 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   nyrs <- 7
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to determine its structure
-  sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
-  sample_struct[["lencomp"]] <- NULL
-  sample_struct[["meanbodywt"]] <- NULL
-  sample_struct[["MeanSize_at_Age_obs"]] <- NULL
+  sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs,
+                                        rm_NAs = TRUE) # note warning
   result <- run_SSMSE(
     scen_name_vec = "H-ctl", # name of the scenario
     out_dir_scen_vec = temp_path, # directory in which to run the scenario
