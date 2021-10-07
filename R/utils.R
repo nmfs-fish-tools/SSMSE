@@ -66,6 +66,7 @@
 #'  expected value with the reference value identifying the lag in years for availability
 #'  of the index (Ref_years: vector length n indices).
 #' @author Kathryn Doering
+#' @export
 #' @examples
 #' scen_list <- create_scen_list(
 #'   scen_name_vec = c("scen 1", "scen_2"),

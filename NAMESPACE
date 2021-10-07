@@ -3,6 +3,7 @@
 export(SSMSE_summary_all)
 export(create_future_om_list)
 export(create_sample_struct)
+export(create_scen_list)
 export(develop_OMs)
 export(get_bin)
 export(parse_MS)
