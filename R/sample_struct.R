@@ -125,6 +125,8 @@ create_sample_struct <- function(dat, nyrs) {
           (length(input_SE_col) == 1 & length(Nsamp_col) == 0) |
           (length(input_SE_col) == 0 & length(Nsamp_col) == 0)
       )
+      # remove equilibrium catch
+      df <- df[df[[yr_col]] != -999, ]
       # find combinations of season and fleet in the df.
       df_combo <- unique(df[, c(seas_col, flt_col), drop = FALSE])
       fill_vec <- vector(mode = "list", length = nrow(df_combo))
@@ -132,8 +134,7 @@ create_sample_struct <- function(dat, nyrs) {
         tmp_seas <- df_combo[i, seas_col]
         tmp_flt <- df_combo[i, flt_col]
         tmp_yrs <- df[df[[seas_col]] == tmp_seas &
-          df[[flt_col]] == tmp_flt &
-          df[[yr_col]] != -999, yr_col]
+          df[[flt_col]] == tmp_flt, yr_col]
         tmp_yrs <- as.numeric(unique(tmp_yrs))
         tmp_yrs <- tmp_yrs[order(tmp_yrs)]
 
