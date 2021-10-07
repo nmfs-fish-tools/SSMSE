@@ -40,14 +40,14 @@ dfr <- data.frame(
   "value" = c(2, 2, 2, 3, 3),
   "se_log" = 0.2
 )
-get_input_value(
+SSMSE:::get_input_value(
   data = dfr, method = "most_common_value", colname = "se_log",
   group = "value"
 )
-get_input_value(data = dfr, method = "most_common_value", colname = "value")
-get_input_value(data = dfr, method = "only_value", colname = "se_log")
+SSMSE:::get_input_value(data = dfr, method = "most_common_value", colname = "value")
+SSMSE:::get_input_value(data = dfr, method = "only_value", colname = "se_log")
 # generates an error:
-# get_input_value(data = dfr, method = "only_value", colname = "value")
+# SSMSE:::get_input_value(data = dfr, method = "only_value", colname = "value")
 }
 \author{
 Kathryn Doering

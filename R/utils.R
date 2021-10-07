@@ -329,14 +329,14 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
 #'   "value" = c(2, 2, 2, 3, 3),
 #'   "se_log" = 0.2
 #' )
-#' get_input_value(
+#' SSMSE:::get_input_value(
 #'   data = dfr, method = "most_common_value", colname = "se_log",
 #'   group = "value"
 #' )
-#' get_input_value(data = dfr, method = "most_common_value", colname = "value")
-#' get_input_value(data = dfr, method = "only_value", colname = "se_log")
+#' SSMSE:::get_input_value(data = dfr, method = "most_common_value", colname = "value")
+#' SSMSE:::get_input_value(data = dfr, method = "only_value", colname = "se_log")
 #' # generates an error:
-#' # get_input_value(data = dfr, method = "only_value", colname = "value")
+#' # SSMSE:::get_input_value(data = dfr, method = "only_value", colname = "value")
 get_input_value <- function(data,
                             method = "most_common_value",
                             colname,
@@ -699,6 +699,7 @@ combine_cols <- function(dat_list, list_item, colnames) {
 #' Can be 1) NULL (default); 2) An integer vector of length 1, length 1+length(scen_name_vec), or length 1 + length(scen_name_vec)+sum(iter_vec); 3) A list with 3 components the same as teh output of set_MSE_seeds
 #' @param iter_vec The number of iterations per scenario. A vector of integers
 #'  in the same order as scen_name_vec.
+#' @export
 #' @returns A list of length 3 with 1) the global seed value; 2) the scenario seed values; and 3) the iteration seed values.
 #' @examples
 #' seeds <- set_MSE_seeds(seed = seq(10, 80, by = 10), iter_vec = c(2, 3))
