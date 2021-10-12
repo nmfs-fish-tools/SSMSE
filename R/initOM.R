@@ -122,6 +122,10 @@ create_OM <- function(OM_out_dir,
   # updating the extend EM process to fix the main recdevs end year. This way all new
   # recdevs become late phase/forecast recdevs which are not subject to sum to zero
   # constraints or bias adjustment.
+  if(!all(ctl[["time_vary_auto_generation"]] == 1)) {
+    warning("Turning off autogeneration of time varying lines in the control file of the OM")
+    ctl[["time_vary_auto_generation"]] <- rep(1, times = 5)
+  }
   if (ctl[["recdev_adv"]] == 0) {
     ctl[["recdev_adv"]] <- 1
     ctl[["recdev_early_start"]] <- 0
