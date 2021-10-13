@@ -536,6 +536,7 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
         "change the management strategy."
       )
     }
+  }
     if (is.null(EM_name) & !is.null(EM_in_dir)) EM_name <- basename(EM_in_dir)
     if (!is.null(EM_name) & is.null(EM_in_dir)) {
       EM_in_dir <- pkg_dirs[grep(EM_name, pkg_dirs)]
@@ -551,10 +552,10 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
     }
     EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM_init"))
     dir.create(EM_out_dir, showWarnings = FALSE)
-  } else {
-    EM_out_dir <- NULL
-    EM_in_dir <- NULL
-  }
+    if (is.null(EM_name) & is.null(EM_in_dir)) {
+      EM_out_dir <- NULL
+      EM_in_dir <- NULL
+    }
   OM_mod_loc <- list(
     OM_in_dir = OM_in_dir, OM_out_dir = OM_out_dir,
     EM_in_dir = EM_in_dir, EM_out_dir = EM_out_dir
