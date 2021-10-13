@@ -141,15 +141,16 @@ create_OM <- function(OM_out_dir,
   }
 
 
-  if (ctl[["recdev_early_start"]] <= 0) {
-    first_year <- ctl[["MainRdevYrFirst"]] + ctl[["recdev_early_start"]]
-  } else if (ctl[["recdev_early_start"]] < ctl[["MainRdevYrFirst"]]) {
-    first_year <- ctl[["recdev_early_start"]]
-  } else {
-    (
-      first_year <- ctl[["MainRdevYrFirst"]]
-    )
-  }
+  # if (ctl[["recdev_early_start"]] <= 0) {
+  #   first_year <- ctl[["MainRdevYrFirst"]] + ctl[["recdev_early_start"]]
+  # } else if (ctl[["recdev_early_start"]] < ctl[["MainRdevYrFirst"]]) {
+  #   first_year <- ctl[["recdev_early_start"]]
+  # } else {
+  #   (
+  #     first_year <- ctl[["MainRdevYrFirst"]]
+  #   )
+  # }
+  first_year <- ctl[["MainRdevYrFirst"]]
 
 
   # modify par file ----

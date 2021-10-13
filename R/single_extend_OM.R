@@ -299,7 +299,8 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
         }
       } else if (length(dev_existing) > 1) {
         for (j in dev_existing[-length(dev_existing)]) {
-          new_par_devs <- c(new_par_devs, old_par_devs[[1]])
+          tmp_old_dev <- old_par_devs[[1]] # note this is a matrix, not a list or df
+          new_par_devs <- c(new_par_devs, list(tmp_old_dev))
           names(new_par_devs)[length(new_par_devs)] <- names(old_par_devs)[1]
           old_par_devs <- old_par_devs[-1]
         }
