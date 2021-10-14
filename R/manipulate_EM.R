@@ -32,12 +32,11 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
   OM_dat <- SS_readdat(file.path(EM_dir, OM_datfile), verbose = FALSE)
 
   # remove extra years of data in the OM data file.
-  # TODO: check if this is really necessary?
   new_EM_dat <- get_EM_dat(
     OM_dat = OM_dat, EM_dat = EM_dat,
     do_checks = do_checks
   )
-
+  
   # write out the modified files that can be used in future EM run
   SS_writedat(new_EM_dat, file.path(EM_dir, OM_datfile),
     verbose = FALSE,

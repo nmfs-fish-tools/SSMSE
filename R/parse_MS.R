@@ -509,6 +509,11 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       if(ctl[["EmpiricalWAA"]] == 1) {
         stop("EM uses empirical weight at age, which is not yet possible to use.")
       }
+      if(!all(ctl[["time_vary_auto_generation"]] == 1)) {
+        warning("Turning off autogeneration of time varying lines in the control file of the EM")
+        ctl[["time_vary_auto_generation"]] <- rep(1, times = 5)
+        SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]))
+      }
     } else {
       if (!is.null(sample_struct)) {
         sample_struct_sub <- lapply(sample_struct,

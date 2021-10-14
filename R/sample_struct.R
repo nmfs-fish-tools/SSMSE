@@ -69,20 +69,24 @@ convert_to_r4ss_names <- function(sample_struct,
 #' Create the sample_struct list
 #'
 #' Create a sampling strcture list using the pattern in a data file and a year
-#' range.
+#' range. NAs are added if no pattern is found (and rm_NAs = FALSE)
 #'
 #' @param dat An r4ss list object read in using r4ss::SS_readdat() or the path
 #'  (relative or absolute) to an SS data file to read in.
 #' @param nyrs Number of years beyond the years included in the dat file to run
 #'  the MSE. A single integer value.
+#' @param rm_NAs Should all NAs be removed from dataframes? Defaults to FALSE.
 #' @export
+#' @return A sample_struct list object, where each list element is a dataframe 
+#'   containing sampling values. If there were no data for the type, NA is 
+#'   returned for the element.
 #' @author Kathryn Doering
 #' @examples
 #' OM_path <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
 #' # note there is a warning for lencomp because it does not have a consistent pattern
 #' sample_struct <- create_sample_struct(OM_path, nyrs = 20)
 #' print(sample_struct)
-create_sample_struct <- function(dat, nyrs) {
+create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
   assertive.types::assert_is_a_number(nyrs)
   if (length(dat) == 1 & is.character(dat)) {
     dat <- SS_readdat(dat, verbose = FALSE)
@@ -125,6 +129,8 @@ create_sample_struct <- function(dat, nyrs) {
           (length(input_SE_col) == 1 & length(Nsamp_col) == 0) |
           (length(input_SE_col) == 0 & length(Nsamp_col) == 0)
       )
+      # remove equilibrium catch
+      df <- df[df[[yr_col]] != -999, ]
       # find combinations of season and fleet in the df.
       df_combo <- unique(df[, c(seas_col, flt_col), drop = FALSE])
       fill_vec <- vector(mode = "list", length = nrow(df_combo))
@@ -132,8 +138,7 @@ create_sample_struct <- function(dat, nyrs) {
         tmp_seas <- df_combo[i, seas_col]
         tmp_flt <- df_combo[i, flt_col]
         tmp_yrs <- df[df[[seas_col]] == tmp_seas &
-          df[[flt_col]] == tmp_flt &
-          df[[yr_col]] != -999, yr_col]
+          df[[flt_col]] == tmp_flt, yr_col]
         tmp_yrs <- as.numeric(unique(tmp_yrs))
         tmp_yrs <- tmp_yrs[order(tmp_yrs)]
 
@@ -299,6 +304,18 @@ create_sample_struct <- function(dat, nyrs) {
     sample_struct,
     function(x) utils::type.convert(x, as.is = TRUE)
   )
+  if(rm_NAs == TRUE) {
+    sample_struct <- lapply(
+      sample_struct,
+      function(x) {
+        x <- na.omit(x)
+        if(!is.data.frame(x)){
+          x <- NA
+        }
+        x
+      }
+    )
+  }
   names(sample_struct) <- list_name
   sample_struct
 }

@@ -102,6 +102,12 @@ test_that("create_sample_struct works", {
     MeanSize_at_Age_obs = NA
   )
   expect_equal(sample_struct, expect_sample_struct)
+  # use No NA option
+  expect_warning(
+    sample_struct_no_na <- create_sample_struct(OM_dat_path, nyrs = 20, rm_NAs = TRUE),
+    "Pattern not found for lencomp"
+  )
+  expect_true(nrow(sample_struct_no_na[["lencomp"]]) == 0)
   # try using one where missing lencomp data
   dat <- r4ss::SS_readdat(system.file("extdata", "models", "cod", "ss3.dat",
     package = "SSMSE"
