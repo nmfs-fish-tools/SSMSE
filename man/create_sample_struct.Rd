@@ -4,7 +4,7 @@
 \alias{create_sample_struct}
 \title{Create the sample_struct list}
 \usage{
-create_sample_struct(dat, nyrs)
+create_sample_struct(dat, nyrs, rm_NAs = FALSE)
 }
 \arguments{
 \item{dat}{An r4ss list object read in using r4ss::SS_readdat() or the path
@@ -12,10 +12,17 @@ create_sample_struct(dat, nyrs)
 
 \item{nyrs}{Number of years beyond the years included in the dat file to run
 the MSE. A single integer value.}
+
+\item{rm_NAs}{Should all NAs be removed from dataframes? Defaults to FALSE.}
+}
+\value{
+A sample_struct list object, where each list element is a dataframe 
+  containing sampling values. If there were no data for the type, NA is 
+  returned for the element.
 }
 \description{
 Create a sampling strcture list using the pattern in a data file and a year
-range.
+range. NAs are added if no pattern is found (and rm_NAs = FALSE)
 }
 \examples{
 OM_path <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
