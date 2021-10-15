@@ -2,7 +2,8 @@
 % Please edit documentation in R/red_noise_funcs.R
 \name{calc_comp_var}
 \alias{calc_comp_var}
-\title{Calculate uncertainty and biases in historic composition data}
+\title{Calculate uncertainty and biases in historic composition data. Not currently 
+Used, but could be used in the future.}
 \usage{
 calc_comp_var(
   data_obs,
@@ -42,7 +43,8 @@ calc_comp_var(
 A list object with uncertainty and bias characteristics to inform data simulation.
 }
 \description{
-Calculate uncertainty and biases in historic composition data
+Calculate uncertainty and biases in historic composition data. Not currently 
+Used, but could be used in the future.
 }
 \author{
 Nathan R. Vaughan

@@ -86,14 +86,14 @@ results will be written to.}
 
 \item{sample_struct}{A optional list including which years, seasons, and fleets
 should be  added from the OM into the EM for different types of data.
-If NULL, the data structure will try to be infered from the pattern found
-for each of the datatypes within the EM datafiles. Include this strucutre
+If NULL, the data structure will try to be inferred from the pattern found
+for each of the datatypes within the EM datafiles. Include this structure
 for the number of years to extend the model out. Note that the data should
 be specified using the list component names and column names as in would be
-used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
-give an example of what this structure should be. Running the function
-create_sample_struct() will also produce a sample_struct object in the
-correct form. Can be NULL only when MS is not EM.}
+used in \code{r4ss::SS_readdat()}. The \code{run_SSMSE_iter} function
+examples give an example of what this structure should be. Running the
+function \code{create_sample_struct()} will also produce a sample_struct
+object in the correct form. Can be NULL only when MS is not EM.}
 
 \item{future_om_list}{An optional list of lists including changes that should
 be made after the end year of the input model. Each first level list element
@@ -105,7 +105,7 @@ structure.}
 \item{sample_struct_hist}{An optional list including which years should be
 sampled for the historical period for the data generated from the OM. If
 this is left as NULL, then the same sampling scheme will be used as in the
-OM's data file. If it is not NULL, then each year}
+OM's data file. If it is not NULL, then each year.}
 
 \item{interim_struct}{A optional list of parameters to control an interim
 assessment with an example structure below, where Beta=a positive value
