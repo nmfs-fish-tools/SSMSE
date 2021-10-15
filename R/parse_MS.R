@@ -6,25 +6,20 @@
 #' This function matches each management strategy with its correct method. And
 #' checks for errors.
 #' @template MS
-#' @param EM_out_dir Relative or absolute path to the estimation model, if using a
-#'   model outside of the SSMSE package. Note that this value should be NULL if
-#'   \code{MS} has a value other than \code{"EM"}.
+#' @template EM_out_dir
 #' @param EM_init_dir Initialization director that retains the reference files for interim assessments
 #' @param init_loop Logical. If this is the first initialization loop of the
 #'   MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 #'   be FALSE.
 #' @param OM_dat An valid SS data file read in using r4ss. In particular,
 #'   this should be sampled data.
-#' @param OM_out_dir The full path to the directory in which the OM is run.
+#' @template OM_out_dir
 #' @template verbose
 #' @param nyrs_assess The number of years between assessments. E.g., if an
 #'   assessment is conducted every 3 years, put 3 here. A single integer value.
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
-#' @param future_om_list An optional list of lists including changes that should
-#'  be made after the end year of the input model. Each first level list element
-#'  outlines 1 change to be made to the operating model. This will identify which
-#'  parameters to turn deviations on for
+#' @template future_om_list
 #' @param sample_struct An optional list including which years and fleets should be
 #'  added from the OM into the EM for different types of data. If NULL, the data
 #'  structure will try to be infered from the pattern found for each of the
@@ -33,7 +28,7 @@
 #'  fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
 #'  and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
 #'  will stay constant during simulation while relative year will progress with simulation).
-#' @param seed a random seed to initialize SS runs
+#' @template seed
 #' @author Kathryn Doering & Nathan Vaughan
 #' @export
 #' @importFrom r4ss SS_readstarter SS_writestarter SS_writedat
@@ -786,9 +781,9 @@ get_EM_catch_df <- function(EM_dir, dat) {
 #' Get the data frame of catch for the next iterations when not using an
 #' estimation model.
 #'
-#' @param OM_dir The OM directory.
+#' @template OM_dir
 #' @param yrs A vector of years
-#' @param MS Can be either "no_catch" or "last_yr_catch"
+#' @template MS
 #' @return A dataframe of future catch.
 get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   # input checks

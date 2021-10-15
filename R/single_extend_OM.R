@@ -1,10 +1,9 @@
 
 #' Add in future parameter values
 #'
-#' @param ctl A control file as read in by r4ss::SS_readctl
-#' @param dat A datafile as read in by r4ss::SS_readdat
-#' @param parlist A parameter file as read in by r4ss::SS_readpar_3.30
-#' @param timeseries SS output timeseries data
+#' @template ctl_dat
+#' @template parlist
+#' @template timeseries
 #' @param future_om_dat A data frame with random sample data for future parameter
 #'
 #' @author Nathan Vaughan
@@ -459,8 +458,6 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
 #' @param base_years A vector of years for which the base values are needed
 #' @param temp_block The timevarying parameter lines for the block effects on the base parameter
 #' @param current_par The index of the current parameter being updated
-#' @param ctl A control file as read in by r4ss::SS_readctl
-#' @param dat A datafile as read in by r4ss::SS_readdat
 #' @param temp_ctl A subset of the control file representing the parameter section of interest (i.e. MG, SR, Q, or Selectivity)
 #' @param base_range the difference between the base parameters max and min bounds
 #' @param baseparm The value of the base parameter
@@ -522,12 +519,12 @@ update_basevals_blocks <- function(base_vals, base_years, temp_block, current_pa
 #' @param base_years A vector of years for which the base values are needed
 #' @param temp_env The time varying parameter lines for the environmental effects on the base parameter
 #' @param current_par The index of the current parameter being updated
-#' @param timeseries SS output timeseries data
+#' @template timeseries
 #' @param temp_ctl A subset of the control file representing the parameter section of interest (i.e. MG, SR, Q, or Selectivity)
 #' @param dat A datafile as read in by r4ss::SS_readdat
 #' @param base_range the difference between the base parameters max and min bounds
 #' @param base_bounds The min and max bounds of the base parameter
-#' @param parlist The list of parameters as read in by r4ss::SS_readpar_3.30
+#' @template parlist
 #'
 #' @author Nathan Vaughan
 #' @return A modified parameter series that incorporates the appropriate time varying environmental effects.

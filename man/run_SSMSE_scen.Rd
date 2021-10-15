@@ -35,31 +35,24 @@ runs the scenario will be stored within a folder of this name.}
 
 \item{nscen}{Which scenario is this. Integer value >=1}
 
-\item{out_dir_scen}{The directory to which to write output. IF NULL, will
-default to the working directory.}
+\item{out_dir_scen}{The directory to which to write output. IF NULL, will}
 
 \item{iter}{The number of iterations for the scenario. A single integer
 value.}
 
-\item{OM_name}{Name of a valid Stock Synthesis stock assessment model from
-which to create the OM. Valid inputs are: \code{"cod"}, NULL, or NA.}
-
 \item{OM_in_dir}{Relative or absolute path to the operating model, if using a
-model outside of the SSMSE package.}
+model outside of the SSMSE package. Should be a string.}
 
-\item{EM_name}{Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
-Synthesis stock assessment model to use as an EM. If the value of EM_name
-is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
-in the path specified in EM_in_dir. valid inputs for EM_name are: \code{"cod"}
+\item{EM_name}{Name of a valid Stock Synthesis stock assessment model to use
+as an EM. If the value of EM_name is NULL and  \code{MS = "EM"}, then SSMSE
+will look for the estimation model in the path specified in EM_in_dir.
 or \code{NULL}.}
 
-\item{EM_in_dir}{Relative or absolute path to the estimation model, if using a
-model outside of the SSMSE package. Note that this value should be NULL if
-\code{MS} has a value other than "EM".}
+\item{EM_in_dir}{Relative or absolute path to the estimation model,}
 
-\item{run_EM_last_yr}{Should the EM run in the last year if the last year
-is an assessment year? TRUE/FALSE option, so the same for all scenarios and
-iterations. Defaults to FALSE.}
+\item{run_EM_last_yr}{Should the MS be implemented to get future catch if the
+laste year is an assessment year? TRUE/FALSE option, so the same for all 
+scenarios and iterations. Defaults to FALSE.}
 
 \item{MS}{The management strategy to use. Current options
 are:  \code{"last_yr_catch"} which uses the previous year's catch; 
@@ -67,11 +60,10 @@ are:  \code{"last_yr_catch"} which uses the previous year's catch;
 synthesis model as the estimation method and the management strategy as 
 defined in the forecast file of the stock synthesis estimation method;
 \code{"Interim"} to modify catch based on survey predictions between
-assessments. Users can also specify their own managment strategies as an
-function. To use the function, it must be available in the global
-enviroment and specified by name in MS. For example, if the function is
-called "my_ms" then the user should make it available in the global 
-environment and specify MS = "my_ms".}
+assessments. Users can also specify their own management strategies as a
+function. For example, if the function is
+called "my_ms" then the user should specify MS = "my_ms" and specify the 
+path to the file containing the function in `custom_MS_source`.}
 
 \item{custom_MS_source}{A file location with the source code for any custom MS
 models to be used in the simulation. SSMSE will source this file which should
@@ -95,7 +87,12 @@ assessments.)}
 should be  added from the OM into the EM for different types of data.
 If NULL, the data structure will try to be infered from the pattern found
 for each of the datatypes within the EM datafiles. Include this strucutre
-for the number of years to extend the model out.}
+for the number of years to extend the model out. Note that the data should
+be specified using the list component names and column names as in would be
+used in \code{r4ss::SS_readdat()}. The run_SSMSE_iter function examples
+give an example of what this structure should be. Running the function
+create_sample_struct() will also produce a sample_struct object in the
+correct form. Can be NULL only when MS is not EM.}
 
 \item{future_om_list}{An optional list of lists including changes that should
 be made after the end year of the input model. Each first level list element
@@ -109,12 +106,17 @@ sampled for the historical period for the data generated from the OM. If
 this is left as NULL, then the same sampling scheme will be used as in the
 OM's data file. If it is not NULL, then each year}
 
-\item{interim_struct}{A optional list of parameters to control an interim assessment
-with an example structure below, where Beta=a positive value that is inversely proportional to risk,
-MA_years= the number of years to average index observations of when calculating deviations,
-assess_freq=the number of years between full assessments during with an interim assessment will happen
-every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
-inference. interim_struct<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))}
+\item{interim_struct}{A optional list of parameters to control an interim
+assessment with an example structure below, where Beta=a positive value
+that is inversely proportional to risk, MA_years= the number of years to
+average index observations of when calculating deviations, assess_freq=the
+number of years between full assessments during with an interim assessment
+will happen every year, and Index_weights is a vector of length n indexes
+that weights all indexes for multi index inference.
+interim_struct<-list(Beta = 1,
+                     MA_years = 3,
+                     assess_freq = 5,
+                     Index_weights = rep(1, max(ref_index[, 3])))}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 

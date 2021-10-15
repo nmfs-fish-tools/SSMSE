@@ -32,26 +32,17 @@ run_SSMSE_iter(
 \item{out_dir}{The directory to which to write output. IF NULL, will default
 to the working directory.}
 
-\item{OM_name}{Name of a valid Stock Synthesis stock assessment model from
-which to create the OM. Currently, valid inputs are: \code{"cod"}, NA, or NULL,
-if using a custom model with path specified in \code{OM_in_dir}.}
-
 \item{OM_in_dir}{Relative or absolute path to the operating model, if using a
-model outside of the SSMSE package.}
+model outside of the SSMSE package. Should be a string.}
 
-\item{EM_name}{Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
-Synthesis stock assessment model to use as an EM. If the value of EM_name
-is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
-in the path specified in EM_in_dir. valid inputs for EM_name are: \code{"cod"}
- or \code{NULL}.}
+\item{EM_name}{Name of a valid Stock Synthesis stock assessment model to use
+as an EM. If the value of EM_name is NULL and  \code{MS = "EM"}, then SSMSE
+will look for the estimation model in the path specified in EM_in_dir.
+or \code{NULL}.}
 
-\item{EM_in_dir}{Relative or absolute path to the estimation model, if using a
-model outside of the SSMSE package. Note that this value should be NULL if
-\code{MS} has a value other than "EM".}
-
-\item{run_EM_last_yr}{Should the EM run in the last year if the last year
-is an assessment year? TRUE/FALSE option, so the same for all scenarios and
-iterations. Defaults to FALSE.}
+\item{run_EM_last_yr}{Should the MS be implemented to get future catch if the
+laste year is an assessment year? TRUE/FALSE option, so the same for all 
+scenarios and iterations. Defaults to FALSE.}
 
 \item{MS}{The management strategy to use. Current options
 are:  \code{"last_yr_catch"} which uses the previous year's catch; 
@@ -59,11 +50,10 @@ are:  \code{"last_yr_catch"} which uses the previous year's catch;
 synthesis model as the estimation method and the management strategy as 
 defined in the forecast file of the stock synthesis estimation method;
 \code{"Interim"} to modify catch based on survey predictions between
-assessments. Users can also specify their own managment strategies as an
-function. To use the function, it must be available in the global
-enviroment and specified by name in MS. For example, if the function is
-called "my_ms" then the user should make it available in the global 
-environment and specify MS = "my_ms".}
+assessments. Users can also specify their own management strategies as a
+function. For example, if the function is
+called "my_ms" then the user should specify MS = "my_ms" and specify the 
+path to the file containing the function in `custom_MS_source`.}
 
 \item{custom_MS_source}{A file location with the source code for any custom MS
 models to be used in the simulation. SSMSE will source this file which should
@@ -84,7 +74,7 @@ assessments.)}
 \item{nyrs_lag}{number of years of lag in obtaining data. i.e. the number of years
 post EM assessment end yr before advice can be implemented. defaults to 0.}
 
-\item{nscen}{The scenario number.}
+\item{nscen}{Which scenario is this. Integer value >=1}
 
 \item{scen_name}{Name of the scenario. The directory containing all the model
 runs the scenario will be stored within a folder of this name.}
@@ -129,7 +119,12 @@ interim_struct<-list(Beta = 1,
                      assess_freq = 5,
                      Index_weights = rep(1, max(ref_index[, 3])))}
 
-\item{verbose}{Want verbose output? Defaults to FALSE.}
+\item{run_parallel}{Option to use parallel processing on iterations.
+Defaults to FALSE}
+
+\item{n_cores}{how many cores to use if running in parallel defaults to
+n_cores available - 1 (also capped at one less than the number of cores
+available)}
 }
 \description{
 High level function to run 1 iteration of a scenario for a management

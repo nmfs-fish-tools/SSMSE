@@ -51,7 +51,7 @@ a cap of twice the historic maximum F for all cases)}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
-\item{seed}{A random initialization seed for SS to allow reproducibility}
+\item{seed}{A random seed so that reproducible results are possible.}
 }
 \value{
 A new dat list object (format as created by r4ss::SS_readdat) that

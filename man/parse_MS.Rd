@@ -27,15 +27,13 @@ are:  \code{"last_yr_catch"} which uses the previous year's catch;
 synthesis model as the estimation method and the management strategy as 
 defined in the forecast file of the stock synthesis estimation method;
 \code{"Interim"} to modify catch based on survey predictions between
-assessments. Users can also specify their own managment strategies as an
-function. To use the function, it must be available in the global
-enviroment and specified by name in MS. For example, if the function is
-called "my_ms" then the user should make it available in the global 
-environment and specify MS = "my_ms".}
+assessments. Users can also specify their own management strategies as a
+function. For example, if the function is
+called "my_ms" then the user should specify MS = "my_ms" and specify the 
+path to the file containing the function in `custom_MS_source`.}
 
 \item{EM_out_dir}{Relative or absolute path to the estimation model, if using a
-model outside of the SSMSE package. Note that this value should be NULL if
-\code{MS} has a value other than \code{"EM"}.}
+model outside of the SSMSE package.}
 
 \item{EM_init_dir}{Initialization director that retains the reference files for interim assessments}
 
@@ -58,8 +56,10 @@ init_loop is TRUE.}
 
 \item{future_om_list}{An optional list of lists including changes that should
 be made after the end year of the input model. Each first level list element
-outlines 1 change to be made to the operating model. This will identify which
-parameters to turn deviations on for}
+outlines 1 change to be made to the operating model. To see an example, try
+running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+that the model will be extended forward in time assuming the original model
+structure.}
 
 \item{sample_struct}{An optional list including which years and fleets should be
 added from the OM into the EM for different types of data. If NULL, the data
@@ -71,7 +71,7 @@ fleet weights, the scaling rate (Beta) of catch relative to the index change for
 and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year
 will stay constant during simulation while relative year will progress with simulation).}
 
-\item{seed}{a random seed to initialize SS runs}
+\item{seed}{A random seed so that reproducible results are possible.}
 }
 \description{
 This function matches each management strategy with its correct method. And

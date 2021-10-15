@@ -11,7 +11,7 @@ get_full_sample_struct(sample_struct, OM_out_dir)
 not define all the sampling structure if it can be unambiguously determined
 from the OM data file.}
 
-\item{OM_out_dir}{The directory containing the operating model files}
+\item{OM_out_dir}{The full path to the directory in which the OM is run.}
 }
 \value{
 A list of the full sample structure, using names as input by the user

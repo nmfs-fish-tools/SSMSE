@@ -9,7 +9,6 @@ create_out_dirs(
   niter,
   OM_name,
   OM_in_dir,
-  MS = "not_EM",
   EM_name = NULL,
   EM_in_dir = NULL
 )
@@ -20,18 +19,14 @@ to the working directory.}
 
 \item{niter}{The number iteration}
 
-\item{OM_name}{Name of OM model.}
+\item{OM_name}{Name of the operating model (OM).}
 
-\item{OM_in_dir}{Relative or absolute path to the operating model. NULL if
-using SSMSE package model.}
+\item{OM_in_dir}{Relative or absolute path to the operating model, if using a
+model outside of the SSMSE package. Should be a string.}
 
-\item{MS}{The management strategy. If "EM", will create the EM folders.
-Otherwise, can be any name, defaulting to "not_EM".}
+\item{EM_name}{Name of the EM model}
 
-\item{EM_name}{Name of the EM model. NULL if MS != "EM" (default value)}
-
-\item{EM_in_dir}{Relative or absolute path to the estimation model. NULL if
-using SSMSE package model or MS != "EM" (default value)}
+\item{EM_in_dir}{Relative or absolute path to the estimation model,}
 }
 \value{
 A list with 2 named components each of length 1 characters. The

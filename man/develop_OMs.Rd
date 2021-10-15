@@ -15,12 +15,10 @@ develop_OMs(
 )
 }
 \arguments{
-\item{OM_name}{Name of the original model, as in the SSMSE package. If not
-using a model in the package, please specify its path in \code{OM_in_dir}. 
-Can be left NULL if specifying OM_in_dir.}
+\item{OM_name}{Name of the operating model (OM).}
 
-\item{OM_in_dir}{Path to the original operating model. If using a model in
-the SSMSE package, please specify its name in \code{OM_name} instead.}
+\item{OM_in_dir}{Relative or absolute path to the operating model, if using a
+model outside of the SSMSE package. Should be a string.}
 
 \item{out_dir}{Path where the new models will be written. Defaults to the
 current working directory.}

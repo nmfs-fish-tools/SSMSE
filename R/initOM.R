@@ -5,8 +5,8 @@
 #' This function manipulates the OM as needed so that it can be used as an
 #'  operating model.
 #' @author Kathryn Doering & Nathan Vaughan
-#' @param OM_out_dir The full path to the directory in which the OM is run.
-#' @param overwrite Overwrite existing files with matching names?
+#' @template OM_out_dir
+#' @template overwrite
 #' @param nyrs Number of years beyond the years included in the OM to run the
 #'   MSE. A single integer value.
 #' @param nyrs_assess The number of years between assessments. This is used to
@@ -25,7 +25,7 @@
 #'  the historical data.
 #' @param sample_struct Input sampling structure to ensure future data are listed in OM
 #'  with correct SE.
-#' @param seed input seed to allow reproducible SS results.
+#' @template seed
 #' @template verbose
 #' @return A modified datafile
 #' @import r4ss
@@ -432,7 +432,7 @@ create_OM <- function(OM_out_dir,
 #'
 #' This function is used to initialize the OM and get either expected values
 #' or bootstrap.
-#' @param OM_dir The full path to the OM directory
+#' @template OM_dir
 #' @param boot Return the bootstrap dataset? If TRUE, function returns the
 #'   number bootstrapped dataset specified in \code{nboot}. If FALSE, it returns
 #'   the expected values.
@@ -446,7 +446,7 @@ create_OM <- function(OM_out_dir,
 #'  error_check will be created, and the model will be run from control start
 #'  values instead of ss.par. The 2 par files are then compared to help debug
 #'  the issue with the model run. Defaults to TRUE.
-#' @param seed A random seed for SS to enable reproducible SS results.
+#' @template seed
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 run_OM <- function(OM_dir,

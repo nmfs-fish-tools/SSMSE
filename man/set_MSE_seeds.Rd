@@ -7,8 +7,13 @@
 set_MSE_seeds(seed = NULL, iter_vec)
 }
 \arguments{
-\item{seed}{reads in the user specified seeds if any to allow replication of runs. Defaults to NULL.
-Can be 1) NULL (default); 2) An integer vector of length 1, length 1+length(scen_name_vec), or length 1 + length(scen_name_vec)+sum(iter_vec); 3) A list with 3 components the same as teh output of set_MSE_seeds}
+\item{seed}{Input a fixed seed to replicate previous simulation runs. Seed
+can be a single value for a global seed, n_scenarios+1 length vector for 
+scenario specific and a global seed, n_iterations+n_scenarios+1 length 
+vector for iteration scenario and global seeds. Can also be a list object
+with a single value under \code{seed[["global"]]}, a vector under 
+\code{seed[["scenario"]]}, and a multiple vectors for iteration specific seeds 
+under \code{seed[["iter"]][[1:n_scenarios]]}.}
 
 \item{iter_vec}{The number of iterations per scenario. A vector of integers
 in the same order as scen_name_vec.}

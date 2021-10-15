@@ -7,13 +7,13 @@
 add_OM_devs(ctl, dat, parlist, timeseries, future_om_dat)
 }
 \arguments{
-\item{ctl}{A control file as read in by r4ss::SS_readctl}
+\item{ctl}{A control file as read in by \code{r4ss::SS_readctl}.}
 
-\item{dat}{A datafile as read in by r4ss::SS_readdat}
+\item{dat}{A data file as read in by \code{r4ss::SS_readdat}.}
 
-\item{parlist}{A parameter file as read in by r4ss::SS_readpar_3.30}
+\item{parlist}{A parameter file as read in by \code{r4ss::SS_readpar_3.30}}
 
-\item{timeseries}{SS output timeseries data}
+\item{timeseries}{The timeseries table from \code{r4ss::SS_output()}.}
 
 \item{future_om_dat}{A data frame with random sample data for future parameter}
 }

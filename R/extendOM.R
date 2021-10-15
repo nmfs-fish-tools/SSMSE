@@ -4,7 +4,7 @@
 #'
 #' Add the EM defined catch values for the next years.
 #' @author Kathryn Doering & Nathan Vaughan
-#' @param OM_dir The full path to the OM directory.
+#' @template OM_dir
 #' @param catch A dataframe of catch values and its associated information to
 #'  add to the OM. The column names are the same as in an SS data file (e.g.,
 #'  year,	season, fleet,	catch,	catch_se). Must input either a catch and/or a harvest rate
@@ -27,7 +27,7 @@
 #' @param EM_pars a dataframe of parameter value updates to modify OM
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
 #' @param impl_error The implementation error
-#' @param seed A random initialization seed for SS to allow reproducibility
+#' @template seed
 #' @template verbose
 #' @return A new dat list object (format as created by r4ss::SS_readdat) that
 #'  has been extended forward  as if read in by r4ss function SS_readdat
@@ -437,7 +437,7 @@ update_OM <- function(OM_dir,
 #'  add to the OM. The column names are the same as in an SS data file (e.g.,
 #'  year,	season, fleet,	catch,	catch_se).
 #' length of the number of years (only works when catch is for 1 fleet)
-#' @param OM_dir The full path to the OM directory.
+#' @template OM_dir
 #' @param datfile The optional name (as a character string) of the datafile,
 #'  presumed to exist in \code{OM_dir}. Defaults to NULL, and if is NULL, the
 #'  function will get the datfile name from the starter.ss file in \code{OM_dir}.

@@ -7,7 +7,7 @@
 get_F(timeseries, fleetnames)
 }
 \arguments{
-\item{timeseries}{The timeseries table from SSoutput}
+\item{timeseries}{The timeseries table from \code{r4ss::SS_output()}.}
 
 \item{fleetnames}{A vector of fleet names, in the order they appear in the
 ss model.}

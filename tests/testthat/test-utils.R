@@ -379,7 +379,6 @@ test_that("create_out_dirs works as expected with an EM", {
     niter = 5,
     OM_name = "cod",
     OM_in_dir = NULL,
-    MS = "EM",
     EM_name = "cod",
     EM_in_dir = NULL
   )
@@ -395,7 +394,6 @@ test_that("create_out_dirs works as expected with an EM", {
     niter = 6,
     OM_name = "cod",
     OM_in_dir = NULL,
-    MS = "EM",
     EM_name = "custom_cod",
     EM_in_dir = cod_EM_in_dir
   )
@@ -410,7 +408,6 @@ test_that("create_out_dirs works as expected with an EM", {
     niter = 7,
     OM_name = "cod",
     OM_in_dir = NULL,
-    MS = "EM",
     EM_name = NULL,
     EM_in_dir = cod_EM_in_dir
   )
@@ -424,7 +421,6 @@ test_that("create_out_dirs works as expected with an EM", {
     niter = 8,
     OM_name = "cod",
     OM_in_dir = NULL,
-    MS = "EM",
     EM_name = NULL,
     EM_in_dir = NULL
   ),

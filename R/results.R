@@ -7,14 +7,8 @@
 #' @param scenarios A character vector of scenarios in dir from which to extract
 #'  summaries. If left as NULL, the summaries will be extracted from all folders
 #'  in dir.
-#' @param run_parallel Option to use parallel processing. Defaults to FALSE.
-#'  Note that running in parallel will only be faster if most of the scenarios
-#'  do not yet have scenario-level summary files and the suggested package
-#'  parallel needs to be available for running in parallel to occur.
-#' @param n_cores How many cores to use if running in parallel. If is NULL,
-#'  defaults to n_cores available - 1 (also capped at one less than the number
-#'  of cores available - 1)
-#' @param overwrite Should existing summary files be overwritten if present
+#' @template parallel
+#' @template overwrite
 #' @return A list of 3 data frames called scalar, ts, and
 #'  dq (for derived quantities). These lists contain information for
 #'  multiple model runs (estimation models and operating models) for 1

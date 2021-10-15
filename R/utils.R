@@ -195,11 +195,10 @@ create_scen_list <- function(scen_name_vec,
 
 #' clean the initial model files
 #'
-#' @param OM_out_dir The directory containing the OM direcatory
-#' @param EM_out_dir The directory containing the EM directory. If an EM will
-#'  not be used, can be set to NULL
-#' @param MS The management strategy
-#' @param overwrite Should the data files be overwiritten?
+#' @template OM_out_dir
+#' @template EM_out_dir
+#' @template MS
+#' @template overwrite
 #' @importFrom r4ss SS_readstarter SS_readdat SS_writedat
 clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
                                  overwrite = FALSE) {
@@ -471,18 +470,13 @@ get_input_value <- function(data,
 #' @param out_dir  The directory to which to write output. IF NULL, will default
 #'  to the working directory.
 #' @param niter The number iteration
-#' @param OM_name Name of OM model.
-#' @param OM_in_dir Relative or absolute path to the operating model. NULL if
-#'  using SSMSE package model.
-#' @param MS The management strategy. If "EM", will create the EM folders.
-#'  Otherwise, can be any name, defaulting to "not_EM".
-#' @param EM_name Name of the EM model. NULL if MS != "EM" (default value)
-#' @param EM_in_dir Relative or absolute path to the estimation model. NULL if
-#'  using SSMSE package model or MS != "EM" (default value)
+#' @template OM_name
+#' @template OM_EM_in_dir
+#' @param EM_name Name of the EM model
 #' @return A list with 2 named components each of length 1 characters. The
 #'  components are: OM_dir, where OM will be run, and OM_in_dir, where the model
 #'  files will be copied from.
-create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
+create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir,
                             EM_name = NULL, EM_in_dir = NULL) {
   # checks
   if (!is.null(out_dir)) assertive.types::assert_is_a_string(out_dir)
@@ -528,15 +522,6 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
   OM_out_dir <- file.path(out_dir, OM_folder_name)
   dir.create(OM_out_dir, showWarnings = FALSE)
   # Add the EM dir, if necessary
-  if (MS == "EM" || MS == "Interim") {
-    if (is.null(EM_name) & is.null(EM_in_dir)) {
-      stop(
-        "Management Strategy (MS) is EM (estimation model), but both EM_name",
-        " and EM_in_dir are null. Please specify either EM_name or EM_in_dir, or ",
-        "change the management strategy."
-      )
-    }
-  }
     if (is.null(EM_name) & !is.null(EM_in_dir)) EM_name <- basename(EM_in_dir)
     if (!is.null(EM_name) & is.null(EM_in_dir)) {
       EM_in_dir <- pkg_dirs[grep(EM_name, pkg_dirs)]
@@ -564,11 +549,9 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir, MS = "not_EM",
 
 #' Locate the OM model files
 #'
-#' @param OM_name Name of OM model.Defaults to NULL. OM_name should be a string
-#'  of length 1.
-#' @param OM_in_dir Relative or absolute path to the operating model. NULL if
-#'  using SSMSE package model. Defaults to NULL. OM_in dir should be a string
-#'  of length 1.
+#' @template OM_name
+#' @param OM_in_dir Relative or absolute path to the operating model, if using a
+#'   model outside of the SSMSE package. Should be a string.
 #' @return A list with on comonent, OM_in_dir, which contains the model location
 locate_in_dirs <- function(OM_name = NULL, OM_in_dir = NULL) {
   # checks
@@ -602,10 +585,9 @@ locate_in_dirs <- function(OM_name = NULL, OM_in_dir = NULL) {
 #' Copy OM and EM model files
 #'
 #' Copy OM and EM model files from input to output location.
-#' @param OM_in_dir The OM input directory. If NULL, the OM will not be copied.
-#' @param OM_out_dir The OM output directory. If NULL, the OM will not be copied.
-#' @param EM_in_dir The EM input directory. If NULL, the EM will not be copied.
-#' @param EM_out_dir The EM output directory. If NULL, the EM will not be copied.
+#' @template OM_EM_in_dir
+#' @template OM_out_dir
+#' @template EM_out_dir
 #' @template verbose
 #' @return TRUE, if copying is successful
 #'
@@ -696,8 +678,7 @@ combine_cols <- function(dat_list, list_item, colnames) {
 
 #' Set the initial global, scenario, and iteration seeds
 #'
-#' @param seed reads in the user specified seeds if any to allow replication of runs. Defaults to NULL.
-#' Can be 1) NULL (default); 2) An integer vector of length 1, length 1+length(scen_name_vec), or length 1 + length(scen_name_vec)+sum(iter_vec); 3) A list with 3 components the same as teh output of set_MSE_seeds
+#' @template seed_input
 #' @param iter_vec The number of iterations per scenario. A vector of integers
 #'  in the same order as scen_name_vec.
 #' @export

@@ -331,7 +331,7 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
 #' @param sample_struct The sample structure, as defined by the user. This need
 #'  not define all the sampling structure if it can be unambiguously determined
 #'  from the OM data file.
-#' @param OM_out_dir The directory containing the operating model files
+#' @template OM_out_dir
 get_full_sample_struct <- function(sample_struct,
                                    OM_out_dir) {
   start <- r4ss::SS_readstarter(file.path(OM_out_dir, "starter.ss"), verbose = FALSE)

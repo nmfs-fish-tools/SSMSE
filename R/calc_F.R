@@ -2,7 +2,7 @@
 
 #' Get the Fishing mortality from the timeseries Report.sso table
 #'
-#' @param timeseries The timeseries table from SSoutput
+#' @template timeseries
 #' @param fleetnames A vector of fleet names, in the order they appear in the
 #'  ss model.
 #' @importFrom tidyr gather separate
@@ -127,7 +127,7 @@ get_F <- function(timeseries, fleetnames) {
 
 #' Get retained catch from the timeseries Report.sso table
 #'
-#' @param timeseries from SSoutput
+#' @template timeseries
 #' @param units_of_catch From datalist, the catch units. A named list where the
 #' names are the fleets (to provide an extra check)
 #' @importFrom tidyr gather separate
@@ -180,7 +180,7 @@ get_retained_catch <- function(timeseries, units_of_catch) {
 
 #' Get dead catch from the timeseries Report.sso table
 #'
-#' @param timeseries from SSoutput
+#' @template timeseries
 #' @param units_of_catch From datalist, the catch units. A named list where the
 #' names are the fleets (to provide an extra check)
 #' @importFrom tidyr gather separate

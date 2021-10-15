@@ -24,7 +24,7 @@ create_OM(
 \arguments{
 \item{OM_out_dir}{The full path to the directory in which the OM is run.}
 
-\item{overwrite}{Overwrite existing files with matching names?}
+\item{overwrite}{Allow existing files to be overwritten?}
 
 \item{writedat}{Should a new datafile be written?}
 
@@ -56,7 +56,7 @@ the historical data.}
 \item{sample_struct}{Input sampling structure to ensure future data are listed in OM
 with correct SE.}
 
-\item{seed}{input seed to allow reproducible SS results.}
+\item{seed}{A random seed so that reproducible results are possible.}
 }
 \value{
 A modified datafile
