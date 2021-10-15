@@ -1,8 +1,7 @@
 # functions related to manipulating the sample_struct param
 
 #' Convert user input to r4ss data names
-#' @param sample_struct The sampling structure specified by the user to a
-#'  run_SSMSE* wrapper function
+#' @template sample_struct
 #' @param convert_key Data frame defining how r4ss names relate to the sample_struct
 #'  names. For now, a 1:1 relationship is assumed.
 convert_to_r4ss_names <- function(sample_struct,
@@ -322,15 +321,13 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
 
 #' Get the full sample structure from user input
 #'
-#' Get the ful sample structure from user input by looking at the OM data. If it
-#' cannot be unambigously determined, this function will return an error
+#' Get the full sample structure from user input by looking at the OM data. If it
+#' cannot be unambiguously determined, this function will return an error
 #' describing what additional user input is required.
 #' @return A list of the full sample structure, using names as input by the user
 #' input by the user (not r4ss names).
 #'
-#' @param sample_struct The sample structure, as defined by the user. This need
-#'  not define all the sampling structure if it can be unambiguously determined
-#'  from the OM data file.
+#' @template sample_struct
 #' @template OM_out_dir
 get_full_sample_struct <- function(sample_struct,
                                    OM_out_dir) {

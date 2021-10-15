@@ -289,6 +289,8 @@ run_SSMSE <- function(scen_name_vec,
 #' @template future_om_list
 #' @param scen_seed List containing fixed seeds for this scenario and its iterations.
 #' @template MS
+#' @template sample_struct
+#' @template sample_struct_hist
 #' @template verbose
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
@@ -479,6 +481,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @param niter The iteration number, which is also the name of the folder the
 #'  results will be written to.
 #' @template future_om_list
+#' @template sample_struct
+#' @template sample_struct_hist
 #' @param iter_seed List containing fixed seeds for this iteration.
 #' @template MS
 #' @author Kathryn Doering & Nathan Vaughan

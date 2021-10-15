@@ -185,8 +185,7 @@ check_avail_dat <- function(EM_dat, OM_dat,
 #' correct names, correct column names (as in r4ss), and that all values in the
 #' dataframes are integer or numeric. This does not check for if numeric or
 #' interger values make sense given the model used.
-#' @param sample_struct The list to check. Should be a list including which years and
-#'  fleets should be added from the OM into the EM for different types of data.
+#' @template sample_struct
 #' @param valid_names The list to compare sample_struct to.
 #' @author Kathryn Doering
 check_sample_struct <- function(sample_struct,

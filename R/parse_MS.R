@@ -20,10 +20,7 @@
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
 #' @template future_om_list
-#' @param sample_struct An optional list including which years and fleets should be
-#'  added from the OM into the EM for different types of data. If NULL, the data
-#'  structure will try to be infered from the pattern found for each of the
-#'  datatypes within EM_datfile. Ignored if init_loop is TRUE.
+#' @template sample_struct
 #' @param interim_struct An optional including how many years to average over,
 #'  fleet weights, the scaling rate (Beta) of catch relative to the index change for each fleet,
 #'  and the reference year for each fleet (either a fixed year or <=0 relative to end_yr, fixed year

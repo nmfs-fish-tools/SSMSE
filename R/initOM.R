@@ -20,11 +20,8 @@
 #'  recruitment deviations, and implementation errors.
 #' @param verify_OM Should the model be run without estimation and some basic
 #'  checks done to verify that the OM can run? Defaults to TRUE.
-#' @param sample_struct_hist The historical sample structure, if specified by
-#'  the user. Defaults to NULL, which means to use the same sample structure as
-#'  the historical data.
-#' @param sample_struct Input sampling structure to ensure future data are listed in OM
-#'  with correct SE.
+#' @template sample_struct_hist
+#' @template sample_struct
 #' @template seed
 #' @template verbose
 #' @return A modified datafile
@@ -520,9 +517,7 @@ get_init_samp_scheme <- function(dat,
 
 #' Remove the historical sampling structure
 #'
-#' @param sample_struct_hist The historical sampling structure as specified by
-#'  the user. Can be NULL, in which case no values will be removed. Uses the
-#'  names as in the r4ss dataframes.
+#' @template sample_struct_hist
 #' @param dat The data file, as read in using r4ss
 rm_sample_struct_hist <- function(sample_struct_hist, dat) {
   if (is.null(sample_struct_hist)) {
@@ -615,7 +610,7 @@ rm_vals <- function(return_obj, compare_obj, name_in_obj, colnames) {
 
 #' Add in years of sampling data needed
 #'
-#' @param sample_struct The sampling structure, as specified by the user.
+#' @template sample_struct
 #' @param dat A datafile as read in by r4ss::SS_readdat
 add_sample_struct <- function(sample_struct, dat) {
   if (is.null(sample_struct)) {
