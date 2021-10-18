@@ -8,8 +8,10 @@
 #'  default to the working directory.
 #' @param iter_vec The number of iterations per scenario. A vector of integers
 #'  in the same order as scen_name_vec.
-#' @param OM_name_vec Names of a valid Stock Synthesis stock assessment model from
-#'   which to create the
+#' @param OM_name_vec Names of a valid Stock Synthesis stock assessment model.
+#'  To see the names of built-in models, type 
+#'  \code{list.dirs(system.file("extdata", "models", package = "SSMSE"),full.names = FALSE, recursive = FALSE)}
+#'  into the R console.
 #' @param OM_in_dir_vec Vector of relative or absolute paths to the operating
 #'  model, if using a model outside of the SSMSE package.
 #' @param EM_name_vec Should be NULL unless \code{MS = "EM"}. Name of a valid Stock
