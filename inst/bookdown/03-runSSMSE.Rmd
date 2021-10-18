@@ -23,16 +23,16 @@ There are `r length(built_in_mods)` built-in models that comes with SSMSE: `r bu
 
 The management strategy (and EM) can be specified in one of two ways:
 
-1. Using an SS model and its forcast file to project catch by fleet
+1. Using an SS3 model and its forcast file to project catch by fleet
 2. Using a custom procedure via a function in R
 
 In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches by fleet.
 
-### Specify the Management Strategy in a SS model
+### Specify the Management Strategy in a SS3 model
 
-An SS model can be set up as the EM for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS model as the EM, specify the path in `EM_in_dir_vec`.Note that models that use empirical weight at age can not yet be used as estimation models.
+An SS3 model can be set up as the EM for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS3 model as the EM, specify the path in `EM_in_dir_vec`.Note that models that use empirical weight at age can not yet be used as estimation models.
 
-Future catches will be determined from the forecasting file settings of the SS model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
+Future catches will be determined from the forecasting file settings of the SS3 model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
 
 
 ### Using a custom management strategy/procedure {#custom-MS}
@@ -90,7 +90,7 @@ run_result_custom <- run_SSMSE(
 
 ## Sampling options
 
-Currently, the only available sampling option is to use the bootstrapping module within SS itself. This means specifying `use_SS_boot_vec = TRUE`. Details on how sampling is done using the bootstrapping module in SS is available in the "Bootstrap Data Files" section of the [SS user manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231).
+Currently, the only available sampling option is to use the bootstrapping module within SS3 itself. This means specifying `use_SS_boot_vec = TRUE`. Details on how sampling is done using the bootstrapping module in SS3 is available in the "Bootstrap Data Files" section of the [SS3 user manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231).
 
 Users also need to specify how and which data types should be sampled for each future year in the simulation in `sample_struct_list`. `sample_struct_list` is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.
 

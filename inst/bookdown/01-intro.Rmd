@@ -2,7 +2,9 @@
 
 ## Purpose
 
-SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS) as an operating model (OM) in an Management Strategy Evaluation (MSE). The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
+SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS3) as an operating model (OM) in a [Management Strategy Evaluation (MSE)](https://doi.org/10.1139/cjfas-2019-0084). The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
+
+![The general workflow of using SSMSE](images/workflow_ssmse_noaa_branding.png)
 
 ## Functions in SSMSE {#funs}
 
@@ -25,9 +27,9 @@ Exported functions that can be used for writing [custom management strategies](#
 
 Function    | Description
 -----------  | ------------
-`run_EM()`       |  Run an SS estimation model (uses run_ss_model)
-`run_ss_model()` | Run an SS model
-`get_bin()`      | Get location of the SS binary.
+`run_EM()`       |  Run an SS3 estimation model (uses run_ss_model)
+`run_ss_model()` | Run an SS3 model
+`get_bin()`      | Get location of the SS3 binary.
 `parse_MS()`     | Function that runs the management strategy and returns catch by fleet for the projections. A reference function for those setting up custom management strategies. 
 
 Finally, some plotting functions are available:
@@ -37,11 +39,13 @@ Plotting Function | Description
 `plot_index_sampling()` | Plot to compare the sampled index values to the operating model expected values and original operating model conditioning index data.
 `plot_comp_sampling()`  | Plot to compare the sampled composition values to the operating model expected values and original operating model conditioning composition data.
 
-## Brief description of the SSMSE MSE simulation procedure
+## Brief description of the SSMSE MSE simulation procedure using `run_SSMSE()`
+ 
+![The steps implemented by run_SSMSE](images/ssmse_1_iter.png)
 
 ### Conditioning the OM and sampling from the OM
 
-For each scenario, SSMSE starts with the user providing a fitted Stock Synthesis model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the "true" values and a bootstrapped data set from SS. Note that any modifications to the OM's parameters specified by the users as it is extended forward in time are also applied.
+For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the "true" values and a bootstrapped data set from SS3. Note that any modifications to the OM's parameters specified by the users as it is extended forward in time are also applied.
 
 ### First run of the management strategy in the MSE simulation
 

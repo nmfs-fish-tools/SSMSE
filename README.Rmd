@@ -45,7 +45,7 @@ knitr::opts_chunk$set(
 
 # Motivation for developing SSMSE
   
-This package was developed to increase the ease of using Stock Synthesis (SS) directly as an operating model (OM) in an Management Strategy Evaluation (MSE). The approach requires a conditioned Stock Synthesis mode to use as the OM.
+This package was developed to increase the ease of using Stock Synthesis (SS3) directly as an operating model (OM) in an Management Strategy Evaluation (MSE). The approach requires a conditioned Stock Synthesis mode to use as the OM.
 
 Below, we'll work through a simple example MSE as a way of introducing the SSMSE package. 
 
@@ -208,7 +208,7 @@ sample_struct_list_all <- list("h-ctl" = sample_struct_1_scen, "h-1" = sample_st
 We will use the same management procedure for both scenarios:
   
 1. Conduct a stock assessment every 3 years to get stock status.
-2. Project from this stock assessment using the SS forecast file to get projected future catch.
+2. Project from this stock assessment using the SS3 forecast file to get projected future catch.
 3. Put this projected catch (without implementation error, in the case of this example) back into the OM. Extend the OM forward in time to get the true values for the population.
 
 Let's take a look at step 2 in the management procedure, which is implemented using the forecasting module in SS. We will examine the forecast file for the estimation model to better understand how catches will be forecasted from the assessment. We will use the same management procedure in both of these scenarios, although for a full MSE analysis, it is likely that multiple management procedures would be compared.
@@ -241,7 +241,7 @@ fore$Nforecastyrs
 
 However, an assessment will be conducted every 3 years and thus 3 years of projections is required. SSMSE will automatically modify this value in the estimation model to the appropriate number of forecasting years.
 
-More information on using the forecast module in SS to forecast catches is available in the [Stock Synthesis users manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
+More information on using the forecast module in SS3 to forecast catches is available in the [Stock Synthesis users manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
 Users can also specify their own [custom management procedures]
 
@@ -286,7 +286,7 @@ Within each scenario is a folder for each scenario:
 list.dirs(file.path(run_res_path, "h-ctl"), recursive = FALSE)
 ```
 
-And within each scenario folder, there are folders containing the SS models that were run by `run_SSMSE`.
+And within each scenario folder, there are folders containing the SS3 models that were run by `run_SSMSE`.
 ```{r}
 # see folders for the first iteration of scenario 1
 list.dirs(file.path(run_res_path, "h-ctl", "1"), recursive = FALSE)
