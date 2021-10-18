@@ -1,5 +1,4 @@
-#' Calculate uncertainty and biases in historic composition data. Not currently 
-#' Used, but could be used in the future.
+#' Calculate uncertainty and biases in historic composition data
 #'
 #' @param data_obs A data frame of observed composition data extracted from SS .dat file
 #' @param data_exp A data frame of the expected composition data as estimated by an SS assessment model
