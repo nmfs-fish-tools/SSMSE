@@ -415,18 +415,6 @@ test_that("create_out_dirs works as expected with an EM", {
   expect_true(dir.exists(created_dir_name_3))
   expect_true(created_mod_3[["EM_out_dir"]] == created_dir_name_3)
   expect_true(created_mod_3[["EM_in_dir"]] == cod_EM_in_dir)
-  # EM not named, no path given for EM (expect error)
-  expect_error(create_out_dirs(
-    out_dir = out_dir,
-    niter = 8,
-    OM_name = "cod",
-    OM_in_dir = NULL,
-    EM_name = NULL,
-    EM_in_dir = NULL
-  ),
-  "Management Strategy (MS) is EM (estimation model), but both EM_name and EM_in_dir are null",
-  fixed = TRUE
-  )
 })
 
 
