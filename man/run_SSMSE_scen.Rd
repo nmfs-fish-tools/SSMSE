@@ -40,6 +40,8 @@ runs the scenario will be stored within a folder of this name.}
 \item{iter}{The number of iterations for the scenario. A single integer
 value.}
 
+\item{OM_name}{Name of the operating model (OM).}
+
 \item{OM_in_dir}{Relative or absolute path to the operating model, if using a
 model outside of the SSMSE package. Should be a string.}
 

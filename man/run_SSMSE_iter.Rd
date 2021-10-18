@@ -32,6 +32,8 @@ run_SSMSE_iter(
 \item{out_dir}{The directory to which to write output. IF NULL, will default
 to the working directory.}
 
+\item{OM_name}{Name of the operating model (OM).}
+
 \item{OM_in_dir}{Relative or absolute path to the operating model, if using a
 model outside of the SSMSE package. Should be a string.}
 
@@ -39,6 +41,8 @@ model outside of the SSMSE package. Should be a string.}
 as an EM. If the value of EM_name is NULL and  \code{MS = "EM"}, then SSMSE
 will look for the estimation model in the path specified in EM_in_dir.
 or \code{NULL}.}
+
+\item{EM_in_dir}{Relative or absolute path to the estimation model,}
 
 \item{run_EM_last_yr}{Should the MS be implemented to get future catch if the
 laste year is an assessment year? TRUE/FALSE option, so the same for all 
@@ -119,12 +123,7 @@ interim_struct<-list(Beta = 1,
                      assess_freq = 5,
                      Index_weights = rep(1, max(ref_index[, 3])))}
 
-\item{run_parallel}{Option to use parallel processing on iterations.
-Defaults to FALSE}
-
-\item{n_cores}{how many cores to use if running in parallel defaults to
-n_cores available - 1 (also capped at one less than the number of cores
-available)}
+\item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \description{
 High level function to run 1 iteration of a scenario for a management

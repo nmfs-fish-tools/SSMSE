@@ -462,7 +462,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
 #' @param base_range the difference between the base parameters max and min bounds
 #' @param baseparm The value of the base parameter
 #' @param base_bounds The min and max bounds of the base parameter
-#'
+#' @template ctl_dat
 #' @author Nathan Vaughan
 #' @return A modified parameter value series that incorporates the appropriate time varying block effects.
 #'

@@ -284,6 +284,7 @@ run_SSMSE <- function(scen_name_vec,
 #' @template parallel
 #' @param out_dir_scen The directory to which to write output. IF NULL, will
 #' @template OM_EM_in_dir
+#' @template OM_name
 #' @param iter The number of iterations for the scenario. A single integer
 #'  value.
 #' @template future_om_list
@@ -472,8 +473,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' strategy evaluation using Stock Synthesis as the Operating model.
 #' @template run_SSMSE_params_all
 #' @template run_SSMSE_scen_iter_params
-#' @template parallel
-#' @template OM_in_dir
+#' @template OM_EM_in_dir
+#' @template OM_name
 #' @param out_dir The directory to which to write output. IF NULL, will default
 #'   to the working directory.
 #' @param nyrs_lag number of years of lag in obtaining data. i.e. the number of years
@@ -485,6 +486,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @template sample_struct_hist
 #' @param iter_seed List containing fixed seeds for this iteration.
 #' @template MS
+#' @template verbose
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
