@@ -918,5 +918,6 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       )
     }
   }
+  new_catch_list
 }
 
