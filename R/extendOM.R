@@ -73,11 +73,7 @@ update_OM <- function(OM_dir,
     datsource = dat, ctlsource = ctl,
     verbose = FALSE
   )
-
-
-  # SINGLE_RUN_MODS: No real need for this check as we are working in Fs that we can cap. Better just to give a
-  # warning that the fishery bounded at an F limit.
-
+  # set seed ---
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
   }
@@ -90,14 +86,24 @@ update_OM <- function(OM_dir,
   )
 
 
-  # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM  # SINGLE_RUN_MODS: delete
+  # first run OM with catch as projection to calculate the true F required to 
+  # achieve EM catch in OM
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
 
   catch_intended <- rbind(catch, harvest_rate)
   catch_intended <- catch_intended[!duplicated(catch_intended[, 1:3]), ]
-  catch_intended <- cbind(catch_intended, catch_intended[, "catch"], catch_intended[, "catch"], rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1.5, length(catch_intended[, "catch"])), rep(2, length(catch_intended[, "catch"])))
-  colnames(catch_intended) <- c("year", "seas", "fleet", "catch", "F", "F_ref", "Catch_ref", "basis", "basis_2", "scale", "F_lim", "last_adjust")
+  catch_intended <- cbind(catch_intended, 
+                          catch_intended[, "catch"], 
+                          catch_intended[, "catch"], 
+                          rep(1, length(catch_intended[, "catch"])), 
+                          rep(1, length(catch_intended[, "catch"])), 
+                          rep(1, length(catch_intended[, "catch"])), 
+                          rep(1.5, length(catch_intended[, "catch"])), 
+                          rep(2, length(catch_intended[, "catch"])))
+  colnames(catch_intended) <- c("year", "seas", "fleet", "catch", "F", "F_ref",
+                                "Catch_ref", "basis", "basis_2", "scale", 
+                                "F_lim", "last_adjust")
   for (i in seq_along(catch_intended[, "catch"])) {
     if (!is.null(F_limit)) {
       F_lim <- F_limit[(F_limit[, "year"] == catch_intended[i, "year"]) &
@@ -123,7 +129,9 @@ update_OM <- function(OM_dir,
     }
     catch_intended[i, "basis_2"] <- basis_2
 
-    last_F <- parlist[["F_rate"]][which(parlist[["F_rate"]][, c("year")] == (catch_intended[i, c("year")] - 1) &
+    last_F <- parlist[["F_rate"]][
+      which(parlist[["F_rate"]][, c("year")] == 
+        (catch_intended[i, c("year")] - 1) &
       parlist[["F_rate"]][, c("seas")] == catch_intended[i, c("seas")] &
       parlist[["F_rate"]][, c("fleet")] == catch_intended[i, c("fleet")]), "F"]
 
