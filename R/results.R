@@ -202,7 +202,7 @@ plot_index_sampling <- function(dir = getwd()) {
       values = rep("solid", length(unique(index_dat[["iteration"]])))
     ) +
     ggplot2::facet_wrap(ggplot2::vars(.data[["index"]])) + # by fleet
-    ggplot2::guides(linetype = FALSE) +
+    ggplot2::guides(linetype = "none") +
     ggplot2::theme_classic()
 
   index_list <- list(index_dat = index_dat, index_plot = index_plot)

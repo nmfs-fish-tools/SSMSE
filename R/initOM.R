@@ -280,7 +280,13 @@ create_OM <- function(OM_out_dir,
 
   parlist[["init_F"]] <- F_list[["init_F"]]
 
-  parlist[["Fcast_impl_error"]] <- get_impl_error_matrix(yrs = (dat[["endyr"]] + nyrs + 1):(dat[["endyr"]] + nyrs + forelist[["Nforecastyrs"]]))
+  # note: may need to also add some code in add_OM_devs
+  if(isTRUE(length(parlist$Fcast_impl_error > 0))) {
+    parlist[["Fcast_impl_error"]] <- 
+      get_impl_error_matrix(yrs = (dat[["endyr"]] + nyrs + 1):
+                                  (dat[["endyr"]] + nyrs + 
+                                     forelist[["Nforecastyrs"]]))
+  }
 
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
   ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM

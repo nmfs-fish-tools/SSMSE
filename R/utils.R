@@ -535,8 +535,10 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir,
         )
       }
     }
-    EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM_init"))
-    dir.create(EM_out_dir, showWarnings = FALSE)
+    if(!is.null(EM_name)| !is.null(EM_in_dir)) {
+      EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM_init"))
+      dir.create(EM_out_dir, showWarnings = FALSE)
+    }
     if (is.null(EM_name) & is.null(EM_in_dir)) {
       EM_out_dir <- NULL
       EM_in_dir <- NULL

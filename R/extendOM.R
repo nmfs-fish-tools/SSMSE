@@ -432,7 +432,7 @@ update_OM <- function(OM_dir,
         # It would also be helpful to know how far away input catch and achieved
         # catch are, to help users decide what to do next.
         warning("The catch search loop to find the F that achieved catch in", 
-          " the OM (when adding catch for years", 
+          " the OM (when adding catch for years ", 
           paste0(unique(catch[["year"]]), collapse = ", "), 
           ") ran for ", n_F_search_loops, " iterations without achieving targets")
         # I don't think this is necessary.
