@@ -1,8 +1,10 @@
-#V3.30.16.00;_2020_09_03;_safe;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.2
-#Stock Synthesis (SS) is a work of the U.S. Government and is not subject to copyright protection in the United States.
-#Foreign copyrights may apply. See copyright.txt for more information.
-#_user_support_available_at:NMFS.Stock.Synthesis@noaa.gov
-#_user_info_available_at:https://vlab.ncep.noaa.gov/group/stock-synthesis
+#V3.30.18.00;_safe;_compile_date:_Sep 30 2021;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
+#_Stock_Synthesis_is_a_work_of_the_U.S._Government_and_is_not_subject_to_copyright_protection_in_the_United_States.
+#_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
+#_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
+#_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
+#_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
+
 #_data_and_control_files: Example_1_data.SS // Example_1_control.SS
 0  # 0 means do not read wtatage.ss; 1 means read and use wtatage.ss and also read and use growth parameters
 1  #_N_Growth_Patterns (Growth Patterns, Morphs, Bio Patterns, GP are terms used interchangeably in SS)
@@ -50,8 +52,8 @@
 #_Prior_codes:  0=none; 6=normal; 1=symmetric beta; 2=CASAL's beta; 3=lognormal; 4=lognormal with biascorr; 5=gamma
 #
 # setup for M, growth, wt-len, maturity, fecundity, (hermaphro), recr_distr, cohort_grow, (movement), (age error), (catch_mult), sex ratio 
-#
-0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate
+#_NATMORT
+0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate;_5=BETA:_Maunder_link_to_maturity
   #_no additional input for selected M option; read 1P per morph
 #
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr; 5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
@@ -67,12 +69,13 @@
 1 #_First_Mature_Age
 1 #_fecundity option:(1)eggs=Wt*(a+b*Wt);(2)eggs=a*L^b;(3)eggs=a*Wt^b; (4)eggs=a+b*L; (5)eggs=a+b*W
 0 #_hermaphroditism option:  0=none; 1=female-to-male age-specific fxn; -1=male-to-female age-specific fxn
-1 #_parameter_offset_approach for M, G, CV_G:  1- direct, no offset; 2- male=fem_parm*exp(male_parm); 3: male=female*exp(parm) then old=young*exp(parm)
+1 #_parameter_offset_approach for M, G, CV_G:  1- direct, no offset**; 2- male=fem_parm*exp(male_parm); 3: male=female*exp(parm) then old=young*exp(parm)
+#_** in option 1, any male parameter with value = 0.0 and phase <0 is set equal to female parameter
 #
 #_growth_parms
 #_ LO HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr dev_maxyr dev_PH Block Block_Fxn
 # Sex: 1  BioPattern: 1  NatMort
- 0.1 0.4 0.23 0.23 99 0 -5 0 0 0 0 0 0 0 # NatM_p_1_Fem_GP_1
+ 0.1 0.4 0.23 0.23 99 0 -5 0 0 0 0 0 0 0 # NatM_uniform_Fem_GP_1
 # Sex: 1  BioPattern: 1  Growth
  20 40 32 32 99 0 -5 0 0 0 0 0 0 0 # L_at_Amin_Fem_GP_1
  40 65 53.2054 50 99 0 -4 0 0 0 0 0 1 0 # L_at_Amax_Fem_GP_1
@@ -99,6 +102,7 @@
 #  catch multiplier
 #  fraction female, by GP
  1e-06 0.999999 0.5 0.5 0.5 0 -99 0 0 0 0 0 0 0 # FracFemale_GP_1
+#  M2 parameter for each predator fleet
 #
 # timevary MG parameters 
 #_ LO HI INIT PRIOR PR_SD PR_type  PHASE
@@ -154,16 +158,15 @@
 #Fishing Mortality info 
 0.1 # F ballpark value in units of annual_F
 -1999 # F ballpark year (neg value to disable)
-1 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
-0.9 # max F or harvest rate, depends on F_Method
-# no additional F input needed for Fmethod 1
-# if Fmethod=2; read overall start F value; overall phase; N detailed inputs to read
-# if Fmethod=3; read N iterations for tuning for Fmethod 3
+1 # F_Method:  1=Pope midseason rate; 2=F as parameter; 3=F as hybrid; 4=fleet-specific parm/hybrid (#4 is superset of #2 and #3 and is recommended)
+0.9 # max F (methods 2-4) or harvest fraction (method 1)
+# F_Method 1:  no additional input needed
 #
-#_initial_F_parms; count = 0
+#_initial_F_parms; for each fleet x season that has init_catch; nest season in fleet; count = 0
+#_for unconstrained init_F, use an arbitrary initial catch and set lambda=0 for its logL
 #_ LO HI INIT PRIOR PR_SD  PR_type  PHASE
-#2012 2060
-# F rates by fleet
+#
+# F rates by fleet x season
 # Yr:  1960 1961 1962 1963 1964 1965 1966 1967 1968 1969 1970 1971 1972 1973 1974 1975 1976 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012
 # seas:  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 # Fish1 0 0 0 0 0 0 0.0375314 0.0501574 0.0179453 0.0258894 0.0491512 0.0408296 0.0239378 0.0475956 0.0632814 0.0685344 0.0789254 0.0445447 0.034101 0.0425366 0.0245411 0.0428873 0.0281553 0.0269432 0.0366252 0.030089 0.0561883 0.0611364 0.0642508 0.092954 0.0859618 0.105431 0.106126 0.0703081 0.125071 0.0933758 0.112885 0.129098 0.133793 0.132931 0.125877 0.113415 0.0809025 0.0846071 0.121383 0.158936 0.17215 0.151972 0.169719 0.0848976 0.143268 0.143268 0.143268
@@ -196,6 +199,7 @@
 #_size_selex_patterns
 #Pattern:_0;  parm=0; selex=1.0 for all sizes
 #Pattern:_1;  parm=2; logistic; with 95% width specification
+#Pattern:_2;  parm=6; modification of pattern 24 with improved sex-specific offset
 #Pattern:_5;  parm=2; mirror another size selex; PARMS pick the min-max bin to mirror
 #Pattern:_11; parm=2; selex=1.0  for specified min-max population length bin range
 #Pattern:_15; parm=0; mirror another age or length selex
@@ -207,9 +211,9 @@
 #Pattern:_22; parm=4; double_normal as in CASAL
 #Pattern:_23; parm=6; double_normal where final value is directly equal to sp(6) so can be >1.0
 #Pattern:_24; parm=6; double_normal with sel(minL) and sel(maxL), using joiners
-#Pattern:_25; parm=3; exponential-logistic in size
-#Pattern:_27; parm=3+special; cubic spline 
-#Pattern:_42; parm=2+special+3; // like 27, with 2 additional param for scaling (average over bin range)
+#Pattern:_25; parm=3; exponential-logistic in length
+#Pattern:_27; parm=special+3; cubic spline in length; parm1==1 resets knots; parm1==2 resets all 
+#Pattern:_42; parm=special+3+2; cubic spline; like 27, with 2 additional param for scaling (average over bin range)
 #_discard_options:_0=none;_1=define_retention;_2=retention&mortality;_3=all_discarded_dead;_4=define_dome-shaped_retention
 #_Pattern Discard Male Special
  0 0 0 0 # 1 Fish1
@@ -237,7 +241,7 @@
 #Pattern:_19; parm=6; simple 4-parm double logistic with starting age
 #Pattern:_20; parm=6; double_normal,using joiners
 #Pattern:_26; parm=3; exponential-logistic in age
-#Pattern:_27; parm=3+special; cubic spline in age
+#Pattern:_27; parm=3+special; cubic spline in age; parm1==1 resets knots; parm1==2 resets all 
 #Pattern:_42; parm=2+special+3; // cubic spline; with 2 additional param for scaling (average over bin range)
 #Age patterns entered with value >100 create Min_selage from first digit and pattern from remainder
 #_Pattern Discard Male Special
@@ -292,6 +296,7 @@
 # 9   Surv7 AgeSelex
              0             2             1             1            99             0        -99          0          0          0          0          0          0          0  #  minage@sel=1_Surv7(9)
              0             2             1             1            99             0        -99          0          0          0          0          0          0          0  #  maxage@sel=1_Surv7(9)
+#_No_Dirichlet parameters
 # timevary selex parameters 
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type    PHASE  #  parm_name
            -10            10       2.35202             0            99             0      3  # Age_DblN_peak_Fish1(1)_BLK3add_1981
@@ -426,7 +431,7 @@
 #  1 #_parameter-dev-vectors
 #  1 #_crashPenLambda
 #  0 # F_ballpark_lambda
-0 # (0/1/2) read specs for more stddev reporting: 0 = skip, 1 = read specs for reporting stdev for selectivity, size, and numbers, 2 = add options for M and Dyn Bzero
+0 # (0/1/2) read specs for more stddev reporting: 0 = skip, 1 = read specs for reporting stdev for selectivity, size, and numbers, 2 = add options for M,Dyn. Bzero, SmryBio
  # 0 2 0 0 # Selectivity: (1) fleet, (2) 1=len/2=age/3=both, (3) year, (4) N selex bins
  # 0 0 # Growth: (1) growth pattern, (2) growth ages
  # 0 0 0 # Numbers-at-age: (1) area(-1 for all), (2) year, (3) N ages

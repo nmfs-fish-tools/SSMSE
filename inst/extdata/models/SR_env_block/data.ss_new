@@ -1,15 +1,15 @@
-#V3.30.16.00;_2020_09_03;_safe;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.2
-#Stock Synthesis (SS) is a work of the U.S. Government and is not subject to copyright protection in the United States.
-#Foreign copyrights may apply. See copyright.txt for more information.
-#_user_support_available_at:NMFS.Stock.Synthesis@noaa.gov
-#_user_info_available_at:https://vlab.ncep.noaa.gov/group/stock-synthesis
-#_Start_time: Thu May 13 15:50:24 2021
+#V3.30.18.00;_safe;_compile_date:_Sep 30 2021;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
+#_Stock_Synthesis_is_a_work_of_the_U.S._Government_and_is_not_subject_to_copyright_protection_in_the_United_States.
+#_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
+#_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
+#_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
+#_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
+
+#_Start_time: Tue Oct 19 11:21:00 2021
 #_Number_of_datafiles: 1
 #C data file for simple example
 #_observed data: 
-#V3.30.16.00;_2020_09_03;_safe;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.2
-#Stock Synthesis (SS) is a work of the U.S. Government and is not subject to copyright protection in the United States.
-#Foreign copyrights may apply. See copyright.txt for more information.
+#V3.30.18.00;_safe;_compile_date:_Sep 30 2021;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
 1971 #_StartYr
 2001 #_EndYr
 1 #_Nseas
@@ -20,7 +20,7 @@
 40 #_Nages=accumulator age, first age is always age 0
 1 #_Nareas
 3 #_Nfleets (including surveys)
-#_fleet_type: 1=catch fleet; 2=bycatch only fleet; 3=survey; 4=ignore 
+#_fleet_type: 1=catch fleet; 2=bycatch only fleet; 3=survey; 4=predator(M2) 
 #_sample_timing: -1 for fishing fleet to use season-long catch-at-age for observations, or 1 to use observation month;  (always 1 for surveys)
 #_fleet_area:  area the fleet/survey operates in 
 #_units of catch:  1=bio; 2=num (ignored for surveys; their units read later)
@@ -110,7 +110,8 @@
 0 #_N_fleets_with_discard
 #_discard_units (1=same_as_catchunits(bio/num); 2=fraction; 3=numbers)
 #_discard_errtype:  >0 for DF of T-dist(read CV below); 0 for normal with CV; -1 for normal with se; -2 for lognormal; -3 for trunc normal with CV
-# note, only have units and errtype for fleets with discard 
+# note: only enter units and errtype for fleets with discard 
+# note: discard data is the total for an entire season, so input of month here must be to a month in that season
 #_Fleet units errtype
 # -9999 0 0 0.0 0.0 # terminator for discard data 
 #
