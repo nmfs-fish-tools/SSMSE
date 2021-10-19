@@ -24,6 +24,8 @@ run_SSMSE(
   interim_struct_list = NULL,
   verbose = FALSE,
   seed = NULL,
+  n_F_search_loops = 20,
+  tolerance_F_search = 0.001,
   run_parallel = FALSE,
   n_cores = NULL
 )
@@ -123,6 +125,13 @@ vector for iteration scenario and global seeds. Can also be a list object
 with a single value under \code{seed[["global"]]}, a vector under 
 \code{seed[["scenario"]]}, and a multiple vectors for iteration specific seeds 
 under \code{seed[["iter"]][[1:n_scenarios]]}.}
+
+\item{n_F_search_loops}{Number of times to try to find an F that achieves the
+catches input in the OM. Defaults to 20.}
+
+\item{tolerance_F_search}{How far apart the input catch and achieved 
+catch can be in tried to find an F that achieves the catch input in the
+OM. Defaults to 0.001.}
 
 \item{run_parallel}{Option to use parallel processing on iterations.
 Defaults to FALSE}

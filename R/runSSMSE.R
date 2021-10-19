@@ -63,7 +63,7 @@
 #' @template run_SSMSE_params_all
 #' @template parallel
 #' @template verbose
-
+#' @template F_search_loops
 #' @export
 #' @import parallel
 #' @author Kathryn Doering & Nathan Vaughan
@@ -143,6 +143,8 @@ run_SSMSE <- function(scen_name_vec,
                       interim_struct_list = NULL,
                       verbose = FALSE,
                       seed = NULL,
+                      n_F_search_loops = 20,
+                      tolerance_F_search = 0.001,
                       run_parallel = FALSE,
                       n_cores = NULL) {
   if (!is.null(custom_MS_source)) {
@@ -263,6 +265,8 @@ run_SSMSE <- function(scen_name_vec,
       sample_struct_hist = tmp_scen[["sample_struct_hist"]],
       interim_struct = tmp_scen[["interim_struct"]],
       run_EM_last_yr = run_EM_last_yr,
+      n_F_search_loops = n_F_search_loops,
+      tolerance_F_search = tolerance_F_search,
       verbose = verbose,
       run_parallel = run_parallel,
       n_cores = n_cores
@@ -295,6 +299,7 @@ run_SSMSE <- function(scen_name_vec,
 #' @template sample_struct
 #' @template sample_struct_hist
 #' @template verbose
+#' @template F_search_loops
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -336,7 +341,9 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            interim_struct = NULL,
                            verbose = FALSE,
                            run_parallel = FALSE,
-                           n_cores = NULL) {
+                           n_cores = NULL, 
+                           n_F_search_loops = 20, 
+                           tolerance_F_search = 0.001) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
   assertive.properties::assert_is_atomic(iter)
@@ -407,6 +414,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           future_om_list = future_om_list,
           sample_struct_hist = sample_struct_hist,
           interim_struct = interim_struct,
+          n_F_search_loops = n_F_search_loops,
+          tolerance_F_search = tolerance_F_search,
           verbose = verbose
         )
       }
@@ -439,6 +448,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         future_om_list = future_om_list,
         sample_struct_hist = sample_struct_hist,
         interim_struct = interim_struct,
+        n_F_search_loops = n_F_search_loops,
+        tolerance_F_search = tolerance_F_search,
         verbose = verbose
       ), error = function(e) e)
     }
@@ -489,6 +500,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @param iter_seed List containing fixed seeds for this iteration.
 #' @template MS
 #' @template verbose
+#' @template F_search_loops
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -549,6 +561,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            future_om_list = NULL,
                            sample_struct_hist = NULL,
                            interim_struct = NULL,
+                           n_F_search_loops = 20,
+                           tolerance_F_search = 0.001,
                            verbose = FALSE) {
   # input checks ----
   # checks for out_dir, OM_name, OM_in_dir, EM_name, EM_in_dir done in create_out_dirs
@@ -723,6 +737,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
       write_dat = TRUE,
       impl_error = impl_error,
       verbose = verbose,
+      n_F_search_loops = n_F_search_loops,
+      tolerance_F_search = tolerance_F_search,
       seed = (iter_seed[["iter"]][1] + 234567 + yr)
     )
     # rerun OM (without estimation), get samples (or expected values)
@@ -816,6 +832,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
       EM_pars = subset_catch_list[["EM_pars"]],
       impl_error = impl_error,
       verbose = verbose,
+      n_F_search_loops = n_F_search_loops,
+      tolerance_F_search = tolerance_F_search,
       seed = (iter_seed[["iter"]][1] + 6789012)
     )
 

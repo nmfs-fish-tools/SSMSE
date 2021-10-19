@@ -25,6 +25,8 @@ run_SSMSE_iter(
   future_om_list = NULL,
   sample_struct_hist = NULL,
   interim_struct = NULL,
+  n_F_search_loops = 20,
+  tolerance_F_search = 0.001,
   verbose = FALSE
 )
 }
@@ -122,6 +124,13 @@ interim_struct<-list(Beta = 1,
                      MA_years = 3,
                      assess_freq = 5,
                      Index_weights = rep(1, max(ref_index[, 3])))}
+
+\item{n_F_search_loops}{Number of times to try to find an F that achieves the
+catches input in the OM. Defaults to 20.}
+
+\item{tolerance_F_search}{How far apart the input catch and achieved 
+catch can be in tried to find an F that achieves the catch input in the
+OM. Defaults to 0.001.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }

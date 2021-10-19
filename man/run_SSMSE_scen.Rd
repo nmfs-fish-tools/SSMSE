@@ -26,7 +26,9 @@ run_SSMSE_scen(
   interim_struct = NULL,
   verbose = FALSE,
   run_parallel = FALSE,
-  n_cores = NULL
+  n_cores = NULL,
+  n_F_search_loops = 20,
+  tolerance_F_search = 0.001
 )
 }
 \arguments{
@@ -128,6 +130,13 @@ Defaults to FALSE}
 \item{n_cores}{how many cores to use if running in parallel defaults to
 n_cores available - 1 (also capped at one less than the number of cores
 available)}
+
+\item{n_F_search_loops}{Number of times to try to find an F that achieves the
+catches input in the OM. Defaults to 20.}
+
+\item{tolerance_F_search}{How far apart the input catch and achieved 
+catch can be in tried to find an F that achieves the catch input in the
+OM. Defaults to 0.001.}
 }
 \description{
 High level function to run 1 scenario (but potentially many iterations) for

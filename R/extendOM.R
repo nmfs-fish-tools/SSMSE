@@ -29,6 +29,7 @@
 #' @param impl_error The implementation error
 #' @template seed
 #' @template verbose
+#' @template F_search_loops
 #' @return A new dat list object (format as created by r4ss::SS_readdat) that
 #'  has been extended forward  as if read in by r4ss function SS_readdat
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
@@ -41,8 +42,10 @@ update_OM <- function(OM_dir,
                       write_dat = TRUE,
                       impl_error = NULL,
                       verbose = FALSE,
-                      seed = NULL) {
-  # input checks
+                      seed = NULL,
+                      n_F_search_loops = 20, 
+                      tolerance_F_search = 0.001) {
+  # input checks ---
 
   if (is.null(catch) & is.null(harvest_rate)) {
     stop("You have to input either a catch or a harvest rate")
@@ -51,7 +54,7 @@ update_OM <- function(OM_dir,
     check_catch_df(catch)
   }
   check_dir(OM_dir)
-
+  # read in files ---
   # read in the starter file to get OM file names
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
     verbose = FALSE
@@ -305,9 +308,11 @@ update_OM <- function(OM_dir,
   } else {
     achieved_Catch <- TRUE
   }
+  # while loop to find F that achieves catch ----
   search_loops <- 0
   while (achieved_Catch == FALSE) {
-    if (max(abs(catch_intended[, "last_adjust"] - 1)) > 0.001 & search_loops < 20) {
+    if (max(abs(catch_intended[, "last_adjust"] - 1)) > tolerance_F_search &
+        search_loops < n_F_search_loops) {
       achieved_Catch <- FALSE
 
       r4ss::SS_writepar_3.30(
@@ -423,10 +428,17 @@ update_OM <- function(OM_dir,
         verbose = FALSE
       )
 
-      if (search_loops == 20) {
-        utils::write.csv("The catch search loop ran for 20 iterations without achieving targets",
-          file = file.path(OM_dir, "search_took_too_long.csv")
-        )
+      if (search_loops == n_F_search_loops) {
+        # It would also be helpful to know how far away input catch and achieved
+        # catch are, to help users decide what to do next.
+        warning("The catch search loop to find the F that achieved catch in", 
+          " the OM (when adding catch for years", 
+          paste0(unique(catch[["year"]]), collapse = ", "), 
+          ") ran for ", n_F_search_loops, " iterations without achieving targets")
+        # I don't think this is necessary.
+        # utils::write.csv("The catch search loop ran for 20 iterations without achieving targets",
+        #   file = file.path(OM_dir, "search_took_too_long.csv")
+        # )
       }
     }
   }
