@@ -11,6 +11,7 @@ run_OM(
   init_run = FALSE,
   verbose = FALSE,
   debug_par_run = TRUE,
+  sample_catch = FALSE,
   seed = NULL
 )
 }
@@ -34,6 +35,9 @@ SS_readdat is equivalent to specifying nboot = 1.}
 error_check will be created, and the model will be run from control start
 values instead of ss.par. The 2 par files are then compared to help debug
 the issue with the model run. Defaults to TRUE.}
+
+\item{sample_catch}{Should catch be sampled or fixed at the OM values? 
+Defaults to FALSE.}
 
 \item{seed}{A random seed so that reproducible results are possible.}
 }

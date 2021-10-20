@@ -21,6 +21,7 @@ test_that("create_scen_list works as expected", {
         nyrs_assess = 3,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = FALSE,
         interim_struct = NULL
       ),
     scen_2 =
@@ -37,6 +38,7 @@ test_that("create_scen_list works as expected", {
         nyrs_assess = 2,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = FALSE,
         interim_struct = NULL
       )
   )
@@ -54,6 +56,7 @@ test_that("create_scen_list works as expected", {
     nyrs_vec = c(6, 3),
     nyrs_assess_vec = c(3, 2),
     sample_struct_list = NULL,
+    sample_catch_vec = FALSE,
     interim_struct_list = NULL
   )
   # use expect equal because the names should be the same as well.
@@ -76,6 +79,7 @@ test_that("create_scen_list works with NAs", {
         nyrs_assess = 3,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = FALSE,
         interim_struct = NULL
       ),
     scen_2 =
@@ -92,6 +96,7 @@ test_that("create_scen_list works with NAs", {
         nyrs_assess = 2,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = TRUE,
         interim_struct = NULL
       )
   )
@@ -108,6 +113,7 @@ test_that("create_scen_list works with NAs", {
     nyrs_vec = c(6, 3),
     nyrs_assess_vec = c(3, 2),
     sample_struct_list = NULL,
+    sample_catch_vec = c(FALSE, TRUE),
     interim_struct_list = NULL
   )
   expect_equal(scen_list_out, scen_list)

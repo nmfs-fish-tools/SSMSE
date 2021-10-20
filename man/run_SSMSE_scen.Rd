@@ -23,6 +23,7 @@ run_SSMSE_scen(
   sample_struct = NULL,
   future_om_list = NULL,
   sample_struct_hist = NULL,
+  sample_catch = FALSE,
   interim_struct = NULL,
   verbose = FALSE,
   run_parallel = FALSE,
@@ -109,6 +110,9 @@ structure.}
 sampled for the historical period for the data generated from the OM. If
 this is left as NULL, then the same sampling scheme will be used as in the
 OM's data file. If it is not NULL, then each year.}
+
+\item{sample_catch}{Should catch be sampled or fixed at the OM values? 
+Defaults to FALSE.}
 
 \item{interim_struct}{A optional list of parameters to control an interim
 assessment with an example structure below, where Beta=a positive value

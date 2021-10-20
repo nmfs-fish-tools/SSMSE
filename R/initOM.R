@@ -449,6 +449,7 @@ create_OM <- function(OM_out_dir,
 #'  error_check will be created, and the model will be run from control start
 #'  values instead of ss.par. The 2 par files are then compared to help debug
 #'  the issue with the model run. Defaults to TRUE.
+#' @template sample_catch
 #' @template seed
 #' @author Kathryn Doering
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
@@ -458,6 +459,7 @@ run_OM <- function(OM_dir,
                    init_run = FALSE,
                    verbose = FALSE,
                    debug_par_run = TRUE,
+                   sample_catch = FALSE,
                    seed = NULL) {
   # make sure OM generates the correct number of data sets.
   if (boot) {
@@ -489,12 +491,9 @@ run_OM <- function(OM_dir,
     section = max_section,
     verbose = FALSE
   )
-  # If using bootstrap, do not want to use bootstrapped catch. Instead, replace
-  # with the expected catch values.
-  # TODO: may want to add check if using F method 1 or 3 that the expected vals
-  # and the input values match. May not match for method 2.
-  if (max_section > 2) {
-    if (verbose) message("Adding expected catch to the bootstrapped dataset.")
+  # replace with the expected catch values if sample_catch is FALSE and using 
+  # bootstrap
+  if (boot == TRUE & sample_catch == FALSE) {
     exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
       section = 2,
       verbose = FALSE

@@ -21,6 +21,7 @@ run_SSMSE(
   sample_struct_list = NULL,
   future_om_list = NULL,
   sample_struct_hist_list = NULL,
+  sample_catch_vec = FALSE,
   interim_struct_list = NULL,
   verbose = FALSE,
   seed = NULL,
@@ -107,6 +108,10 @@ structure.}
 sampled for the historical period for the data generated from the OM. If
 this is left as NULL, then the same sampling scheme will be used as in the
 OM's data file. If it is not NULL, then each year}
+
+\item{sample_catch_vec}{Should catch be sampled or fixed at the OM values? 
+This can be a single Boolean (TRUE or FALSE) to apply to all scenarios or 
+a vector of the same length as the number of scenarios. Defaults to FALSE.}
 
 \item{interim_struct_list}{A optional list of parameters to control an interim assessment
 with an example structure below, where Beta=a positive value that is inversely proportional to risk,
