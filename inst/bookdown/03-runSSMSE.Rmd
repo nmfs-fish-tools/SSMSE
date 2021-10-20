@@ -96,7 +96,7 @@ Users also need to specify how and which data types should be sampled for each f
 
 The helper function `create_sample_struct()` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#sample) or by typing `?SSMSE::create_sample_struct()` into the R console.
 
-Currently, users can sample data for catches (treated as fixed), CPUE (i.e., indices of abundance), length and age composition, conditional length at age compositions, mean size at age, and mean size. It is not yet possible to sample data for generalized size compositions, tagging data, and morph compositions.
+Currently, users can sample data for catches (treated as fixed if `sample_catch = FALSE` for the scenario), CPUE (i.e., indices of abundance), length and age composition, conditional length at age compositions, mean size at age, and mean size. It is not yet possible to sample data for generalized size compositions, tagging data, and morph compositions.
 
 Users can specify the sampling during the historical period of the model through the `sample_struct_hist` input to `run_SSMSE`. This is an optional input and has the same structure as `sample_struct_list`, but the years will be before the original end year of the OM.
 

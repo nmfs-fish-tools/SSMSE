@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2021-10-18" />
+<meta name="date" content="2021-10-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -338,9 +338,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></h2>
+<p>In general, the steps for a scenario after calling run_SSMSE is:</p>
+<ol style="list-style-type: decimal">
+<li>Create the OM</li>
+<li>Sample data from the OM</li>
+<li>Run management strategy</li>
+<li>Determine if more years need to be projected. If yes, continue; if no, end simulation.</li>
+<li>Update OM with n years of catch where n is the number of years between assessments</li>
+<li>Sample n years of data</li>
+<li>Repeat steps 3-6 until the end of the simulation.</li>
+</ol>
+<p><img src="images/ssmse_1_iter.png" alt="The steps implemented by run_SSMSE in words" />
+The basic steps are contained in functions:</p>
+<ol style="list-style-type: decimal">
+<li>User calls run_SSMSE</li>
+<li>Steps for one iteration are passed to run_SSMSE_scen() and then run_SSMSE_iter().</li>
+<li>The OM is created with create_OM()</li>
+<li>run_OM() runs the OM and creates the dataset to pass to the management strategy</li>
+<li>Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.</li>
+<li>Determine if more years need to be projected. If yes, continue; if no, end simulation.</li>
+<li>Repeat steps 3-6.</li>
+</ol>
 <div class="figure">
-<img src="images/ssmse_1_iter.png" alt="" />
-<p class="caption">The steps implemented by run_SSMSE</p>
+<img src="images/ssmse_fxn_map.png" alt="" />
+<p class="caption">The steps implemented in run_SSMSE() showing the functions called.</p>
 </div>
 <div id="conditioning-the-om-and-sampling-from-the-om" class="section level3" number="1.3.1">
 <h3><span class="header-section-number">1.3.1</span> Conditioning the OM and sampling from the OM</h3>

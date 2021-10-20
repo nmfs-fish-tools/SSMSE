@@ -40,8 +40,29 @@ Plotting Function | Description
 `plot_comp_sampling()`  | Plot to compare the sampled composition values to the operating model expected values and original operating model conditioning composition data.
 
 ## Brief description of the SSMSE MSE simulation procedure using `run_SSMSE()`
- 
-![The steps implemented by run_SSMSE](images/ssmse_1_iter.png)
+
+In general, the steps for a scenario after calling run_SSMSE is:
+
+1. Create the OM
+2. Sample data from the OM
+3. Run management strategy
+4. Determine if more years need to be projected. If yes, continue; if no, end simulation.
+5. Update OM with n years of catch where n is the number of years between assessments
+6. Sample n years of data
+7. Repeat steps 3-6 until the end of the simulation.
+
+![The steps implemented by run_SSMSE in words](images/ssmse_1_iter.png)
+The basic steps are contained in functions:
+
+1. User calls run_SSMSE
+2. Steps for one iteration are passed to run_SSMSE_scen() and then run_SSMSE_iter().
+3. The OM is created with create_OM()
+4. run_OM() runs the OM and creates the dataset to pass to the management strategy
+5. Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.
+6. Determine if more years need to be projected. If yes, continue; if no, end simulation.
+7. Repeat steps 3-6.
+
+![The steps implemented in run_SSMSE() showing the functions called.](images/ssmse_fxn_map.png)
 
 ### Conditioning the OM and sampling from the OM
 
