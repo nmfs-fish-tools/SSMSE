@@ -175,7 +175,13 @@ get_retained_catch <- function(timeseries, units_of_catch) {
     into = c("Units", "Fleet"),
     sep = ":_", convert = TRUE
   )
+  
+  retain_catch_df <- retain_catch_df %>% 
+    dplyr::group_by(Yr, Era, Seas, Units, Fleet) %>% 
+    dplyr::summarise(retained_catch = sum(retained_catch)) %>% 
+    dplyr::select(Yr, Era, Seas, Units, Fleet, retained_catch)
   # units are not as concise as they could be, but leave for now.
+  retain_catch_df
 }
 
 #' Get dead catch from the timeseries Report.sso table
@@ -200,7 +206,7 @@ get_dead_catch <- function(timeseries, units_of_catch) {
     assertive.base::assert_all_are_true(fleet_names == names(units_of_catch))
   }
 
-  # calc retained catch
+  # calc dead catch
   units_catch_string <- ifelse(units_of_catch == 1, "B", "N")
   dead_catch_colnames <- paste0(
     "dead(", units_catch_string, "):_",
@@ -210,7 +216,7 @@ get_dead_catch <- function(timeseries, units_of_catch) {
   dead_catch_colnames <- dead_catch_colnames[
     dead_catch_colnames %in% colnames(timeseries)
   ]
-
+  browser()
   # switch from wide to long format.
   dead_catch_df <- timeseries[, c("Yr", "Era", "Seas", dead_catch_colnames)]
   dead_catch_df <- tidyr::gather(dead_catch_df,
@@ -228,5 +234,9 @@ get_dead_catch <- function(timeseries, units_of_catch) {
     into = c("Units", "Fleet"),
     sep = ":_", convert = TRUE
   )
+  dead_catch_df <- dead_catch_df %>% 
+    dplyr::group_by(Yr, Era, Seas, Units, Fleet) %>% 
+    dplyr::summarise(retained_catch = sum(retained_catch)) %>% 
+    dplyr::select(Yr, Era, Seas, Units, Fleet, retained_catch)
   # units are not as concise as they could be, but leave for now.
 }

@@ -57,7 +57,8 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
     if(!all(ctl[["time_vary_auto_generation"]] == 1)) {
       warning("Turning off autogeneration of time varying lines in the control file of the EM")
       ctl[["time_vary_auto_generation"]] <- rep(1, times = 5)
-      SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]))
+      r4ss::SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]),
+                        overwrite = TRUE)
     }
   } else {
     if (!is.null(sample_struct)) {
@@ -151,8 +152,9 @@ get_EM_catch_df <- function(EM_dir, dat) {
   units <- dat[["fleetinfo"]]
   units[["survey_number"]] <- seq_len(nrow(units))
   flt_units <- units[units[["type"]] %in% c(1, 2), c("survey_number", "units")]
-  # for multi area model, need to add area
-  # may also need to consider if the catch multiplier is used..
+  # for multi-area models, need to summarize across areas (note a fleet 
+  # only operates in 1 area)
+  # may also need to consider if the catch multiplier is used.
   # match catch with the units
   unit_key <- data.frame(unit_name = c("B", "N"), units = 1:2)
   flt_units <- merge(flt_units, unit_key, all.x = TRUE, all.y = FALSE)
@@ -165,7 +167,12 @@ get_EM_catch_df <- function(EM_dir, dat) {
   bio_df_list <- vector(mode = "list", length = nrow(flt_units))
   F_df_list <- vector(mode = "list", length = nrow(flt_units))
   for (fl in seq_len(nrow(flt_units))) {
-    # find which row to get fleet unit catch from. Right now, assume selected = retained,
+    # note for multi-area models, there is a row for each area and each fleet.
+    # will need to summarize  across areas (because fleets only operate in 1
+    # area , so this approach is fine for the quantities of interest)
+    
+    # find which row to get fleet unit catch from. Right now, assume selected = 
+    # retained,
     # i.e., no discards.
     tmp_col_lab <- paste0(
       "retain(", flt_units[["unit_name"]][fl], "):_",
@@ -195,6 +202,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
       }
     }
     df_list[[fl]] <- data.frame(
+      area = fcast_catch_df[["Area"]],
       year = fcast_catch_df[["Yr"]],
       seas = fcast_catch_df[["Seas"]],
       fleet = flt_units[["survey_number"]][fl],
@@ -203,6 +211,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
     )
     
     bio_df_list[[fl]] <- data.frame(
+      area = fcast_catch_df[["Area"]],
       year = fcast_catch_df[["Yr"]],
       seas = fcast_catch_df[["Seas"]],
       fleet = flt_units[["survey_number"]][fl],
@@ -211,6 +220,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
     )
     
     F_df_list[[fl]] <- data.frame(
+      area = fcast_catch_df[["Area"]],
       year = fcast_catch_df[["Yr"]],
       seas = fcast_catch_df[["Seas"]],
       fleet = flt_units[["survey_number"]][fl],
@@ -221,6 +231,26 @@ get_EM_catch_df <- function(EM_dir, dat) {
   catch_df <- do.call("rbind", df_list)
   catch_bio_df <- do.call("rbind", bio_df_list)
   catch_F_df <- do.call("rbind", F_df_list)
+  
+  #sum across area - this is necessary fo a multiarea model
+  catch_df <- catch_df %>% 
+                dplyr::group_by(year, seas, fleet) %>% 
+                dplyr::summarise(catch = sum(catch)) %>%
+                merge(se, all.x = TRUE, all.y = FALSE) %>% 
+                dplyr::ungroup() %>% 
+                dplyr::select(year, seas, fleet, catch, catch_se)
+  catch_bio_df <- catch_bio_df %>% 
+    dplyr::group_by(year, seas, fleet) %>% 
+    dplyr::summarise(catch = sum(catch)) %>%
+    merge(se, all.x = TRUE, all.y = FALSE) %>% 
+    dplyr::ungroup() %>% 
+    dplyr::select(year, seas, fleet, catch, catch_se)
+  catch_F_df <- catch_F_df %>% 
+    dplyr::group_by(year, seas, fleet) %>% 
+    dplyr::summarise(catch = sum(catch)) %>%
+    merge(se, all.x = TRUE, all.y = FALSE) %>% 
+    dplyr::ungroup() %>% 
+    dplyr::select(year, seas, fleet, catch, catch_se)
   
   # get discard, if necessary
   if (dat[["N_discard_fleets"]] > 0) {
