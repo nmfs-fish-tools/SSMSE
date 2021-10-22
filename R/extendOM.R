@@ -322,8 +322,8 @@ update_OM <- function(OM_dir,
 
       search_loops <- search_loops + 1
 
-      # Run SS with the new catch set as forecast targets. This will use SS to
-      # calculate the F required in the OM to achieve these catches.
+      # Run SS without estimation with the new catch set as forecast targets. 
+      # This will use SS to calculate the F required in the OM to achieve these catches.
       run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess",
         verbose = verbose,
         debug_par_run = TRUE
@@ -334,7 +334,7 @@ update_OM <- function(OM_dir,
         covar = FALSE, warn = FALSE, readwt = FALSE
       )
 
-      # Extract the achieved F and Catch
+      # Extract the achieved F and Catch from the last run of the model.
       F_list <- get_F(
         timeseries = outlist[["timeseries"]],
         fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
@@ -348,16 +348,24 @@ update_OM <- function(OM_dir,
         timeseries = outlist[["timeseries"]],
         units_of_catch = units_of_catch
       )
-
+      #note: the column in here is named retained_catch, 
+      # but it is just mislabeled. Should be relabeled to dead_catch.
       dead_catch <- get_dead_catch(
         timeseries = outlist[["timeseries"]],
-        units_of_catch = units_of_catch
-      )
-
+        units_of_catch = units_of_catch)
       F_achieved <- F_list[["F_df"]][, c("Yr", "Seas", "Fleet", "F")]
       colnames(F_achieved) <- c("year", "seas", "fleet", "F")
+      # for multiarea mdels, tehre will be 1 line per area, so need to sum
+      # each fleet only operates in 1 area so that is why summing the Fs should
+      # be ok.
+      F_achieved <- F_achieved %>% 
+        dplyr::group_by(.data[["year"]], .data$seas, .data$fleet) %>% 
+        dplyr::summarise(`F` = sum(.data$`F`)) %>% 
+        dplyr::select(.data$year, .data$seas, .data$fleet, .data$`F`)
+      F_achieved <- as.data.frame(F_achieved)
+      
 
-      for (i in 1:length(catch_intended[, 1])) {
+      for (i in seq_along(catch_intended[,"year"])) {
         scale_ratio <- catch_intended[i, "basis"]
 
         if (catch_intended[i, "basis"] == 1) {
@@ -419,8 +427,9 @@ update_OM <- function(OM_dir,
           }
         }
       }
-    } else {
+    } else { # this means the tolerance is within the range, or 20 iterations was reached.
       achieved_Catch <- TRUE
+      #TODO: find part in above loop causing issues
 
       parlist <- r4ss::SS_readpar_3.30(
         parfile = file.path(OM_dir, "ss.par"),

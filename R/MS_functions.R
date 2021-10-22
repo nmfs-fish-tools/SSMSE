@@ -234,23 +234,27 @@ get_EM_catch_df <- function(EM_dir, dat) {
   
   #sum across area - this is necessary fo a multiarea model
   catch_df <- catch_df %>% 
-                dplyr::group_by(year, seas, fleet) %>% 
-                dplyr::summarise(catch = sum(catch)) %>%
+                dplyr::group_by(.data$year, .data$seas, .data$fleet) %>% 
+                dplyr::summarise(catch = sum(.data$catch)) %>%
                 merge(se, all.x = TRUE, all.y = FALSE) %>% 
                 dplyr::ungroup() %>% 
-                dplyr::select(year, seas, fleet, catch, catch_se)
+                dplyr::select(.data$year, .data$seas, .data$fleet, .data$catch, .data$catch_se)
   catch_bio_df <- catch_bio_df %>% 
-    dplyr::group_by(year, seas, fleet) %>% 
-    dplyr::summarise(catch = sum(catch)) %>%
+    dplyr::group_by(.data$year, .data$seas, .data$fleet) %>% 
+    dplyr::summarise(catch = sum(.data$catch)) %>%
     merge(se, all.x = TRUE, all.y = FALSE) %>% 
     dplyr::ungroup() %>% 
-    dplyr::select(year, seas, fleet, catch, catch_se)
+    dplyr::select(.data$year, .data$seas, .data$fleet, .data$catch, .data$catch_se)
   catch_F_df <- catch_F_df %>% 
-    dplyr::group_by(year, seas, fleet) %>% 
-    dplyr::summarise(catch = sum(catch)) %>%
+    dplyr::group_by(.data$year, .data$seas, .data$fleet) %>% 
+    dplyr::summarise(catch = sum(.data$catch)) %>%
     merge(se, all.x = TRUE, all.y = FALSE) %>% 
     dplyr::ungroup() %>% 
-    dplyr::select(year, seas, fleet, catch, catch_se)
+    dplyr::select(.data$year, .data$seas, .data$fleet, .data$catch, .data$catch_se)
+  
+  catch_df <- as.data.frame(catch_df)
+  catch_bio_df <- as.data.frame(catch_bio_df)
+  catch_F_df <- as.data.frame(catch_F_df)
   
   # get discard, if necessary
   if (dat[["N_discard_fleets"]] > 0) {
