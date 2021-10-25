@@ -1,0 +1,8 @@
+# Run r cmd check
+on: [push, pull_request]
+
+name: call-r-cmd-check
+
+jobs:
+  call-workflow:
+    uses: k-doering-NOAA/reusable-workflows/.github/workflows/r-cmd-check.yml@main
