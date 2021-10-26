@@ -304,13 +304,16 @@ update_OM <- function(OM_dir,
   catch_intended <- catch_intended[catch_intended[, "catch"] > 0, , drop = FALSE]
   catch_intended <- catch_intended[catch_intended[, "F"] > 0, , drop = FALSE]
 
-  search_log <- catch_intended[,c("year","seas","fleet", "catch_targ", "F_targ", "catch_imp", "F_imp",rep(c("catch_imp", "F_imp", "F_imp"),20))]#n_F_search_loops))]
-  colnames(search_log)[1:7] <-c("year","seas","fleet", "catch_target", "F_target", "catch_implemented", "F_implemented")
-  for(i in 1:20){#n_F_search_loops){
-    colnames(search_log)[(1:3)+7+(i-1)*3]<-c(paste0("catch_achieved_",i),paste0("F_achieved_",i),paste0("F_update_",i))
-    search_log[,(1:3)+7+(i-1)*3]<-NA
+  if(length(catch_intended[,1])>0){
+    search_log <- catch_intended[,c("year","seas","fleet", "catch_targ", "F_targ", "catch_imp", "F_imp",rep(c("catch_imp", "F_imp", "F_imp"),20))]#n_F_search_loops))]
+    colnames(search_log)[1:7] <-c("year","seas","fleet", "catch_target", "F_target", "catch_implemented", "F_implemented")
+    for(i in 1:20){#n_F_search_loops){
+      colnames(search_log)[(1:3)+7+(i-1)*3]<-c(paste0("catch_achieved_",i),paste0("F_achieved_",i),paste0("F_update_",i))
+      search_log[,(1:3)+7+(i-1)*3]<-NA
+    }
+  }else{
+    search_log<-catch_intended[,c("year","seas","fleet", "catch_targ", "F_targ", "catch_imp", "F_imp")]
   }
-  
   # dat[["catch"]] <-  dat[["catch"]][dat[["catch"]][,"catch"]>0,]
   # parlist[["F_rate"]] <- parlist[["F_rate"]][parlist[["F_rate"]][,"F"]>0,]
 
