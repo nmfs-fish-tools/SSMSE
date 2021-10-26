@@ -89,16 +89,19 @@ update_OM <- function(OM_dir,
     warn = FALSE
   )
 
-
+    
   # first run OM with catch as projection to calculate the true F required to achieve EM catch in OM  # SINGLE_RUN_MODS: delete
   # Apply implementation error to the catches before it is added to the OM
   # modify forecast file ----
 
   catch_intended <- rbind(catch, harvest_rate)
   catch_intended <- catch_intended[!duplicated(catch_intended[, 1:3]), ]
-  catch_intended <- cbind(catch_intended, catch_intended[, "catch"], catch_intended[, "catch"], rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1.5, length(catch_intended[, "catch"])), rep(2, length(catch_intended[, "catch"])))
-  colnames(catch_intended) <- c("year", "seas", "fleet", "catch", "F", "F_ref", "Catch_ref", "basis", "basis_2", "scale", "F_lim", "last_adjust")
+  catch_intended <- cbind(catch_intended, catch_intended[, "catch"], catch_intended[, "catch"], rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1.5, length(catch_intended[, "catch"])), rep(2, length(catch_intended[, "catch"])), catch_intended[, "catch"], catch_intended[, "catch"], catch_intended[, "catch"], catch_intended[, "catch"])
+  colnames(catch_intended) <- c("year", "seas", "fleet", "catch", "F", "F_ref", "Catch_ref", "basis", "basis_2", "scale", "F_lim", "last_adjust", "catch_targ", "F_targ", "catch_imp", "F_imp")
+  
+  
   for (i in seq_along(catch_intended[, "catch"])) {
+   
     if (!is.null(F_limit)) {
       F_lim <- F_limit[(F_limit[, "year"] == catch_intended[i, "year"]) &
         (F_limit[, "seas"] == catch_intended[i, "seas"]) &
@@ -146,25 +149,34 @@ update_OM <- function(OM_dir,
         parlist[["F_rate"]][, c("seas")] == catch_intended[i, c("seas")] &
         parlist[["F_rate"]][, c("fleet")] == catch_intended[i, c("fleet")])
     } else {
-      catch_intended[i, "F_ref"] <- NA
+      catch_intended[i, "F_ref"] <- 0
     }
 
     catch_intended[i, "Catch_ref"] <- which(dat[["catch"]][, c("year")] == catch_intended[i, c("year")] &
       dat[["catch"]][, c("seas")] == catch_intended[i, c("seas")] &
       dat[["catch"]][, c("fleet")] == catch_intended[i, c("fleet")])
-
-    if (is.na(catch_intended[i, "F_ref"])) {
+    
+    if (is.na(catch_intended[i, "Catch_ref"])){
+      catch_intended[i, "Catch_ref"] <- 0
+    }
+    
+    if (is.na(catch_intended[i, "F_ref"])){
+      catch_intended[i, "F_ref"] <- 0
+    }
+    
+    if (is.na(catch_intended[i, "F_ref"]) | catch_intended[i, "F_ref"]==0) {
       catch_intended[i, "F"] <- 0
     } else {
       catch_intended[i, "F"] <- parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"]
     }
 
-    if (is.na(catch_intended[i, "Catch_ref"])) {
+    if (is.na(catch_intended[i, "Catch_ref"]) | catch_intended[i, "Catch_ref"]==0) {
       catch_intended[i, "catch"] <- 0
     } else {
       catch_intended[i, "catch"] <- dat[["catch"]][catch_intended[i, "Catch_ref"], "catch"]
     }
 
+    
     if (!is.null(catch)) {
       temp_catch <- catch[catch[, "year"] == catch_intended[i, "year"] &
         catch[, "seas"] == catch_intended[i, "seas"] &
@@ -205,13 +217,20 @@ update_OM <- function(OM_dir,
 
       if (catch_intended[i, "basis"] == 2) {
         catch_intended[i, "catch"] <- max(last_catch, 0.01) * (1 - exp(-catch_intended[i, "F"])) / (1 - exp(-max(last_F, 0.01)))
+      }else if (catch_intended[i, "basis"] == 1){
+        if(catch_intended[i, "catch"]>0){
+          catch_intended[i, "F"] <- max(0.01,catch_intended[i, "F"])
+        }else{
+          catch_intended[i, "catch"]<-0
+          catch_intended[i, "F"]<-0
+        }
       }
     } else {
       if (last_catch <= 0) {
         if (catch_intended[i, "catch"] == 0) {
           catch_intended[i, "F"] <- 0
         } else {
-          if (last_F == 0) {
+          if (last_F <= 0.01) {
             catch_intended[i, "F"] <- 0.01
           } else {
             catch_intended[i, "F"] <- last_F
@@ -222,42 +241,76 @@ update_OM <- function(OM_dir,
       }
     }
 
-
+    catch_intended[i, c("catch_targ", "F_targ")] <- catch_intended[i, c("catch", "F")]
+    catch_intended[i, c("catch_imp", "F_imp")] <- catch_intended[i, c("catch", "F")]
     if (!is.null(impl_error)) {
+      #This code is here as a place holder if we eventually update to fleet and season specific implementation error
       # temp_impl_error <- impl_error[impl_error[,"year"]==temp_catch[i,"year"] &
       #                               impl_error[,"seas"]==temp_catch[i,"seas"] &
       #                               impl_error[,"fleet"]==temp_catch[i,"fleet"] ,"error"]
       temp_impl_error <- impl_error[impl_error[, "year"] == catch_intended[i, "year"], "error"]
       if (length(temp_impl_error) == 1) {
         if (temp_impl_error >= 0) {
-          catch_intended[i, c("catch", "F")] <- catch_intended[i, c("catch", "F")] * temp_impl_error
+          catch_intended[i, c("catch_imp", "F_imp")] <- catch_intended[i, c("catch", "F")] * temp_impl_error
         }
       }
     }
-    if (!is.na(catch_intended[i, "Catch_ref"])) {
-      dat[["catch"]][catch_intended[i, "Catch_ref"], "catch"] <- catch_intended[i, "catch"]
-      if (catch_intended[i, "catch"] == 0) {
-        dat[["catch"]] <- dat[["catch"]][-catch_intended[i, "Catch_ref"], ]
-        catch_intended[i, "Catch_ref"] <- NA
-      }
+    
+    if(catch_intended[i, "catch"]==0){
+      catch_intended[i, "F"]<-0
     }
-    if (!is.na(catch_intended[i, "F_ref"])) {
-      parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] <- catch_intended[i, "F"]
-      if (catch_intended[i, "F"] == 0) {
-        parlist[["F_rate"]] <- parlist[["F_rate"]][-catch_intended[i, "F_ref"], ]
-        catch_intended[i, "F_ref"] <- NA
-      }
+    if(catch_intended[i, "F"]==0){
+      catch_intended[i, "catch"]<-0
     }
-
-    if (catch_intended[i, "catch"] == 0 | catch_intended[i, "F"] == 0) {
-      catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "Catch_ref"] <- pmax(0, catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "Catch_ref"] - 1)
-      catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "F_ref"] <- pmax(0, catch_intended[catch_intended[, "year"] > catch_intended[i, "year"], "F_ref"] - 1)
+    
+    if (!is.na(catch_intended[i, "Catch_ref"]) & catch_intended[i, "Catch_ref"]>0) {
+      if(is.na(catch_intended[i, "F_ref"]) | catch_intended[i, "Catch_ref"]==0){
+        stop("Error in catch search OM has catch reference but no F reference. This is a likely a bug please contact developers for support")
+      }else{
+        if (catch_intended[i, "catch"] == 0) {
+          if(catch_intended[i, "F"] != 0){
+            stop("Catch is 0 but F isn't. This is a likely a bug please contact developers for support")
+          }else{
+            # dat[["catch"]] <- dat[["catch"]][-catch_intended[i, "Catch_ref"], ]
+            # parlist[["F_rate"]] <- parlist[["F_rate"]][-catch_intended[i, "F_ref"], ]
+            # 
+            # if(length(catch_intended[catch_intended[, "Catch_ref"] > catch_intended[i, "Catch_ref"], "Catch_ref"])>0){
+            #   catch_intended[catch_intended[, "Catch_ref"] > catch_intended[i, "Catch_ref"], "Catch_ref"] <- catch_intended[catch_intended[, "Catch_ref"] > catch_intended[i, "Catch_ref"], "Catch_ref"] - 1
+            #   catch_intended[catch_intended[, "F_ref"] > catch_intended[i, "F_ref"], "F_ref"] <- catch_intended[catch_intended[, "F_ref"] > catch_intended[i, "F_ref"], "F_ref"] - 1
+            # }
+            # catch_intended[i, "Catch_ref"] <- 0
+            # catch_intended[i, "F_ref"] <- 0
+            dat[["catch"]][catch_intended[i, "Catch_ref"], "catch"] <- 0.001
+            parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] <- 0
+          }
+        }else{
+          if(catch_intended[i, "F"] == 0){
+            stop("F is 0 but Catch isn't. This is a likely a bug please contact developers for support")
+          }else{
+            dat[["catch"]][catch_intended[i, "Catch_ref"], "catch"] <- catch_intended[i, "catch"]
+            parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] <- catch_intended[i, "F"]
+          }
+        } 
+      }
+    }else{
+      if (!is.na(catch_intended[i, "F_ref"]) & catch_intended[i, "F_ref"]>0) {
+        stop("Error in catch search OM has F reference but no Catch reference. This is a likely a bug please contact developers for support")
+      }
     }
   }
 
+  
+  
   catch_intended <- catch_intended[catch_intended[, "catch"] > 0, , drop = FALSE]
   catch_intended <- catch_intended[catch_intended[, "F"] > 0, , drop = FALSE]
 
+  search_log <- catch_intended[,c("year","seas","fleet", "catch_targ", "F_targ", "catch_imp", "F_imp",rep(c("catch_imp", "F_imp", "F_imp"),20))]#n_F_search_loops))]
+  colnames(search_log)[1:7] <-c("year","seas","fleet", "catch_target", "F_target", "catch_implemented", "F_implemented")
+  for(i in 1:20){#n_F_search_loops){
+    colnames(search_log)[(1:3)+7+(i-1)*3]<-c(paste0("catch_achieved_",i),paste0("F_achieved_",i),paste0("F_update_",i))
+    search_log[,(1:3)+7+(i-1)*3]<-NA
+  }
+  
   # dat[["catch"]] <-  dat[["catch"]][dat[["catch"]][,"catch"]>0,]
   # parlist[["F_rate"]] <- parlist[["F_rate"]][parlist[["F_rate"]][,"F"]>0,]
 
@@ -298,6 +351,8 @@ update_OM <- function(OM_dir,
     achieved_Catch <- TRUE
   }
   search_loops <- 0
+  
+  
   while (achieved_Catch == FALSE) {
     if (max(abs(catch_intended[, "last_adjust"] - 1)) > 0.001 & search_loops < 20) {
       achieved_Catch <- FALSE
@@ -359,7 +414,10 @@ update_OM <- function(OM_dir,
               dead_catch[, "Seas"] == catch_intended[i, "seas"] &
               dead_catch[, "Fleet"] == catch_intended[i, "fleet"], "retained_catch"]
           } else {
-            stop("intended basis 2 should be equal to 1 or 2 but it is not")
+            stop(paste0("intended basis 2 should be equal to 1 or 2 but it is not. 
+                             This occured for fleet ",catch_intended[i, "fleet"]," 
+                             in year ",catch_intended[i, "year"]," 
+                             and season ",catch_intended[i, "seas"],"."))
           }
 
           achieved_F <- F_achieved[F_achieved[, "year"] == catch_intended[i, "year"] &
@@ -371,12 +429,17 @@ update_OM <- function(OM_dir,
           } else if (achieved_landings == 0) {
             if (achieved_F > 0) {
               catch_intended[i, "basis_2"] <- 2
+              warning(paste0("It appears that you set a fleet basis to retianed catch for a discard only fleet if that is not the case something is wrong.
+                      We automaticaly changed your basis to total dead catch to compensate and allow convervence. 
+                             This occured for fleet ",catch_intended[i, "fleet"]," 
+                             in year ",catch_intended[i, "year"]," 
+                             and season ",catch_intended[i, "seas"],"."))
             } else {
               target_F <- catch_intended[i, "F"] + 0.01
               catch_intended[i, "F"] <- target_F
             }
           } else {
-            target_F <- (-log(1 - ((intended_landings / achieved_landings) * (1 - exp(-achieved_F)))))
+            target_F <- (intended_landings / achieved_landings)*achieved_F#(-log(1 - ((intended_landings / achieved_landings) * (1 - exp(-achieved_F)))))
           }
         } else if (catch_intended[i, "basis"] == 2) {
           target_F <- catch_intended[i, "F"]
@@ -385,7 +448,10 @@ update_OM <- function(OM_dir,
             F_achieved[, "seas"] == catch_intended[i, "seas"] &
             F_achieved[, "fleet"] == catch_intended[i, "fleet"], "F"]
         } else {
-          stop("Something is wrong basis should be 1 or 2")
+          stop(paste0("Something is wrong basis should be 1 or 2. 
+                             This occured for fleet ",catch_intended[i, "fleet"]," 
+                             in year ",catch_intended[i, "year"]," 
+                             and season ",catch_intended[i, "seas"],"."))
         }
 
         if (target_F == 0) {
@@ -396,15 +462,22 @@ update_OM <- function(OM_dir,
           catch_intended[i, "scale"] <- 1
         } else {
           catch_intended[i, "last_adjust"] <- target_F / achieved_F
-          catch_intended[i, "scale"] <- catch_intended[i, "scale"] * ((target_F / achieved_F) - 1) * (1 - exp(stats::runif(1, -5, 0)))
+          catch_intended[i, "scale"] <- ((target_F / achieved_F) - 1)*runif(1,0.75,1)+1 #catch_intended[i, "scale"] * ((target_F / achieved_F) - 1) * (1 - exp(stats::runif(1, -5, 0)))
         }
 
         if (!is.na(catch_intended[i, "F_ref"])) {
-          parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] <- max(0, min(catch_intended[i, "F"] * catch_intended[i, "scale"], catch_intended[i, "F_lim"]))
+          parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] <- max(0, min(achieved_F * catch_intended[i, "scale"], catch_intended[i, "F_lim"]))
           if (parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] == 0 | parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"] == catch_intended[i, "F_lim"]) {
             catch_intended[i, "last_adjust"] <- 1
           }
+        }else{
+          stop(paste0("Error NA F_refs should have been removed already someing is wrong. 
+                      This occured for fleet ",catch_intended[i, "fleet"]," 
+                      in year ",catch_intended[i, "year"]," 
+                      and season ",catch_intended[i, "seas"],"."))
         }
+        
+        search_log[i,(1:3)+7+(search_loops-1)*3]<-c(achieved_landings,achieved_F,parlist[["F_rate"]][catch_intended[i, "F_ref"], "F"])
       }
     } else {
       achieved_Catch <- TRUE
@@ -415,15 +488,32 @@ update_OM <- function(OM_dir,
         verbose = FALSE
       )
 
-      if (search_loops == 20) {
-        utils::write.csv("The catch search loop ran for 20 iterations without achieving targets",
-          file = file.path(OM_dir, "search_took_too_long.csv")
+      
+      if(file.exists(file.path(OM_dir, "OM_catch_search_log.csv"))){
+        utils::write.table(x=search_log,
+                        file = file.path(OM_dir, "OM_catch_search_log.csv"),
+                        append = TRUE,
+                        row.names = FALSE,
+                        col.names = FALSE,
+                        sep=",",
+                        dec=".",
+                        qmethod="double"
+        )
+      }else{
+        utils::write.table(x=search_log,
+                        file = file.path(OM_dir, "OM_catch_search_log.csv"),
+                        append = TRUE,
+                        row.names = FALSE,
+                        col.names = TRUE,
+                        sep=",",
+                        dec=".",
+                        qmethod="double"
         )
       }
+        
+      
     }
   }
-
-  # TODO: need to add code to overwrite OM parameter devs if updates are input from a custom EM
 
   invisible(dat)
 }
