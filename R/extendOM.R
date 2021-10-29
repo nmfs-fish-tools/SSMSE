@@ -99,7 +99,6 @@ update_OM <- function(OM_dir,
   catch_intended <- cbind(catch_intended, catch_intended[, "catch"], catch_intended[, "catch"], rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1, length(catch_intended[, "catch"])), rep(1.5, length(catch_intended[, "catch"])), rep(2, length(catch_intended[, "catch"])), catch_intended[, "catch"], catch_intended[, "catch"], catch_intended[, "catch"], catch_intended[, "catch"])
   colnames(catch_intended) <- c("year", "seas", "fleet", "catch", "F", "F_ref", "Catch_ref", "basis", "basis_2", "scale", "F_lim", "last_adjust", "catch_targ", "F_targ", "catch_imp", "F_imp")
   
-  
   for (i in seq_along(catch_intended[, "catch"])) {
    
     if (!is.null(F_limit)) {
@@ -211,12 +210,16 @@ update_OM <- function(OM_dir,
             }
           }
         } else {
-          catch_intended[i, "F"] <- (-log(1 - ((catch_intended[i, "catch"] / max(last_catch, 0.01)) * (1 - exp(-max(last_F, 0.01))))))
+          if (last_F <= 0) {
+            catch_intended[i, "F"] <- 0.01
+          } else{
+            catch_intended[i, "F"] <- min(((catch_intended[i, "catch"] / max(last_catch, 0.01)) * (max(last_F, 0.01))),0.3)
+          }
         }
       }
 
       if (catch_intended[i, "basis"] == 2) {
-        catch_intended[i, "catch"] <- max(last_catch, 0.01) * (1 - exp(-catch_intended[i, "F"])) / (1 - exp(-max(last_F, 0.01)))
+        catch_intended[i, "catch"] <- max(last_catch, 0.01) * ((catch_intended[i, "F"]) / (max(last_F, 0.01)))
       }else if (catch_intended[i, "basis"] == 1){
         if(catch_intended[i, "catch"]>0){
           catch_intended[i, "F"] <- max(0.01,catch_intended[i, "F"])
@@ -237,7 +240,11 @@ update_OM <- function(OM_dir,
           }
         }
       } else {
-        catch_intended[i, "F"] <- (-log(1 - ((catch_intended[i, "catch"] / max(last_catch, 0.01)) * (1 - exp(-max(last_F, 0.01))))))
+        if (last_F <= 0) {
+          catch_intended[i, "F"] <- 0.01
+        } else{
+          catch_intended[i, "F"] <- min(((catch_intended[i, "catch"] / max(last_catch, 0.01)) * (max(last_F, 0.01))),0.3)
+        }
       }
     }
 
