@@ -211,14 +211,21 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
     verbose = FALSE,
     section = 1
   )
+  OM_ctl <- SS_readctl(file.path(OM_out_dir, OM_start[["ctlfile"]]), 
+    datlist = OM_dat, 
+    verbose = FALSE
+  )
   if (!is.null(EM_out_dir)) {
     EM_start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
       verbose = FALSE
     )
     EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start[["datfile"]]), verbose = FALSE)
+    
+    EM_ctl <- SS_readctl(file.path(EM_out_dir, EM_start[["ctlfile"]]), datlist = EM_dat, verbose = FALSE)
   } else {
     EM_start <- NULL
     EM_dat <- NULL
+    EM_ctl <- NULL
   }
   # model start and end yr should be the same for both
   styr <- OM_dat[["styr"]]
@@ -266,6 +273,51 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
     styr = styr, endyr = endyr
   )
 
+  
+  if (!is.null(OM_ctl)) {
+    if (!is.null(OM_ctl$Variance_adjustment_list)) {
+      if(length(OM_ctl$Variance_adjustment_list[,1])>0){
+        warning(
+          "Original OM model files have variance adjustment factors specified.",
+          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "If you didn't do this intentionally we suggest turning of variance adjustments."
+        )
+      }
+    }
+    
+    if (!is.null(OM_ctl$Q_options)) {
+      if(sum(OM_ctl$Q_options$extra_se)>0){
+        warning(
+          "Original OM model files have extra SE added to catchability specified.",
+          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "If you didn't do this intentionally we suggest turning of variance adjustments."
+        )
+      }
+    }
+  }
+  
+  if (!is.null(EM_ctl)) {
+    if (!is.null(EM_ctl$Variance_adjustment_list)) {
+      if(length(EM_ctl$Variance_adjustment_list[,1])>0){
+        warning(
+          "Original EM model files have variance adjustment factors specified.",
+          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "If you didn't do this intentionally we suggest turning of variance adjustments."
+        )
+      }
+    }
+    
+    if (!is.null(EM_ctl$Q_options)) {
+      if(sum(EM_ctl$Q_options$extra_se)>0){
+        warning(
+          "Original EM model files have extra SE added to catchability specified.",
+          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "If you didn't do this intentionally we suggest turning of variance adjustments."
+        )
+      }
+    }
+  }
+  
   if (!is.null(EM_dat)) {
     if (EM_start[["init_values_src"]] == 1) {
       warning(
