@@ -71,6 +71,8 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
   # which environment the function is in?
   # check output before returning
   check_catch_df(new_catch_list[["catch"]])
-  # TODO add check for discard?
+  if(isTRUE(!is.null(new_catch_list[["discards"]]))){
+    warning("Discards are not added into the OM for SSMSE currently.")
+  }
   new_catch_list
 }
