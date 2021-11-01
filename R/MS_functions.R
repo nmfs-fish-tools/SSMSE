@@ -60,11 +60,6 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
       r4ss::SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]),
                         overwrite = TRUE)
     }
-    if(isTRUE(!is.null(ctl[["Variance_adjustment_list"]]))) {
-      warning("Variance adjustments are included in the estimation model.\n",
-              "Variance adjustments will change the sample size stdev/nsamp from what\n",
-              "was specified in sample_strut_list")
-    }
   } else {
     if (!is.null(sample_struct)) {
       sample_struct_sub <- lapply(sample_struct,

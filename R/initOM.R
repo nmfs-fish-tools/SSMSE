@@ -100,14 +100,7 @@ create_OM <- function(OM_out_dir,
       "recommended over method 1)."
     )
   }
-  if(isTRUE(!is.null(ctl[["Variance_adjustment_list"]]))) {
-    warning("Variance adjustments are included in the operating model.\n",
-    "Variance adjustments will change the sample size stdev/nsamp from what\n",
-    "was specified in sample_strut_list")
-  }
-  if (isTRUE(!is.null(ctl[["lambdas"]]))) {
-    warning("Lamdas are included in the opearting model")
-  }
+
 
   # modify forecast file ----
   currentNforecast <- forelist[["Nforecastyrs"]]
