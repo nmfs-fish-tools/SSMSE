@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2021-10-20" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -356,13 +356,13 @@ The basic steps are contained in functions:</p>
 <li>The OM is created with create_OM()</li>
 <li>run_OM() runs the OM and creates the dataset to pass to the management strategy</li>
 <li>Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.</li>
+<li>Update_OM() is called, which puts catch into the operating model.</li>
+<li>run_OM() runs the OM and creates the dataset to pass to the management strategy</li>
+<li>Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.</li>
 <li>Determine if more years need to be projected. If yes, continue; if no, end simulation.</li>
-<li>Repeat steps 3-6.</li>
+<li>Repeat steps 5-8.
+<img src="images/ssmse_fxn_map.png" alt="The steps implemented in run_SSMSE() showing the functions called." /></li>
 </ol>
-<div class="figure">
-<img src="images/ssmse_fxn_map.png" alt="" />
-<p class="caption">The steps implemented in run_SSMSE() showing the functions called.</p>
-</div>
 <div id="conditioning-the-om-and-sampling-from-the-om" class="section level3" number="1.3.1">
 <h3><span class="header-section-number">1.3.1</span> Conditioning the OM and sampling from the OM</h3>
 <p>For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the “true” values and a bootstrapped data set from SS3. Note that any modifications to the OM’s parameters specified by the users as it is extended forward in time are also applied.</p>
@@ -377,7 +377,7 @@ The basic steps are contained in functions:</p>
 </div>
 <div id="subsequent-runs-of-the-management-strategy" class="section level3" number="1.3.4">
 <h3><span class="header-section-number">1.3.4</span> Subsequent runs of the management strategy</h3>
-<p>The appended data set is then used in the managment strategy again, and new catch by fleet is produced that can then be fed back to the OM.</p>
+<p>The appended data set is then used in the management strategy again, and new catch by fleet is produced that can then be fed back to the OM.</p>
 
 </div>
 </div>

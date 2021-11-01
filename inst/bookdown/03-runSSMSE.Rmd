@@ -30,7 +30,7 @@ In theory, any management strategy should work, as long as it can take the data 
 
 ### Specify the Management Strategy in a SS3 model
 
-An SS3 model can be set up as the EM for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS3 model as the EM, specify the path in `EM_in_dir_vec`.Note that models that use empirical weight at age can not yet be used as estimation models.
+An SS3 model can be set up as the EM for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS3 model as the EM, specify the path in `EM_in_dir_vec`.Note that models that use empirical weight at age can not yet be used as estimation models. Also, the .ss_new input files are used for an OM, while the original input files are used for the EM.
 
 Future catches will be determined from the forecasting file settings of the SS3 model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
 

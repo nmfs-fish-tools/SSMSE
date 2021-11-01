@@ -59,9 +59,11 @@ The basic steps are contained in functions:
 3. The OM is created with create_OM()
 4. run_OM() runs the OM and creates the dataset to pass to the management strategy
 5. Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.
-6. Determine if more years need to be projected. If yes, continue; if no, end simulation.
-7. Repeat steps 3-6.
-
+6. Update_OM() is called, which puts catch into the operating model.
+7. run_OM() runs the OM and creates the dataset to pass to the management strategy
+8. Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.
+9. Determine if more years need to be projected. If yes, continue; if no, end simulation.
+10. Repeat steps 5-8.
 ![The steps implemented in run_SSMSE() showing the functions called.](images/ssmse_fxn_map.png)
 
 ### Conditioning the OM and sampling from the OM
@@ -78,4 +80,4 @@ The catch for the next $n$ years before the next assessment is then added to the
 
 ### Subsequent runs of the management strategy
 
-The appended data set is then used in the managment strategy again, and new catch by fleet is produced that can then be fed back to the OM.
+The appended data set is then used in the management strategy again, and new catch by fleet is produced that can then be fed back to the OM.
