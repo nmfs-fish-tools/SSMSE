@@ -10,11 +10,10 @@
 add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
   # First check if their is any data to add if not just pass back the original files with end year updated
   if (!is.null(future_om_dat)) {
-
     # First check for recruitment deviation projections and implement them
     for (i in grep("rec_devs", names(future_om_dat))) {
-      if (!is.null(dat[["MainRdevYrLast"]])) {
-        late_years <- dat[["endyr"]] - dat[["MainRdevYrLast"]]
+      if (!is.null(ctl[["MainRdevYrLast"]])) {
+        late_years <- dat[["endyr"]] - ctl[["MainRdevYrLast"]]
       } else {
         late_years <- 0
       }

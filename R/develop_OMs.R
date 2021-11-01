@@ -1,6 +1,6 @@
 #' Develop different operating models
 #'
-#' THis is a utility to help a user create new operating models starting from the
+#' This is a utility to help a user create new operating models starting from the
 #' same model. For now, it is only possible to adjust 1 parameter value
 #' @template OM_name
 #' @template OM_in_dir
@@ -126,6 +126,12 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
         recdev_name <- "recdev2"
       }
       new_parfile[[recdev_name]][, "recdev"] <- parfile[[recdev_name]][, "recdev"]
+      
+      #add back original F estimates for F method 2 assessments otherwise they all default to 0.05
+      if(!is.null(new_parfile[["F_rate"]])){
+        new_parfile[["F_rate"]][, "F"] <- parfile[["F_rate"]][, "F"]
+      }
+      
       r4ss::SS_writepar_3.30(new_parfile,
         outfile = file.path(tmp_mod_path, "ss.par"),
         verbose = FALSE, overwrite = TRUE
