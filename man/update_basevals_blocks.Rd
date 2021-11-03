@@ -26,9 +26,9 @@ update_basevals_blocks(
 
 \item{current_par}{The index of the current parameter being updated}
 
-\item{ctl}{A control file as read in by r4ss::SS_readctl}
+\item{ctl}{A control file as read in by \code{r4ss::SS_readctl}.}
 
-\item{dat}{A datafile as read in by r4ss::SS_readdat}
+\item{dat}{A data file as read in by \code{r4ss::SS_readdat}.}
 
 \item{temp_ctl}{A subset of the control file representing the parameter section of interest (i.e. MG, SR, Q, or Selectivity)}
 

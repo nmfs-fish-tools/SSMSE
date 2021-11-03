@@ -2,7 +2,9 @@
 
 ## Purpose
 
-SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS) as an operating model (OM) in an Management Strategy Evaluation (MSE). The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
+SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS3) as an operating model (OM) in a [Management Strategy Evaluation (MSE)](https://doi.org/10.1139/cjfas-2019-0084). The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
+
+![The general workflow of using SSMSE](images/workflow_ssmse_noaa_branding.png)
 
 ## Functions in SSMSE {#funs}
 
@@ -25,9 +27,9 @@ Exported functions that can be used for writing [custom management strategies](#
 
 Function    | Description
 -----------  | ------------
-`run_EM()`       |  Run an SS estimation model (uses run_ss_model)
-`run_ss_model()` | Run an SS model
-`get_bin()`      | Get location of the SS binary.
+`run_EM()`       |  Run an SS3 estimation model (uses run_ss_model)
+`run_ss_model()` | Run an SS3 model
+`get_bin()`      | Get location of the SS3 binary.
 `parse_MS()`     | Function that runs the management strategy and returns catch by fleet for the projections. A reference function for those setting up custom management strategies. 
 
 Finally, some plotting functions are available:
@@ -37,11 +39,36 @@ Plotting Function | Description
 `plot_index_sampling()` | Plot to compare the sampled index values to the operating model expected values and original operating model conditioning index data.
 `plot_comp_sampling()`  | Plot to compare the sampled composition values to the operating model expected values and original operating model conditioning composition data.
 
-## Brief description of the SSMSE MSE simulation procedure
+## Brief description of the SSMSE MSE simulation procedure using `run_SSMSE()`
+
+In general, the steps for a scenario after calling run_SSMSE is:
+
+1. Create the OM
+2. Sample data from the OM
+3. Run management strategy
+4. Determine if more years need to be projected. If yes, continue; if no, end simulation.
+5. Update OM with n years of catch where n is the number of years between assessments
+6. Sample n years of data
+7. Repeat steps 3-6 until the end of the simulation.
+
+![The steps implemented by run_SSMSE in words](images/ssmse_1_iter.png)
+The basic steps are contained in functions:
+
+1. User calls run_SSMSE
+2. Steps for one iteration are passed to run_SSMSE_scen() and then run_SSMSE_iter().
+3. The OM is created with create_OM()
+4. run_OM() runs the OM and creates the dataset to pass to the management strategy
+5. Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.
+6. Update_OM() is called, which puts catch into the operating model.
+7. run_OM() runs the OM and creates the dataset to pass to the management strategy
+8. Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.
+9. Determine if more years need to be projected. If yes, continue; if no, end simulation.
+10. Repeat steps 5-8.
+![The steps implemented in run_SSMSE() showing the functions called.](images/ssmse_fxn_map.png)
 
 ### Conditioning the OM and sampling from the OM
 
-For each scenario, SSMSE starts with the user providing a fitted Stock Synthesis model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the "true" values and a bootstrapped data set from SS. Note that any modifications to the OM's parameters specified by the users as it is extended forward in time are also applied.
+For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the "true" values and a bootstrapped data set from SS3. Note that any modifications to the OM's parameters specified by the users as it is extended forward in time are also applied.
 
 ### First run of the management strategy in the MSE simulation
 
@@ -53,4 +80,4 @@ The catch for the next $n$ years before the next assessment is then added to the
 
 ### Subsequent runs of the management strategy
 
-The appended data set is then used in the managment strategy again, and new catch by fleet is produced that can then be fed back to the OM.
+The appended data set is then used in the management strategy again, and new catch by fleet is produced that can then be fed back to the OM.

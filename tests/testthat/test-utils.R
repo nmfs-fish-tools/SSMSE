@@ -21,6 +21,7 @@ test_that("create_scen_list works as expected", {
         nyrs_assess = 3,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = FALSE,
         interim_struct = NULL
       ),
     scen_2 =
@@ -37,6 +38,7 @@ test_that("create_scen_list works as expected", {
         nyrs_assess = 2,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = FALSE,
         interim_struct = NULL
       )
   )
@@ -54,6 +56,7 @@ test_that("create_scen_list works as expected", {
     nyrs_vec = c(6, 3),
     nyrs_assess_vec = c(3, 2),
     sample_struct_list = NULL,
+    sample_catch_vec = FALSE,
     interim_struct_list = NULL
   )
   # use expect equal because the names should be the same as well.
@@ -76,6 +79,7 @@ test_that("create_scen_list works with NAs", {
         nyrs_assess = 3,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = FALSE,
         interim_struct = NULL
       ),
     scen_2 =
@@ -92,6 +96,7 @@ test_that("create_scen_list works with NAs", {
         nyrs_assess = 2,
         sample_struct = NULL,
         sample_struct_hist = NULL,
+        sample_catch = TRUE,
         interim_struct = NULL
       )
   )
@@ -108,6 +113,7 @@ test_that("create_scen_list works with NAs", {
     nyrs_vec = c(6, 3),
     nyrs_assess_vec = c(3, 2),
     sample_struct_list = NULL,
+    sample_catch_vec = c(FALSE, TRUE),
     interim_struct_list = NULL
   )
   expect_equal(scen_list_out, scen_list)
@@ -379,7 +385,6 @@ test_that("create_out_dirs works as expected with an EM", {
     niter = 5,
     OM_name = "cod",
     OM_in_dir = NULL,
-    MS = "EM",
     EM_name = "cod",
     EM_in_dir = NULL
   )
@@ -395,7 +400,6 @@ test_that("create_out_dirs works as expected with an EM", {
     niter = 6,
     OM_name = "cod",
     OM_in_dir = NULL,
-    MS = "EM",
     EM_name = "custom_cod",
     EM_in_dir = cod_EM_in_dir
   )
@@ -410,7 +414,6 @@ test_that("create_out_dirs works as expected with an EM", {
     niter = 7,
     OM_name = "cod",
     OM_in_dir = NULL,
-    MS = "EM",
     EM_name = NULL,
     EM_in_dir = cod_EM_in_dir
   )
@@ -418,19 +421,6 @@ test_that("create_out_dirs works as expected with an EM", {
   expect_true(dir.exists(created_dir_name_3))
   expect_true(created_mod_3[["EM_out_dir"]] == created_dir_name_3)
   expect_true(created_mod_3[["EM_in_dir"]] == cod_EM_in_dir)
-  # EM not named, no path given for EM (expect error)
-  expect_error(create_out_dirs(
-    out_dir = out_dir,
-    niter = 8,
-    OM_name = "cod",
-    OM_in_dir = NULL,
-    MS = "EM",
-    EM_name = NULL,
-    EM_in_dir = NULL
-  ),
-  "Management Strategy (MS) is EM (estimation model), but both EM_name and EM_in_dir are null",
-  fixed = TRUE
-  )
 })
 
 

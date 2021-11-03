@@ -127,10 +127,10 @@ sample_struct_list_all <- list("h-ctl" = sample_struct_1_scen, "h-1" = sample_st
 We will use the same management procedure for both scenarios:
   
 1. Conduct a stock assessment every 3 years to get stock status.
-2. Project from this stock assessment using the SS forecast file to get projected future catch.
+2. Project from this stock assessment using the SS3 forecast file to get projected future catch.
 3. Put this projected catch (without implementation error, in the case of this example) back into the OM. Extend the OM forward in time to get the true values for the population.
 
-Let's take a look at step 2 in the management procedure, which is implemented using the forecasting module in SS. We will examine the forecast file for the estimation model to better understand how catches will be forecasted from the assessment. We will use the same management procedure in both of these scenarios, although for a full MSE analysis, it is likely that multiple management procedures would be compared.
+Let's take a look at step 2 in the management procedure, which is implemented using the forecasting module in SS3. We will examine the forecast file for the estimation model to better understand how catches will be forecasted from the assessment. We will use the same management procedure in both of these scenarios, although for a full MSE analysis, it is likely that multiple management procedures would be compared.
 
 ```{r See-Fore-Vals}
 fore <- r4ss::SS_readforecast(
@@ -160,7 +160,7 @@ fore$Nforecastyrs
 
 However, an assessment will be conducted every 3 years and thus 3 years of projections is required. SSMSE will automatically modify this value in the estimation model to the appropriate number of forecasting years.
 
-More information on using the forecast module in SS to forecast catches is available in the [Stock Synthesis users manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
+More information on using the forecast module in SS3 to forecast catches is available in the [Stock Synthesis users manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
 Users can also specify their own [custom management procedures]
 
@@ -194,7 +194,7 @@ See `?run_SSMSE` for more details on function arguments. In a real MSE analysis,
 
 `run_SSMSE` will create new folders in the folders specified in `out_dir_scen_vec` (note that in this case, we are running both scenarios in the same folder). After is complete, there will be a folder for each scenario in `run_res_path` (since `out_dir_scen_vec = run_res_path` in this example). Within each scenario is a folder for each scenario.
 
-And within each scenario folder, there are folders containing the SS models that were run by `run_SSMSE`.
+And within each scenario folder, there are folders containing the SS3 models that were run by `run_SSMSE`.
 
 There should be 1 folder for the OM, which is run multiple times in this same folder during the MSE analysis. There are multiple folders for the EMs, as a new folder is created each time an assessment is done. The first run is the folder with a name ending in `init`; then, each assessment after is named for the updated end year of the model.
 
@@ -334,7 +334,7 @@ We can see from the performance metric that mis-specifying the value of steepnes
 
 If you wish to delete the files created from this example, you can use:
 
-```{r, eval = FALSE}
+```{r delete-dir, results="hide"}
 unlink(run_SSMSE_dir, recursive = TRUE)
 ```
 # Advanced options: use a custom management strategy/procedure

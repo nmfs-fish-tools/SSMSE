@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2021-10-06" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -141,7 +141,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#purpose"><i class="fa fa-check"></i><b>1.1</b> Purpose</a></li>
 <li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#funs"><i class="fa fa-check"></i><b>1.2</b> Functions in SSMSE</a></li>
-<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure</a>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></a>
 <ul>
 <li class="chapter" data-level="1.3.1" data-path="intro.html"><a href="intro.html#conditioning-the-om-and-sampling-from-the-om"><i class="fa fa-check"></i><b>1.3.1</b> Conditioning the OM and sampling from the OM</a></li>
 <li class="chapter" data-level="1.3.2" data-path="intro.html"><a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation"><i class="fa fa-check"></i><b>1.3.2</b> First run of the management strategy in the MSE simulation</a></li>
@@ -177,7 +177,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>4.2</b> Operating model</a></li>
 <li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a>
 <ul>
-<li class="chapter" data-level="4.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss-model"><i class="fa fa-check"></i><b>4.3.1</b> Specify the Management Strategy in a SS model</a></li>
+<li class="chapter" data-level="4.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss3-model"><i class="fa fa-check"></i><b>4.3.1</b> Specify the Management Strategy in a SS3 model</a></li>
 <li class="chapter" data-level="4.3.2" data-path="SSMSE.html"><a href="SSMSE.html#custom-MS"><i class="fa fa-check"></i><b>4.3.2</b> Using a custom management strategy/procedure</a></li>
 </ul></li>
 <li class="chapter" data-level="4.4" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>4.4</b> Sampling options</a></li>
@@ -227,7 +227,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">1</span> Introduction</h1>
 <div id="purpose" class="section level2" number="1.1">
 <h2><span class="header-section-number">1.1</span> Purpose</h2>
-<p>SSMSE allows users to directly use <a href="https://vlab.noaa.gov/web/stock-synthesis">Stock Synthesis</a> (SS) as an operating model (OM) in an Management Strategy Evaluation (MSE). The approach requires a conditioned Stock Synthesis model, which is treated as the OM.</p>
+<p>SSMSE allows users to directly use <a href="https://vlab.noaa.gov/web/stock-synthesis">Stock Synthesis</a> (SS3) as an operating model (OM) in a <a href="https://doi.org/10.1139/cjfas-2019-0084">Management Strategy Evaluation (MSE)</a>. The approach requires a conditioned Stock Synthesis model, which is treated as the OM.</p>
+<div class="figure">
+<img src="images/workflow_ssmse_noaa_branding.png" alt="" />
+<p class="caption">The general workflow of using SSMSE</p>
+</div>
 </div>
 <div id="funs" class="section level2" number="1.2">
 <h2><span class="header-section-number">1.2</span> Functions in SSMSE</h2>
@@ -292,15 +296,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <tbody>
 <tr class="odd">
 <td><code>run_EM()</code></td>
-<td>Run an SS estimation model (uses run_ss_model)</td>
+<td>Run an SS3 estimation model (uses run_ss_model)</td>
 </tr>
 <tr class="even">
 <td><code>run_ss_model()</code></td>
-<td>Run an SS model</td>
+<td>Run an SS3 model</td>
 </tr>
 <tr class="odd">
 <td><code>get_bin()</code></td>
-<td>Get location of the SS binary.</td>
+<td>Get location of the SS3 binary.</td>
 </tr>
 <tr class="even">
 <td><code>parse_MS()</code></td>
@@ -332,11 +336,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tbody>
 </table>
 </div>
-<div id="brief-description-of-the-ssmse-mse-simulation-procedure" class="section level2" number="1.3">
-<h2><span class="header-section-number">1.3</span> Brief description of the SSMSE MSE simulation procedure</h2>
+<div id="brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></h2>
+<p>In general, the steps for a scenario after calling run_SSMSE is:</p>
+<ol style="list-style-type: decimal">
+<li>Create the OM</li>
+<li>Sample data from the OM</li>
+<li>Run management strategy</li>
+<li>Determine if more years need to be projected. If yes, continue; if no, end simulation.</li>
+<li>Update OM with n years of catch where n is the number of years between assessments</li>
+<li>Sample n years of data</li>
+<li>Repeat steps 3-6 until the end of the simulation.</li>
+</ol>
+<p><img src="images/ssmse_1_iter.png" alt="The steps implemented by run_SSMSE in words" />
+The basic steps are contained in functions:</p>
+<ol style="list-style-type: decimal">
+<li>User calls run_SSMSE</li>
+<li>Steps for one iteration are passed to run_SSMSE_scen() and then run_SSMSE_iter().</li>
+<li>The OM is created with create_OM()</li>
+<li>run_OM() runs the OM and creates the dataset to pass to the management strategy</li>
+<li>Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.</li>
+<li>Update_OM() is called, which puts catch into the operating model.</li>
+<li>run_OM() runs the OM and creates the dataset to pass to the management strategy</li>
+<li>Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.</li>
+<li>Determine if more years need to be projected. If yes, continue; if no, end simulation.</li>
+<li>Repeat steps 5-8.
+<img src="images/ssmse_fxn_map.png" alt="The steps implemented in run_SSMSE() showing the functions called." /></li>
+</ol>
 <div id="conditioning-the-om-and-sampling-from-the-om" class="section level3" number="1.3.1">
 <h3><span class="header-section-number">1.3.1</span> Conditioning the OM and sampling from the OM</h3>
-<p>For each scenario, SSMSE starts with the user providing a fitted Stock Synthesis model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the “true” values and a bootstrapped data set from SS. Note that any modifications to the OM’s parameters specified by the users as it is extended forward in time are also applied.</p>
+<p>For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the “true” values and a bootstrapped data set from SS3. Note that any modifications to the OM’s parameters specified by the users as it is extended forward in time are also applied.</p>
 </div>
 <div id="first-run-of-the-management-strategy-in-the-mse-simulation" class="section level3" number="1.3.2">
 <h3><span class="header-section-number">1.3.2</span> First run of the management strategy in the MSE simulation</h3>
@@ -348,7 +377,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="subsequent-runs-of-the-management-strategy" class="section level3" number="1.3.4">
 <h3><span class="header-section-number">1.3.4</span> Subsequent runs of the management strategy</h3>
-<p>The appended data set is then used in the managment strategy again, and new catch by fleet is produced that can then be fed back to the OM.</p>
+<p>The appended data set is then used in the management strategy again, and new catch by fleet is produced that can then be fed back to the OM.</p>
 
 </div>
 </div>

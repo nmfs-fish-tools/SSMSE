@@ -62,7 +62,7 @@ create_future_om_list <- function(example_type = c("model_change", "custom"),
 #' Checks that a future OM list is valid. If any values are implicit,
 #' then add these values. Does not check against arguments in the scenario,
 #' just the generic structure
-#' @param future_om_list The future_om_list object to check
+#' @template future_om_list
 #' @return The future_om_list with implicit arguments made explicit
 check_future_om_list_str <- function(future_om_list) {
   # warning provided until future_om_list is used within SSMSE
@@ -133,12 +133,13 @@ check_future_om_list_str <- function(future_om_list) {
   invisible(future_om_list_mod)
 }
 
-#' Check structure of a future OM list against the scen_list and standardize output
+#' Check structure of a future OM list against the scen_list and standardize 
+#' output
 #'
 #' Checks that a future OM list is valid when compared with the scen_list inputs
-#' @param future_om_list The future_om_list object to check.
-#' @param scen_list The list object of scenarios specifying inputs, typically
-#'  passed to or created by run_SSMSE.
+#' @template future_om_list
+#' @param scen_list The list object of scenarios specifying inputs created by
+#'  \code{SSMSE::create_scen_list}.
 #' @return The future_om_list with implicit arguments made explicit
 check_future_om_list_vals <- function(future_om_list, scen_list) {
   list_nums <- seq_along(future_om_list)

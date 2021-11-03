@@ -20,16 +20,14 @@ or absolute. Defaults to the working directory.}
 summaries. If left as NULL, the summaries will be extracted from all folders
 in dir.}
 
-\item{run_parallel}{Option to use parallel processing. Defaults to FALSE.
-Note that running in parallel will only be faster if most of the scenarios
-do not yet have scenario-level summary files and the suggested package
-parallel needs to be available for running in parallel to occur.}
+\item{run_parallel}{Option to use parallel processing on iterations.
+Defaults to FALSE}
 
-\item{n_cores}{How many cores to use if running in parallel. If is NULL,
-defaults to n_cores available - 1 (also capped at one less than the number
-of cores available - 1)}
+\item{n_cores}{how many cores to use if running in parallel defaults to
+n_cores available - 1 (also capped at one less than the number of cores
+available)}
 
-\item{overwrite}{Should existing summary files be overwritten if present}
+\item{overwrite}{Allow existing files to be overwritten?}
 }
 \value{
 A list of 3 data frames called scalar, ts, and

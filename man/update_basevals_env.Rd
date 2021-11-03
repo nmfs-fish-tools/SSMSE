@@ -26,7 +26,7 @@ update_basevals_env(
 
 \item{current_par}{The index of the current parameter being updated}
 
-\item{timeseries}{SS output timeseries data}
+\item{timeseries}{The timeseries table from \code{r4ss::SS_output()}.}
 
 \item{temp_ctl}{A subset of the control file representing the parameter section of interest (i.e. MG, SR, Q, or Selectivity)}
 
@@ -36,7 +36,7 @@ update_basevals_env(
 
 \item{base_bounds}{The min and max bounds of the base parameter}
 
-\item{parlist}{The list of parameters as read in by r4ss::SS_readpar_3.30}
+\item{parlist}{A parameter file as read in by \code{r4ss::SS_readpar_3.30}}
 }
 \value{
 A modified parameter series that incorporates the appropriate time varying environmental effects.

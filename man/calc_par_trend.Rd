@@ -10,7 +10,7 @@ calc_par_trend(
   ref_parm_value,
   vals_df,
   parname,
-  par,
+  parlist,
   ctl,
   par_section,
   dat
@@ -30,13 +30,13 @@ start val and last year}
 \item{parname}{Name of the parameter with devs from the SS model.
 will reference, if using a relative method.}
 
-\item{par}{The par file list.}
+\item{parlist}{A parameter file as read in by \code{r4ss::SS_readpar_3.30}}
 
-\item{ctl}{The control file read in using r4ss.}
+\item{ctl}{A control file as read in by \code{r4ss::SS_readctl}.}
 
 \item{par_section}{Which parameter section should this variabile be in?}
 
-\item{dat}{The data file read in using r4ss}
+\item{dat}{A data file as read in by \code{r4ss::SS_readdat}.}
 }
 \value{
 A vector of values with length ncol(vals_df), the number of future

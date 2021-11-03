@@ -4,7 +4,7 @@
 \alias{add_dev_changes}
 \title{Add the deviation changes from the list obj to an existing df}
 \usage{
-add_dev_changes(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl)
+add_dev_changes(fut_list, scen, iter, parlist, dat, vals_df, nyrs, ctl)
 }
 \arguments{
 \item{fut_list}{A single change input}
@@ -13,15 +13,15 @@ add_dev_changes(fut_list, scen, iter, par, dat, vals_df, nyrs, ctl)
 
 \item{iter}{The iteration name}
 
-\item{par}{the parameter list}
+\item{parlist}{A parameter file as read in by \code{r4ss::SS_readpar_3.30}}
 
-\item{dat}{The data list}
+\item{dat}{A data file as read in by \code{r4ss::SS_readdat}.}
 
 \item{vals_df}{The dataframe with future om values}
 
 \item{nyrs}{The number of years to extend the model forward}
 
-\item{ctl}{The control file list}
+\item{ctl}{A control file as read in by \code{r4ss::SS_readctl}.}
 }
 \value{
 A modified version of vals_df with the new changes applied.

@@ -13,13 +13,15 @@ copy_model_files(
 )
 }
 \arguments{
-\item{OM_in_dir}{The OM input directory. If NULL, the OM will not be copied.}
+\item{OM_in_dir}{Relative or absolute path to the operating model, if using a
+model outside of the SSMSE package. Should be a string.}
 
-\item{OM_out_dir}{The OM output directory. If NULL, the OM will not be copied.}
+\item{OM_out_dir}{The full path to the directory in which the OM is run.}
 
-\item{EM_in_dir}{The EM input directory. If NULL, the EM will not be copied.}
+\item{EM_in_dir}{Relative or absolute path to the estimation model,}
 
-\item{EM_out_dir}{The EM output directory. If NULL, the EM will not be copied.}
+\item{EM_out_dir}{Relative or absolute path to the estimation model, if using a
+model outside of the SSMSE package.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }

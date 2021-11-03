@@ -24,7 +24,7 @@ create_OM(
 \arguments{
 \item{OM_out_dir}{The full path to the directory in which the OM is run.}
 
-\item{overwrite}{Overwrite existing files with matching names?}
+\item{overwrite}{Allow existing files to be overwritten?}
 
 \item{writedat}{Should a new datafile be written?}
 
@@ -49,14 +49,23 @@ recruitment deviations, and implementation errors.}
 \item{verify_OM}{Should the model be run without estimation and some basic
 checks done to verify that the OM can run? Defaults to TRUE.}
 
-\item{sample_struct_hist}{The historical sample structure, if specified by
-the user. Defaults to NULL, which means to use the same sample structure as
-the historical data.}
+\item{sample_struct_hist}{An optional list including which years should be
+sampled for the historical period for the data generated from the OM. If
+this is left as NULL, then the same sampling scheme will be used as in the
+OM's data file. If it is not NULL, then each year.}
 
-\item{sample_struct}{Input sampling structure to ensure future data are listed in OM
-with correct SE.}
+\item{sample_struct}{A optional list including which years, seasons, and fleets
+should be  added from the OM into the EM for different types of data.
+If NULL, the data structure will try to be inferred from the pattern found
+for each of the datatypes within the EM datafiles. Include this structure
+for the number of years to extend the model out. Note that the data should
+be specified using the list component names and column names as in would be
+used in \code{r4ss::SS_readdat()}. The \code{run_SSMSE_iter} function
+examples give an example of what this structure should be. Running the
+function \code{create_sample_struct()} will also produce a sample_struct
+object in the correct form. Can be NULL only when MS is not EM.}
 
-\item{seed}{input seed to allow reproducible SS results.}
+\item{seed}{A random seed so that reproducible results are possible.}
 }
 \value{
 A modified datafile

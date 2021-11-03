@@ -1,9 +1,7 @@
-#V3.30.16.00;_2020_09_03;_safe;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.2
-#Stock Synthesis (SS) is a work of the U.S. Government and is not subject to copyright protection in the United States.
-#Foreign copyrights may apply. See copyright.txt for more information.
+#V3.30.18.00;_safe;_compile_date:_Sep 30 2021;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
 ss3.dat #_DataFile 
 control.ss #_Control 
-Run_Date: Thu Sep 03 07:21:47 2020
+Run_Date: Tue Oct 19 11:19:29 2021
 Final_phase: 6  N_iterations: 833
 #_LIKELIHOOD 
 Label logL*Lambda
@@ -24,7 +22,7 @@ Crash_Pen 0
 #_PARAMETERS
 #label value se active? range
 #_BIOLOGY
-NatM_p_1_Fem_GP_1 0.2 0 Fix 0.106145
+NatM_uniform_Fem_GP_1 0.2 0 Fix 0.106145
 L_at_Amin_Fem_GP_1 20.4942 0.649166 Act 0.196911
 L_at_Amax_Fem_GP_1 127.644 3.04438 Act 0.185252
 VonBert_K_Fem_GP_1 0.20398 0.0108447 Act 0.195939
@@ -148,7 +146,6 @@ Main_RecrDev_98 0.508288 0.128821 Act 0.550829
 Main_RecrDev_99 -0.111915 0.310699 Act 0.488808
 Main_RecrDev_100 0.279384 0.39361 Act 0.527938
 ForeRecr_101 0 0.4 Act 0.5
-Impl_err_101 0 0 Fix 0.5
 #_Catchability
 LnQ_base_Survey(2) 0.0207711 0.0758367 Act 0.500519
 #_Selectivity
@@ -631,112 +628,7 @@ OFLCatch_101 1.96404e+08 2.95632e+07
 ln(SPB)_1 22.0787 0.0315681
 ln(SPB)_50 21.2555 0.0587124
 ln(SPB)_100 21.3638 0.144497
-#_survey_stdev 0
-#_Biomass
-TotBio_Virgin 3.91007e+09 0.0
-TotBio_Initial 3.91007e+09 0.0
-TotBio_1 3.90868e+09 0.0
-TotBio_2 3.90852e+09 0.0
-TotBio_3 3.90738e+09 0.0
-TotBio_4 3.9044e+09 0.0
-TotBio_5 3.89905e+09 0.0
-TotBio_6 3.89106e+09 0.0
-TotBio_7 3.88072e+09 0.0
-TotBio_8 3.86868e+09 0.0
-TotBio_9 3.85367e+09 0.0
-TotBio_10 3.84339e+09 0.0
-TotBio_11 3.83362e+09 0.0
-TotBio_12 3.82561e+09 0.0
-TotBio_13 3.81785e+09 0.0
-TotBio_14 3.81461e+09 0.0
-TotBio_15 3.8248e+09 0.0
-TotBio_16 3.83885e+09 0.0
-TotBio_17 3.83951e+09 0.0
-TotBio_18 3.82251e+09 0.0
-TotBio_19 3.80835e+09 0.0
-TotBio_20 3.81665e+09 0.0
-TotBio_21 3.8445e+09 0.0
-TotBio_22 3.87432e+09 0.0
-TotBio_23 3.9054e+09 0.0
-TotBio_24 3.9463e+09 0.0
-TotBio_25 4.00877e+09 0.0
-TotBio_26 4.09716e+09 0.0
-TotBio_27 3.86954e+09 0.0
-TotBio_28 3.64091e+09 0.0
-TotBio_29 3.41949e+09 0.0
-TotBio_30 3.23241e+09 0.0
-TotBio_31 3.08201e+09 0.0
-TotBio_32 2.95278e+09 0.0
-TotBio_33 2.82717e+09 0.0
-TotBio_34 2.7127e+09 0.0
-TotBio_35 2.62215e+09 0.0
-TotBio_36 2.54736e+09 0.0
-TotBio_37 2.463e+09 0.0
-TotBio_38 2.38191e+09 0.0
-TotBio_39 2.29609e+09 0.0
-TotBio_40 2.21695e+09 0.0
-TotBio_41 2.13337e+09 0.0
-TotBio_42 2.03824e+09 0.0
-TotBio_43 1.94686e+09 0.0
-TotBio_44 1.9096e+09 0.0
-TotBio_45 1.88822e+09 0.0
-TotBio_46 1.85249e+09 0.0
-TotBio_47 1.82387e+09 0.0
-TotBio_48 1.80184e+09 0.0
-TotBio_49 1.76824e+09 0.0
-TotBio_50 1.72642e+09 0.0
-TotBio_51 1.68759e+09 0.0
-TotBio_52 1.64424e+09 0.0
-TotBio_53 1.59662e+09 0.0
-TotBio_54 1.54612e+09 0.0
-TotBio_55 1.49557e+09 0.0
-TotBio_56 1.45815e+09 0.0
-TotBio_57 1.43503e+09 0.0
-TotBio_58 1.41908e+09 0.0
-TotBio_59 1.39595e+09 0.0
-TotBio_60 1.37443e+09 0.0
-TotBio_61 1.37935e+09 0.0
-TotBio_62 1.39207e+09 0.0
-TotBio_63 1.39851e+09 0.0
-TotBio_64 1.40404e+09 0.0
-TotBio_65 1.40772e+09 0.0
-TotBio_66 1.40923e+09 0.0
-TotBio_67 1.41462e+09 0.0
-TotBio_68 1.41975e+09 0.0
-TotBio_69 1.42793e+09 0.0
-TotBio_70 1.44079e+09 0.0
-TotBio_71 1.45725e+09 0.0
-TotBio_72 1.48246e+09 0.0
-TotBio_73 1.55531e+09 0.0
-TotBio_74 1.64167e+09 0.0
-TotBio_75 1.73423e+09 0.0
-TotBio_76 1.81036e+09 0.0
-TotBio_77 1.84198e+09 0.0
-TotBio_78 1.83494e+09 0.0
-TotBio_79 1.81539e+09 0.0
-TotBio_80 1.78523e+09 0.0
-TotBio_81 1.73981e+09 0.0
-TotBio_82 1.69005e+09 0.0
-TotBio_83 1.65056e+09 0.0
-TotBio_84 1.62929e+09 0.0
-TotBio_85 1.63657e+09 0.0
-TotBio_86 1.65149e+09 0.0
-TotBio_87 1.66407e+09 0.0
-TotBio_88 1.71263e+09 0.0
-TotBio_89 1.8094e+09 0.0
-TotBio_90 1.91383e+09 0.0
-TotBio_91 1.98317e+09 0.0
-TotBio_92 2.011e+09 0.0
-TotBio_93 2.01885e+09 0.0
-TotBio_94 2.01411e+09 0.0
-TotBio_95 1.99474e+09 0.0
-TotBio_96 1.96947e+09 0.0
-TotBio_97 1.93858e+09 0.0
-TotBio_98 1.90829e+09 0.0
-TotBio_99 1.90144e+09 0.0
-TotBio_100 1.93213e+09 0.0
-TotBio_101 1.98166e+09 0.0
-SmryBio_Virgin 0 0.0
+SmryBio_Virgin 3.90868e+09 0.0
 SmryBio_Initial 3.90868e+09 0.0
 SmryBio_1 3.90868e+09 0.0
 SmryBio_2 3.90852e+09 0.0
@@ -839,6 +731,111 @@ SmryBio_98 1.90829e+09 0.0
 SmryBio_99 1.90144e+09 0.0
 SmryBio_100 1.93213e+09 0.0
 SmryBio_101 1.98166e+09 0.0
+#_survey_stdev 0
+#_Biomass
+TotBio_Virgin 3.91007e+09 0.0
+TotBio_Initial 3.91007e+09 0.0
+TotBio_1 3.91005e+09 0.0
+TotBio_2 3.90988e+09 0.0
+TotBio_3 3.90872e+09 0.0
+TotBio_4 3.90574e+09 0.0
+TotBio_5 3.90038e+09 0.0
+TotBio_6 3.89243e+09 0.0
+TotBio_7 3.88188e+09 0.0
+TotBio_8 3.87034e+09 0.0
+TotBio_9 3.85476e+09 0.0
+TotBio_10 3.84489e+09 0.0
+TotBio_11 3.83486e+09 0.0
+TotBio_12 3.82704e+09 0.0
+TotBio_13 3.8196e+09 0.0
+TotBio_14 3.81583e+09 0.0
+TotBio_15 3.82582e+09 0.0
+TotBio_16 3.83992e+09 0.0
+TotBio_17 3.84123e+09 0.0
+TotBio_18 3.82433e+09 0.0
+TotBio_19 3.80987e+09 0.0
+TotBio_20 3.81777e+09 0.0
+TotBio_21 3.84613e+09 0.0
+TotBio_22 3.87602e+09 0.0
+TotBio_23 3.90731e+09 0.0
+TotBio_24 3.9485e+09 0.0
+TotBio_25 4.00979e+09 0.0
+TotBio_26 4.09864e+09 0.0
+TotBio_27 3.87083e+09 0.0
+TotBio_28 3.64305e+09 0.0
+TotBio_29 3.42107e+09 0.0
+TotBio_30 3.2339e+09 0.0
+TotBio_31 3.08308e+09 0.0
+TotBio_32 2.95438e+09 0.0
+TotBio_33 2.82894e+09 0.0
+TotBio_34 2.71421e+09 0.0
+TotBio_35 2.62272e+09 0.0
+TotBio_36 2.54927e+09 0.0
+TotBio_37 2.46362e+09 0.0
+TotBio_38 2.38362e+09 0.0
+TotBio_39 2.29681e+09 0.0
+TotBio_40 2.21782e+09 0.0
+TotBio_41 2.13422e+09 0.0
+TotBio_42 2.04109e+09 0.0
+TotBio_43 1.94723e+09 0.0
+TotBio_44 1.91027e+09 0.0
+TotBio_45 1.88998e+09 0.0
+TotBio_46 1.8536e+09 0.0
+TotBio_47 1.82455e+09 0.0
+TotBio_48 1.8029e+09 0.0
+TotBio_49 1.76951e+09 0.0
+TotBio_50 1.72714e+09 0.0
+TotBio_51 1.68855e+09 0.0
+TotBio_52 1.64513e+09 0.0
+TotBio_53 1.59745e+09 0.0
+TotBio_54 1.54738e+09 0.0
+TotBio_55 1.4966e+09 0.0
+TotBio_56 1.45919e+09 0.0
+TotBio_57 1.43563e+09 0.0
+TotBio_58 1.42006e+09 0.0
+TotBio_59 1.39776e+09 0.0
+TotBio_60 1.37512e+09 0.0
+TotBio_61 1.38023e+09 0.0
+TotBio_62 1.39332e+09 0.0
+TotBio_63 1.39945e+09 0.0
+TotBio_64 1.40505e+09 0.0
+TotBio_65 1.40895e+09 0.0
+TotBio_66 1.41012e+09 0.0
+TotBio_67 1.41582e+09 0.0
+TotBio_68 1.42084e+09 0.0
+TotBio_69 1.42907e+09 0.0
+TotBio_70 1.44176e+09 0.0
+TotBio_71 1.46014e+09 0.0
+TotBio_72 1.48298e+09 0.0
+TotBio_73 1.55736e+09 0.0
+TotBio_74 1.64273e+09 0.0
+TotBio_75 1.73479e+09 0.0
+TotBio_76 1.8113e+09 0.0
+TotBio_77 1.84339e+09 0.0
+TotBio_78 1.83575e+09 0.0
+TotBio_79 1.81607e+09 0.0
+TotBio_80 1.78624e+09 0.0
+TotBio_81 1.74099e+09 0.0
+TotBio_82 1.69112e+09 0.0
+TotBio_83 1.65222e+09 0.0
+TotBio_84 1.6301e+09 0.0
+TotBio_85 1.6374e+09 0.0
+TotBio_86 1.65382e+09 0.0
+TotBio_87 1.66621e+09 0.0
+TotBio_88 1.71377e+09 0.0
+TotBio_89 1.81014e+09 0.0
+TotBio_90 1.91482e+09 0.0
+TotBio_91 1.98465e+09 0.0
+TotBio_92 2.01208e+09 0.0
+TotBio_93 2.01969e+09 0.0
+TotBio_94 2.01536e+09 0.0
+TotBio_95 1.99564e+09 0.0
+TotBio_96 1.97044e+09 0.0
+TotBio_97 1.94018e+09 0.0
+TotBio_98 1.91017e+09 0.0
+TotBio_99 1.90245e+09 0.0
+TotBio_100 1.93375e+09 0.0
+TotBio_101 1.98288e+09 0.0
 TotCatch_Virgin 0 0.0
 TotCatch_Initial 0 0.0
 TotCatch_1 0 0.0

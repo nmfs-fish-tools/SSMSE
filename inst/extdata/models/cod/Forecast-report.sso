@@ -1,7 +1,7 @@
-#V3.30.16.00;_2020_09_03;_safe;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.2
-#Stock Synthesis (SS) is a work of the U.S. Government and is not subject to copyright protection in the United States.
-#Foreign copyrights may apply. See copyright.txt for more information.
-Thu Sep 03 07:21:47 2020
+#V3.30.18.00;_safe;_compile_date:_
+Sep 30 2021
+;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
+Tue Oct 19 11:19:29 2021
 Bmark_relF(by_fleet_&seas)
  1 0
 #
@@ -148,11 +148,11 @@ MSY_retain 1.58185e+08 1.45922
 Biomass_Smry 1.4376e+09 13.2614
 #
 THIS FORECAST FOR PURPOSES OF STD REPORTING
-3:  Forecast_using_F(Btarget)
+3:  Forecast_using_F(Btarget): 0.100968
 Annual_Forecast_Fmult: 0.100968
 Fmultiplier_during_selected_relF_years_was: 0.0662443
 Selectivity_averaged_over_yrs:_100_to_100
-Recruitment_averaged_over_yrs:_1_to_100
+Recruitment_from_spawn_recr_with_multiplier: 1
 Cap_totalcatch_by_fleet 
  -1 -1
 Cap_totalcatch_by_area 
@@ -172,15 +172,19 @@ OY_Control_Rule  Inflection: 0.03 Intercept: 0.01 Scale: 1; Policy (3): ramp sca
 #
 FORECAST:_With_Constant_F=Fofl;_No_Input_Catches_or_Adjustments;_Equil_Recr;_No_inpl_error
 pop year ABC_Loop season Ramp bio-all bio-Smry SpawnBio Depletion recruit-0  sel(B):_1 dead(B):_1 retain(B):_1 sel(N):_1 dead(N):_1 retain(N):_1 F:_1 R/C Catch_Cap Total_Catch ann_F
-1 101 1 1 1 1.98288e+09 1.98166e+09 1.95509e+09 0.504082 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
+1 101 1 1 1 0 1.98166e+09 1.95509e+09 0.504082 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
 FORECAST:_With_F=Fabc;_With_Input_Catches_and_Catch_Adjustments;_Equil_Recr;_No_inpl_error
 pop year ABC_Loop season Ramp bio-all bio-Smry SpawnBio Depletion recruit-0  sel(B):_1 dead(B):_1 retain(B):_1 sel(N):_1 dead(N):_1 retain(N):_1 F:_1 R/C Catch_Cap Total_Catch ann_F
-1 101 1 1 1 1.98288e+09 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
-1 101 2 1 1 1.98288e+09 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
-1 101 3 1 1 1.98288e+09 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
+1 101 1 1 1 0 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
+1 101 2 1 1 0 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
+1 101 3 1 1 0 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0
 FORECAST:_With_F_to_match_adjusted_catch;_With_Input_Catches_and_Catch_Adjustments;_Stochastic_Recr;_With_inpl_error
 pop year ABC_Loop season Ramp bio-all bio-Smry SpawnBio Depletion recruit-0  sel(B):_1 dead(B):_1 retain(B):_1 sel(N):_1 dead(N):_1 retain(N):_1 F:_1 R/C Catch_Cap Total_Catch ann_F
-1 101 3 1 1 1.98288e+09 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0.0991111
+1 101 3 1 1 0 1.98166e+09 1.95509e+09 0.504083 1.18199e+08  1.96404e+08 1.96404e+08 1.96404e+08 3.07781e+07 3.07781e+07 3.07781e+07 0.100968 R  NA  1.96404e+08 0.0991111
 THIS FORECAST FOR PURPOSES OF GETTING DISPLAY QUANTITIES
 #
  FORECAST: in Bzero report with fishery onoff= 0
+#
+ FORECAST: in M & Z report with fishery onoff= 1
+#
+ FORECAST: in M & Z report with fishery onoff= 0

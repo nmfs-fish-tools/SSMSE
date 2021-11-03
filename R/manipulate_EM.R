@@ -183,10 +183,7 @@ run_EM <- function(EM_dir,
 #'   this should be sampled data.
 #' @param EM_datfile Datafile name run in previous iterations with the EM.
 #'  Assumed to exist in EM_dir.
-#' @param sample_struct Includes which years and fleets should be
-#'  added from the OM into the EM for different types of data. If NULL, the data
-#'  structure will try to be infered from the pattern found for each of the
-#'  datatypes within EM_datfile.
+#' @template sample_struct
 #' @param EM_dir Absolute or relative path to the Estimation model directory.
 #' @param nyrs_assess The number of years between assessments. E.g., if an
 #'  assessment is conducted every 3 years, put 3 here. A single integer value.

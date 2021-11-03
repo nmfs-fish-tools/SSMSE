@@ -8,22 +8,31 @@ Note that multiple scenarios can be called in `run_SSMSE()`, often through vecto
 
 ## Operating model
 
-The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model, except for models that use Empirical Weight at age. There is one built-in OM that comes with SSMSE, which is a cod-like model. To use the cod model in run_SSMSE, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
+
+```{r built_in_mods, echo=FALSE, results="hide"}
+built_in_mods <- list.dirs(system.file("extdata", "models", package = "SSMSE"),
+                           full.names = FALSE, recursive = FALSE)
+built_in_mods[length(built_in_mods)] <- paste0("and ", built_in_mods[length(built_in_mods)])
+built_in_mods_final <- paste0(built_in_mods, collapse = ", ")
+```
+
+The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model, except for models that use Empirical Weight at age. 
+There are `r length(built_in_mods)` built-in models that comes with SSMSE: `r built_in_mods_final`. To use a built in model, specify the name of the model as part of the `OM_name_vec`. For example, to use the cod model in run_SSMSE for 1 scenario0, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
 
 ## The Management Strategy/procedure and (if applicable) Estimation model (EM)
 
 The management strategy (and EM) can be specified in one of two ways:
 
-1. Using an SS model and its forcast file to project catch by fleet
+1. Using an SS3 model and its forcast file to project catch by fleet
 2. Using a custom procedure via a function in R
 
 In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches by fleet.
 
-### Specify the Management Strategy in a SS model
+### Specify the Management Strategy in a SS3 model
 
-An SS model can be set up as the EM for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS model as the EM, specify the path in `EM_in_dir_vec`.Note that models that use empirical weight at age can not yet be used as estimation models.
+An SS3 model can be set up as the EM for the MSE. To use this option, specify `"EM"` as part of `MS_vec`. As with the OM, the built-in cod model could be used; just specify `"cod"` in the `EM_name_vec`. To use any other SS3 model as the EM, specify the path in `EM_in_dir_vec`.Note that models that use empirical weight at age can not yet be used as estimation models. Also, the .ss_new input files are used for an OM, while the original input files are used for the EM.
 
-Future catches will be determined from the forecasting file settings of the SS model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
+Future catches will be determined from the forecasting file settings of the SS3 model. SSMSE will change the number of forecast years to match the number of years between assessments, but other specifications need to be made by the user.
 
 
 ### Using a custom management strategy/procedure {#custom-MS}
@@ -81,13 +90,13 @@ run_result_custom <- run_SSMSE(
 
 ## Sampling options
 
-Currently, the only available sampling option is to use the bootstrapping module within SS itself. This means specifying `use_SS_boot_vec = TRUE`. Details on how sampling is done using the bootstrapping module in SS is available in the "Bootstrap Data Files" section of the [SS user manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231).
+Currently, the only available sampling option is to use the bootstrapping module within SS3 itself. This means specifying `use_SS_boot_vec = TRUE`. Details on how sampling is done using the bootstrapping module in SS3 is available in the "Bootstrap Data Files" section of the [SS3 user manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view_file/11684231).
 
 Users also need to specify how and which data types should be sampled for each future year in the simulation in `sample_struct_list`. `sample_struct_list` is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.
 
 The helper function `create_sample_struct()` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#sample) or by typing `?SSMSE::create_sample_struct()` into the R console.
 
-Currently, users can sample data for catches (treated as fixed), CPUE (i.e., indices of abundance), length and age composition, conditional length at age compositions, mean size at age, and mean size. It is not yet possible to sample data for generalized size compositions, tagging data, and morph compositions.
+Currently, users can sample data for catches (treated as fixed if `sample_catch = FALSE` for the scenario), CPUE (i.e., indices of abundance), length and age composition, conditional length at age compositions, mean size at age, and mean size. It is not yet possible to sample data for generalized size compositions, tagging data, and morph compositions.
 
 Users can specify the sampling during the historical period of the model through the `sample_struct_hist` input to `run_SSMSE`. This is an optional input and has the same structure as `sample_struct_list`, but the years will be before the original end year of the OM.
 

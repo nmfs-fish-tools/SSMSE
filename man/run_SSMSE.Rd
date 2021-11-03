@@ -21,9 +21,12 @@ run_SSMSE(
   sample_struct_list = NULL,
   future_om_list = NULL,
   sample_struct_hist_list = NULL,
+  sample_catch_vec = FALSE,
   interim_struct_list = NULL,
   verbose = FALSE,
   seed = NULL,
+  n_F_search_loops = 20,
+  tolerance_F_search = 0.001,
   run_parallel = FALSE,
   n_cores = NULL
 )
@@ -38,9 +41,10 @@ default to the working directory.}
 \item{iter_vec}{The number of iterations per scenario. A vector of integers
 in the same order as scen_name_vec.}
 
-\item{OM_name_vec}{Name of a valid Stock Synthesis stock assessment model from
-which to create the OM. Valid inputs are: \code{"cod"} or NA within the 
-vector, or NULL.}
+\item{OM_name_vec}{Names of a valid Stock Synthesis stock assessment model.
+To see the names of built-in models, type 
+\code{list.dirs(system.file("extdata", "models", package = "SSMSE"),full.names = FALSE, recursive = FALSE)}
+into the R console.}
 
 \item{OM_in_dir_vec}{Vector of relative or absolute paths to the operating
 model, if using a model outside of the SSMSE package.}
@@ -55,9 +59,9 @@ in the path specified in EM_in_dir. valid inputs for EM_name are: \code{"cod"}
 model outside of the SSMSE package. Note that this value should be NULL if
 \code{MS} has a value other than "EM".}
 
-\item{run_EM_last_yr}{Should the EM run in the last year if the last year
-is an assessment year? TRUE/FALSE option, so the same for all scenarios and
-iterations. Defaults to FALSE.}
+\item{run_EM_last_yr}{Should the MS be implemented to get future catch if the
+laste year is an assessment year? TRUE/FALSE option, so the same for all 
+scenarios and iterations. Defaults to FALSE.}
 
 \item{MS_vec}{Vector of management strategies. Current options are:
 \code{"last_yr_catch"} which uses the previous year's catch;
@@ -105,6 +109,10 @@ sampled for the historical period for the data generated from the OM. If
 this is left as NULL, then the same sampling scheme will be used as in the
 OM's data file. If it is not NULL, then each year}
 
+\item{sample_catch_vec}{Should catch be sampled or fixed at the OM values? 
+This can be a single Boolean (TRUE or FALSE) to apply to all scenarios or 
+a vector of the same length as the number of scenarios. Defaults to FALSE.}
+
 \item{interim_struct_list}{A optional list of parameters to control an interim assessment
 with an example structure below, where Beta=a positive value that is inversely proportional to risk,
 MA_years= the number of years to average index observations of when calculating deviations,
@@ -115,16 +123,27 @@ interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,ma
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
-\item{seed}{Input a fixed seed to replicate previous simulation runs. seed can be a single value
-for a global seed, n_scenarios+1 length vector for scenario specific and a global seed,
-n_iterations+n_scenarios+1 length vector for iteration scenario and global seeds. Can also be a list
-object with a single value under seed[["global"]], a vector under seed[["scenario"]], and a multiple vectors
-for iteration specific seeds under seed[["iter"]][[1:n_scenarios]].}
+\item{seed}{Input a fixed seed to replicate previous simulation runs. Seed
+can be a single value for a global seed, n_scenarios+1 length vector for 
+scenario specific and a global seed, n_iterations+n_scenarios+1 length 
+vector for iteration scenario and global seeds. Can also be a list object
+with a single value under \code{seed[["global"]]}, a vector under 
+\code{seed[["scenario"]]}, and a multiple vectors for iteration specific seeds 
+under \code{seed[["iter"]][[1:n_scenarios]]}.}
 
-\item{run_parallel}{Option to use parallel processing. Defaults to FALSE.}
+\item{n_F_search_loops}{Number of times to try to find an F that achieves the
+catches input in the OM. Defaults to 20.}
 
-\item{n_cores}{How many cores to use if running in parallel. If is NULL,
-defaults to n_cores available - 1 (also capped at n_cores available - 1)}
+\item{tolerance_F_search}{How far apart the input catch and achieved 
+catch can be in tried to find an F that achieves the catch input in the
+OM. Defaults to 0.001.}
+
+\item{run_parallel}{Option to use parallel processing on iterations.
+Defaults to FALSE}
+
+\item{n_cores}{how many cores to use if running in parallel defaults to
+n_cores available - 1 (also capped at one less than the number of cores
+available)}
 }
 \description{
 High level function to run a management strategy evaluation using Stock

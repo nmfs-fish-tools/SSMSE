@@ -4,12 +4,12 @@
 \alias{match_parname}
 \title{Match parameter name to parameter names in the par file}
 \usage{
-match_parname(list_pars, par)
+match_parname(list_pars, parlist)
 }
 \arguments{
 \item{list_pars}{the parameter names to find}
 
-\item{par}{the parfile in which to find list_pars}
+\item{parlist}{A parameter file as read in by \code{r4ss::SS_readpar_3.30}}
 }
 \value{
 A dataframe containing the parameter name and which object it is in

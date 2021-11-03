@@ -2,15 +2,21 @@
 % Please edit documentation in R/future_om.R
 \name{check_future_om_list_vals}
 \alias{check_future_om_list_vals}
-\title{Check structure of a future OM list against the scen_list and standardize output}
+\title{Check structure of a future OM list against the scen_list and standardize 
+output}
 \usage{
 check_future_om_list_vals(future_om_list, scen_list)
 }
 \arguments{
-\item{future_om_list}{The future_om_list object to check.}
+\item{future_om_list}{An optional list of lists including changes that should
+be made after the end year of the input model. Each first level list element
+outlines 1 change to be made to the operating model. To see an example, try
+running \code{\link{create_future_om_list}}. Defaults to NULL, which implies
+that the model will be extended forward in time assuming the original model
+structure.}
 
-\item{scen_list}{The list object of scenarios specifying inputs, typically
-passed to or created by run_SSMSE.}
+\item{scen_list}{The list object of scenarios specifying inputs created by
+\code{SSMSE::create_scen_list}.}
 }
 \value{
 The future_om_list with implicit arguments made explicit

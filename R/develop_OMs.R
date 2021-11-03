@@ -1,12 +1,9 @@
 #' Develop different operating models
 #'
-#' THis is a utility to help a user create new operating models starting from the
+#' This is a utility to help a user create new operating models starting from the
 #' same model. For now, it is only possible to adjust 1 parameter value
-#' @param OM_name Name of the original model, as in the SSMSE package. If not
-#'  using a model in the package, please specify its path in \code{OM_in_dir}. 
-#'  Can be left NULL if specifying OM_in_dir.
-#' @param OM_in_dir Path to the original operating model. If using a model in
-#'  the SSMSE package, please specify its name in \code{OM_name} instead.
+#' @template OM_name
+#' @template OM_in_dir
 #' @param out_dir Path where the new models will be written. Defaults to the
 #'  current working directory.
 #' @param par_name Name of the parameter to modify

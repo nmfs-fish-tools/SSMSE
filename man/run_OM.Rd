@@ -11,11 +11,12 @@ run_OM(
   init_run = FALSE,
   verbose = FALSE,
   debug_par_run = TRUE,
+  sample_catch = FALSE,
   seed = NULL
 )
 }
 \arguments{
-\item{OM_dir}{The full path to the OM directory}
+\item{OM_dir}{The full path to the OM directory.}
 
 \item{boot}{Return the bootstrap dataset? If TRUE, function returns the
 number bootstrapped dataset specified in \code{nboot}. If FALSE, it returns
@@ -35,7 +36,10 @@ error_check will be created, and the model will be run from control start
 values instead of ss.par. The 2 par files are then compared to help debug
 the issue with the model run. Defaults to TRUE.}
 
-\item{seed}{A random seed for SS to enable reproducible SS results.}
+\item{sample_catch}{Should catch be sampled or fixed at the OM values? 
+Defaults to FALSE.}
+
+\item{seed}{A random seed so that reproducible results are possible.}
 }
 \description{
 This function is used to initialize the OM and get either expected values

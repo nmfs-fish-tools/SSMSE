@@ -14,7 +14,9 @@ update_OM(
   write_dat = TRUE,
   impl_error = NULL,
   verbose = FALSE,
-  seed = NULL
+  seed = NULL,
+  n_F_search_loops = 20,
+  tolerance_F_search = 0.001
 )
 }
 \arguments{
@@ -51,7 +53,14 @@ a cap of twice the historic maximum F for all cases)}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
-\item{seed}{A random initialization seed for SS to allow reproducibility}
+\item{seed}{A random seed so that reproducible results are possible.}
+
+\item{n_F_search_loops}{Number of times to try to find an F that achieves the
+catches input in the OM. Defaults to 20.}
+
+\item{tolerance_F_search}{How far apart the input catch and achieved 
+catch can be in tried to find an F that achieves the catch input in the
+OM. Defaults to 0.001.}
 }
 \value{
 A new dat list object (format as created by r4ss::SS_readdat) that
