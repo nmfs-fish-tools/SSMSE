@@ -5,4 +5,4 @@ name: call-calc_coverage
 
 jobs:
   call-workflow:
-    uses: k-doering-NOAA/reusable-workflows/.github/workflows/calc-coverage.yml@main
+    uses: nmfs-stock-synthesis/workflows/.github/workflows/calc-coverage.yml@main
