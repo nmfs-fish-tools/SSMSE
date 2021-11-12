@@ -1,6 +1,10 @@
 # Run r cmd check
-on: [push, pull_request]
-
+on:
+  push:
+  pull_request:
+  schedule:
+    # This should run the default branch weekly on sunday
+    - cron: '0 0 * * 0'
 name: call-r-cmd-check
 
 jobs:
