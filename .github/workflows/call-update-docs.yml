@@ -1,0 +1,6 @@
+# Run r cmd check
+on: [push]
+name: call-update-docs
+jobs:
+  call-workflow:
+    uses: nmfs-stock-synthesis/workflows/.github/workflows/update-roxygen-docs.yml@main
