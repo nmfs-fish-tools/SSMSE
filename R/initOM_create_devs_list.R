@@ -610,23 +610,20 @@ calc_par_trend <- function(val_info,
   # get end value
   # I think this should catch any NA values or NULL values for the value param value which should avoid crashes in the end value calculation below
   if (is.na(val_info[val_info[["ts_param"]] == val_line, "value"])) {
-    val_info[val_info[["ts_param"]] == val_line, "value"] <- switch(
-      val_info[val_info[["ts_param"]] == val_line, "method"],
+    val_info[val_info[["ts_param"]] == val_line, "value"] <- switch(val_info[val_info[["ts_param"]] == val_line, "method"],
       absolute = ref_parm_value,
       additive = 0,
       multiplier = 1
     )
   }
   if (is.null(val_info[val_info[["ts_param"]] == val_line, "value"])) {
-    val_info[val_info[["ts_param"]] == val_line, "value"] <- switch(
-      val_info[val_info[["ts_param"]] == val_line, "method"],
+    val_info[val_info[["ts_param"]] == val_line, "value"] <- switch(val_info[val_info[["ts_param"]] == val_line, "method"],
       absolute = ref_parm_value,
       additive = 0,
       multiplier = 1
     )
   }
-  end <- switch(
-    val_info[val_info[["ts_param"]] == val_line, "method"],
+  end <- switch(val_info[val_info[["ts_param"]] == val_line, "method"],
     absolute = val_info[val_info[["ts_param"]] == val_line, "value"],
     additive = val_info[val_info[["ts_param"]] == val_line, "value"] + ref_parm_value,
     multiplier = val_info[val_info[["ts_param"]] == val_line, "value"] * ref_parm_value
