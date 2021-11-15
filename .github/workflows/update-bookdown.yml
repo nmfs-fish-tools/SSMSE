@@ -8,32 +8,25 @@ name: update-bookdown
 
 jobs:
   bookdown:
-  runs-on: ubuntu-latest
-env:
-  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-steps:
-  - uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - uses: actions/checkout@v2
 
-- uses: r-lib/actions/setup-pandoc@v1
+    - uses: r-lib/actions/setup-pandoc@v1
 
-- uses: r-lib/actions/setup-r@v1
-with:
-  use-public-rspm: true
+    - uses: r-lib/actions/setup-r@v1
+      with:
+        use-public-rspm: true
 
-- uses: r-lib/actions/setup-renv@v1
+    - uses: r-lib/actions/setup-renv@v1
 
-- name: Cache bookdown results
-uses: actions/cache@v2
-with:
-  path: _bookdown_files
-key: bookdown-${{ hashFiles('**/*Rmd') }}
-restore-keys: bookdown-
+    - name: Build site
+      run: Rscript -e 'bookdown::render_book(input = "inst/bookdown", output_dir = "../../docs/manual" , quiet = TRUE)'
 
-  - name: Build site
-run: Rscript -e 'bookdown::render_book(input = "inst/bookdown", output_dir = "../../docs/manual" , quiet = TRUE)'
-
-- name: Deploy to GitHub pages 🚀
-uses: JamesIves/github-pages-deploy-action@4.1.4
-with:
-  branch: main
-folder: docs/manual
+    - name: Deploy to GitHub pages 🚀
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: main
+        folder: docs/manual
