@@ -21,6 +21,10 @@ jobs:
         use-public-rspm: true
 
     - uses: r-lib/actions/setup-renv@v1
+    
+    - uses: r-lib/actions/setup-r-dependencies@v1
+      with:
+        extra-packages: bookdown
 
     - name: Build site
       run: Rscript -e 'bookdown::render_book(input = "inst/bookdown", output_dir = "../../docs/manual" , quiet = TRUE)'
