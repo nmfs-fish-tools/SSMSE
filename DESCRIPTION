@@ -39,5 +39,4 @@ Suggests:
     foreach
 Remotes:
     r4ss/r4ss@main,
-    ss3sim/ss3sim@main,
-    bitbucket::richierocks/assertive.base
+    ss3sim/ss3sim@main
