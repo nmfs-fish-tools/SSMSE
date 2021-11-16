@@ -2,7 +2,7 @@
 
 ## Purpose
 
-SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS3) as an operating model (OM) in a [Management Strategy Evaluation (MSE)](https://doi.org/10.1139/cjfas-2019-0084). The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
+SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS3) as an operating model (OM) in a [Management Strategy Evaluation (MSE)](https://doi.org/10.1139/cjfas-2019-0084) through R functions. The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
 
 ![The general workflow of using SSMSE](images/workflow_ssmse_noaa_branding.png)
 
