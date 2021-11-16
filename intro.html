@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>1 Introduction | SSMSE user manual</title>
+  <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="1 Introduction | SSMSE user manual" />
+  <meta property="og:type" content="book" />
+  <meta property="og:url" content="https://nmfs-fish-tools.github.io/SSMSE/manual/" />
+  
+  <meta property="og:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
+  <meta name="github-repo" content="nmfs-fish-tools/SSMSE" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="1 Introduction | SSMSE user manual" />
+  
+  <meta name="twitter:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
+  
+
+<meta name="author" content="Kathryn Doering and Nathan Vaughan" />
+
+
+<meta name="date" content="2021-11-01" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="simple.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#r-session-information"><i class="fa fa-check"></i>R session information</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#purpose"><i class="fa fa-check"></i><b>1.1</b> Purpose</a></li>
+<li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#funs"><i class="fa fa-check"></i><b>1.2</b> Functions in SSMSE</a></li>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="intro.html"><a href="intro.html#conditioning-the-om-and-sampling-from-the-om"><i class="fa fa-check"></i><b>1.3.1</b> Conditioning the OM and sampling from the OM</a></li>
+<li class="chapter" data-level="1.3.2" data-path="intro.html"><a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation"><i class="fa fa-check"></i><b>1.3.2</b> First run of the management strategy in the MSE simulation</a></li>
+<li class="chapter" data-level="1.3.3" data-path="intro.html"><a href="intro.html#feedback-from-managment-strategy-into-om-extending-model-years"><i class="fa fa-check"></i><b>1.3.3</b> Feedback from managment strategy into OM: extending model years</a></li>
+<li class="chapter" data-level="1.3.4" data-path="intro.html"><a href="intro.html#subsequent-runs-of-the-management-strategy"><i class="fa fa-check"></i><b>1.3.4</b> Subsequent runs of the management strategy</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="simple.html"><a href="simple.html#setup-r-workspace-folders"><i class="fa fa-check"></i><b>2.1</b> Setup R workspace folders</a></li>
+<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="simple.html"><a href="simple.html#specify-alternative-values-for-h"><i class="fa fa-check"></i><b>2.2.1</b> Specify alternative values for h</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"><i class="fa fa-check"></i><b>2.3</b> Adding process error through recruitment deviations and time-varying selectivity</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="simple.html"><a href="simple.html#add-observation-error-through-sampling-from-om"><i class="fa fa-check"></i><b>2.3.1</b> Add observation error through sampling from OM</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="simple.html"><a href="simple.html#examine-the-management-procedure-used"><i class="fa fa-check"></i><b>2.4</b> Examine the management procedure used</a></li>
+<li class="chapter" data-level="2.5" data-path="simple.html"><a href="simple.html#run-ssmse"><i class="fa fa-check"></i><b>2.5</b> Run SSMSE</a></li>
+<li class="chapter" data-level="2.6" data-path="simple.html"><a href="simple.html#run_ssmse-output"><i class="fa fa-check"></i><b>2.6</b> run_SSMSE output</a></li>
+<li class="chapter" data-level="2.7" data-path="simple.html"><a href="simple.html#performance-metrics"><i class="fa fa-check"></i><b>2.7</b> Performance metrics</a></li>
+<li class="chapter" data-level="2.8" data-path="simple.html"><a href="simple.html#summarize-results"><i class="fa fa-check"></i><b>2.8</b> Summarize results</a></li>
+<li class="chapter" data-level="2.9" data-path="simple.html"><a href="simple.html#simple-convergence-check"><i class="fa fa-check"></i><b>2.9</b> Simple Convergence Check</a></li>
+<li class="chapter" data-level="2.10" data-path="simple.html"><a href="simple.html#plot-spawning-stock-biomass-ssb"><i class="fa fa-check"></i><b>2.10</b> Plot Spawning Stock Biomass (SSB)</a></li>
+<li class="chapter" data-level="2.11" data-path="simple.html"><a href="simple.html#example-mse-results"><i class="fa fa-check"></i><b>2.11</b> Example MSE Results</a></li>
+<li class="chapter" data-level="2.12" data-path="simple.html"><a href="simple.html#delete-the-files"><i class="fa fa-check"></i><b>2.12</b> Delete the files</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="advanced-options-use-a-custom-management-strategyprocedure.html"><a href="advanced-options-use-a-custom-management-strategyprocedure.html"><i class="fa fa-check"></i><b>3</b> Advanced options: use a custom management strategy/procedure</a></li>
+<li class="chapter" data-level="4" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>4</b> Options for run_SSMSE</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>4.1</b> Scenarios in SSMSE</a></li>
+<li class="chapter" data-level="4.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>4.2</b> Operating model</a></li>
+<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss3-model"><i class="fa fa-check"></i><b>4.3.1</b> Specify the Management Strategy in a SS3 model</a></li>
+<li class="chapter" data-level="4.3.2" data-path="SSMSE.html"><a href="SSMSE.html#custom-MS"><i class="fa fa-check"></i><b>4.3.2</b> Using a custom management strategy/procedure</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>4.4</b> Sampling options</a></li>
+<li class="chapter" data-level="4.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>4.5</b> Future changes to the operating model (#future)</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="SSMSE.html"><a href="SSMSE.html#the-strucutre-of-future_om_list"><i class="fa fa-check"></i><b>4.5.1</b> The strucutre of <code>future_om_list</code></a></li>
+<li class="chapter" data-level="4.5.2" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-denoting-a-gradual-change"><i class="fa fa-check"></i><b>4.5.2</b> Example of future_om_list denoting a gradual change</a></li>
+<li class="chapter" data-level="4.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-a-random-deviations"><i class="fa fa-check"></i><b>4.5.3</b> Example of future_om_list with a random deviations</a></li>
+<li class="chapter" data-level="4.5.4" data-path="SSMSE.html"><a href="SSMSE.html#example-of-using-historical-values-for-determining-parameter-values"><i class="fa fa-check"></i><b>4.5.4</b> Example of using historical values for determining parameter values</a></li>
+<li class="chapter" data-level="4.5.5" data-path="SSMSE.html"><a href="SSMSE.html#example-using-custom-pattern-instead-of-model_change"><i class="fa fa-check"></i><b>4.5.5</b> Example using “custom” pattern instead of “model_change”</a></li>
+<li class="chapter" data-level="4.5.6" data-path="SSMSE.html"><a href="SSMSE.html#how-is-the-operating-modified-to-accomodate-changes-as-specified-in-the-future_om_list"><i class="fa fa-check"></i><b>4.5.6</b> How is the operating modified to accomodate changes as specified in the future_OM_list?</a></li>
+<li class="chapter" data-level="4.5.7" data-path="SSMSE.html"><a href="SSMSE.html#example-of-specifying-recruitment-deviations"><i class="fa fa-check"></i><b>4.5.7</b> Example of specifying recruitment deviations</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>5</b> Helper functions in SSMSE</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>5.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
+<li class="chapter" data-level="5.2" data-path="helper.html"><a href="helper.html#samplelist"><i class="fa fa-check"></i><b>5.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
+<li class="chapter" data-level="5.3" data-path="helper.html"><a href="helper.html#omlist"><i class="fa fa-check"></i><b>5.3</b> Get examples of the <code>future_om_list</code> input with <code>create_future_om_list()</code></a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>6</b> Output and Plots</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>6.1</b> Summarizing output</a></li>
+<li class="chapter" data-level="6.2" data-path="output.html"><a href="output.html#checking-estimation-model-convergence"><i class="fa fa-check"></i><b>6.2</b> Checking estimation model convergence</a></li>
+<li class="chapter" data-level="6.3" data-path="output.html"><a href="output.html#calculating-performance-metrics"><i class="fa fa-check"></i><b>6.3</b> Calculating performance metrics</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="plotting-output-and-performance-metrics.html"><a href="plotting-output-and-performance-metrics.html"><i class="fa fa-check"></i><b>7</b> Plotting output and performance metrics</a></li>
+<li class="chapter" data-level="8" data-path="glossary-of-mse-terms.html"><a href="glossary-of-mse-terms.html"><i class="fa fa-check"></i><b>8</b> Glossary of MSE terms</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">SSMSE user manual</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="intro" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<div id="purpose" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Purpose</h2>
+<p>SSMSE allows users to directly use <a href="https://vlab.noaa.gov/web/stock-synthesis">Stock Synthesis</a> (SS3) as an operating model (OM) in a <a href="https://doi.org/10.1139/cjfas-2019-0084">Management Strategy Evaluation (MSE)</a>. The approach requires a conditioned Stock Synthesis model, which is treated as the OM.</p>
+<div class="figure">
+<img src="images/workflow_ssmse_noaa_branding.png" alt="" />
+<p class="caption">The general workflow of using SSMSE</p>
+</div>
+</div>
+<div id="funs" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Functions in SSMSE</h2>
+<p>The main functions users can call in SSMSE are:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>run_SSMSE()</code></td>
+<td>Run the MSE simulations</td>
+</tr>
+<tr class="even">
+<td><code>SSMSE_summary_all()</code></td>
+<td>Summarize MSE output</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="helper.html#helper">helper functions</a> to create inputs to <code>run_SSMSE</code> are:</p>
+<table>
+<colgroup>
+<col width="58%" />
+<col width="41%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Helper Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>create_sample_struct()</code></td>
+<td>Helper function to create a list for future sampling from a model to use as input in <code>run_SSMSE()</code></td>
+</tr>
+<tr class="even">
+<td><code>create_future_om_list()</code></td>
+<td>Helper function that provides examples of the structure for the future_om_list input to <code>run_SSMSE()</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>develop_OMs()</code></td>
+<td>Helper function to turn one OM into many</td>
+</tr>
+</tbody>
+</table>
+<p>Exported functions that can be used for writing <a href="SSMSE.html#custom-MS">custom management strategies</a> are:</p>
+<table>
+<colgroup>
+<col width="47%" />
+<col width="52%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>run_EM()</code></td>
+<td>Run an SS3 estimation model (uses run_ss_model)</td>
+</tr>
+<tr class="even">
+<td><code>run_ss_model()</code></td>
+<td>Run an SS3 model</td>
+</tr>
+<tr class="odd">
+<td><code>get_bin()</code></td>
+<td>Get location of the SS3 binary.</td>
+</tr>
+<tr class="even">
+<td><code>parse_MS()</code></td>
+<td>Function that runs the management strategy and returns catch by fleet for the projections. A reference function for those setting up custom management strategies.</td>
+</tr>
+</tbody>
+</table>
+<p>Finally, some plotting functions are available:</p>
+<table>
+<colgroup>
+<col width="60%" />
+<col width="39%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Plotting Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>plot_index_sampling()</code></td>
+<td>Plot to compare the sampled index values to the operating model expected values and original operating model conditioning index data.</td>
+</tr>
+<tr class="even">
+<td><code>plot_comp_sampling()</code></td>
+<td>Plot to compare the sampled composition values to the operating model expected values and original operating model conditioning composition data.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></h2>
+<p>In general, the steps for a scenario after calling run_SSMSE is:</p>
+<ol style="list-style-type: decimal">
+<li>Create the OM</li>
+<li>Sample data from the OM</li>
+<li>Run management strategy</li>
+<li>Determine if more years need to be projected. If yes, continue; if no, end simulation.</li>
+<li>Update OM with n years of catch where n is the number of years between assessments</li>
+<li>Sample n years of data</li>
+<li>Repeat steps 3-6 until the end of the simulation.</li>
+</ol>
+<p><img src="images/ssmse_1_iter.png" alt="The steps implemented by run_SSMSE in words" />
+The basic steps are contained in functions:</p>
+<ol style="list-style-type: decimal">
+<li>User calls run_SSMSE</li>
+<li>Steps for one iteration are passed to run_SSMSE_scen() and then run_SSMSE_iter().</li>
+<li>The OM is created with create_OM()</li>
+<li>run_OM() runs the OM and creates the dataset to pass to the management strategy</li>
+<li>Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.</li>
+<li>Update_OM() is called, which puts catch into the operating model.</li>
+<li>run_OM() runs the OM and creates the dataset to pass to the management strategy</li>
+<li>Parse_MS() is called, and runs the Management Strategy function (e.g., EM()), which projects catch forward.</li>
+<li>Determine if more years need to be projected. If yes, continue; if no, end simulation.</li>
+<li>Repeat steps 5-8.
+<img src="images/ssmse_fxn_map.png" alt="The steps implemented in run_SSMSE() showing the functions called." /></li>
+</ol>
+<div id="conditioning-the-om-and-sampling-from-the-om" class="section level3" number="1.3.1">
+<h3><span class="header-section-number">1.3.1</span> Conditioning the OM and sampling from the OM</h3>
+<p>For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the “true” values and a bootstrapped data set from SS3. Note that any modifications to the OM’s parameters specified by the users as it is extended forward in time are also applied.</p>
+</div>
+<div id="first-run-of-the-management-strategy-in-the-mse-simulation" class="section level3" number="1.3.2">
+<h3><span class="header-section-number">1.3.2</span> First run of the management strategy in the MSE simulation</h3>
+<p>The bootstrapped dataset is then used in a Management strategy to project catch by fleet to use for the next <span class="math inline">\(n\)</span> years, where <span class="math inline">\(n\)</span> is the number of years between assessments.</p>
+</div>
+<div id="feedback-from-managment-strategy-into-om-extending-model-years" class="section level3" number="1.3.3">
+<h3><span class="header-section-number">1.3.3</span> Feedback from managment strategy into OM: extending model years</h3>
+<p>The catch for the next <span class="math inline">\(n\)</span> years before the next assessment is then added to the OM, as well as any recruitment or time varying parameter deviations. The OM is again run with no estimation where it can be used to produce sampled data for the next <span class="math inline">\(n\)</span> years. These new data values are appended to the original dataset.</p>
+</div>
+<div id="subsequent-runs-of-the-management-strategy" class="section level3" number="1.3.4">
+<h3><span class="header-section-number">1.3.4</span> Subsequent runs of the management strategy</h3>
+<p>The appended data set is then used in the management strategy again, and new catch by fleet is produced that can then be fed back to the OM.</p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="simple.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
