@@ -94,8 +94,7 @@ create_scen_list <- function(scen_name_vec,
             len_scen_name_vec, "."
           )
         }
-      }
-      else {
+      } else {
         stop(
           "var_name should have 'vec' as part of its name to indicate it is ",
           "a vector or 'list' to indicate it is a list, but did not have ",
@@ -154,8 +153,8 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
     verbose = FALSE,
     section = 1
   )
-  OM_ctl <- SS_readctl(file.path(OM_out_dir, OM_start[["ctlfile"]]), 
-    datlist = OM_dat, 
+  OM_ctl <- SS_readctl(file.path(OM_out_dir, OM_start[["ctlfile"]]),
+    datlist = OM_dat,
     verbose = FALSE
   )
   if (!is.null(EM_out_dir)) {
@@ -163,7 +162,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       verbose = FALSE
     )
     EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start[["datfile"]]), verbose = FALSE)
-        
+
     EM_ctl <- SS_readctl(file.path(EM_out_dir, EM_start[["ctlfile"]]), datlist = EM_dat, verbose = FALSE)
   } else {
     EM_start <- NULL
@@ -215,10 +214,10 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
     },
     styr = styr, endyr = endyr
   )
-  
+
   if (!is.null(OM_ctl)) {
-    if (!is.null(OM_ctl$Variance_adjustment_list)) {
-      if(length(OM_ctl$Variance_adjustment_list[,1])>0){
+    if (!is.null(OM_ctl[["Variance_adjustment_list"]])) {
+      if (length(OM_ctl[["Variance_adjustment_list"]][, 1]) > 0) {
         warning(
           "Original OM model files have variance adjustment factors specified.",
           "This may have unintended effects such as causeing sample sizes to differ from those specified.",
@@ -226,8 +225,8 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
         )
       }
     }
-    if (!is.null(OM_ctl$Q_options)) {
-      if(sum(OM_ctl$Q_options$extra_se)>0){
+    if (!is.null(OM_ctl[["Q_options"]])) {
+      if (sum(OM_ctl[["Q_options"]][["extra_se"]]) > 0) {
         warning(
           "Original OM model files have extra SE added to catchability specified.",
           "This may have unintended effects such as causeing sample sizes to differ from those specified.",
@@ -237,8 +236,8 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
     }
   }
   if (!is.null(EM_ctl)) {
-    if (!is.null(EM_ctl$Variance_adjustment_list)) {
-      if(length(EM_ctl$Variance_adjustment_list[,1])>0){
+    if (!is.null(EM_ctl[["Variance_adjustment_list"]])) {
+      if (length(EM_ctl[["Variance_adjustment_list"]][, 1]) > 0) {
         warning(
           "Original EM model files have variance adjustment factors specified.",
           "This may have unintended effects such as causeing sample sizes to differ from those specified.",
@@ -246,8 +245,8 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
         )
       }
     }
-    if (!is.null(EM_ctl$Q_options)) {
-      if(sum(EM_ctl$Q_options$extra_se)>0){
+    if (!is.null(EM_ctl[["Q_options"]])) {
+      if (sum(EM_ctl[["Q_options"]][["extra_se"]]) > 0) {
         warning(
           "Original EM model files have extra SE added to catchability specified.",
           "This may have unintended effects such as causeing sample sizes to differ from those specified.",
@@ -513,27 +512,27 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir,
   OM_out_dir <- file.path(out_dir, OM_folder_name)
   dir.create(OM_out_dir, showWarnings = FALSE)
   # Add the EM dir, if necessary
-    if (is.null(EM_name) & !is.null(EM_in_dir)) EM_name <- basename(EM_in_dir)
-    if (!is.null(EM_name) & is.null(EM_in_dir)) {
-      EM_in_dir <- pkg_dirs[grep(EM_name, pkg_dirs)]
-      if (length(EM_in_dir) != 1) {
-        stop(
-          "EM_name ", EM_name, " matched ", length(EM_in_dir), " models in ",
-          "SSMSE external package data, but should match 1. Please ",
-          "change EM_name to match (or partially match unambiguously) with 1 ",
-          "model in the models folder of the SSMSE external package data. ",
-          "Model options are: ", paste0(basename(pkg_dirs), collapse = ", ")
-        )
-      }
+  if (is.null(EM_name) & !is.null(EM_in_dir)) EM_name <- basename(EM_in_dir)
+  if (!is.null(EM_name) & is.null(EM_in_dir)) {
+    EM_in_dir <- pkg_dirs[grep(EM_name, pkg_dirs)]
+    if (length(EM_in_dir) != 1) {
+      stop(
+        "EM_name ", EM_name, " matched ", length(EM_in_dir), " models in ",
+        "SSMSE external package data, but should match 1. Please ",
+        "change EM_name to match (or partially match unambiguously) with 1 ",
+        "model in the models folder of the SSMSE external package data. ",
+        "Model options are: ", paste0(basename(pkg_dirs), collapse = ", ")
+      )
     }
-    if(!is.null(EM_name)| !is.null(EM_in_dir)) {
-      EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM_init"))
-      dir.create(EM_out_dir, showWarnings = FALSE)
-    }
-    if (is.null(EM_name) & is.null(EM_in_dir)) {
-      EM_out_dir <- NULL
-      EM_in_dir <- NULL
-    }
+  }
+  if (!is.null(EM_name) | !is.null(EM_in_dir)) {
+    EM_out_dir <- file.path(out_dir, paste0(EM_name, "_EM_init"))
+    dir.create(EM_out_dir, showWarnings = FALSE)
+  }
+  if (is.null(EM_name) & is.null(EM_in_dir)) {
+    EM_out_dir <- NULL
+    EM_in_dir <- NULL
+  }
   OM_mod_loc <- list(
     OM_in_dir = OM_in_dir, OM_out_dir = OM_out_dir,
     EM_in_dir = EM_in_dir, EM_out_dir = EM_out_dir
@@ -744,8 +743,8 @@ set_MSE_seeds <- function(seed = NULL, iter_vec) {
           input.seed <- input.seed[-c(1:iter_vec[i])]
         }
       } else {
-        stop("The length of your seed vector doesn't match either 
-          (1, 1+n_scenarios, 1+n_scenarios+n_iterations_single_scenario, 
+        stop("The length of your seed vector doesn't match either
+          (1, 1+n_scenarios, 1+n_scenarios+n_iterations_single_scenario,
           or 1+n_scenarios+n_iterations_all_scenarios)")
       }
     } else if (length(iter_vec) == 1) {
@@ -775,8 +774,8 @@ set_MSE_seeds <- function(seed = NULL, iter_vec) {
           input.seed <- input.seed[-c(1:iter_vec[i])]
         }
       } else {
-        stop("The length of your seed vector doesn't match either 
-          (1, 1+n_scenarios, 1+n_scenarios+n_iterations_single_scenario, 
+        stop("The length of your seed vector doesn't match either
+          (1, 1+n_scenarios, 1+n_scenarios+n_iterations_single_scenario,
           or 1+n_scenarios+n_iterations_all_scenarios)")
       }
     }
@@ -797,7 +796,7 @@ set_MSE_seeds <- function(seed = NULL, iter_vec) {
     } else if (length(input.seed[[2]]) == length(iter_vec)) {
       seed[["scenario"]] <- input.seed[[2]]
     } else {
-      stop("seed entered as list but no seed[['scenario']] and second element not the same 
+      stop("seed entered as list but no seed[['scenario']] and second element not the same
              length as the number of scenarios")
     }
 
@@ -826,7 +825,7 @@ set_MSE_seeds <- function(seed = NULL, iter_vec) {
         }
       }
     } else {
-      stop("seed entered as list but no seed[['iter']] and third element not the same 
+      stop("seed entered as list but no seed[['iter']] and third element not the same
              length as the number of scenarios")
     }
   }
