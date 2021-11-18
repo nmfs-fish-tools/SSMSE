@@ -16,8 +16,8 @@ the MSE. A single integer value.}
 \item{rm_NAs}{Should all NAs be removed from dataframes? Defaults to FALSE.}
 }
 \value{
-A sample_struct list object, where each list element is a dataframe 
-  containing sampling values. If there were no data for the type, NA is 
+A sample_struct list object, where each list element is a dataframe
+  containing sampling values. If there were no data for the type, NA is
   returned for the element.
 }
 \description{
