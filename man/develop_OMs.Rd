@@ -34,6 +34,6 @@ will be fixed so phase will be set as negative.}
 FALSE}
 }
 \description{
-THis is a utility to help a user create new operating models starting from the
+This is a utility to help a user create new operating models starting from the
 same model. For now, it is only possible to adjust 1 parameter value
 }
