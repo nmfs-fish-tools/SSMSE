@@ -150,7 +150,6 @@ High level function to run a management strategy evaluation using Stock
 Synthesis as the Operating model(s)
 }
 \examples{
-
 \dontrun{
 my_dir <- file.path(tempdir(), "ex-run_SSMSE")
 dir.create(my_dir)
