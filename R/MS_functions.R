@@ -16,28 +16,28 @@
 #' @template seed
 #' @param ... Any additional parameters
 #' @author Kathryn Doering
-EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE, 
+EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
                nyrs_assess, dat_yrs, sample_struct = NULL, seed = NULL, ...) {
   check_dir(EM_out_dir)
   # TODO: change this name to make it less ambiguous
   new_datfile_name <- "init_dat.ss"
   # change the name of data file.
   start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
-                          verbose = FALSE
+    verbose = FALSE
   )
   if (init_loop) {
     # copy over raw data file from the OM to EM folder
     SS_writedat(OM_dat,
-                file.path(EM_out_dir, new_datfile_name),
-                overwrite = TRUE,
-                verbose = FALSE
+      file.path(EM_out_dir, new_datfile_name),
+      overwrite = TRUE,
+      verbose = FALSE
     )
     orig_datfile_name <- start[["datfile"]] # save the original data file name.
     start[["datfile"]] <- new_datfile_name
     start[["seed"]] <- seed
     SS_writestarter(start, file.path(EM_out_dir),
-                    verbose = FALSE,
-                    overwrite = TRUE, warn = FALSE
+      verbose = FALSE,
+      overwrite = TRUE, warn = FALSE
     )
     # make sure the data file has the correct formatting (use existing data
     # file in the EM directory to make sure)??
@@ -50,21 +50,23 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
       verbose = verbose
     )
     ctl <- SS_readctl(file.path(EM_out_dir, start[["ctlfile"]]),
-                      datlist = new_EM_dat)
-    if(ctl[["EmpiricalWAA"]] == 1) {
+      datlist = new_EM_dat
+    )
+    if (ctl[["EmpiricalWAA"]] == 1) {
       stop("EM uses empirical weight at age, which is not yet possible to use.")
     }
-    if(!all(ctl[["time_vary_auto_generation"]] == 1)) {
+    if (!all(ctl[["time_vary_auto_generation"]] == 1)) {
       warning("Turning off autogeneration of time varying lines in the control file of the EM")
       ctl[["time_vary_auto_generation"]] <- rep(1, times = 5)
       r4ss::SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]),
-                        overwrite = TRUE)
+        overwrite = TRUE
+      )
     }
   } else {
     if (!is.null(sample_struct)) {
       sample_struct_sub <- lapply(sample_struct,
-                                  function(df, y) df[df[, 1] %in% y, ],
-                                  y = dat_yrs - nyrs_assess
+        function(df, y) df[df[, 1] %in% y, ],
+        y = dat_yrs - nyrs_assess
       )
     } else {
       sample_struct_sub <- NULL
@@ -82,34 +84,34 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   }
   # Update SS random seed
   start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
-                          verbose = FALSE
+    verbose = FALSE
   )
   start[["seed"]] <- seed
   SS_writestarter(start, file.path(EM_out_dir),
-                  verbose = FALSE,
-                  overwrite = TRUE, warn = FALSE
+    verbose = FALSE,
+    overwrite = TRUE, warn = FALSE
   )
   # manipulate the forecasting file.
   # make sure enough yrs can be forecasted.
-  
+
   fcast <- SS_readforecast(file.path(EM_out_dir, "forecast.ss"),
-                           readAll = TRUE,
-                           verbose = FALSE
+    readAll = TRUE,
+    verbose = FALSE
   )
   # check that it can be used in the EM. fleets shoul
   check_EM_forecast(fcast,
-                    n_flts_catch = length(which(new_EM_dat[["fleetinfo"]][, "type"] %in%
-                                                  c(1, 2)))
+    n_flts_catch = length(which(new_EM_dat[["fleetinfo"]][, "type"] %in%
+      c(1, 2)))
   )
   fcast <- change_yrs_fcast(fcast,
-                            make_yrs_rel = (init_loop == TRUE),
-                            nyrs_fore = nyrs_assess,
-                            mod_styr = new_EM_dat[["styr"]],
-                            mod_endyr = new_EM_dat[["endyr"]]
+    make_yrs_rel = (init_loop == TRUE),
+    nyrs_fore = nyrs_assess,
+    mod_styr = new_EM_dat[["styr"]],
+    mod_endyr = new_EM_dat[["endyr"]]
   )
   SS_writeforecast(fcast,
-                   dir = EM_out_dir, writeAll = TRUE, overwrite = TRUE,
-                   verbose = FALSE
+    dir = EM_out_dir, writeAll = TRUE, overwrite = TRUE,
+    verbose = FALSE
   )
   # given all checks are good, run the EM
   # check convergence (figure out way to error if need convergence)
@@ -152,7 +154,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
   units <- dat[["fleetinfo"]]
   units[["survey_number"]] <- seq_len(nrow(units))
   flt_units <- units[units[["type"]] %in% c(1, 2), c("survey_number", "units")]
-  # for multi-area models, need to summarize across areas (note a fleet 
+  # for multi-area models, need to summarize across areas (note a fleet
   # only operates in 1 area)
   # may also need to consider if the catch multiplier is used.
   # match catch with the units
@@ -160,8 +162,8 @@ get_EM_catch_df <- function(EM_dir, dat) {
   flt_units <- merge(flt_units, unit_key, all.x = TRUE, all.y = FALSE)
   # get the se
   se <- get_input_value(dat[["catch"]],
-                        method = "most_common_value",
-                        colname = "catch_se", group = "fleet"
+    method = "most_common_value",
+    colname = "catch_se", group = "fleet"
   )
   df_list <- vector(mode = "list", length = nrow(flt_units))
   bio_df_list <- vector(mode = "list", length = nrow(flt_units))
@@ -170,8 +172,8 @@ get_EM_catch_df <- function(EM_dir, dat) {
     # note for multi-area models, there is a row for each area and each fleet.
     # will need to summarize  across areas (because fleets only operate in 1
     # area , so this approach is fine for the quantities of interest)
-    
-    # find which row to get fleet unit catch from. Right now, assume selected = 
+
+    # find which row to get fleet unit catch from. Right now, assume selected =
     # retained,
     # i.e., no discards.
     tmp_col_lab <- paste0(
@@ -209,7 +211,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
       catch = fcast_catch_df[, tmp_col_lab],
       catch_se = tmp_catch_se
     )
-    
+
     bio_df_list[[fl]] <- data.frame(
       area = fcast_catch_df[["Area"]],
       year = fcast_catch_df[["Yr"]],
@@ -218,7 +220,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
       catch = fcast_catch_df[, tmp_col_lab_bio],
       catch_se = tmp_catch_se
     )
-    
+
     F_df_list[[fl]] <- data.frame(
       area = fcast_catch_df[["Area"]],
       year = fcast_catch_df[["Yr"]],
@@ -231,39 +233,39 @@ get_EM_catch_df <- function(EM_dir, dat) {
   catch_df <- do.call("rbind", df_list)
   catch_bio_df <- do.call("rbind", bio_df_list)
   catch_F_df <- do.call("rbind", F_df_list)
-  
-  #sum across area - this is necessary fo a multiarea model
-  catch_df <- catch_df %>% 
-                dplyr::group_by(.data$year, .data$seas, .data$fleet) %>% 
-                dplyr::summarise(catch = sum(.data$catch)) %>%
-                merge(se, all.x = TRUE, all.y = FALSE) %>% 
-                dplyr::ungroup() %>% 
-                dplyr::select(.data$year, .data$seas, .data$fleet, .data$catch, .data$catch_se)
-  catch_bio_df <- catch_bio_df %>% 
-    dplyr::group_by(.data$year, .data$seas, .data$fleet) %>% 
-    dplyr::summarise(catch = sum(.data$catch)) %>%
-    merge(se, all.x = TRUE, all.y = FALSE) %>% 
-    dplyr::ungroup() %>% 
-    dplyr::select(.data$year, .data$seas, .data$fleet, .data$catch, .data$catch_se)
-  catch_F_df <- catch_F_df %>% 
-    dplyr::group_by(.data$year, .data$seas, .data$fleet) %>% 
-    dplyr::summarise(catch = sum(.data$catch)) %>%
-    merge(se, all.x = TRUE, all.y = FALSE) %>% 
-    dplyr::ungroup() %>% 
-    dplyr::select(.data$year, .data$seas, .data$fleet, .data$catch, .data$catch_se)
-  
+
+  # sum across area - this is necessary fo a multiarea model
+  catch_df <- catch_df %>%
+    dplyr::group_by(.data[["year"]], .data[["seas"]], .data[["fleet"]]) %>%
+    dplyr::summarise(catch = sum(.data[["catch"]])) %>%
+    merge(se, all.x = TRUE, all.y = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(.data[["year"]], .data[["seas"]], .data[["fleet"]], .data[["catch"]], .data[["catch_se"]])
+  catch_bio_df <- catch_bio_df %>%
+    dplyr::group_by(.data[["year"]], .data[["seas"]], .data[["fleet"]]) %>%
+    dplyr::summarise(catch = sum(.data[["catch"]])) %>%
+    merge(se, all.x = TRUE, all.y = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(.data[["year"]], .data[["seas"]], .data[["fleet"]], .data[["catch"]], .data[["catch_se"]])
+  catch_F_df <- catch_F_df %>%
+    dplyr::group_by(.data[["year"]], .data[["seas"]], .data[["fleet"]]) %>%
+    dplyr::summarise(catch = sum(.data[["catch"]])) %>%
+    merge(se, all.x = TRUE, all.y = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(.data[["year"]], .data[["seas"]], .data[["fleet"]], .data[["catch"]], .data[["catch_se"]])
+
   catch_df <- as.data.frame(catch_df)
   catch_bio_df <- as.data.frame(catch_bio_df)
   catch_F_df <- as.data.frame(catch_F_df)
-  
+
   # get discard, if necessary
   if (dat[["N_discard_fleets"]] > 0) {
     # discard units: 1, biomass/number according to set in catch
     # 2, value are fraction (biomass/numbers ) of total catch discarded
     # 3, values are in numbers(thousands)
     se_dis <- get_input_value(dat[["discard_data"]],
-                              method = "most_common_value",
-                              colname = "Std_in", group = "Flt"
+      method = "most_common_value",
+      colname = "Std_in", group = "Flt"
     )
     dis_df_list <- vector(
       mode = "list",
@@ -321,7 +323,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
 }
 
 #' No Catch in the future management strategy
-#' 
+#'
 #' @param OM_dat An valid SS data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template OM_out_dir
@@ -341,11 +343,12 @@ no_catch <- function(OM_out_dir, OM_dat, dat_yrs, ...) {
   new_catch_list <- get_no_EM_catch_df(
     OM_dir = OM_out_dir,
     yrs = dat_yrs,
-    MS = "no_catch")
+    MS = "no_catch"
+  )
 }
 
 #' Last year catch used in the future for management strategy
-#' 
+#'
 #' @param OM_dat An valid SS data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template OM_out_dir
@@ -365,7 +368,8 @@ last_yr_catch <- function(OM_out_dir, OM_dat, dat_yrs, ...) {
   new_catch_list <- get_no_EM_catch_df(
     OM_dir = OM_out_dir,
     yrs = dat_yrs,
-    MS = "last_yr_catch")
+    MS = "last_yr_catch"
+  )
 }
 
 #' Get the data frame of catch for the next iterations when not using an
@@ -399,26 +403,26 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   # use forecasting to find the values desired
   # keep old forecasting
   file.copy(file.path(OM_dir, "forecast.ss"),
-            file.path(OM_dir, "forecast_OM.ss"),
-            overwrite = TRUE
+    file.path(OM_dir, "forecast_OM.ss"),
+    overwrite = TRUE
   )
   file.copy(file.path(OM_dir, "ss.par"), file.path(OM_dir, "ss_OM.par"),
-            overwrite = TRUE
+    overwrite = TRUE
   )
   # get the catch values by MS.
   # l_yr <- min(yrs) # get the last year before sample value target years
   # l_yr <- max(dat[["catch"]][dat[["catch"]][,"year"]<l_yr,"year"])
   catch <- dat[["catch"]] # get the catch df
   # catch_by_fleet <- catch[catch[["year"]] == l_yr, c("fleet", "seas", "catch")]
-  
+
   # if (MS == "no_catch") {
   #   catch_by_fleet[["catch"]] <- 0
   # }
   # find combinations of catch needed seas and fleet
   flt_combo <- unique(catch[, c("seas", "fleet")])
   se <- get_input_value(catch,
-                        method = "most_common_value",
-                        colname = "catch_se", group = "fleet"
+    method = "most_common_value",
+    colname = "catch_se", group = "fleet"
   )
   tmp_df_list <- vector(mode = "list", length = length(yrs) * nrow(flt_combo))
   pos <- 1
@@ -436,12 +440,12 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
       } else {
         l_yr <- min(yrs) # get the last year before sample value target years
         l_yr <- max(dat[["catch"]][dat[["catch"]][, "year"] < l_yr &
-                                     dat[["catch"]][, "fleet"] == flt_combo[["fleet"]][flt] &
-                                     dat[["catch"]][, "seas"] == flt_combo[["seas"]][flt], "year"])
-        
+          dat[["catch"]][, "fleet"] == flt_combo[["fleet"]][flt] &
+          dat[["catch"]][, "seas"] == flt_combo[["seas"]][flt], "year"])
+
         tmp_catch <- catch[catch[["year"]] == l_yr &
-                             catch[["fleet"]] == flt_combo[["fleet"]][flt] &
-                             catch[["seas"]] == flt_combo[["seas"]][flt], "catch"]
+          catch[["fleet"]] == flt_combo[["fleet"]][flt] &
+          catch[["seas"]] == flt_combo[["seas"]][flt], "catch"]
       }
       # Add SE and catch to df
       tmp_df_list[[pos]] <- data.frame(
@@ -463,8 +467,8 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     colnames(fore[["ForeCatch"]]) <- c("Year", "Seas", "Fleet", "Catch or F")
     fore[["Nforecastyrs"]] <- max(fore[["ForeCatch"]][["Year"]]) - dat[["endyr"]]
     r4ss::SS_writeforecast(fore,
-                           dir = OM_dir, writeAll = TRUE, overwrite = TRUE,
-                           verbose = FALSE
+      dir = OM_dir, writeAll = TRUE, overwrite = TRUE,
+      verbose = FALSE
     )
     # # modify par file ----
     # TODO: figure out what values should go here; probably not 0.
@@ -476,17 +480,17 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     # Run SS with the new catch set as forecast targets. This will use SS to
     # calculate the F required in the OM to achieve these catches.
     run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess",
-                 verbose = FALSE,
-                 debug_par_run = TRUE
+      verbose = FALSE,
+      debug_par_run = TRUE
     )
     # Load the SS results
     outlist <- r4ss::SS_output(OM_dir,
-                               verbose = FALSE, printstats = FALSE,
-                               covar = FALSE, warn = FALSE, readwt = FALSE
+      verbose = FALSE, printstats = FALSE,
+      covar = FALSE, warn = FALSE, readwt = FALSE
     )
     # get F.
     F_vals <- get_F(outlist[["timeseries"]],
-                    fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
+      fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
     )
     catch_F <- F_vals[["F_rate_fcast"]][
       ,
@@ -495,11 +499,11 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     colnames(catch_F) <- c("year", "seas", "fleet", "catch")
     # get catch in biomass.
     catch_bio <- get_retained_catch(outlist[["timeseries"]],
-                                    # use units_of_catch = 1 for all fleets,
-                                    # b/c want biomass in all cases.
-                                    units_of_catch = rep(1,
-                                                         times = NROW(dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), ])
-                                    )
+      # use units_of_catch = 1 for all fleets,
+      # b/c want biomass in all cases.
+      units_of_catch = rep(1,
+        times = NROW(dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), ])
+      )
     )
     catch_bio <- catch_bio[catch_bio[["Era"]] == "FORE", c("Yr", "Seas", "Fleet", "retained_catch")]
     colnames(catch_bio) <- c("year", "seas", "fleet", "catch")
@@ -512,11 +516,11 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   # add the standard error here?
   # undo changes to forecasting/report files. don't run model, but may need to?
   file.copy(file.path(OM_dir, "forecast_OM.ss"),
-            file.path(OM_dir, "forecast.ss"),
-            overwrite = TRUE
+    file.path(OM_dir, "forecast.ss"),
+    overwrite = TRUE
   )
   file.copy(file.path(OM_dir, "ss_OM.par"), file.path(OM_dir, "ss.par"),
-            overwrite = TRUE
+    overwrite = TRUE
   )
   return_list <- list(
     catch = df_catch,
@@ -565,9 +569,9 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
     # Read in the starting EM files for data and forecast
     # this will be the reference data for comparison by the
     # interim harvest control rule
-    
+
     start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
-                            verbose = FALSE
+      verbose = FALSE
     )
     start[["N_bootstraps"]] <- 2
     start[["init_values_src"]] <- 1
@@ -601,9 +605,9 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
     temp_impl_error[, 1] <- (Reference_dat[["endyr"]] + 1):(Reference_dat[["endyr"]] + Reference_forecast[["Nforecastyrs"]])
     colnames(temp_impl_error) <- c("year", "impl_error")
     Reference_par[["Fcast_impl_error"]] <- as.data.frame(temp_impl_error)
-    
+
     SS_writepar_3.30(parlist = Reference_par, outfile = file.path(EM_out_dir, "ss.par"), overwrite = TRUE)
-    
+
     SS_writeforecast(
       mylist = Reference_forecast,
       dir = EM_out_dir,
@@ -612,7 +616,7 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       overwrite = TRUE,
       verbose = FALSE
     )
-    
+
     SS_writeforecast(
       mylist = Reference_forecast,
       dir = EM_out_dir,
@@ -621,7 +625,7 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       overwrite = TRUE,
       verbose = FALSE
     )
-    
+
     indices <- unique(abs(Reference_dat[["CPUE"]][["index"]]))
     for (i in indices) {
       if (interim_struct[["Ref_years"]][i] >= Reference_dat[["styr"]] & interim_struct[["Ref_years"]][i] <= (Reference_dat[["endyr"]] + Reference_forecast[["Nforecastyrs"]])) {
@@ -646,26 +650,26 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
         }
       }
     }
-    
+
     SS_writedat(Reference_dat, file.path(EM_out_dir, start[["datfile"]]),
-                overwrite = TRUE,
-                verbose = FALSE
+      overwrite = TRUE,
+      verbose = FALSE
     )
-    
+
     SS_writedat(OM_dat, file.path(EM_out_dir, "data_OM_init.dat"),
-                overwrite = TRUE,
-                verbose = FALSE
+      overwrite = TRUE,
+      verbose = FALSE
     )
-    
+
     run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
-    
-    
+
+
     Reference_dat <- SS_readdat(
       file = file.path(EM_out_dir, "data.ss_new"),
       version = 3.30, section = 2, verbose = FALSE
     )
-    
-    
+
+
     ### This is test code that calculates the standard error of index residuals that could be
     ### an alternative formulation to the median of the standard errors used above.
     # Ref_obs<- SS_readdat(file = file.path(EM_out_dir, "data.ss_new"),
@@ -693,13 +697,13 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
     #     }
     #   }
     # }
-    
+
     SS_writedat(Reference_dat, file.path(EM_out_dir, ref_datfile_name),
-                overwrite = TRUE,
-                verbose = FALSE
+      overwrite = TRUE,
+      verbose = FALSE
     )
     new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = Reference_dat)
-    
+
     # NOte: this is where we need to change which years are being subset for the
     # new catch list.
     if (!is.null(new_catch_list[["catch"]])) {
@@ -725,9 +729,9 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       verbose = FALSE
     )
     Reference_forecast <- SS_readforecast(file.path(EM_init_dir, ref_forecast_name),
-                                          verbose = FALSE
+      verbose = FALSE
     )
-    
+
     # TODO: Work on code to run assessments intermitently with interim assessment
     # Sample_year <- (OM_dat[["endyr"]] == (Reference_dat[["endyr"]] + interim_struct[["assess_freq"]]))
     Sample_year <- FALSE
@@ -752,7 +756,7 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       #                             new_datfile_name = ref_datfile_name,
       #                             verbose = verbose)
       #   # extend forward bias adjustment(if using)
-    
+
       #   # manipulate the forecasting file.
       #   # make sure enough yrs can be forecasted.
       #   fcast <- SS_readforecast(file.path(EM_out_dir, ref_forecast_name),
@@ -791,15 +795,15 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       #   new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
     } else {
       start <- SS_readstarter(file.path(EM_init_dir, "starter.ss"),
-                              verbose = FALSE
+        verbose = FALSE
       )
-      
-      
-      
+
+
+
       if (!is.null(sample_struct)) {
         sample_struct_sub <- lapply(sample_struct,
-                                    function(df, y) df[df[, 1] %in% y, ],
-                                    y = dat_yrs - nyrs_assess
+          function(df, y) df[df[, 1] %in% y, ],
+          y = dat_yrs - nyrs_assess
         )
       } else {
         sample_struct_sub <- NULL
@@ -814,17 +818,17 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
         new_datfile_name = start[["datfile"]],
         verbose = verbose
       )
-      
+
       ref_index <- Reference_dat[["CPUE"]]
       curr_index <- new_EM_dat[["CPUE"]]
-      
+
       if (is.null(interim_struct)) {
         interim_struct <- list(MA_years = 3, assess_freq = 5, Beta = rep(1, max(ref_index[, 3])), Index_weights = rep(1, max(ref_index[, 3])), Ref_years = rep(0, max(ref_index[, 3])), control = FALSE)
       }
-      
+
       new_ref_index <- ref_index[0, , drop = FALSE]
       new_curr_index <- curr_index[0, , drop = FALSE]
-      
+
       indices <- unique(abs(Reference_dat[["CPUE"]][["index"]]))
       for (i in indices) {
         for (j in 1:interim_struct[["MA_years"]]) {
@@ -835,15 +839,15 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
             base_yr <- new_EM_dat[["endyr"]] + interim_struct[["Ref_years"]][i] - j + 1
             curr_yr <- (new_EM_dat[["endyr"]] + interim_struct[["Ref_years"]][i] - j + 1)
           }
-          
+
           temp_ref_index <- ref_index[is.element(ref_index[, "year"], base_yr), , drop = FALSE]
           temp_ref_index_pos <- temp_ref_index[temp_ref_index[, "index"] == i, , drop = FALSE]
           temp_ref_index_neg <- temp_ref_index[temp_ref_index[, "index"] == (-i), , drop = FALSE]
-          
+
           temp_curr_index <- curr_index[is.element(curr_index[, "year"], curr_yr), , drop = FALSE]
           temp_curr_index_pos <- temp_curr_index[temp_curr_index[, "index"] == i, , drop = FALSE]
           temp_curr_index_neg <- temp_curr_index[temp_curr_index[, "index"] == (-i), , drop = FALSE]
-          
+
           if (length(temp_ref_index_pos[, 1]) == 1) {
             if (length(temp_curr_index_pos[, 1]) == 1) {
               new_ref_index <- rbind(new_ref_index, temp_ref_index_pos)
@@ -865,7 +869,7 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       }
       ref_index <- new_ref_index
       curr_index <- new_curr_index
-      
+
       ref_index[["index"]] <- abs(ref_index[["index"]])
       curr_index[["index"]] <- abs(curr_index[["index"]])
       # curr_index <- curr_index[is.element(curr_index[,1],((OM_dat[["endyr"]]-interim_struct[["MA_years"]]+1):OM_dat[["endyr"]])),]
@@ -887,30 +891,30 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       adjust_index[, 7] <- curr_index[, 1]
       # interim_struct[["Beta"]] # a scalar multiplier >= 0 that is inversely proportional to risk.
       # interim_struct[["Index_weights"]] #vector of length n indices with values summing to 1
-      
+
       if (interim_struct[["control"]] == FALSE) {
         adjust_index[, 3] <- curr_index[, 4] + interim_struct[["Beta"]][curr_index[, 3]] * curr_index[, 5]
         adjust_index[, 4] <- ref_index[, 4] + interim_struct[["Beta"]][ref_index[, 3]] * curr_index[, 5]
         adjust_index[, 5] <- adjust_index[, 3] / adjust_index[, 4]
         adjust_index[, 6] <- interim_struct[["Index_weights"]][adjust_index[, 2]]
-        
+
         # interim_struct[["MA_years"]] #a value with the number of years over which to calculate a moving average to test indicies
-        
+
         used_index <- adjust_index
         for (i in 1:length(used_index[, 5])) {
           used_index[i, 5] <- max(min(used_index[i, 5], 2), 0.25)
         }
         used_index[, 6] <- used_index[, 6] / sum(used_index[, 6])
-        
+
         catch_scaling_factor <- sum(used_index[, 5] * used_index[, 6])
-        
+
         catch_scaling_factor <- max(min(catch_scaling_factor, 2), 0.25)
       } else {
         catch_scaling_factor <- 1
       }
-      
+
       new_catch_list <- get_EM_catch_df(EM_dir = EM_init_dir, dat = Reference_dat)
-      
+
       if (!is.null(new_catch_list[["catch"]])) {
         new_catch_list[["catch"]] <- new_catch_list[["catch"]][is.element(new_catch_list[["catch"]][["year"]], (new_EM_dat[["endyr"]] + 1):(new_EM_dat[["endyr"]] + nyrs_assess)), ]
         new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]] > 0] <- new_catch_list[["catch"]][["catch"]][new_catch_list[["catch"]][["catch"]] > 0] * catch_scaling_factor
@@ -927,12 +931,12 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
         new_catch_list[["catch_F"]] <- new_catch_list[["catch_F"]][is.element(new_catch_list[["catch_F"]][["year"]], (new_EM_dat[["endyr"]] + 1):(new_EM_dat[["endyr"]] + nyrs_assess)), ]
         new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]] > 0] <- new_catch_list[["catch_F"]][["catch"]][new_catch_list[["catch"]][["catch"]] > 0] * catch_scaling_factor
       }
-      
+
       SS_writedat(new_EM_dat, file.path(EM_init_dir, paste0("data_OM_", new_EM_dat[["endyr"]], ".dat")),
-                  overwrite = TRUE,
-                  verbose = FALSE
+        overwrite = TRUE,
+        verbose = FALSE
       )
-      
+
       utils::write.csv(
         new_catch_list[["catch"]],
         file.path(
@@ -954,4 +958,3 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
   }
   new_catch_list
 }
-

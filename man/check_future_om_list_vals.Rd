@@ -2,7 +2,7 @@
 % Please edit documentation in R/future_om.R
 \name{check_future_om_list_vals}
 \alias{check_future_om_list_vals}
-\title{Check structure of a future OM list against the scen_list and standardize 
+\title{Check structure of a future OM list against the scen_list and standardize
 output}
 \usage{
 check_future_om_list_vals(future_om_list, scen_list)

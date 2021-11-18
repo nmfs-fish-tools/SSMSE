@@ -76,8 +76,8 @@ convert_to_r4ss_names <- function(sample_struct,
 #'  the MSE. A single integer value.
 #' @param rm_NAs Should all NAs be removed from dataframes? Defaults to FALSE.
 #' @export
-#' @return A sample_struct list object, where each list element is a dataframe 
-#'   containing sampling values. If there were no data for the type, NA is 
+#' @return A sample_struct list object, where each list element is a dataframe
+#'   containing sampling values. If there were no data for the type, NA is
 #'   returned for the element.
 #' @author Kathryn Doering
 #' @examples
@@ -303,12 +303,12 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
     sample_struct,
     function(x) utils::type.convert(x, as.is = TRUE)
   )
-  if(rm_NAs == TRUE) {
+  if (rm_NAs == TRUE) {
     sample_struct <- lapply(
       sample_struct,
       function(x) {
         x <- na.omit(x)
-        if(!is.data.frame(x)){
+        if (!is.data.frame(x)) {
           x <- NA
         }
         x
