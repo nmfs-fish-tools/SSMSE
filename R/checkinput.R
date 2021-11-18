@@ -212,15 +212,15 @@ check_sample_struct <- function(sample_struct,
   # get rid of any NA components, first convert to NULLS
   sample_struct <-
     lapply(sample_struct, function(x) {
-      if(isTRUE(is.na(x))) {
-         x <- NULL
+      if (isTRUE(is.na(x))) {
+        x <- NULL
       }
-      if(isTRUE(is.data.frame(x) & nrow(x) == 0)) {
+      if (isTRUE(is.data.frame(x) & nrow(x) == 0)) {
         x <- NULL
       }
       x
     })
-  #Then remove the nulls
+  # Then remove the nulls
   sample_struct <- sample_struct[lengths(sample_struct) != 0]
   # list components should have same names as in r4ss
   # check no repeat names
@@ -267,7 +267,7 @@ check_sample_struct <- function(sample_struct,
   lapply(sample_struct, function(dataframe) {
     apply(dataframe, 2, function(col) {
       if (!is.numeric(col) & !is.integer(col) & length(col) >= 1) {
-        stop("Some values in sample_struct are not integers or numeric. Please check 
+        stop("Some values in sample_struct are not integers or numeric. Please check
              that all values in the list components of sample_struct are either integer or numeric.")
       }
       if (any(is.na(col))) {

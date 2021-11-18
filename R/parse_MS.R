@@ -51,7 +51,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
     seed <- stats::runif(1, 1, 9999999)
   }
   # parsing management strategies ----
-  # note: only the below list of parameters can currently be passed to the 
+  # note: only the below list of parameters can currently be passed to the
   # management strategy
   pars_list <- list(
     EM_out_dir = EM_out_dir,
@@ -71,7 +71,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
   # which environment the function is in?
   # check output before returning
   check_catch_df(new_catch_list[["catch"]])
-  if(isTRUE(!is.null(new_catch_list[["discards"]]))){
+  if (isTRUE(!is.null(new_catch_list[["discards"]]))) {
     warning("Discards are not added into the OM for SSMSE currently.")
   }
   new_catch_list
