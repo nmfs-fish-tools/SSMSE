@@ -47,7 +47,7 @@ test_that("develop_OMs works as expected with refiting and specifying directory"
 temp_path_mod_rename <- file.path(temp_path, "mod_rename")
 
 test_that("develop_OMs works as expected when renaming the model", {
-  skip_on_cran() #b/c runs without estimation
+  skip_on_cran() # b/c runs without estimation
   develop_OMs(
     OM_name = "rename-mod-test",
     OM_in_dir = cod_mod,
@@ -59,7 +59,7 @@ test_that("develop_OMs works as expected when renaming the model", {
   expect_true(file.exists(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "control.ss_new")))
   expect_true(file.exists(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.8", "control.ss_new")))
   dat <- r4ss::SS_readdat(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "data.ss_new"),
-                          verbose = FALSE
+    verbose = FALSE
   )
   ctl <- r4ss::SS_readctl(
     file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "control.ss_new"),
@@ -67,4 +67,3 @@ test_that("develop_OMs works as expected when renaming the model", {
   )
   expect_true(ctl$SR_parms["SR_BH_steep", "INIT"] == 0.4)
 })
-

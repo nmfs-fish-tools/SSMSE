@@ -175,12 +175,12 @@ get_retained_catch <- function(timeseries, units_of_catch) {
     into = c("Units", "Fleet"),
     sep = ":_", convert = TRUE
   )
-  
-  retain_catch_df <- retain_catch_df %>% 
-    dplyr::group_by(.data$Yr, .data$Era, .data$Seas, .data$Units, .data$Fleet) %>% 
-    dplyr::summarise(retained_catch = sum(.data$retained_catch)) %>% 
-    dplyr::select(.data$Yr, .data$Era, .data$Seas, .data$Units, .data$Fleet, .data$retained_catch)
-  retain_catch_df <- as.data.frame(retain_catch_df) #want as df and not tibble
+
+  retain_catch_df <- retain_catch_df %>%
+    dplyr::group_by(.data[["Yr"]], .data[["Era"]], .data[["Seas"]], .data[["Units"]], .data[["Fleet"]]) %>%
+    dplyr::summarise(retained_catch = sum(.data[["retained_catch"]])) %>%
+    dplyr::select(.data[["Yr"]], .data[["Era"]], .data[["Seas"]], .data[["Units"]], .data[["Fleet"]], .data[["retained_catch"]])
+  retain_catch_df <- as.data.frame(retain_catch_df) # want as df and not tibble
   # units are not as concise as they could be, but leave for now.
   retain_catch_df
 }
@@ -235,11 +235,13 @@ get_dead_catch <- function(timeseries, units_of_catch) {
     into = c("Units", "Fleet"),
     sep = ":_", convert = TRUE
   )
-  dead_catch_df <- dead_catch_df %>% 
-    dplyr::group_by(.data[["Yr"]], .data$Era, .data$Seas, .data$Units, .data$Fleet) %>% 
-    dplyr::summarise(retained_catch = sum(.data$retained_catch)) %>% 
-    dplyr::select(.data$Yr, .data$Era, .data$Seas, .data$Units, .data$Fleet, 
-                  .data$retained_catch)
+  dead_catch_df <- dead_catch_df %>%
+    dplyr::group_by(.data[["Yr"]], .data[["Era"]], .data[["Seas"]], .data[["Units"]], .data[["Fleet"]]) %>%
+    dplyr::summarise(retained_catch = sum(.data[["retained_catch"]])) %>%
+    dplyr::select(
+      .data[["Yr"]], .data[["Era"]], .data[["Seas"]], .data[["Units"]], .data[["Fleet"]],
+      .data[["retained_catch"]]
+    )
   dead_catch_df <- as.data.frame(dead_catch_df)
   # units are not as concise as they could be, but leave for now.
 }
