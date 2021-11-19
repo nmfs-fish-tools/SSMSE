@@ -117,8 +117,8 @@ check_future_om_list_str <- function(future_om_list) {
     if (x[["pattern"]][1] == "custom") {
       expected_names <- c("par", "scen", "iter", "yr", "value")
     }
-    if (isTRUE(!all(names(x[["input"]]) == expected_names))
-    | isTRUE(length(names(x[["input"]] != length(expected_names))))) {
+    if (isTRUE(!all(names(x[["input"]]) == expected_names)) |
+      isTRUE(length(names(x[["input"]] != length(expected_names))))) {
       stop(
         "Because pattern future_om_list[[", elem_num, "]] is model_change, ",
         "names(future_om_list[[", elem_num, "]][['input']]) should be \n",
@@ -133,7 +133,7 @@ check_future_om_list_str <- function(future_om_list) {
   invisible(future_om_list_mod)
 }
 
-#' Check structure of a future OM list against the scen_list and standardize 
+#' Check structure of a future OM list against the scen_list and standardize
 #' output
 #'
 #' Checks that a future OM list is valid when compared with the scen_list inputs

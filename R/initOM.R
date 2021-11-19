@@ -89,7 +89,7 @@ create_OM <- function(OM_out_dir,
     datsource = dat, ctlsource = ctl,
     verbose = FALSE
   )
-  if(ctl[["EmpiricalWAA"]] == 1) {
+  if (ctl[["EmpiricalWAA"]] == 1) {
     stop("OM is an empirical weight at age model, which is not yet possible to use.")
   }
   # model checks ----
@@ -110,7 +110,7 @@ create_OM <- function(OM_out_dir,
   forelist[["Forecast"]] <- 0 #
   forelist[["Nforecastyrs"]] <- 1 #
   forelist[["FirstYear_for_caps_and_allocations"]] <- dat[["endyr"]] + nyrs + 2 #
-  forelist[['stddev_of_log_catch_ratio']] <- 0
+  forelist[["stddev_of_log_catch_ratio"]] <- 0
 
   # modify ctl file ----
   # in the context of an OM, do not want to use the bias adjustment ramp, so just
@@ -121,7 +121,7 @@ create_OM <- function(OM_out_dir,
   # updating the extend EM process to fix the main recdevs end year. This way all new
   # recdevs become late phase/forecast recdevs which are not subject to sum to zero
   # constraints or bias adjustment.
-  if(!all(ctl[["time_vary_auto_generation"]] == 1)) {
+  if (!all(ctl[["time_vary_auto_generation"]] == 1)) {
     warning("Turning off autogeneration of time varying lines in the control file of the OM")
     ctl[["time_vary_auto_generation"]] <- rep(1, times = 5)
   }
@@ -282,9 +282,9 @@ create_OM <- function(OM_out_dir,
 
   parlist[["init_F"]] <- F_list[["init_F"]]
 
-  # note: may need to also add some code in add_OM_devs to use impl error if 
+  # note: may need to also add some code in add_OM_devs to use impl error if
   # required in the future.
-  parlist$Fcast_impl_error <- NULL # note: this would not work for v 3.30.16 and before
+  parlist[["Fcast_impl_error"]] <- NULL # note: this would not work for v 3.30.16 and before
   ctl[["F_Method"]] <- 2 # Want all OMs to use F_Method = 2.
   ctl[["F_setup"]] <- c(0.05, 1, 0) # need to specify some starting value Fs, although not used in OM
   ctl[["F_iter"]] <- NULL # make sure list components used by other F methods are NULL:
@@ -488,7 +488,7 @@ run_OM <- function(OM_dir,
     section = max_section,
     verbose = FALSE
   )
-  # replace with the expected catch values if sample_catch is FALSE and using 
+  # replace with the expected catch values if sample_catch is FALSE and using
   # bootstrap
   if (boot == TRUE & sample_catch == FALSE) {
     exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),

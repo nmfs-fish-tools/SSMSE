@@ -13,7 +13,6 @@
 #' @import parallel
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
-#'
 #' \dontrun{
 #' my_dir <- file.path(tempdir(), "ex-run_SSMSE")
 #' dir.create(my_dir)
@@ -110,16 +109,16 @@ run_SSMSE <- function(scen_name_vec,
       )
     }
   }
-  
+
   # if(length(sample_catch_vec) == 1) {
-  #   sample_catch_vec <- 
+  #   sample_catch_vec <-
   #     rep(sample_catch_vec, length.out = length(scen_name_vec))
   # }
-  
-  
+
+
   # make sure the output directories exist
-  result <- lapply(out_dir_scen_vec, function(x) if(!dir.exists(x)) dir.create(x, showWarnings = FALSE))
-  
+  result <- lapply(out_dir_scen_vec, function(x) if (!dir.exists(x)) dir.create(x, showWarnings = FALSE))
+
   # check and add implicit inputs to the future_om_list
   future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
   # Note that all input checks are done in the check_scen_list function.
@@ -296,8 +295,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            interim_struct = NULL,
                            verbose = FALSE,
                            run_parallel = FALSE,
-                           n_cores = NULL, 
-                           n_F_search_loops = 20, 
+                           n_cores = NULL,
+                           n_F_search_loops = 20,
                            tolerance_F_search = 0.001) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
@@ -615,7 +614,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(
-      OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1, 
+      OM_dir = OM_out_dir, boot = use_SS_boot, nboot = 1,
       sample_catch = sample_catch,
       verbose = verbose, init_run = TRUE, seed = (iter_seed[["iter"]][1] + 12345)
     )
@@ -706,7 +705,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       if (!is.null(interim_struct)) {
         if (MS == "Interim" & !is.null(interim_struct[["auto_corr"]])) {
           new_OM_dat <- run_OM(
-            OM_dir = OM_out_dir, boot = FALSE, nboot = 1, 
+            OM_dir = OM_out_dir, boot = FALSE, nboot = 1,
             sample_catch = sample_catch,
             verbose = verbose, seed = (iter_seed[["iter"]][1] + 345678 + yr)
           )
@@ -779,7 +778,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
     }
   }
   if (extra_yrs > 0) {
-    message("Running the OM 1 final time, because last year extends past the last 
+    message("Running the OM 1 final time, because last year extends past the last
     assessment.")
     yr <- assess_yrs[length(assess_yrs)] + extra_yrs
     subset_catch_list <- lapply(new_catch_list,
