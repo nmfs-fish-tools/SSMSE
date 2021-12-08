@@ -1,8 +1,20 @@
 # Run r cmd check
-on: [push, pull_request]
-
 name: call-calc_coverage
-
+on:
+  push:
+    paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - '**.md'
+      - '**.MD'
+      - '.gitignore'
+  pull_request:
+      paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - '**.md'
+      - '**.MD'
+      - '.gitignore'
 jobs:
   call-workflow:
     uses: nmfs-stock-synthesis/workflows/.github/workflows/calc-coverage.yml@main

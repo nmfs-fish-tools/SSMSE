@@ -1,6 +1,12 @@
 # Run r cmd check
 on:
   push:
+    paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - '**.md'
+      - '**.MD'
+      - '.gitignore'
   pull_request:
   schedule:
     # This should run the default branch weekly on sunday
