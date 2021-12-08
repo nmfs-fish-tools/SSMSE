@@ -24,7 +24,8 @@ SSMSE: Management Strategy Evaluation for Stock Synthesis
         (SSB)](#plot-spawning-stock-biomass-ssb)
       - [Example MSE Results](#example-mse-results)
       - [Delete the files](#delete-the-files)
-  - [Advanced options: use a custom management strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure-custom)
+  - [Advanced options: use a custom management
+    strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure)
   - [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
   - [Roadmap: Where is SSMSE headed
     next?](#roadmap-where-is-ssmse-headed-next)
@@ -71,7 +72,7 @@ commercial product or activity by DOC or the United States Government.”
 # Motivation for developing SSMSE
 
 This package was developed to increase the ease of using Stock Synthesis
-(SS) directly as an operating model (OM) in an Management Strategy
+(SS3) directly as an operating model (OM) in an Management Strategy
 Evaluation (MSE). The approach requires a conditioned Stock Synthesis
 mode to use as the OM.
 
@@ -164,13 +165,8 @@ run the example:
 ``` r
 library(SSMSE) #load the package
 library(r4ss) #install using remotes::install_github("r4ss/r4ss)
-library(foreach) #if using run_parallel = TRUE
-## Warning: package 'foreach' was built under R version 4.0.3
-library(doParallel) #if using run_parallel = TRUE
-## Warning: package 'doParallel' was built under R version 4.0.3
-## Loading required package: iterators
-## Warning: package 'iterators' was built under R version 4.0.3
-## Loading required package: parallel
+# library(foreach) #if using run_parallel = TRUE
+# library(doParallel) #if using run_parallel = TRUE
 ```
 
 ``` r
@@ -369,8 +365,8 @@ sample_struct_list_all <- list("h-ctl" = sample_struct_1_scen, "h-1" = sample_st
 We will use the same management procedure for both scenarios:
 
 1.  Conduct a stock assessment every 3 years to get stock status.
-2.  Project from this stock assessment using the SS forecast file to get
-    projected future catch.
+2.  Project from this stock assessment using the SS3 forecast file to
+    get projected future catch.
 3.  Put this projected catch (without implementation error, in the case
     of this example) back into the OM. Extend the OM forward in time to
     get the true values for the population.
@@ -426,11 +422,11 @@ However, an assessment will be conducted every 3 years and thus 3 years
 of projections is required. SSMSE will automatically modify this value
 in the estimation model to the appropriate number of forecasting years.
 
-More information on using the forecast module in SS to forecast catches
+More information on using the forecast module in SS3 to forecast catches
 is available in the [Stock Synthesis users
 manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
-Users can also specify their own custom management procedures.
+Users can also specify their own \[custom management procedures\]
 
 ## Run SSMSE
 
@@ -452,7 +448,7 @@ res <- run_SSMSE(
     nyrs_vec = c(6, 6), # Years to project OM forward
     nyrs_assess_vec = c(3, 3), # Years between assessments
     future_om_list = future_om_list_recdevs_sel,
-    run_parallel = TRUE, # Run iterations in parallel
+    run_parallel = FALSE, # Run iterations in parallel
     sample_struct_list = sample_struct_list_all, # How to sample data for running the EM.
     sample_struct_hist_list = NULL, # because this is null, will just use sampling
     # as in the current OM data file for the historical period.
@@ -488,7 +484,7 @@ list.dirs(file.path(run_res_path, "h-ctl"), recursive = FALSE)
 ## [5] "run_SSMSE-ex/results/h-ctl/5"
 ```
 
-And within each scenario folder, there are folders containing the SS
+And within each scenario folder, there are folders containing the SS3
 models that were run by `run_SSMSE`.
 
 ``` r
@@ -545,11 +541,8 @@ shown in orange, and the scenarios are shown on different subplots:
 
 ``` r
 library(ggplot2) # use install.packages("ggplot2") to install package if needed
-## Warning: package 'ggplot2' was built under R version 4.0.5
 library(tidyr) # use install.packages("tidyr") to install package if needed
-## Warning: package 'tidyr' was built under R version 4.0.5
 library(dplyr) # use install.packages("dplyr") to install package if needed
-## Warning: package 'dplyr' was built under R version 4.0.5
 ## 
 ## Attaching package: 'dplyr'
 ## The following objects are masked from 'package:stats':
