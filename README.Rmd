@@ -99,8 +99,8 @@ devtools::install_local(".", upgrade = "never", quiet = TRUE, force = TRUE)
 ```{r Load-Packages, eval=TRUE}
 library(SSMSE) #load the package
 library(r4ss) #install using remotes::install_github("r4ss/r4ss)
-library(foreach) #if using run_parallel = TRUE
-library(doParallel) #if using run_parallel = TRUE
+# library(foreach) #if using run_parallel = TRUE
+# library(doParallel) #if using run_parallel = TRUE
 ```
 
 ```{r Create-Folder}
@@ -263,7 +263,7 @@ res <- run_SSMSE(
     nyrs_vec = c(6, 6), # Years to project OM forward
     nyrs_assess_vec = c(3, 3), # Years between assessments
     future_om_list = future_om_list_recdevs_sel,
-    run_parallel = TRUE, # Run iterations in parallel
+    run_parallel = FALSE, # Run iterations in parallel
     sample_struct_list = sample_struct_list_all, # How to sample data for running the EM.
     sample_struct_hist_list = NULL, # because this is null, will just use sampling
     # as in the current OM data file for the historical period.
