@@ -3,7 +3,8 @@
 on:
   push:
     branches: main
-  workflow_dispatch:
+    paths: 'inst/bookdown/**'
+    workflow_dispatch:
 name: update-bookdown
 
 jobs:
