@@ -8,6 +8,7 @@ on:
       - '**.MD'
       - '.gitignore'
   pull_request:
+  workflow_dispatch:
   schedule:
     # This should run the default branch weekly on sunday
     - cron: '0 0 * * 0'
