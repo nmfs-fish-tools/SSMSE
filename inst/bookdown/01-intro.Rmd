@@ -5,6 +5,15 @@
 SSMSE allows users to directly use [Stock Synthesis](https://vlab.noaa.gov/web/stock-synthesis) (SS3) as an operating model (OM) in a [Management Strategy Evaluation (MSE)](https://doi.org/10.1139/cjfas-2019-0084) through R functions. The approach requires a conditioned Stock Synthesis model, which is treated as the OM.
 
 ![The general workflow of using SSMSE](images/workflow_ssmse_noaa_branding.png)
+## Decide if SSMSE is the right tool
+
+Another simulation tool available is [ss3sim](https://github.com/ss3sim/ss3sim). {ss3sim} helps users conduct simulation studies with SS3 operating models and estimation models. {ss3sim} is different than {SSMSE} beacuse:
+
+- In {SSMSE}, there is feedback from the estimation method to the operating model and the operating model is projected forward. In {ss3sim}, there is no feedback and the operating model is not projected forward in time.
+- {ss3sim} has more helper functions which modify the operating model and estimation model, but ss3sim is less flexible in the initial Operating models and estimation methods/models that can be used compared to {SSMSE}.
+- {SSMSE} can use custom estimation methods; {ss3sim} must use a Stock Synthesis Estimation Model.
+
+Please post this question regarding the suitability of {SSMSE} for your study in [SSMSE discussions q+a](https://github.com/nmfs-fish-tools/SSMSE/discussions/categories/q-a).
 
 ## Functions in SSMSE {#funs}
 
