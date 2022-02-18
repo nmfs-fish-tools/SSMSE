@@ -22,6 +22,7 @@ plot-spawning-stock-biomass-ssb
 example-mse-results
 delete-the-files
 advanced-options-use-a-custom-management-strategyprocedure
+M-case-study-ex
 SSMSE
 scenarios-in-ssmse
 operating-model
