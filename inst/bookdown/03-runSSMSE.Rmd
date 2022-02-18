@@ -17,14 +17,14 @@ built_in_mods_final <- paste0(built_in_mods, collapse = ", ")
 ```
 
 The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model, except for models that use Empirical Weight at age. 
-There are `r length(built_in_mods)` built-in models that comes with SSMSE: `r built_in_mods_final`. To use a built in model, specify the name of the model as part of the `OM_name_vec`. For example, to use the cod model in run_SSMSE for 1 scenario0, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
+There are `r length(built_in_mods)` built-in models that comes with SSMSE: `r built_in_mods_final`. To use a built in model, specify the name of the model as part of the `OM_name_vec`. For example, to use the cod model in run_SSMSE for 1 scenario, set `OM_name_vec = "cod"`. Otherwise, the path to the OM model should be specified in `OM_in_dir_vec`.
 
-## The Management Strategy/procedure and (if applicable) Estimation model (EM)
+## The Management Strategy and (if applicable) Estimation model (EM)
 
 The management strategy (and EM) can be specified in one of two ways:
 
 1. Using an SS3 model and its forcast file to project catch by fleet
-2. Using a custom procedure via a function in R
+2. Using a custom management strategy via a function in R
 
 In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches by fleet.
 
@@ -148,7 +148,7 @@ my_future_om_list[[1]][["input"]][1, "first_yr_final_val"] <- 106
 my_future_om_list[[1]]
 ```
 
-### Example of future_om_list with a random deviations
+### Example of future_om_list with random deviations
 
 Suppose we now wanted the value of "SizeSel_P_3_Fishery(1)" to change randomly according to a normal distribution with a standard deviation of 0.1 around a mean of 4.5 from 104 onwards. This can be done by adding a line specifying a change in standard deviation (which for now, has been assumed to be 0) to the data frame: 
 
