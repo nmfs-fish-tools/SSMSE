@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2021-12-08" />
+<meta name="date" content="2022-02-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -168,7 +168,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>4</b> Options for run_SSMSE</a><ul>
 <li class="chapter" data-level="4.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>4.1</b> Scenarios in SSMSE</a></li>
 <li class="chapter" data-level="4.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>4.2</b> Operating model</a></li>
-<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a><ul>
+<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategy-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy and (if applicable) Estimation model (EM)</a><ul>
 <li class="chapter" data-level="4.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss3-model"><i class="fa fa-check"></i><b>4.3.1</b> Specify the Management Strategy in a SS3 model</a></li>
 <li class="chapter" data-level="4.3.2" data-path="SSMSE.html"><a href="SSMSE.html#custom-MS"><i class="fa fa-check"></i><b>4.3.2</b> Using a custom management strategy/procedure</a></li>
 </ul></li>
@@ -176,7 +176,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>4.5</b> Future changes to the operating model (#future)</a><ul>
 <li class="chapter" data-level="4.5.1" data-path="SSMSE.html"><a href="SSMSE.html#the-strucutre-of-future_om_list"><i class="fa fa-check"></i><b>4.5.1</b> The strucutre of <code>future_om_list</code></a></li>
 <li class="chapter" data-level="4.5.2" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-denoting-a-gradual-change"><i class="fa fa-check"></i><b>4.5.2</b> Example of future_om_list denoting a gradual change</a></li>
-<li class="chapter" data-level="4.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-a-random-deviations"><i class="fa fa-check"></i><b>4.5.3</b> Example of future_om_list with a random deviations</a></li>
+<li class="chapter" data-level="4.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-random-deviations"><i class="fa fa-check"></i><b>4.5.3</b> Example of future_om_list with random deviations</a></li>
 <li class="chapter" data-level="4.5.4" data-path="SSMSE.html"><a href="SSMSE.html#example-of-using-historical-values-for-determining-parameter-values"><i class="fa fa-check"></i><b>4.5.4</b> Example of using historical values for determining parameter values</a></li>
 <li class="chapter" data-level="4.5.5" data-path="SSMSE.html"><a href="SSMSE.html#example-using-custom-pattern-instead-of-model_change"><i class="fa fa-check"></i><b>4.5.5</b> Example using “custom” pattern instead of “model_change”</a></li>
 <li class="chapter" data-level="4.5.6" data-path="SSMSE.html"><a href="SSMSE.html#how-is-the-operating-modified-to-accomodate-changes-as-specified-in-the-future_om_list"><i class="fa fa-check"></i><b>4.5.6</b> How is the operating modified to accomodate changes as specified in the future_OM_list?</a></li>
@@ -222,14 +222,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="operating-model" class="section level2">
 <h2><span class="header-section-number">4.2</span> Operating model</h2>
 <p>The operating model (OM) for SSMSE should be a Stock Synthesis model. This could be any fitted Stock Synthesis model, except for models that use Empirical Weight at age.
-There are 3 built-in models that comes with SSMSE: cod, growth_timevary, and SR_env_block. To use a built in model, specify the name of the model as part of the <code>OM_name_vec</code>. For example, to use the cod model in run_SSMSE for 1 scenario0, set <code>OM_name_vec = "cod"</code>. Otherwise, the path to the OM model should be specified in <code>OM_in_dir_vec</code>.</p>
+There are 3 built-in models that comes with SSMSE: cod, growth_timevary, and SR_env_block. To use a built in model, specify the name of the model as part of the <code>OM_name_vec</code>. For example, to use the cod model in run_SSMSE for 1 scenario, set <code>OM_name_vec = "cod"</code>. Otherwise, the path to the OM model should be specified in <code>OM_in_dir_vec</code>.</p>
 </div>
-<div id="the-management-strategyprocedure-and-if-applicable-estimation-model-em" class="section level2">
-<h2><span class="header-section-number">4.3</span> The Management Strategy/procedure and (if applicable) Estimation model (EM)</h2>
+<div id="the-management-strategy-and-if-applicable-estimation-model-em" class="section level2">
+<h2><span class="header-section-number">4.3</span> The Management Strategy and (if applicable) Estimation model (EM)</h2>
 <p>The management strategy (and EM) can be specified in one of two ways:</p>
 <ol style="list-style-type: decimal">
 <li>Using an SS3 model and its forcast file to project catch by fleet</li>
-<li>Using a custom procedure via a function in R</li>
+<li>Using a custom management strategy via a function in R</li>
 </ol>
 <p>In theory, any management strategy should work, as long as it can take the data file produced by the OM as output and provide back to SSMSE future catches by fleet.</p>
 <div id="specify-the-management-strategy-in-a-ss3-model" class="section level3">
@@ -364,8 +364,8 @@ $input
   ts_param   method value
 1     mean absolute   4.5</code></pre>
 </div>
-<div id="example-of-future_om_list-with-a-random-deviations" class="section level3">
-<h3><span class="header-section-number">4.5.3</span> Example of future_om_list with a random deviations</h3>
+<div id="example-of-future_om_list-with-random-deviations" class="section level3">
+<h3><span class="header-section-number">4.5.3</span> Example of future_om_list with random deviations</h3>
 <p>Suppose we now wanted the value of “SizeSel_P_3_Fishery(1)” to change randomly according to a normal distribution with a standard deviation of 0.1 around a mean of 4.5 from 104 onwards. This can be done by adding a line specifying a change in standard deviation (which for now, has been assumed to be 0) to the data frame:</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="SSMSE.html#cb54-1"></a>new_vals &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">first_yr_averaging =</span> <span class="ot">NA</span>,</span>
 <span id="cb54-2"><a href="SSMSE.html#cb54-2"></a>                       <span class="dt">last_yr_averaging  =</span> <span class="ot">NA</span>, </span>

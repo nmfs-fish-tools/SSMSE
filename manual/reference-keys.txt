@@ -25,14 +25,14 @@ advanced-options-use-a-custom-management-strategyprocedure
 SSMSE
 scenarios-in-ssmse
 operating-model
-the-management-strategyprocedure-and-if-applicable-estimation-model-em
+the-management-strategy-and-if-applicable-estimation-model-em
 specify-the-management-strategy-in-a-ss3-model
 custom-MS
 sampling-options
 future-changes-to-the-operating-model-future
 the-strucutre-of-future_om_list
 example-of-future_om_list-denoting-a-gradual-change
-example-of-future_om_list-with-a-random-deviations
+example-of-future_om_list-with-random-deviations
 example-of-using-historical-values-for-determining-parameter-values
 example-using-custom-pattern-instead-of-model_change
 how-is-the-operating-modified-to-accomodate-changes-as-specified-in-the-future_om_list

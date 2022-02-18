@@ -24,7 +24,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2021-12-08" />
+<meta name="date" content="2022-02-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -168,7 +168,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>4</b> Options for run_SSMSE</a><ul>
 <li class="chapter" data-level="4.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>4.1</b> Scenarios in SSMSE</a></li>
 <li class="chapter" data-level="4.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>4.2</b> Operating model</a></li>
-<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategyprocedure-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy/procedure and (if applicable) Estimation model (EM)</a><ul>
+<li class="chapter" data-level="4.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategy-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>4.3</b> The Management Strategy and (if applicable) Estimation model (EM)</a><ul>
 <li class="chapter" data-level="4.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss3-model"><i class="fa fa-check"></i><b>4.3.1</b> Specify the Management Strategy in a SS3 model</a></li>
 <li class="chapter" data-level="4.3.2" data-path="SSMSE.html"><a href="SSMSE.html#custom-MS"><i class="fa fa-check"></i><b>4.3.2</b> Using a custom management strategy/procedure</a></li>
 </ul></li>
@@ -176,7 +176,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>4.5</b> Future changes to the operating model (#future)</a><ul>
 <li class="chapter" data-level="4.5.1" data-path="SSMSE.html"><a href="SSMSE.html#the-strucutre-of-future_om_list"><i class="fa fa-check"></i><b>4.5.1</b> The strucutre of <code>future_om_list</code></a></li>
 <li class="chapter" data-level="4.5.2" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-denoting-a-gradual-change"><i class="fa fa-check"></i><b>4.5.2</b> Example of future_om_list denoting a gradual change</a></li>
-<li class="chapter" data-level="4.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-a-random-deviations"><i class="fa fa-check"></i><b>4.5.3</b> Example of future_om_list with a random deviations</a></li>
+<li class="chapter" data-level="4.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-random-deviations"><i class="fa fa-check"></i><b>4.5.3</b> Example of future_om_list with random deviations</a></li>
 <li class="chapter" data-level="4.5.4" data-path="SSMSE.html"><a href="SSMSE.html#example-of-using-historical-values-for-determining-parameter-values"><i class="fa fa-check"></i><b>4.5.4</b> Example of using historical values for determining parameter values</a></li>
 <li class="chapter" data-level="4.5.5" data-path="SSMSE.html"><a href="SSMSE.html#example-using-custom-pattern-instead-of-model_change"><i class="fa fa-check"></i><b>4.5.5</b> Example using “custom” pattern instead of “model_change”</a></li>
 <li class="chapter" data-level="4.5.6" data-path="SSMSE.html"><a href="SSMSE.html#how-is-the-operating-modified-to-accomodate-changes-as-specified-in-the-future_om_list"><i class="fa fa-check"></i><b>4.5.6</b> How is the operating modified to accomodate changes as specified in the future_OM_list?</a></li>
@@ -217,10 +217,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="purpose" class="section level2">
 <h2><span class="header-section-number">1.1</span> Purpose</h2>
 <p>SSMSE allows users to directly use <a href="https://vlab.noaa.gov/web/stock-synthesis">Stock Synthesis</a> (SS3) as an operating model (OM) in a <a href="https://doi.org/10.1139/cjfas-2019-0084">Management Strategy Evaluation (MSE)</a> through R functions. The approach requires a conditioned Stock Synthesis model, which is treated as the OM.</p>
-<div class="figure">
-<img src="images/workflow_ssmse_noaa_branding.png" alt="" />
-<p class="caption">The general workflow of using SSMSE</p>
-</div>
+<p><img src="images/workflow_ssmse_noaa_branding.png" alt="The general workflow of using SSMSE" />
+## Decide if SSMSE is the right tool</p>
+<p>Another simulation tool available is <a href="https://github.com/ss3sim/ss3sim">ss3sim</a>. {ss3sim} helps users conduct simulation studies with SS3 operating models and estimation models. {ss3sim} is different than {SSMSE} beacuse:</p>
+<ul>
+<li>In {SSMSE}, there is feedback from the estimation method to the operating model and the operating model is projected forward. In {ss3sim}, there is no feedback and the operating model is not projected forward in time.</li>
+<li>{ss3sim} has more helper functions which modify the operating model and estimation model, but ss3sim is less flexible in the initial Operating models and estimation methods/models that can be used compared to {SSMSE}.</li>
+<li>{SSMSE} can use custom estimation methods; {ss3sim} must use a Stock Synthesis Estimation Model.</li>
+</ul>
+<p>Please post this question regarding the suitability of {SSMSE} for your study in <a href="https://github.com/nmfs-fish-tools/SSMSE/discussions/categories/q-a">SSMSE discussions q+a</a>.</p>
 </div>
 <div id="funs" class="section level2">
 <h2><span class="header-section-number">1.2</span> Functions in SSMSE</h2>
