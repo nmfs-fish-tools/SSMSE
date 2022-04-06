@@ -1,0 +1,9 @@
+# document and style  using reusable workflow
+on:
+  workflow_dispatch:
+  push:
+name: call-update-bin
+jobs:
+  call-workflow:
+    uses: nmfs-stock-synthesis/workflows/.github/workflows/update-ss3-version.yml@ss3-version
+
