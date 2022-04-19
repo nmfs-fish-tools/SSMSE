@@ -6,4 +6,4 @@ on:
 name: call-update-ss3
 jobs:
   call-workflow:
-    uses: nmfs-stock-synthesis/workflows/.github/workflows/update-ss3-version.yml@main
+    uses: nmfs-stock-synthesis/workflows/.github/workflows/update-ss3-version.yml@test-update-ss3
