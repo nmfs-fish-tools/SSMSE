@@ -89,7 +89,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   start[["seed"]] <- seed
   SS_writestarter(start, file.path(EM_out_dir),
     verbose = FALSE,
-    overwrite = TRUE, warn = FALSE
+    overwrite = TRUE
   )
   # manipulate the forecasting file.
   # make sure enough yrs can be forecasted.
