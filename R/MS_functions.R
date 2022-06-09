@@ -12,12 +12,13 @@
 #'   assessment is conducted every 3 years, put 3 here. A single integer value.
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
+#' @template OM_out_dir
 #' @template sample_struct
 #' @template seed
 #' @param ... Any additional parameters
 #' @author Kathryn Doering
 EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
-               nyrs_assess, dat_yrs, sample_struct = NULL, seed = NULL, ...) {
+               nyrs_assess, dat_yrs, sample_struct = NULL, seed = NULL, OM_out_dir,  ...) {
   check_dir(EM_out_dir)
   # TODO: change this name to make it less ambiguous
   new_datfile_name <- "init_dat.ss"
@@ -37,7 +38,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
     start[["seed"]] <- seed
     SS_writestarter(start, file.path(EM_out_dir),
       verbose = FALSE,
-      overwrite = TRUE, warn = FALSE
+      overwrite = TRUE
     )
     # make sure the data file has the correct formatting (use existing data
     # file in the EM directory to make sure)??
@@ -52,9 +53,13 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
     ctl <- SS_readctl(file.path(EM_out_dir, start[["ctlfile"]]),
       datlist = new_EM_dat
     )
-    # if (ctl[["EmpiricalWAA"]] == 1) {
-    #   stop("EM uses empirical weight at age, which is not yet possible to use.")
-    # }
+    if (ctl[["EmpiricalWAA"]] == 1) {
+      message("EM uses weight at age, so copying over wtatage file from OM.", 
+        "\nNote wtatage data is not sampled.")
+      file.copy(from = file.path(OM_out_dir, "wtatage.ss"), 
+                to = file.path(EM_out_dir, "wtatage.ss"), 
+                overwrite = TRUE)
+    }
     if (!all(ctl[["time_vary_auto_generation"]] == 1)) {
       warning("Turning off autogeneration of time varying lines in the control file of the EM")
       ctl[["time_vary_auto_generation"]] <- rep(1, times = 5)
