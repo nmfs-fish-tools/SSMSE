@@ -60,8 +60,7 @@ create_OM <- function(OM_out_dir,
   start[["seed"]] <- seed
   r4ss::SS_writestarter(start,
     dir = OM_out_dir, verbose = FALSE,
-    overwrite = TRUE, warn = FALSE
-  )
+    overwrite = TRUE)
   # run model to get standardized output ----
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess",
     debug_par_run = TRUE,
@@ -89,9 +88,7 @@ create_OM <- function(OM_out_dir,
     datsource = dat, ctlsource = ctl,
     verbose = FALSE
   )
-  if (ctl[["EmpiricalWAA"]] == 1) {
-    stop("OM is an empirical weight at age model, which is not yet possible to use.")
-  }
+
   # model checks ----
   if (ctl[["F_Method"]] == 1) {
     stop(

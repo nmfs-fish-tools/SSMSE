@@ -84,9 +84,7 @@ update_OM <- function(OM_dir,
   start[["seed"]] <- seed
 
   r4ss::SS_writestarter(start,
-    dir = OM_dir, verbose = FALSE, overwrite = TRUE,
-    warn = FALSE
-  )
+    dir = OM_dir, verbose = FALSE, overwrite = TRUE)
 
   catch_intended <- rbind(catch, harvest_rate)
   catch_intended <- catch_intended[!duplicated(catch_intended[, 1:3]), ]
