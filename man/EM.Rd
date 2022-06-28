@@ -13,6 +13,7 @@ EM(
   dat_yrs,
   sample_struct = NULL,
   seed = NULL,
+  OM_out_dir,
   ...
 )
 }
@@ -47,6 +48,8 @@ function \code{create_sample_struct()} will also produce a sample_struct
 object in the correct form. Can be NULL only when MS is not EM.}
 
 \item{seed}{A random seed so that reproducible results are possible.}
+
+\item{OM_out_dir}{The full path to the directory in which the OM is run.}
 
 \item{...}{Any additional parameters}
 }

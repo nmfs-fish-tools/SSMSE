@@ -730,7 +730,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       )
     }
     message(
-      "Finished running and sampling OM through year ",  max(new_catch_list[["catch"]][, "year"]),
+      "Finished running and sampling OM through year ", max(new_catch_list[["catch"]][, "year"]),
       "."
     )
     if (run_EM_last_yr == FALSE && isTRUE(yr == test_run_EM_yr)) {
