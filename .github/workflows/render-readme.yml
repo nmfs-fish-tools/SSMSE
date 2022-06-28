@@ -32,14 +32,7 @@ jobs:
         run: |
           mv run_SSMSE-ex/results/SSMSE_scalar.csv inst/bookdown/data/SSMSE_scalar.csv
           mv run_SSMSE-ex/results/SSMSE_ts.csv inst/bookdown/data/SSMSE_ts.csv
-      - name: Commit results
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          git commit README.md -m 'docs: Re-build README.Rmd' || echo "No changes to commit"
-          git add inst/bookdown/data/SSMSE_scalar.csv || echo "no changes to add for SSMSE_scalar.csv"
-          git add inst/bookdown/data/SSMSE_ts.csv || echo "no changes to add for SSMSE_ts.csv"
-          git commit -m 'bookdown: replace data' || echo "no bookdown data changes to commit"
+          
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
@@ -48,6 +41,7 @@ jobs:
             README.md
             inst/bookdown/data/SSMSE_scalar.csv
             inst/bookdown/data/SSMSE_ts.csv
+            man/figures/README*.png
           branch: update-readme
           title: 'Update readme'
           body: |
