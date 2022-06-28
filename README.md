@@ -71,10 +71,11 @@ commercial product or activity by DOC or the United States Government.”
 
 # Motivation for developing SSMSE
 
-This package was developed to increase the ease of using Stock Synthesis
-(SS3) directly as an operating model (OM) in an Management Strategy
-Evaluation (MSE). The approach requires a conditioned Stock Synthesis
-mode to use as the OM.
+This package was developed to increase the ease of using the stock
+assessment software Stock Synthesis (SS3) directly as an operating model
+(OM) in Management Strategy Evaluation (MSE). The approach requires a
+conditioned Stock Synthesis mode to use as the OM. The intended users
+are those who conduct MSEs.
 
 Below, we’ll work through a simple example MSE as a way of introducing
 the SSMSE package.
@@ -727,9 +728,9 @@ run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the s
 
 # How can I contribute to SSMSE?
 
-If you have thoughts about how to implement the [upcoming
-work](#roadmap-where-is-ssmse-headed-next) or are interested in helping
-develop SSMSE, please contact the developers through [github
+Currently, feedback on how using SSMSE is working or not would be most
+hopeful\! Please open an issue if a problem is found. The developers can
+also be contacted through [github
 discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions) or by
 emailing <nmfs.stock.synthesis@noaa.gov>.
 
