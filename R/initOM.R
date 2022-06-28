@@ -60,7 +60,8 @@ create_OM <- function(OM_out_dir,
   start[["seed"]] <- seed
   r4ss::SS_writestarter(start,
     dir = OM_out_dir, verbose = FALSE,
-    overwrite = TRUE)
+    overwrite = TRUE
+  )
   # run model to get standardized output ----
   run_ss_model(OM_out_dir, "-maxfn 0 -phase 50 -nohess",
     debug_par_run = TRUE,
