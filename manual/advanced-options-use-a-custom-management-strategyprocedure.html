@@ -6,11 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>3 Advanced options: use a custom management strategy/procedure | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
 
   <meta property="og:title" content="3 Advanced options: use a custom management strategy/procedure | SSMSE user manual" />
   <meta property="og:type" content="book" />
-  <meta property="og:url" content="https://nmfs-fish-tools.github.io/SSMSE/manual/" />
   
   <meta property="og:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
   <meta name="github-repo" content="nmfs-fish-tools/SSMSE" />
@@ -24,7 +23,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2022-02-18" />
+<meta name="date" content="2022-06-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,8 +50,9 @@
 
 
 <script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 
 
 <style type="text/css">
@@ -213,8 +213,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="advanced-options-use-a-custom-management-strategyprocedure" class="section level1">
-<h1><span class="header-section-number">3</span> Advanced options: use a custom management strategy/procedure</h1>
+<div id="advanced-options-use-a-custom-management-strategyprocedure" class="section level1 hasAnchor">
+<h1><span class="header-section-number">3</span> Advanced options: use a custom management strategy/procedure<a href="advanced-options-use-a-custom-management-strategyprocedure.html#advanced-options-use-a-custom-management-strategyprocedure" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:</p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="advanced-options-use-a-custom-management-strategyprocedure.html#cb42-1"></a>constant_catch_MS &lt;-<span class="st"> </span><span class="cf">function</span>(OM_dat, nyrs_assess, <span class="dt">catch_yr =</span> <span class="dv">100</span>, </span>
 <span id="cb42-2"><a href="advanced-options-use-a-custom-management-strategyprocedure.html#cb42-2"></a>                              <span class="dt">frac_catch =</span> <span class="fl">0.5</span>, ...) { <span class="co"># need to include ... to allow function to work</span></span>

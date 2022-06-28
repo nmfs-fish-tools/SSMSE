@@ -6,11 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>1 Introduction | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
 
   <meta property="og:title" content="1 Introduction | SSMSE user manual" />
   <meta property="og:type" content="book" />
-  <meta property="og:url" content="https://nmfs-fish-tools.github.io/SSMSE/manual/" />
   
   <meta property="og:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
   <meta name="github-repo" content="nmfs-fish-tools/SSMSE" />
@@ -24,7 +23,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2022-02-18" />
+<meta name="date" content="2022-06-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,8 +50,9 @@
 
 
 <script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 
 
 <style type="text/css">
@@ -213,10 +213,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="intro" class="section level1">
-<h1><span class="header-section-number">1</span> Introduction</h1>
-<div id="purpose" class="section level2">
-<h2><span class="header-section-number">1.1</span> Purpose</h2>
+<div id="intro" class="section level1 hasAnchor">
+<h1><span class="header-section-number">1</span> Introduction<a href="intro.html#intro" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="purpose" class="section level2 hasAnchor">
+<h2><span class="header-section-number">1.1</span> Purpose<a href="intro.html#purpose" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>SSMSE allows users to directly use <a href="https://vlab.noaa.gov/web/stock-synthesis">Stock Synthesis</a> (SS3) as an operating model (OM) in a <a href="https://doi.org/10.1139/cjfas-2019-0084">Management Strategy Evaluation (MSE)</a> through R functions. The approach requires a conditioned Stock Synthesis model, which is treated as the OM.</p>
 <p><img src="images/workflow_ssmse_noaa_branding.png" alt="The general workflow of using SSMSE" />
 ## Decide if SSMSE is the right tool</p>
@@ -228,8 +228,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul>
 <p>Please post this question regarding the suitability of {SSMSE} for your study in <a href="https://github.com/nmfs-fish-tools/SSMSE/discussions/categories/q-a">SSMSE discussions q+a</a>.</p>
 </div>
-<div id="funs" class="section level2">
-<h2><span class="header-section-number">1.2</span> Functions in SSMSE</h2>
+<div id="funs" class="section level2 hasAnchor">
+<h2><span class="header-section-number">1.2</span> Functions in SSMSE<a href="intro.html#funs" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>The main functions users can call in SSMSE are:</p>
 <table>
 <thead>
@@ -331,8 +331,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tbody>
 </table>
 </div>
-<div id="brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse" class="section level2">
-<h2><span class="header-section-number">1.3</span> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></h2>
+<div id="brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse" class="section level2 hasAnchor">
+<h2><span class="header-section-number">1.3</span> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In general, the steps for a scenario after calling run_SSMSE is:</p>
 <ol style="list-style-type: decimal">
 <li>Create the OM</li>
@@ -358,20 +358,20 @@ The basic steps are contained in functions:</p>
 <li>Repeat steps 5-8.
 <img src="images/ssmse_fxn_map.png" alt="The steps implemented in run_SSMSE() showing the functions called." /></li>
 </ol>
-<div id="conditioning-the-om-and-sampling-from-the-om" class="section level3">
-<h3><span class="header-section-number">1.3.1</span> Conditioning the OM and sampling from the OM</h3>
+<div id="conditioning-the-om-and-sampling-from-the-om" class="section level3 hasAnchor">
+<h3><span class="header-section-number">1.3.1</span> Conditioning the OM and sampling from the OM<a href="intro.html#conditioning-the-om-and-sampling-from-the-om" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the “true” values and a bootstrapped data set from SS3. Note that any modifications to the OM’s parameters specified by the users as it is extended forward in time are also applied.</p>
 </div>
-<div id="first-run-of-the-management-strategy-in-the-mse-simulation" class="section level3">
-<h3><span class="header-section-number">1.3.2</span> First run of the management strategy in the MSE simulation</h3>
+<div id="first-run-of-the-management-strategy-in-the-mse-simulation" class="section level3 hasAnchor">
+<h3><span class="header-section-number">1.3.2</span> First run of the management strategy in the MSE simulation<a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The bootstrapped dataset is then used in a Management strategy to project catch by fleet to use for the next <span class="math inline">\(n\)</span> years, where <span class="math inline">\(n\)</span> is the number of years between assessments.</p>
 </div>
-<div id="feedback-from-managment-strategy-into-om-extending-model-years" class="section level3">
-<h3><span class="header-section-number">1.3.3</span> Feedback from managment strategy into OM: extending model years</h3>
+<div id="feedback-from-managment-strategy-into-om-extending-model-years" class="section level3 hasAnchor">
+<h3><span class="header-section-number">1.3.3</span> Feedback from managment strategy into OM: extending model years<a href="intro.html#feedback-from-managment-strategy-into-om-extending-model-years" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The catch for the next <span class="math inline">\(n\)</span> years before the next assessment is then added to the OM, as well as any recruitment or time varying parameter deviations. The OM is again run with no estimation where it can be used to produce sampled data for the next <span class="math inline">\(n\)</span> years. These new data values are appended to the original dataset.</p>
 </div>
-<div id="subsequent-runs-of-the-management-strategy" class="section level3">
-<h3><span class="header-section-number">1.3.4</span> Subsequent runs of the management strategy</h3>
+<div id="subsequent-runs-of-the-management-strategy" class="section level3 hasAnchor">
+<h3><span class="header-section-number">1.3.4</span> Subsequent runs of the management strategy<a href="intro.html#subsequent-runs-of-the-management-strategy" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The appended data set is then used in the management strategy again, and new catch by fleet is produced that can then be fed back to the OM.</p>
 
 </div>

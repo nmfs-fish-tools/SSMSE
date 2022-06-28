@@ -6,11 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>7 Output and Plots | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
 
   <meta property="og:title" content="7 Output and Plots | SSMSE user manual" />
   <meta property="og:type" content="book" />
-  <meta property="og:url" content="https://nmfs-fish-tools.github.io/SSMSE/manual/" />
   
   <meta property="og:description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
   <meta name="github-repo" content="nmfs-fish-tools/SSMSE" />
@@ -24,7 +23,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2022-02-18" />
+<meta name="date" content="2022-06-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,8 +50,9 @@
 
 
 <script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 
 
 <style type="text/css">
@@ -213,10 +213,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="output" class="section level1">
-<h1><span class="header-section-number">7</span> Output and Plots</h1>
-<div id="summarizing-output" class="section level2">
-<h2><span class="header-section-number">7.1</span> Summarizing output</h2>
+<div id="output" class="section level1 hasAnchor">
+<h1><span class="header-section-number">7</span> Output and Plots<a href="output.html#output" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="summarizing-output" class="section level2 hasAnchor">
+<h2><span class="header-section-number">7.1</span> Summarizing output<a href="output.html#summarizing-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Output is summarized using <code>SSMSE_summary_all()</code>:</p>
 <div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="output.html#cb62-1"></a>summary_list &lt;-<span class="st"> </span><span class="kw">SSMSE_summary_all</span>(<span class="dt">dir =</span> <span class="st">&quot;path/to/scenario/dir&quot;</span>,</span>
 <span id="cb62-2"><a href="output.html#cb62-2"></a>                  <span class="dt">scenarios =</span> <span class="kw">c</span>(<span class="st">&quot;sample_low&quot;</span>, <span class="st">&quot;sample_high&quot;</span>),</span>
@@ -230,12 +230,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Note that <code>run_parallel = TRUE</code> is only faster than <code>run_parallel FALSE</code> when there is more than once scenario and none of the scenario-level .csv files have been created yet.</p>
 <p>By default, if a user doesn’t specify <code>scenarios</code>, all scenarios in <code>dir</code> will be summarized.</p>
 </div>
-<div id="checking-estimation-model-convergence" class="section level2">
-<h2><span class="header-section-number">7.2</span> Checking estimation model convergence</h2>
+<div id="checking-estimation-model-convergence" class="section level2 hasAnchor">
+<h2><span class="header-section-number">7.2</span> Checking estimation model convergence<a href="output.html#checking-estimation-model-convergence" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>One of the first checks to do if using an estimation model after running an MSE analysis is to check that the estimation model has converged. A number of checks could be done, but a basic one is checking the gradients for the estimation model, which are added to the <code>SSMSE_scalar</code> summary sheet.</p>
 </div>
-<div id="calculating-performance-metrics" class="section level2">
-<h2><span class="header-section-number">7.3</span> Calculating performance metrics</h2>
+<div id="calculating-performance-metrics" class="section level2 hasAnchor">
+<h2><span class="header-section-number">7.3</span> Calculating performance metrics<a href="output.html#calculating-performance-metrics" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Typically, a suite of performance metrics are used in MSE. <a href="https://doi.org/10.1111/faf.12104">Punt et al. (2016)</a> recommends at least using metrics related to:</p>
 <ul>
 <li>average catch</li>
