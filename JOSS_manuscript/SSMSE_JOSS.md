@@ -309,7 +309,7 @@ and less variability in yields is not surprising given that the level of
 spawning biomass that results in maximum sustainable yield is closer to
 $SPR_{45}$ than to $SPR_{30}$ for these populations ($SSB_{MSY}$ was the same 
 regardless if there were episodic spkes of natural mortality or not in the OMs). 
-Harford et al. (2018) used a custom-built MSE and found that managing with more 
+@harfordetal2018 used a custom-built MSE and found that managing with more 
 precaution in the face of episodic natural mortality spikes resulted in lower 
 probabilities of overfishing and being overfished, but at the expense of lower 
 catches. Here with only a few lines of code, SSMSE demonstrates similar findings,
