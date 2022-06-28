@@ -331,14 +331,13 @@ potential management actions.
 
 # Acknowledgements
 
-Thanks to Desiree Tommasi for testing SSMSE and providing comments that greatly improved
-this manuscript; Robert Wildermuth and Peter Kuriyama for their extensive
-testing of SSMSE; Matthew Damiano, Allan Hicks, and Huihua Lee for
+Thanks to Desiree Tommasi and Owen Hamel for providing comments that greatly
+improved this manuscript; Robert Wildermuth and Peter Kuriyama for their
+extensive testing of SSMSE; Matthew Damiano, Allan Hicks, and Huihua Lee for
 early discussions regarding MSE and the development of SSMSE; and Corrine Bassin
 and Christine Stawitz for their support in setting up the repository and
 documentation. KD and NV acknowledge funding for this project was provided
 through a NOAA Magnuson Stevens Act development grant.
-
 
 # Tables
 
