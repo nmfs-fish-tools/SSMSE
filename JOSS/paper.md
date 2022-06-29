@@ -57,7 +57,7 @@ affiliations:
   - name: Southeast Fisheries Science Center, National Oceanic and Atmospheric Administration, Beaufort, NC
     index: 7
 date: 29 March 2022
-bibliography: SSMSE_JOSS.bib
+bibliography: paper.bib
 ---
 
 # Statement of Need
