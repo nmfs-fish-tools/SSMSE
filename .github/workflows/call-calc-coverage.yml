@@ -20,7 +20,7 @@ on:
       - 'DESCRIPTION'
       - '.gitignore'
       - '.Rbuildignore'
-      = 'JOSS/**'
+      - 'JOSS/**'
 jobs:
   call-workflow:
     uses: nmfs-fish-tools/ghactions4r/.github/workflows/calc-coverage.yml@main

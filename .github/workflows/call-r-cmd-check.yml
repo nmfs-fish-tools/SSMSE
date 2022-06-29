@@ -10,7 +10,6 @@ on:
       - '.Rbuildignore'
       - 'JOSS/**'
   pull_request:
-  pull_request:
   workflow_dispatch:
   schedule:
     # This should run the default branch weekly on sunday
