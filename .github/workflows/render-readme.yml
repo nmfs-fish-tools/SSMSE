@@ -3,10 +3,7 @@
 name: Render README
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'README.Rmd'
-      - 'R/**'
+
 jobs:
   render:
     name: Render README
