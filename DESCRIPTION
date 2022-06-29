@@ -13,8 +13,8 @@ Description: An R package for performing Management Strategy Evaluation
     SS models to be used as the basis for an OM. These OMs are used in the MSE 
     framework provided by SSMSE to evaluate the implications of management 
     actions on a population given uncertainty.
-Depends: R (>= 4.0.5)
-License: MIT
+Depends: R (>= 4.0)
+License: MIT + file LICENSE
 URL: https://github.com/nmfs-fish-tools/SSMSE
 BugReports: https://github.com/nmfs-fish-tools/SSMSE/issues
 Encoding: UTF-8

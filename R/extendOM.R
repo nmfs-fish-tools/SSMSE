@@ -462,7 +462,8 @@ update_OM <- function(OM_dir,
           catch_intended[i, "scale"] <- 1
         } else {
           catch_intended[i, "last_adjust"] <- target_F / achieved_F
-          catch_intended[i, "scale"] <- ((target_F / achieved_F) - 1) * runif(1, 0.75, 1) + 1
+          catch_intended[i, "scale"] <- ((target_F / achieved_F) - 1) * 
+            stats::runif(1, 0.75, 1) + 1
         }
 
         if (!is.na(catch_intended[i, "F_ref"])) {
