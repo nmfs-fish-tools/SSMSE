@@ -7,6 +7,9 @@ on:
       - '**.md'
       - '**.MD'
       - '.gitignore'
+      - '.Rbuildignore'
+      - 'JOSS/**'
+  pull_request:
   pull_request:
   workflow_dispatch:
   schedule:

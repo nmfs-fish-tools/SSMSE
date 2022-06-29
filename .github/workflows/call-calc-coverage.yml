@@ -7,14 +7,20 @@ on:
       - 'docs/**'
       - '**.md'
       - '**.MD'
+      - DESCRIPTION
       - '.gitignore'
+      - '.Rbuildignore'
+      - 'JOSS/**'
   pull_request:
       paths-ignore:
       - '.github/**'
       - 'docs/**'
       - '**.md'
       - '**.MD'
+      - 'DESCRIPTION'
       - '.gitignore'
+      - '.Rbuildignore'
+      = 'JOSS/**'
 jobs:
   call-workflow:
     uses: nmfs-fish-tools/ghactions4r/.github/workflows/calc-coverage.yml@main
