@@ -14,4 +14,4 @@
 ^codecov\.yml$
 ^man/figures/README*
 ^inst/bookdown$
-^JOSS_manuscript$
+^JOSS$
