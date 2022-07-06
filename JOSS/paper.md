@@ -8,7 +8,7 @@ tags:
   - stock assessment
 authors:
   - name: Kathryn L. Doering^[Co-first author, Corresponding author]
-    orcid: 00000-0002-0396-7044
+    orcid: 0000-0002-0396-7044
     affiliation: 1
   - name: Nathan R. Vaughan^[Co-first author]
     affiliation: 2
