@@ -166,6 +166,14 @@ run the example:
 ``` r
 library(SSMSE) #load the package
 library(r4ss) #install using remotes::install_github("r4ss/r4ss)
+## 
+## Attaching package: 'r4ss'
+## The following object is masked from 'package:stats':
+## 
+##     profile
+## The following object is masked from 'package:base':
+## 
+##     jitter
 # library(foreach) #if using run_parallel = TRUE
 # library(doParallel) #if using run_parallel = TRUE
 ```
@@ -529,6 +537,8 @@ the results are stored.
 summary <- SSMSE_summary_all(run_res_path)
 ## Extracting results from 2 scenarios
 ## Starting h-1 with 5 iterations
+## Warning: The `ncols` argument of `SS_output()` is deprecated as of r4ss 1.46.0.
+## Input 'ncols' no longer needed.
 ## Starting h-ctl with 5 iterations
 ```
 
