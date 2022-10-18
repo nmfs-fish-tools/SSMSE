@@ -1,6 +1,7 @@
 # Run r cmd check
 name: call-calc_coverage
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
       - '.github/**'
