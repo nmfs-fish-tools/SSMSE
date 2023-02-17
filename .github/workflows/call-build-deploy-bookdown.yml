@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 jobs:
   call-workflow:
-    uses: nmfs-fish-tools/ghactions4r/.github/workflows/update-bookdown.yml@refresh-bookdown
+    uses: nmfs-fish-tools/ghactions4r/.github/workflows/build-deploy-bookdown.yml@refresh-bookdown
     with:
       bookdown_input: 'inst/bookdown'
       bookdown_output_dir: '../../docs/manual'
