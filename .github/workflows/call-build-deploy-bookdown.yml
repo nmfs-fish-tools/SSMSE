@@ -3,14 +3,14 @@
 name: call-update-bookdown
 # on specifies the build triggers. See more info at https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows
 on:
-# this workflow runs on pushes to main or master
+# this workflow runs on pushes to main
   push:
     branches: main
   workflow_dispatch:
 jobs:
   call-workflow:
-    uses: nmfs-fish-tools/ghactions4r/.github/workflows/update-bookdown.yml@refresh-bookdown
+    uses: nmfs-fish-tools/ghactions4r/.github/workflows/build-deploy-bookdown.yml@main
     with:
-      bookdown-input: 'inst/bookdown'
-      bookdown-output_dir: '../../docs/manual'
+      bookdown_input: 'inst/bookdown'
+      bookdown_output_dir: '../../docs/manual'
       deployment_dir: 'docs'
