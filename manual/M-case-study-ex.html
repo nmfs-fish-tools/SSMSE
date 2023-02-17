@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>4 A more complex example, Natural Mortality case study | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
 
   <meta property="og:title" content="4 A more complex example, Natural Mortality case study | SSMSE user manual" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2022-09-19" />
+<meta name="date" content="2023-02-17" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -49,25 +49,24 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -87,13 +86,13 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -106,7 +105,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -133,25 +132,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a>
+<ul>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#r-session-information"><i class="fa fa-check"></i>R session information</a></li>
 </ul></li>
-<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
 <li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#purpose"><i class="fa fa-check"></i><b>1.1</b> Purpose</a></li>
 <li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#funs"><i class="fa fa-check"></i><b>1.2</b> Functions in SSMSE</a></li>
-<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></a><ul>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#brief-description-of-the-ssmse-mse-simulation-procedure-using-run_ssmse"><i class="fa fa-check"></i><b>1.3</b> Brief description of the SSMSE MSE simulation procedure using <code>run_SSMSE()</code></a>
+<ul>
 <li class="chapter" data-level="1.3.1" data-path="intro.html"><a href="intro.html#conditioning-the-om-and-sampling-from-the-om"><i class="fa fa-check"></i><b>1.3.1</b> Conditioning the OM and sampling from the OM</a></li>
 <li class="chapter" data-level="1.3.2" data-path="intro.html"><a href="intro.html#first-run-of-the-management-strategy-in-the-mse-simulation"><i class="fa fa-check"></i><b>1.3.2</b> First run of the management strategy in the MSE simulation</a></li>
 <li class="chapter" data-level="1.3.3" data-path="intro.html"><a href="intro.html#feedback-from-managment-strategy-into-om-extending-model-years"><i class="fa fa-check"></i><b>1.3.3</b> Feedback from managment strategy into OM: extending model years</a></li>
 <li class="chapter" data-level="1.3.4" data-path="intro.html"><a href="intro.html#subsequent-runs-of-the-management-strategy"><i class="fa fa-check"></i><b>1.3.4</b> Subsequent runs of the management strategy</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a><ul>
+<li class="chapter" data-level="2" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>2</b> A simple example</a>
+<ul>
 <li class="chapter" data-level="2.1" data-path="simple.html"><a href="simple.html#setup-r-workspace-folders"><i class="fa fa-check"></i><b>2.1</b> Setup R workspace folders</a></li>
-<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a><ul>
+<li class="chapter" data-level="2.2" data-path="simple.html"><a href="simple.html#create-the-operating-models-oms"><i class="fa fa-check"></i><b>2.2</b> Create the operating models (OMs)</a>
+<ul>
 <li class="chapter" data-level="2.2.1" data-path="simple.html"><a href="simple.html#specify-alternative-values-for-h"><i class="fa fa-check"></i><b>2.2.1</b> Specify alternative values for h</a></li>
 </ul></li>
-<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"><i class="fa fa-check"></i><b>2.3</b> Adding process error through recruitment deviations and time-varying selectivity</a><ul>
+<li class="chapter" data-level="2.3" data-path="simple.html"><a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"><i class="fa fa-check"></i><b>2.3</b> Adding process error through recruitment deviations and time-varying selectivity</a>
+<ul>
 <li class="chapter" data-level="2.3.1" data-path="simple.html"><a href="simple.html#add-observation-error-through-sampling-from-om"><i class="fa fa-check"></i><b>2.3.1</b> Add observation error through sampling from OM</a></li>
 </ul></li>
 <li class="chapter" data-level="2.4" data-path="simple.html"><a href="simple.html#examine-the-management-procedure-used"><i class="fa fa-check"></i><b>2.4</b> Examine the management procedure used</a></li>
@@ -166,15 +171,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="3" data-path="advanced-options-use-a-custom-management-strategyprocedure.html"><a href="advanced-options-use-a-custom-management-strategyprocedure.html"><i class="fa fa-check"></i><b>3</b> Advanced options: use a custom management strategy/procedure</a></li>
 <li class="chapter" data-level="4" data-path="M-case-study-ex.html"><a href="M-case-study-ex.html"><i class="fa fa-check"></i><b>4</b> A more complex example, Natural Mortality case study</a></li>
-<li class="chapter" data-level="5" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>5</b> Options for run_SSMSE</a><ul>
+<li class="chapter" data-level="5" data-path="SSMSE.html"><a href="SSMSE.html"><i class="fa fa-check"></i><b>5</b> Options for run_SSMSE</a>
+<ul>
 <li class="chapter" data-level="5.1" data-path="SSMSE.html"><a href="SSMSE.html#scenarios-in-ssmse"><i class="fa fa-check"></i><b>5.1</b> Scenarios in SSMSE</a></li>
 <li class="chapter" data-level="5.2" data-path="SSMSE.html"><a href="SSMSE.html#operating-model"><i class="fa fa-check"></i><b>5.2</b> Operating model</a></li>
-<li class="chapter" data-level="5.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategy-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>5.3</b> The Management Strategy and (if applicable) Estimation model (EM)</a><ul>
+<li class="chapter" data-level="5.3" data-path="SSMSE.html"><a href="SSMSE.html#the-management-strategy-and-if-applicable-estimation-model-em"><i class="fa fa-check"></i><b>5.3</b> The Management Strategy and (if applicable) Estimation model (EM)</a>
+<ul>
 <li class="chapter" data-level="5.3.1" data-path="SSMSE.html"><a href="SSMSE.html#specify-the-management-strategy-in-a-ss3-model"><i class="fa fa-check"></i><b>5.3.1</b> Specify the Management Strategy in a SS3 model</a></li>
 <li class="chapter" data-level="5.3.2" data-path="SSMSE.html"><a href="SSMSE.html#custom-MS"><i class="fa fa-check"></i><b>5.3.2</b> Using a custom management strategy/procedure</a></li>
 </ul></li>
 <li class="chapter" data-level="5.4" data-path="SSMSE.html"><a href="SSMSE.html#sampling-options"><i class="fa fa-check"></i><b>5.4</b> Sampling options</a></li>
-<li class="chapter" data-level="5.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>5.5</b> Future changes to the operating model (#future)</a><ul>
+<li class="chapter" data-level="5.5" data-path="SSMSE.html"><a href="SSMSE.html#future-changes-to-the-operating-model-future"><i class="fa fa-check"></i><b>5.5</b> Future changes to the operating model (#future)</a>
+<ul>
 <li class="chapter" data-level="5.5.1" data-path="SSMSE.html"><a href="SSMSE.html#the-strucutre-of-future_om_list"><i class="fa fa-check"></i><b>5.5.1</b> The strucutre of <code>future_om_list</code></a></li>
 <li class="chapter" data-level="5.5.2" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-denoting-a-gradual-change"><i class="fa fa-check"></i><b>5.5.2</b> Example of future_om_list denoting a gradual change</a></li>
 <li class="chapter" data-level="5.5.3" data-path="SSMSE.html"><a href="SSMSE.html#example-of-future_om_list-with-random-deviations"><i class="fa fa-check"></i><b>5.5.3</b> Example of future_om_list with random deviations</a></li>
@@ -184,12 +192,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="5.5.7" data-path="SSMSE.html"><a href="SSMSE.html#example-of-specifying-recruitment-deviations"><i class="fa fa-check"></i><b>5.5.7</b> Example of specifying recruitment deviations</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="6" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>6</b> Helper functions in SSMSE</a><ul>
+<li class="chapter" data-level="6" data-path="helper.html"><a href="helper.html"><i class="fa fa-check"></i><b>6</b> Helper functions in SSMSE</a>
+<ul>
 <li class="chapter" data-level="6.1" data-path="helper.html"><a href="helper.html#devOM"><i class="fa fa-check"></i><b>6.1</b> Creating multiple operating models with <code>develop_OMs()</code></a></li>
 <li class="chapter" data-level="6.2" data-path="helper.html"><a href="helper.html#samplelist"><i class="fa fa-check"></i><b>6.2</b> Set up sampling for a scenario with <code>create_sample_struct()</code></a></li>
 <li class="chapter" data-level="6.3" data-path="helper.html"><a href="helper.html#omlist"><i class="fa fa-check"></i><b>6.3</b> Get examples of the <code>future_om_list</code> input with <code>create_future_om_list()</code></a></li>
 </ul></li>
-<li class="chapter" data-level="7" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>7</b> Output and Plots</a><ul>
+<li class="chapter" data-level="7" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>7</b> Output and Plots</a>
+<ul>
 <li class="chapter" data-level="7.1" data-path="output.html"><a href="output.html#summarizing-output"><i class="fa fa-check"></i><b>7.1</b> Summarizing output</a></li>
 <li class="chapter" data-level="7.2" data-path="output.html"><a href="output.html#checking-estimation-model-convergence"><i class="fa fa-check"></i><b>7.2</b> Checking estimation model convergence</a></li>
 <li class="chapter" data-level="7.3" data-path="output.html"><a href="output.html#calculating-performance-metrics"><i class="fa fa-check"></i><b>7.3</b> Calculating performance metrics</a></li>
@@ -213,174 +223,174 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="M-case-study-ex" class="section level1 hasAnchor">
+<div id="M-case-study-ex" class="section level1 hasAnchor" number="4">
 <h1><span class="header-section-number">4</span> A more complex example, Natural Mortality case study<a href="M-case-study-ex.html#M-case-study-ex" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>This code was used to examine how different natural mortality scenarios performed in two management strategies.</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="M-case-study-ex.html#cb44-1"></a><span class="co"># load pkgs set options ----</span></span>
-<span id="cb44-2"><a href="M-case-study-ex.html#cb44-2"></a><span class="co">#devtools::install_github(&quot;r4ss/r4ss&quot;, ref = &quot;155a521&quot;)</span></span>
-<span id="cb44-3"><a href="M-case-study-ex.html#cb44-3"></a><span class="co">#devtools::install_github(&quot;nmfs-fish-tools/SSMSE@v0.2.5&quot;)</span></span>
-<span id="cb44-4"><a href="M-case-study-ex.html#cb44-4"></a><span class="kw">library</span>(SSMSE)</span>
-<span id="cb44-5"><a href="M-case-study-ex.html#cb44-5"></a><span class="kw">library</span>(r4ss)</span>
-<span id="cb44-6"><a href="M-case-study-ex.html#cb44-6"></a></span>
-<span id="cb44-7"><a href="M-case-study-ex.html#cb44-7"></a><span class="co"># functions for convergence and performance metrics, get from other gh repo</span></span>
-<span id="cb44-8"><a href="M-case-study-ex.html#cb44-8"></a><span class="kw">source</span>(<span class="st">&quot;https://raw.githubusercontent.com/k-doering-NOAA/ssmse-afs/master/code/get_metrics.R&quot;</span>)</span>
-<span id="cb44-9"><a href="M-case-study-ex.html#cb44-9"></a></span>
-<span id="cb44-10"><a href="M-case-study-ex.html#cb44-10"></a><span class="co"># specify locations, create folders ----</span></span>
-<span id="cb44-11"><a href="M-case-study-ex.html#cb44-11"></a>cod_mod_path &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
-<span id="cb44-12"><a href="M-case-study-ex.html#cb44-12"></a>datfile_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(cod_mod_path, <span class="st">&quot;ss3.dat&quot;</span>)</span>
-<span id="cb44-13"><a href="M-case-study-ex.html#cb44-13"></a>fig_path &lt;-<span class="st"> &quot;figures&quot;</span></span>
-<span id="cb44-14"><a href="M-case-study-ex.html#cb44-14"></a>runs_path &lt;-<span class="st"> &quot;model_runs&quot;</span></span>
-<span id="cb44-15"><a href="M-case-study-ex.html#cb44-15"></a>mods_path &lt;-<span class="st"> &quot;input_models&quot;</span></span>
-<span id="cb44-16"><a href="M-case-study-ex.html#cb44-16"></a><span class="kw">dir.create</span>(fig_path)</span>
-<span id="cb44-17"><a href="M-case-study-ex.html#cb44-17"></a><span class="kw">dir.create</span>(runs_path)</span>
-<span id="cb44-18"><a href="M-case-study-ex.html#cb44-18"></a><span class="kw">dir.create</span>(mods_path)</span>
-<span id="cb44-19"><a href="M-case-study-ex.html#cb44-19"></a></span>
-<span id="cb44-20"><a href="M-case-study-ex.html#cb44-20"></a><span class="co"># define the scenarios ----</span></span>
-<span id="cb44-21"><a href="M-case-study-ex.html#cb44-21"></a>niters &lt;-<span class="st"> </span><span class="dv">100</span></span>
-<span id="cb44-22"><a href="M-case-study-ex.html#cb44-22"></a>start_iters &lt;-<span class="st"> </span><span class="dv">1</span></span>
-<span id="cb44-23"><a href="M-case-study-ex.html#cb44-23"></a></span>
-<span id="cb44-24"><a href="M-case-study-ex.html#cb44-24"></a><span class="co"># the scenarios are: </span></span>
-<span id="cb44-25"><a href="M-case-study-ex.html#cb44-25"></a><span class="co"># three levels of M changes in the OM (none, more frequent, less frequent)</span></span>
-<span id="cb44-26"><a href="M-case-study-ex.html#cb44-26"></a><span class="co"># 2 different management scenarios</span></span>
-<span id="cb44-27"><a href="M-case-study-ex.html#cb44-27"></a><span class="co"># in all scenarios, uncertainty in the selectivity moving forward</span></span>
-<span id="cb44-28"><a href="M-case-study-ex.html#cb44-28"></a><span class="co"># metrics: long term avg catch, long term catch variability, long term biomass</span></span>
-<span id="cb44-29"><a href="M-case-study-ex.html#cb44-29"></a></span>
-<span id="cb44-30"><a href="M-case-study-ex.html#cb44-30"></a>scen_red_tide &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;no-red-tide&quot;</span>, <span class="st">&quot;low-red-tide&quot;</span>, <span class="st">&quot;hi-red-tide&quot;</span>)</span>
-<span id="cb44-31"><a href="M-case-study-ex.html#cb44-31"></a>scen_HCR &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;F-spr-30&quot;</span>, <span class="st">&quot;F-spr-45&quot;</span>)</span>
-<span id="cb44-32"><a href="M-case-study-ex.html#cb44-32"></a></span>
-<span id="cb44-33"><a href="M-case-study-ex.html#cb44-33"></a>scenarios &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
-<span id="cb44-34"><a href="M-case-study-ex.html#cb44-34"></a>  <span class="dt">scen_name =</span> <span class="kw">c</span>(<span class="kw">paste0</span>(scen_red_tide, <span class="st">&quot;-&quot;</span>,scen_HCR[<span class="dv">1</span>]),</span>
-<span id="cb44-35"><a href="M-case-study-ex.html#cb44-35"></a>                <span class="kw">paste0</span>(scen_red_tide, <span class="st">&quot;-&quot;</span>, scen_HCR[<span class="dv">2</span>])),</span>
-<span id="cb44-36"><a href="M-case-study-ex.html#cb44-36"></a>  <span class="dt">EM_path =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="kw">file.path</span>(mods_path, scen_HCR)), <span class="dt">times =</span> <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span>
-<span id="cb44-37"><a href="M-case-study-ex.html#cb44-37"></a>)</span>
-<span id="cb44-38"><a href="M-case-study-ex.html#cb44-38"></a></span>
-<span id="cb44-39"><a href="M-case-study-ex.html#cb44-39"></a><span class="co"># manipulate EM Forecasting ----</span></span>
-<span id="cb44-40"><a href="M-case-study-ex.html#cb44-40"></a><span class="co"># no need to re-run model for the EM, </span></span>
-<span id="cb44-41"><a href="M-case-study-ex.html#cb44-41"></a><span class="cf">if</span>(start_iters <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</span>
-<span id="cb44-42"><a href="M-case-study-ex.html#cb44-42"></a>  <span class="co"># dont need to re run this for each new set of runs</span></span>
-<span id="cb44-43"><a href="M-case-study-ex.html#cb44-43"></a>  <span class="cf">for</span> (i <span class="cf">in</span> scen_HCR) {</span>
-<span id="cb44-44"><a href="M-case-study-ex.html#cb44-44"></a>    tmp_cod_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(mods_path, i)</span>
-<span id="cb44-45"><a href="M-case-study-ex.html#cb44-45"></a>    <span class="kw">file.copy</span>(<span class="dt">from =</span> cod_mod_path, <span class="dt">to =</span> mods_path, <span class="dt">recursive =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb44-46"><a href="M-case-study-ex.html#cb44-46"></a>    <span class="kw">file.rename</span>(<span class="dt">from =</span> <span class="kw">file.path</span>(mods_path, <span class="st">&quot;cod&quot;</span>), <span class="dt">to =</span> tmp_cod_path)</span>
-<span id="cb44-47"><a href="M-case-study-ex.html#cb44-47"></a>  </span>
-<span id="cb44-48"><a href="M-case-study-ex.html#cb44-48"></a>    fore &lt;-<span class="st"> </span>r4ss<span class="op">::</span><span class="kw">SS_readforecast</span>(<span class="kw">file.path</span>(tmp_cod_path, <span class="st">&quot;forecast.ss&quot;</span>), </span>
-<span id="cb44-49"><a href="M-case-study-ex.html#cb44-49"></a>                                  <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb44-50"><a href="M-case-study-ex.html#cb44-50"></a>    forecast_method &lt;-<span class="st"> </span><span class="cf">switch</span>(i, </span>
-<span id="cb44-51"><a href="M-case-study-ex.html#cb44-51"></a>                             <span class="st">&quot;F-msy&quot;</span> =<span class="st"> </span><span class="dv">2</span>,</span>
-<span id="cb44-52"><a href="M-case-study-ex.html#cb44-52"></a>                             <span class="st">&quot;F-spr-30&quot;</span> =<span class="st"> </span><span class="dv">1</span>,</span>
-<span id="cb44-53"><a href="M-case-study-ex.html#cb44-53"></a>                             <span class="st">&quot;F-spr-45&quot;</span> =<span class="st"> </span><span class="dv">1</span>)</span>
-<span id="cb44-54"><a href="M-case-study-ex.html#cb44-54"></a>    fcast_target &lt;-<span class="st"> </span><span class="cf">switch</span>(i, </span>
-<span id="cb44-55"><a href="M-case-study-ex.html#cb44-55"></a>                           <span class="st">&quot;F-msy&quot;</span> =<span class="st"> </span><span class="fl">0.45</span>,</span>
-<span id="cb44-56"><a href="M-case-study-ex.html#cb44-56"></a>                           <span class="st">&quot;F-spr-30&quot;</span> =<span class="st"> </span><span class="fl">0.3</span>,</span>
-<span id="cb44-57"><a href="M-case-study-ex.html#cb44-57"></a>                           <span class="st">&quot;F-spr-45&quot;</span> =<span class="st"> </span><span class="fl">0.45</span>)</span>
-<span id="cb44-58"><a href="M-case-study-ex.html#cb44-58"></a>    <span class="co"># manipulate the forecasting file.</span></span>
-<span id="cb44-59"><a href="M-case-study-ex.html#cb44-59"></a>    fore<span class="op">$</span>MSY &lt;-<span class="st"> </span><span class="dv">2</span> <span class="co"># calculate Fmsy, needed for F-msy scenario</span></span>
-<span id="cb44-60"><a href="M-case-study-ex.html#cb44-60"></a>    fore<span class="op">$</span>SPRtarget &lt;-<span class="st"> </span>fcast_target <span class="co"># differs between scenarios</span></span>
-<span id="cb44-61"><a href="M-case-study-ex.html#cb44-61"></a>    fore<span class="op">$</span>Forecast &lt;-<span class="st"> </span>forecast_method <span class="co"># differs between scenarios </span></span>
-<span id="cb44-62"><a href="M-case-study-ex.html#cb44-62"></a>    fore<span class="op">$</span>ControlRuleMethod &lt;-<span class="st"> </span><span class="dv">0</span> <span class="co"># don&#39;t use a ramp HCR at all</span></span>
-<span id="cb44-63"><a href="M-case-study-ex.html#cb44-63"></a>    r4ss<span class="op">::</span><span class="kw">SS_writeforecast</span>(fore, tmp_cod_path, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb44-64"><a href="M-case-study-ex.html#cb44-64"></a>    <span class="kw">file.remove</span>(<span class="kw">file.path</span>(tmp_cod_path, <span class="st">&quot;forecast.ss_new&quot;</span>)) <span class="co"># to make sure it is not used.</span></span>
-<span id="cb44-65"><a href="M-case-study-ex.html#cb44-65"></a>  }</span>
-<span id="cb44-66"><a href="M-case-study-ex.html#cb44-66"></a>}</span>
-<span id="cb44-67"><a href="M-case-study-ex.html#cb44-67"></a><span class="co"># set up the future om deviations ----</span></span>
-<span id="cb44-68"><a href="M-case-study-ex.html#cb44-68"></a><span class="co"># Set this up for the 3 different operating mode scenarios</span></span>
-<span id="cb44-69"><a href="M-case-study-ex.html#cb44-69"></a><span class="co"># in all cases, we want to use random fluctuations on selectivity</span></span>
-<span id="cb44-70"><a href="M-case-study-ex.html#cb44-70"></a><span class="co"># changing M depends on the scenario.</span></span>
-<span id="cb44-71"><a href="M-case-study-ex.html#cb44-71"></a></span>
-<span id="cb44-72"><a href="M-case-study-ex.html#cb44-72"></a></span>
-<span id="cb44-73"><a href="M-case-study-ex.html#cb44-73"></a><span class="co"># put together the change for selectivity (random values around the orig val, with</span></span>
-<span id="cb44-74"><a href="M-case-study-ex.html#cb44-74"></a><span class="co"># an sd of 0.2)</span></span>
-<span id="cb44-75"><a href="M-case-study-ex.html#cb44-75"></a>template_mod_change &lt;-<span class="st"> </span><span class="kw">create_future_om_list</span>()</span>
-<span id="cb44-76"><a href="M-case-study-ex.html#cb44-76"></a>mod_change_sel &lt;-<span class="st"> </span>template_mod_change[[<span class="dv">1</span>]]</span>
-<span id="cb44-77"><a href="M-case-study-ex.html#cb44-77"></a>mod_change_sel<span class="op">$</span>scen[<span class="dv">2</span>] &lt;-<span class="st"> &quot;all&quot;</span></span>
-<span id="cb44-78"><a href="M-case-study-ex.html#cb44-78"></a>mod_change_sel<span class="op">$</span>input<span class="op">$</span>last_yr_orig_val &lt;-<span class="st"> </span><span class="dv">100</span></span>
-<span id="cb44-79"><a href="M-case-study-ex.html#cb44-79"></a>mod_change_sel<span class="op">$</span>input<span class="op">$</span>first_yr_final_val &lt;-<span class="st"> </span><span class="dv">101</span></span>
-<span id="cb44-80"><a href="M-case-study-ex.html#cb44-80"></a>mod_change_sel<span class="op">$</span>input<span class="op">$</span>ts_param &lt;-<span class="st"> &quot;sd&quot;</span></span>
-<span id="cb44-81"><a href="M-case-study-ex.html#cb44-81"></a>mod_change_sel<span class="op">$</span>input<span class="op">$</span>value &lt;-<span class="st"> </span><span class="fl">0.2</span></span>
-<span id="cb44-82"><a href="M-case-study-ex.html#cb44-82"></a></span>
-<span id="cb44-83"><a href="M-case-study-ex.html#cb44-83"></a><span class="co"># put together change for M</span></span>
-<span id="cb44-84"><a href="M-case-study-ex.html#cb44-84"></a><span class="co"># more stochasisity could be added, but starting with this is still interesting</span></span>
-<span id="cb44-85"><a href="M-case-study-ex.html#cb44-85"></a>template_custom_change &lt;-<span class="st"> </span><span class="kw">create_future_om_list</span>(<span class="dt">example_type =</span> <span class="st">&quot;custom&quot;</span>)</span>
-<span id="cb44-86"><a href="M-case-study-ex.html#cb44-86"></a></span>
-<span id="cb44-87"><a href="M-case-study-ex.html#cb44-87"></a>mod_change_M &lt;-<span class="st"> </span>template_custom_change[[<span class="dv">1</span>]]</span>
-<span id="cb44-88"><a href="M-case-study-ex.html#cb44-88"></a></span>
-<span id="cb44-89"><a href="M-case-study-ex.html#cb44-89"></a></span>
-<span id="cb44-90"><a href="M-case-study-ex.html#cb44-90"></a>M_no_scen &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="fl">0.2</span>, <span class="dv">50</span>), <span class="dt">times =</span> niters)</span>
-<span id="cb44-91"><a href="M-case-study-ex.html#cb44-91"></a>M_low_scen &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>), <span class="dt">length.out =</span> <span class="dv">50</span>), <span class="dt">times =</span> niters)</span>
-<span id="cb44-92"><a href="M-case-study-ex.html#cb44-92"></a>M_hi_scen &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>), <span class="dt">length.out =</span> <span class="dv">50</span>), <span class="dt">times =</span> niters)</span>
-<span id="cb44-93"><a href="M-case-study-ex.html#cb44-93"></a>M_custom_dataframe &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
-<span id="cb44-94"><a href="M-case-study-ex.html#cb44-94"></a>  <span class="dt">par =</span> <span class="st">&quot;NatM_p_1_Fem_GP_1&quot;</span>, </span>
-<span id="cb44-95"><a href="M-case-study-ex.html#cb44-95"></a>  <span class="dt">scen =</span> <span class="kw">rep</span>(scenarios<span class="op">$</span>scen_name, <span class="dt">times =</span> <span class="kw">rep</span>(<span class="dv">50</span><span class="op">*</span>niters, <span class="dv">6</span>)), </span>
-<span id="cb44-96"><a href="M-case-study-ex.html#cb44-96"></a>  <span class="dt">iter =</span> <span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">seq</span>(<span class="dt">from =</span> start_iters, <span class="dt">to =</span> start_iters <span class="op">+</span><span class="st"> </span>niters <span class="op">-</span><span class="st"> </span><span class="dv">1</span>), <span class="dt">times =</span> <span class="kw">rep</span>(<span class="dv">50</span>, niters)), <span class="dt">times =</span> <span class="dv">6</span>), </span>
-<span id="cb44-97"><a href="M-case-study-ex.html#cb44-97"></a>  <span class="dt">yr =</span> <span class="kw">rep</span>(<span class="dv">101</span><span class="op">:</span><span class="dv">150</span>, <span class="dt">times =</span> <span class="dv">6</span><span class="op">*</span>niters), </span>
-<span id="cb44-98"><a href="M-case-study-ex.html#cb44-98"></a>  <span class="dt">value =</span> <span class="kw">c</span>(M_no_scen, M_low_scen, M_hi_scen,</span>
-<span id="cb44-99"><a href="M-case-study-ex.html#cb44-99"></a>            M_no_scen, M_low_scen, M_hi_scen))</span>
-<span id="cb44-100"><a href="M-case-study-ex.html#cb44-100"></a>mod_change_M<span class="op">$</span>pars &lt;-<span class="st"> &quot;NatM_p_1_Fem_GP_1&quot;</span></span>
-<span id="cb44-101"><a href="M-case-study-ex.html#cb44-101"></a>mod_change_M<span class="op">$</span>scen &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
-<span id="cb44-102"><a href="M-case-study-ex.html#cb44-102"></a>mod_change_M<span class="op">$</span>input &lt;-<span class="st"> </span>M_custom_dataframe</span>
-<span id="cb44-103"><a href="M-case-study-ex.html#cb44-103"></a></span>
-<span id="cb44-104"><a href="M-case-study-ex.html#cb44-104"></a><span class="co"># add recruitment deviations</span></span>
-<span id="cb44-105"><a href="M-case-study-ex.html#cb44-105"></a>rec_dev_specify &lt;-<span class="st"> </span>template_mod_change[[<span class="dv">1</span>]]</span>
-<span id="cb44-106"><a href="M-case-study-ex.html#cb44-106"></a>rec_dev_specify<span class="op">$</span>pars &lt;-<span class="st"> &quot;rec_devs&quot;</span></span>
-<span id="cb44-107"><a href="M-case-study-ex.html#cb44-107"></a>rec_dev_specify<span class="op">$</span>scen &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
-<span id="cb44-108"><a href="M-case-study-ex.html#cb44-108"></a>rec_dev_specify<span class="op">$</span>input<span class="op">$</span>first_yr_averaging &lt;-<span class="st"> </span><span class="dv">1</span> <span class="co"># use same sd as from the orig model.</span></span>
-<span id="cb44-109"><a href="M-case-study-ex.html#cb44-109"></a>rec_dev_specify<span class="op">$</span>input<span class="op">$</span>last_yr_averaging &lt;-<span class="st"> </span><span class="dv">100</span></span>
-<span id="cb44-110"><a href="M-case-study-ex.html#cb44-110"></a>rec_dev_specify<span class="op">$</span>input<span class="op">$</span>last_yr_orig_val &lt;-<span class="st"> </span><span class="dv">100</span></span>
-<span id="cb44-111"><a href="M-case-study-ex.html#cb44-111"></a>rec_dev_specify<span class="op">$</span>input<span class="op">$</span>first_yr_final_val &lt;-<span class="st"> </span><span class="dv">101</span></span>
-<span id="cb44-112"><a href="M-case-study-ex.html#cb44-112"></a>rec_dev_specify<span class="op">$</span>input<span class="op">$</span>ts_param &lt;-<span class="st"> &quot;sd&quot;</span></span>
-<span id="cb44-113"><a href="M-case-study-ex.html#cb44-113"></a>rec_dev_specify<span class="op">$</span>input<span class="op">$</span>value &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb44-114"><a href="M-case-study-ex.html#cb44-114"></a></span>
-<span id="cb44-115"><a href="M-case-study-ex.html#cb44-115"></a><span class="co"># put together a complete list</span></span>
-<span id="cb44-116"><a href="M-case-study-ex.html#cb44-116"></a>future_om_list &lt;-<span class="st"> </span><span class="kw">list</span>(mod_change_M, mod_change_sel, rec_dev_specify)</span>
-<span id="cb44-117"><a href="M-case-study-ex.html#cb44-117"></a></span>
-<span id="cb44-118"><a href="M-case-study-ex.html#cb44-118"></a><span class="co"># get the sampling scheme ----</span></span>
-<span id="cb44-119"><a href="M-case-study-ex.html#cb44-119"></a><span class="co"># use the historical sampling scheme, so don&#39; t need to create one</span></span>
-<span id="cb44-120"><a href="M-case-study-ex.html#cb44-120"></a></span>
-<span id="cb44-121"><a href="M-case-study-ex.html#cb44-121"></a></span>
-<span id="cb44-122"><a href="M-case-study-ex.html#cb44-122"></a><span class="co"># for sampling scheme in the projections, use the historical sampling scheme to</span></span>
-<span id="cb44-123"><a href="M-case-study-ex.html#cb44-123"></a><span class="co"># the extent possible; if no pattern found, then create a manual one.</span></span>
-<span id="cb44-124"><a href="M-case-study-ex.html#cb44-124"></a>sample_struct &lt;-<span class="st"> </span>SSMSE<span class="op">::</span><span class="kw">create_sample_struct</span>(<span class="dt">dat =</span> datfile_path, <span class="dt">nyrs =</span> <span class="dv">50</span>)</span>
-<span id="cb44-125"><a href="M-case-study-ex.html#cb44-125"></a>sample_struct<span class="op">$</span>meanbodywt &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb44-126"><a href="M-case-study-ex.html#cb44-126"></a>sample_struct<span class="op">$</span>MeanSize_at_Age_obs &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb44-127"><a href="M-case-study-ex.html#cb44-127"></a><span class="co"># modify, because there were NAs</span></span>
-<span id="cb44-128"><a href="M-case-study-ex.html#cb44-128"></a>sample_struct<span class="op">$</span>lencomp &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">Yr =</span> <span class="kw">seq</span>(<span class="dv">105</span>, <span class="dv">150</span>, <span class="dt">by =</span> <span class="dv">5</span>), </span>
-<span id="cb44-129"><a href="M-case-study-ex.html#cb44-129"></a>                                    <span class="dt">Seas =</span> sample_struct<span class="op">$</span>lencomp<span class="op">$</span>Seas,</span>
-<span id="cb44-130"><a href="M-case-study-ex.html#cb44-130"></a>                                    <span class="dt">FltSvy =</span> sample_struct<span class="op">$</span>lencomp<span class="op">$</span>FltSvy, </span>
-<span id="cb44-131"><a href="M-case-study-ex.html#cb44-131"></a>                                    <span class="dt">Sex =</span> sample_struct<span class="op">$</span>lencomp<span class="op">$</span>Sex, </span>
-<span id="cb44-132"><a href="M-case-study-ex.html#cb44-132"></a>                                    <span class="dt">Part =</span> sample_struct<span class="op">$</span>lencomp<span class="op">$</span>Part,</span>
-<span id="cb44-133"><a href="M-case-study-ex.html#cb44-133"></a>                                    <span class="dt">Nsamp =</span> sample_struct<span class="op">$</span>lencomp<span class="op">$</span>Nsamp)</span>
-<span id="cb44-134"><a href="M-case-study-ex.html#cb44-134"></a>sample_struct_list &lt;-<span class="st"> </span><span class="kw">list</span>(sample_struct, </span>
-<span id="cb44-135"><a href="M-case-study-ex.html#cb44-135"></a>                           sample_struct,</span>
-<span id="cb44-136"><a href="M-case-study-ex.html#cb44-136"></a>                           sample_struct,</span>
-<span id="cb44-137"><a href="M-case-study-ex.html#cb44-137"></a>                           sample_struct, </span>
-<span id="cb44-138"><a href="M-case-study-ex.html#cb44-138"></a>                           sample_struct,</span>
-<span id="cb44-139"><a href="M-case-study-ex.html#cb44-139"></a>                           sample_struct</span>
-<span id="cb44-140"><a href="M-case-study-ex.html#cb44-140"></a>                           )</span>
-<span id="cb44-141"><a href="M-case-study-ex.html#cb44-141"></a><span class="co"># call SSSMSE ----</span></span>
-<span id="cb44-142"><a href="M-case-study-ex.html#cb44-142"></a>out &lt;-<span class="st"> </span>SSMSE<span class="op">::</span><span class="kw">run_SSMSE</span>(<span class="dt">out_dir_scen_vec =</span> <span class="kw">rep</span>(<span class="st">&quot;model_runs&quot;</span>, <span class="dv">6</span>),</span>
-<span id="cb44-143"><a href="M-case-study-ex.html#cb44-143"></a>                        <span class="dt">scen_name_vec =</span> scenarios<span class="op">$</span>scen_name,</span>
-<span id="cb44-144"><a href="M-case-study-ex.html#cb44-144"></a>                        <span class="dt">iter_vec =</span> <span class="kw">rep</span>(niters, <span class="dv">6</span>),</span>
-<span id="cb44-145"><a href="M-case-study-ex.html#cb44-145"></a>                        <span class="dt">OM_name_vec =</span> <span class="kw">rep</span>(<span class="st">&quot;cod&quot;</span>, <span class="dv">6</span>),</span>
-<span id="cb44-146"><a href="M-case-study-ex.html#cb44-146"></a>                        <span class="dt">OM_in_dir_vec =</span> <span class="ot">NULL</span>,</span>
-<span id="cb44-147"><a href="M-case-study-ex.html#cb44-147"></a>                        <span class="dt">EM_in_dir_vec =</span> scenarios<span class="op">$</span>EM_path,</span>
-<span id="cb44-148"><a href="M-case-study-ex.html#cb44-148"></a>                        <span class="dt">run_EM_last_yr =</span> <span class="ot">FALSE</span>,</span>
-<span id="cb44-149"><a href="M-case-study-ex.html#cb44-149"></a>                        <span class="dt">MS_vec =</span> <span class="st">&quot;EM&quot;</span>,</span>
-<span id="cb44-150"><a href="M-case-study-ex.html#cb44-150"></a>                        <span class="dt">use_SS_boot_vec =</span> <span class="ot">TRUE</span>,</span>
-<span id="cb44-151"><a href="M-case-study-ex.html#cb44-151"></a>                        <span class="dt">nyrs_vec =</span> <span class="kw">rep</span>(<span class="dv">50</span>, <span class="dv">6</span>),</span>
-<span id="cb44-152"><a href="M-case-study-ex.html#cb44-152"></a>                        <span class="dt">nyrs_assess_vec =</span> <span class="kw">rep</span>(<span class="dv">5</span>, <span class="dv">6</span>),</span>
-<span id="cb44-153"><a href="M-case-study-ex.html#cb44-153"></a>                        <span class="dt">sample_struct_list =</span> sample_struct_list,</span>
-<span id="cb44-154"><a href="M-case-study-ex.html#cb44-154"></a>                        <span class="dt">future_om_list =</span> future_om_list,</span>
-<span id="cb44-155"><a href="M-case-study-ex.html#cb44-155"></a>                        <span class="dt">verbose =</span> <span class="ot">FALSE</span>,</span>
-<span id="cb44-156"><a href="M-case-study-ex.html#cb44-156"></a>                        <span class="dt">seed =</span> <span class="dv">456</span>, <span class="co"># changing each time a chunk of runs is done will help ensure there is stochacisity </span></span>
-<span id="cb44-157"><a href="M-case-study-ex.html#cb44-157"></a>                        <span class="dt">run_parallel =</span> <span class="ot">TRUE</span>,</span>
-<span id="cb44-158"><a href="M-case-study-ex.html#cb44-158"></a>                        <span class="dt">n_cores =</span> <span class="dv">6</span></span>
-<span id="cb44-159"><a href="M-case-study-ex.html#cb44-159"></a>                        )</span>
-<span id="cb44-160"><a href="M-case-study-ex.html#cb44-160"></a><span class="kw">saveRDS</span>(out, <span class="dt">file =</span> <span class="kw">file.path</span>(<span class="st">&quot;model_runs&quot;</span>, <span class="st">&quot;run_SSMSE_out.rda&quot;</span>))</span>
-<span id="cb44-161"><a href="M-case-study-ex.html#cb44-161"></a><span class="co"># </span></span>
-<span id="cb44-162"><a href="M-case-study-ex.html#cb44-162"></a><span class="co"># # look at results ----</span></span>
-<span id="cb44-163"><a href="M-case-study-ex.html#cb44-163"></a>summary &lt;-<span class="st"> </span>SSMSE<span class="op">::</span><span class="kw">SSMSE_summary_all</span>(<span class="dt">dir =</span> <span class="st">&quot;model_runs&quot;</span>, <span class="dt">run_parallel =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb44-164"><a href="M-case-study-ex.html#cb44-164"></a><span class="co"># #check for errored iterations</span></span>
-<span id="cb44-165"><a href="M-case-study-ex.html#cb44-165"></a><span class="kw">lapply</span>(out, <span class="cf">function</span>(x) x<span class="op">$</span>errored_iterations)</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="M-case-study-ex.html#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load pkgs set options ----</span></span>
+<span id="cb46-2"><a href="M-case-study-ex.html#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::install_github(&quot;r4ss/r4ss&quot;, ref = &quot;155a521&quot;)</span></span>
+<span id="cb46-3"><a href="M-case-study-ex.html#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::install_github(&quot;nmfs-fish-tools/SSMSE@v0.2.5&quot;)</span></span>
+<span id="cb46-4"><a href="M-case-study-ex.html#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SSMSE)</span>
+<span id="cb46-5"><a href="M-case-study-ex.html#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(r4ss)</span>
+<span id="cb46-6"><a href="M-case-study-ex.html#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="M-case-study-ex.html#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="co"># functions for convergence and performance metrics, get from other gh repo</span></span>
+<span id="cb46-8"><a href="M-case-study-ex.html#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;https://raw.githubusercontent.com/k-doering-NOAA/ssmse-afs/master/code/get_metrics.R&quot;</span>)</span>
+<span id="cb46-9"><a href="M-case-study-ex.html#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="M-case-study-ex.html#cb46-10" aria-hidden="true" tabindex="-1"></a><span class="co"># specify locations, create folders ----</span></span>
+<span id="cb46-11"><a href="M-case-study-ex.html#cb46-11" aria-hidden="true" tabindex="-1"></a>cod_mod_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
+<span id="cb46-12"><a href="M-case-study-ex.html#cb46-12" aria-hidden="true" tabindex="-1"></a>datfile_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(cod_mod_path, <span class="st">&quot;ss3.dat&quot;</span>)</span>
+<span id="cb46-13"><a href="M-case-study-ex.html#cb46-13" aria-hidden="true" tabindex="-1"></a>fig_path <span class="ot">&lt;-</span> <span class="st">&quot;figures&quot;</span></span>
+<span id="cb46-14"><a href="M-case-study-ex.html#cb46-14" aria-hidden="true" tabindex="-1"></a>runs_path <span class="ot">&lt;-</span> <span class="st">&quot;model_runs&quot;</span></span>
+<span id="cb46-15"><a href="M-case-study-ex.html#cb46-15" aria-hidden="true" tabindex="-1"></a>mods_path <span class="ot">&lt;-</span> <span class="st">&quot;input_models&quot;</span></span>
+<span id="cb46-16"><a href="M-case-study-ex.html#cb46-16" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(fig_path)</span>
+<span id="cb46-17"><a href="M-case-study-ex.html#cb46-17" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(runs_path)</span>
+<span id="cb46-18"><a href="M-case-study-ex.html#cb46-18" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(mods_path)</span>
+<span id="cb46-19"><a href="M-case-study-ex.html#cb46-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-20"><a href="M-case-study-ex.html#cb46-20" aria-hidden="true" tabindex="-1"></a><span class="co"># define the scenarios ----</span></span>
+<span id="cb46-21"><a href="M-case-study-ex.html#cb46-21" aria-hidden="true" tabindex="-1"></a>niters <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb46-22"><a href="M-case-study-ex.html#cb46-22" aria-hidden="true" tabindex="-1"></a>start_iters <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb46-23"><a href="M-case-study-ex.html#cb46-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-24"><a href="M-case-study-ex.html#cb46-24" aria-hidden="true" tabindex="-1"></a><span class="co"># the scenarios are: </span></span>
+<span id="cb46-25"><a href="M-case-study-ex.html#cb46-25" aria-hidden="true" tabindex="-1"></a><span class="co"># three levels of M changes in the OM (none, more frequent, less frequent)</span></span>
+<span id="cb46-26"><a href="M-case-study-ex.html#cb46-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 different management scenarios</span></span>
+<span id="cb46-27"><a href="M-case-study-ex.html#cb46-27" aria-hidden="true" tabindex="-1"></a><span class="co"># in all scenarios, uncertainty in the selectivity moving forward</span></span>
+<span id="cb46-28"><a href="M-case-study-ex.html#cb46-28" aria-hidden="true" tabindex="-1"></a><span class="co"># metrics: long term avg catch, long term catch variability, long term biomass</span></span>
+<span id="cb46-29"><a href="M-case-study-ex.html#cb46-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-30"><a href="M-case-study-ex.html#cb46-30" aria-hidden="true" tabindex="-1"></a>scen_red_tide <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;no-red-tide&quot;</span>, <span class="st">&quot;low-red-tide&quot;</span>, <span class="st">&quot;hi-red-tide&quot;</span>)</span>
+<span id="cb46-31"><a href="M-case-study-ex.html#cb46-31" aria-hidden="true" tabindex="-1"></a>scen_HCR <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;F-spr-30&quot;</span>, <span class="st">&quot;F-spr-45&quot;</span>)</span>
+<span id="cb46-32"><a href="M-case-study-ex.html#cb46-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-33"><a href="M-case-study-ex.html#cb46-33" aria-hidden="true" tabindex="-1"></a>scenarios <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb46-34"><a href="M-case-study-ex.html#cb46-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">scen_name =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(scen_red_tide, <span class="st">&quot;-&quot;</span>,scen_HCR[<span class="dv">1</span>]),</span>
+<span id="cb46-35"><a href="M-case-study-ex.html#cb46-35" aria-hidden="true" tabindex="-1"></a>                <span class="fu">paste0</span>(scen_red_tide, <span class="st">&quot;-&quot;</span>, scen_HCR[<span class="dv">2</span>])),</span>
+<span id="cb46-36"><a href="M-case-study-ex.html#cb46-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">EM_path =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="fu">file.path</span>(mods_path, scen_HCR)), <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span>
+<span id="cb46-37"><a href="M-case-study-ex.html#cb46-37" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-38"><a href="M-case-study-ex.html#cb46-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-39"><a href="M-case-study-ex.html#cb46-39" aria-hidden="true" tabindex="-1"></a><span class="co"># manipulate EM Forecasting ----</span></span>
+<span id="cb46-40"><a href="M-case-study-ex.html#cb46-40" aria-hidden="true" tabindex="-1"></a><span class="co"># no need to re-run model for the EM, </span></span>
+<span id="cb46-41"><a href="M-case-study-ex.html#cb46-41" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(start_iters <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb46-42"><a href="M-case-study-ex.html#cb46-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dont need to re run this for each new set of runs</span></span>
+<span id="cb46-43"><a href="M-case-study-ex.html#cb46-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> scen_HCR) {</span>
+<span id="cb46-44"><a href="M-case-study-ex.html#cb46-44" aria-hidden="true" tabindex="-1"></a>    tmp_cod_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(mods_path, i)</span>
+<span id="cb46-45"><a href="M-case-study-ex.html#cb46-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file.copy</span>(<span class="at">from =</span> cod_mod_path, <span class="at">to =</span> mods_path, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb46-46"><a href="M-case-study-ex.html#cb46-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file.rename</span>(<span class="at">from =</span> <span class="fu">file.path</span>(mods_path, <span class="st">&quot;cod&quot;</span>), <span class="at">to =</span> tmp_cod_path)</span>
+<span id="cb46-47"><a href="M-case-study-ex.html#cb46-47" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb46-48"><a href="M-case-study-ex.html#cb46-48" aria-hidden="true" tabindex="-1"></a>    fore <span class="ot">&lt;-</span> r4ss<span class="sc">::</span><span class="fu">SS_readforecast</span>(<span class="fu">file.path</span>(tmp_cod_path, <span class="st">&quot;forecast.ss&quot;</span>), </span>
+<span id="cb46-49"><a href="M-case-study-ex.html#cb46-49" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb46-50"><a href="M-case-study-ex.html#cb46-50" aria-hidden="true" tabindex="-1"></a>    forecast_method <span class="ot">&lt;-</span> <span class="cf">switch</span>(i, </span>
+<span id="cb46-51"><a href="M-case-study-ex.html#cb46-51" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;F-msy&quot;</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb46-52"><a href="M-case-study-ex.html#cb46-52" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;F-spr-30&quot;</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb46-53"><a href="M-case-study-ex.html#cb46-53" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;F-spr-45&quot;</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
+<span id="cb46-54"><a href="M-case-study-ex.html#cb46-54" aria-hidden="true" tabindex="-1"></a>    fcast_target <span class="ot">&lt;-</span> <span class="cf">switch</span>(i, </span>
+<span id="cb46-55"><a href="M-case-study-ex.html#cb46-55" aria-hidden="true" tabindex="-1"></a>                           <span class="st">&quot;F-msy&quot;</span> <span class="ot">=</span> <span class="fl">0.45</span>,</span>
+<span id="cb46-56"><a href="M-case-study-ex.html#cb46-56" aria-hidden="true" tabindex="-1"></a>                           <span class="st">&quot;F-spr-30&quot;</span> <span class="ot">=</span> <span class="fl">0.3</span>,</span>
+<span id="cb46-57"><a href="M-case-study-ex.html#cb46-57" aria-hidden="true" tabindex="-1"></a>                           <span class="st">&quot;F-spr-45&quot;</span> <span class="ot">=</span> <span class="fl">0.45</span>)</span>
+<span id="cb46-58"><a href="M-case-study-ex.html#cb46-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># manipulate the forecasting file.</span></span>
+<span id="cb46-59"><a href="M-case-study-ex.html#cb46-59" aria-hidden="true" tabindex="-1"></a>    fore<span class="sc">$</span>MSY <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="co"># calculate Fmsy, needed for F-msy scenario</span></span>
+<span id="cb46-60"><a href="M-case-study-ex.html#cb46-60" aria-hidden="true" tabindex="-1"></a>    fore<span class="sc">$</span>SPRtarget <span class="ot">&lt;-</span> fcast_target <span class="co"># differs between scenarios</span></span>
+<span id="cb46-61"><a href="M-case-study-ex.html#cb46-61" aria-hidden="true" tabindex="-1"></a>    fore<span class="sc">$</span>Forecast <span class="ot">&lt;-</span> forecast_method <span class="co"># differs between scenarios </span></span>
+<span id="cb46-62"><a href="M-case-study-ex.html#cb46-62" aria-hidden="true" tabindex="-1"></a>    fore<span class="sc">$</span>ControlRuleMethod <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># don&#39;t use a ramp HCR at all</span></span>
+<span id="cb46-63"><a href="M-case-study-ex.html#cb46-63" aria-hidden="true" tabindex="-1"></a>    r4ss<span class="sc">::</span><span class="fu">SS_writeforecast</span>(fore, tmp_cod_path, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb46-64"><a href="M-case-study-ex.html#cb46-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file.remove</span>(<span class="fu">file.path</span>(tmp_cod_path, <span class="st">&quot;forecast.ss_new&quot;</span>)) <span class="co"># to make sure it is not used.</span></span>
+<span id="cb46-65"><a href="M-case-study-ex.html#cb46-65" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb46-66"><a href="M-case-study-ex.html#cb46-66" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb46-67"><a href="M-case-study-ex.html#cb46-67" aria-hidden="true" tabindex="-1"></a><span class="co"># set up the future om deviations ----</span></span>
+<span id="cb46-68"><a href="M-case-study-ex.html#cb46-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Set this up for the 3 different operating mode scenarios</span></span>
+<span id="cb46-69"><a href="M-case-study-ex.html#cb46-69" aria-hidden="true" tabindex="-1"></a><span class="co"># in all cases, we want to use random fluctuations on selectivity</span></span>
+<span id="cb46-70"><a href="M-case-study-ex.html#cb46-70" aria-hidden="true" tabindex="-1"></a><span class="co"># changing M depends on the scenario.</span></span>
+<span id="cb46-71"><a href="M-case-study-ex.html#cb46-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-72"><a href="M-case-study-ex.html#cb46-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-73"><a href="M-case-study-ex.html#cb46-73" aria-hidden="true" tabindex="-1"></a><span class="co"># put together the change for selectivity (random values around the orig val, with</span></span>
+<span id="cb46-74"><a href="M-case-study-ex.html#cb46-74" aria-hidden="true" tabindex="-1"></a><span class="co"># an sd of 0.2)</span></span>
+<span id="cb46-75"><a href="M-case-study-ex.html#cb46-75" aria-hidden="true" tabindex="-1"></a>template_mod_change <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>()</span>
+<span id="cb46-76"><a href="M-case-study-ex.html#cb46-76" aria-hidden="true" tabindex="-1"></a>mod_change_sel <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
+<span id="cb46-77"><a href="M-case-study-ex.html#cb46-77" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>scen[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;all&quot;</span></span>
+<span id="cb46-78"><a href="M-case-study-ex.html#cb46-78" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb46-79"><a href="M-case-study-ex.html#cb46-79" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
+<span id="cb46-80"><a href="M-case-study-ex.html#cb46-80" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span></span>
+<span id="cb46-81"><a href="M-case-study-ex.html#cb46-81" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="fl">0.2</span></span>
+<span id="cb46-82"><a href="M-case-study-ex.html#cb46-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-83"><a href="M-case-study-ex.html#cb46-83" aria-hidden="true" tabindex="-1"></a><span class="co"># put together change for M</span></span>
+<span id="cb46-84"><a href="M-case-study-ex.html#cb46-84" aria-hidden="true" tabindex="-1"></a><span class="co"># more stochasisity could be added, but starting with this is still interesting</span></span>
+<span id="cb46-85"><a href="M-case-study-ex.html#cb46-85" aria-hidden="true" tabindex="-1"></a>template_custom_change <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">example_type =</span> <span class="st">&quot;custom&quot;</span>)</span>
+<span id="cb46-86"><a href="M-case-study-ex.html#cb46-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-87"><a href="M-case-study-ex.html#cb46-87" aria-hidden="true" tabindex="-1"></a>mod_change_M <span class="ot">&lt;-</span> template_custom_change[[<span class="dv">1</span>]]</span>
+<span id="cb46-88"><a href="M-case-study-ex.html#cb46-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-89"><a href="M-case-study-ex.html#cb46-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-90"><a href="M-case-study-ex.html#cb46-90" aria-hidden="true" tabindex="-1"></a>M_no_scen <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">rep</span>(<span class="fl">0.2</span>, <span class="dv">50</span>), <span class="at">times =</span> niters)</span>
+<span id="cb46-91"><a href="M-case-study-ex.html#cb46-91" aria-hidden="true" tabindex="-1"></a>M_low_scen <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>), <span class="at">length.out =</span> <span class="dv">50</span>), <span class="at">times =</span> niters)</span>
+<span id="cb46-92"><a href="M-case-study-ex.html#cb46-92" aria-hidden="true" tabindex="-1"></a>M_hi_scen <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>), <span class="at">length.out =</span> <span class="dv">50</span>), <span class="at">times =</span> niters)</span>
+<span id="cb46-93"><a href="M-case-study-ex.html#cb46-93" aria-hidden="true" tabindex="-1"></a>M_custom_dataframe <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb46-94"><a href="M-case-study-ex.html#cb46-94" aria-hidden="true" tabindex="-1"></a>  <span class="at">par =</span> <span class="st">&quot;NatM_p_1_Fem_GP_1&quot;</span>, </span>
+<span id="cb46-95"><a href="M-case-study-ex.html#cb46-95" aria-hidden="true" tabindex="-1"></a>  <span class="at">scen =</span> <span class="fu">rep</span>(scenarios<span class="sc">$</span>scen_name, <span class="at">times =</span> <span class="fu">rep</span>(<span class="dv">50</span><span class="sc">*</span>niters, <span class="dv">6</span>)), </span>
+<span id="cb46-96"><a href="M-case-study-ex.html#cb46-96" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="fu">rep</span>(<span class="fu">rep</span>(<span class="fu">seq</span>(<span class="at">from =</span> start_iters, <span class="at">to =</span> start_iters <span class="sc">+</span> niters <span class="sc">-</span> <span class="dv">1</span>), <span class="at">times =</span> <span class="fu">rep</span>(<span class="dv">50</span>, niters)), <span class="at">times =</span> <span class="dv">6</span>), </span>
+<span id="cb46-97"><a href="M-case-study-ex.html#cb46-97" aria-hidden="true" tabindex="-1"></a>  <span class="at">yr =</span> <span class="fu">rep</span>(<span class="dv">101</span><span class="sc">:</span><span class="dv">150</span>, <span class="at">times =</span> <span class="dv">6</span><span class="sc">*</span>niters), </span>
+<span id="cb46-98"><a href="M-case-study-ex.html#cb46-98" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">c</span>(M_no_scen, M_low_scen, M_hi_scen,</span>
+<span id="cb46-99"><a href="M-case-study-ex.html#cb46-99" aria-hidden="true" tabindex="-1"></a>            M_no_scen, M_low_scen, M_hi_scen))</span>
+<span id="cb46-100"><a href="M-case-study-ex.html#cb46-100" aria-hidden="true" tabindex="-1"></a>mod_change_M<span class="sc">$</span>pars <span class="ot">&lt;-</span> <span class="st">&quot;NatM_p_1_Fem_GP_1&quot;</span></span>
+<span id="cb46-101"><a href="M-case-study-ex.html#cb46-101" aria-hidden="true" tabindex="-1"></a>mod_change_M<span class="sc">$</span>scen <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
+<span id="cb46-102"><a href="M-case-study-ex.html#cb46-102" aria-hidden="true" tabindex="-1"></a>mod_change_M<span class="sc">$</span>input <span class="ot">&lt;-</span> M_custom_dataframe</span>
+<span id="cb46-103"><a href="M-case-study-ex.html#cb46-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-104"><a href="M-case-study-ex.html#cb46-104" aria-hidden="true" tabindex="-1"></a><span class="co"># add recruitment deviations</span></span>
+<span id="cb46-105"><a href="M-case-study-ex.html#cb46-105" aria-hidden="true" tabindex="-1"></a>rec_dev_specify <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
+<span id="cb46-106"><a href="M-case-study-ex.html#cb46-106" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>pars <span class="ot">&lt;-</span> <span class="st">&quot;rec_devs&quot;</span></span>
+<span id="cb46-107"><a href="M-case-study-ex.html#cb46-107" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>scen <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
+<span id="cb46-108"><a href="M-case-study-ex.html#cb46-108" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_averaging <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># use same sd as from the orig model.</span></span>
+<span id="cb46-109"><a href="M-case-study-ex.html#cb46-109" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_averaging <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb46-110"><a href="M-case-study-ex.html#cb46-110" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb46-111"><a href="M-case-study-ex.html#cb46-111" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
+<span id="cb46-112"><a href="M-case-study-ex.html#cb46-112" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span></span>
+<span id="cb46-113"><a href="M-case-study-ex.html#cb46-113" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb46-114"><a href="M-case-study-ex.html#cb46-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-115"><a href="M-case-study-ex.html#cb46-115" aria-hidden="true" tabindex="-1"></a><span class="co"># put together a complete list</span></span>
+<span id="cb46-116"><a href="M-case-study-ex.html#cb46-116" aria-hidden="true" tabindex="-1"></a>future_om_list <span class="ot">&lt;-</span> <span class="fu">list</span>(mod_change_M, mod_change_sel, rec_dev_specify)</span>
+<span id="cb46-117"><a href="M-case-study-ex.html#cb46-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-118"><a href="M-case-study-ex.html#cb46-118" aria-hidden="true" tabindex="-1"></a><span class="co"># get the sampling scheme ----</span></span>
+<span id="cb46-119"><a href="M-case-study-ex.html#cb46-119" aria-hidden="true" tabindex="-1"></a><span class="co"># use the historical sampling scheme, so don&#39; t need to create one</span></span>
+<span id="cb46-120"><a href="M-case-study-ex.html#cb46-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-121"><a href="M-case-study-ex.html#cb46-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-122"><a href="M-case-study-ex.html#cb46-122" aria-hidden="true" tabindex="-1"></a><span class="co"># for sampling scheme in the projections, use the historical sampling scheme to</span></span>
+<span id="cb46-123"><a href="M-case-study-ex.html#cb46-123" aria-hidden="true" tabindex="-1"></a><span class="co"># the extent possible; if no pattern found, then create a manual one.</span></span>
+<span id="cb46-124"><a href="M-case-study-ex.html#cb46-124" aria-hidden="true" tabindex="-1"></a>sample_struct <span class="ot">&lt;-</span> SSMSE<span class="sc">::</span><span class="fu">create_sample_struct</span>(<span class="at">dat =</span> datfile_path, <span class="at">nyrs =</span> <span class="dv">50</span>)</span>
+<span id="cb46-125"><a href="M-case-study-ex.html#cb46-125" aria-hidden="true" tabindex="-1"></a>sample_struct<span class="sc">$</span>meanbodywt <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb46-126"><a href="M-case-study-ex.html#cb46-126" aria-hidden="true" tabindex="-1"></a>sample_struct<span class="sc">$</span>MeanSize_at_Age_obs <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb46-127"><a href="M-case-study-ex.html#cb46-127" aria-hidden="true" tabindex="-1"></a><span class="co"># modify, because there were NAs</span></span>
+<span id="cb46-128"><a href="M-case-study-ex.html#cb46-128" aria-hidden="true" tabindex="-1"></a>sample_struct<span class="sc">$</span>lencomp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Yr =</span> <span class="fu">seq</span>(<span class="dv">105</span>, <span class="dv">150</span>, <span class="at">by =</span> <span class="dv">5</span>), </span>
+<span id="cb46-129"><a href="M-case-study-ex.html#cb46-129" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">Seas =</span> sample_struct<span class="sc">$</span>lencomp<span class="sc">$</span>Seas,</span>
+<span id="cb46-130"><a href="M-case-study-ex.html#cb46-130" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">FltSvy =</span> sample_struct<span class="sc">$</span>lencomp<span class="sc">$</span>FltSvy, </span>
+<span id="cb46-131"><a href="M-case-study-ex.html#cb46-131" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">Sex =</span> sample_struct<span class="sc">$</span>lencomp<span class="sc">$</span>Sex, </span>
+<span id="cb46-132"><a href="M-case-study-ex.html#cb46-132" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">Part =</span> sample_struct<span class="sc">$</span>lencomp<span class="sc">$</span>Part,</span>
+<span id="cb46-133"><a href="M-case-study-ex.html#cb46-133" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">Nsamp =</span> sample_struct<span class="sc">$</span>lencomp<span class="sc">$</span>Nsamp)</span>
+<span id="cb46-134"><a href="M-case-study-ex.html#cb46-134" aria-hidden="true" tabindex="-1"></a>sample_struct_list <span class="ot">&lt;-</span> <span class="fu">list</span>(sample_struct, </span>
+<span id="cb46-135"><a href="M-case-study-ex.html#cb46-135" aria-hidden="true" tabindex="-1"></a>                           sample_struct,</span>
+<span id="cb46-136"><a href="M-case-study-ex.html#cb46-136" aria-hidden="true" tabindex="-1"></a>                           sample_struct,</span>
+<span id="cb46-137"><a href="M-case-study-ex.html#cb46-137" aria-hidden="true" tabindex="-1"></a>                           sample_struct, </span>
+<span id="cb46-138"><a href="M-case-study-ex.html#cb46-138" aria-hidden="true" tabindex="-1"></a>                           sample_struct,</span>
+<span id="cb46-139"><a href="M-case-study-ex.html#cb46-139" aria-hidden="true" tabindex="-1"></a>                           sample_struct</span>
+<span id="cb46-140"><a href="M-case-study-ex.html#cb46-140" aria-hidden="true" tabindex="-1"></a>                           )</span>
+<span id="cb46-141"><a href="M-case-study-ex.html#cb46-141" aria-hidden="true" tabindex="-1"></a><span class="co"># call SSSMSE ----</span></span>
+<span id="cb46-142"><a href="M-case-study-ex.html#cb46-142" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> SSMSE<span class="sc">::</span><span class="fu">run_SSMSE</span>(<span class="at">out_dir_scen_vec =</span> <span class="fu">rep</span>(<span class="st">&quot;model_runs&quot;</span>, <span class="dv">6</span>),</span>
+<span id="cb46-143"><a href="M-case-study-ex.html#cb46-143" aria-hidden="true" tabindex="-1"></a>                        <span class="at">scen_name_vec =</span> scenarios<span class="sc">$</span>scen_name,</span>
+<span id="cb46-144"><a href="M-case-study-ex.html#cb46-144" aria-hidden="true" tabindex="-1"></a>                        <span class="at">iter_vec =</span> <span class="fu">rep</span>(niters, <span class="dv">6</span>),</span>
+<span id="cb46-145"><a href="M-case-study-ex.html#cb46-145" aria-hidden="true" tabindex="-1"></a>                        <span class="at">OM_name_vec =</span> <span class="fu">rep</span>(<span class="st">&quot;cod&quot;</span>, <span class="dv">6</span>),</span>
+<span id="cb46-146"><a href="M-case-study-ex.html#cb46-146" aria-hidden="true" tabindex="-1"></a>                        <span class="at">OM_in_dir_vec =</span> <span class="cn">NULL</span>,</span>
+<span id="cb46-147"><a href="M-case-study-ex.html#cb46-147" aria-hidden="true" tabindex="-1"></a>                        <span class="at">EM_in_dir_vec =</span> scenarios<span class="sc">$</span>EM_path,</span>
+<span id="cb46-148"><a href="M-case-study-ex.html#cb46-148" aria-hidden="true" tabindex="-1"></a>                        <span class="at">run_EM_last_yr =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb46-149"><a href="M-case-study-ex.html#cb46-149" aria-hidden="true" tabindex="-1"></a>                        <span class="at">MS_vec =</span> <span class="st">&quot;EM&quot;</span>,</span>
+<span id="cb46-150"><a href="M-case-study-ex.html#cb46-150" aria-hidden="true" tabindex="-1"></a>                        <span class="at">use_SS_boot_vec =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb46-151"><a href="M-case-study-ex.html#cb46-151" aria-hidden="true" tabindex="-1"></a>                        <span class="at">nyrs_vec =</span> <span class="fu">rep</span>(<span class="dv">50</span>, <span class="dv">6</span>),</span>
+<span id="cb46-152"><a href="M-case-study-ex.html#cb46-152" aria-hidden="true" tabindex="-1"></a>                        <span class="at">nyrs_assess_vec =</span> <span class="fu">rep</span>(<span class="dv">5</span>, <span class="dv">6</span>),</span>
+<span id="cb46-153"><a href="M-case-study-ex.html#cb46-153" aria-hidden="true" tabindex="-1"></a>                        <span class="at">sample_struct_list =</span> sample_struct_list,</span>
+<span id="cb46-154"><a href="M-case-study-ex.html#cb46-154" aria-hidden="true" tabindex="-1"></a>                        <span class="at">future_om_list =</span> future_om_list,</span>
+<span id="cb46-155"><a href="M-case-study-ex.html#cb46-155" aria-hidden="true" tabindex="-1"></a>                        <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb46-156"><a href="M-case-study-ex.html#cb46-156" aria-hidden="true" tabindex="-1"></a>                        <span class="at">seed =</span> <span class="dv">456</span>, <span class="co"># changing each time a chunk of runs is done will help ensure there is stochacisity </span></span>
+<span id="cb46-157"><a href="M-case-study-ex.html#cb46-157" aria-hidden="true" tabindex="-1"></a>                        <span class="at">run_parallel =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb46-158"><a href="M-case-study-ex.html#cb46-158" aria-hidden="true" tabindex="-1"></a>                        <span class="at">n_cores =</span> <span class="dv">6</span></span>
+<span id="cb46-159"><a href="M-case-study-ex.html#cb46-159" aria-hidden="true" tabindex="-1"></a>                        )</span>
+<span id="cb46-160"><a href="M-case-study-ex.html#cb46-160" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(out, <span class="at">file =</span> <span class="fu">file.path</span>(<span class="st">&quot;model_runs&quot;</span>, <span class="st">&quot;run_SSMSE_out.rda&quot;</span>))</span>
+<span id="cb46-161"><a href="M-case-study-ex.html#cb46-161" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb46-162"><a href="M-case-study-ex.html#cb46-162" aria-hidden="true" tabindex="-1"></a><span class="co"># # look at results ----</span></span>
+<span id="cb46-163"><a href="M-case-study-ex.html#cb46-163" aria-hidden="true" tabindex="-1"></a>summary <span class="ot">&lt;-</span> SSMSE<span class="sc">::</span><span class="fu">SSMSE_summary_all</span>(<span class="at">dir =</span> <span class="st">&quot;model_runs&quot;</span>, <span class="at">run_parallel =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb46-164"><a href="M-case-study-ex.html#cb46-164" aria-hidden="true" tabindex="-1"></a><span class="co"># #check for errored iterations</span></span>
+<span id="cb46-165"><a href="M-case-study-ex.html#cb46-165" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(out, <span class="cf">function</span>(x) x<span class="sc">$</span>errored_iterations)</span></code></pre></div>
 
 </div>
             </section>
