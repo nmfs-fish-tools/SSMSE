@@ -6,11 +6,11 @@ on:
 # this workflow runs on pushes to main or master
   push:
     branches: main
-  workflow-dispatch:
+  workflow_dispatch:
 jobs:
   call-workflow:
     uses: nmfs-fish-tools/ghactions4r/.github/workflows/update-bookdown.yml@refresh-bookdown
-      with:
-        bookdown-input: 'inst/bookdown'
-        bookdown-output_dir: '../../docs/manual'
-        deployment_dir: 'docs'
+    with:
+      bookdown-input: 'inst/bookdown'
+      bookdown-output_dir: '../../docs/manual'
+      deployment_dir: 'docs'
