@@ -19,7 +19,7 @@ URL: https://github.com/nmfs-fish-tools/SSMSE
 BugReports: https://github.com/nmfs-fish-tools/SSMSE/issues
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports:
     stats,
     utils,
@@ -31,12 +31,12 @@ Imports:
     ss3sim,
     dplyr,
     magrittr,
-    ggplot2
-Suggests: 
-    testthat,
+    ggplot2,
     doParallel,
     parallel,
     foreach
+Suggests: 
+    testthat
 Remotes:
     r4ss/r4ss@main,
     ss3sim/ss3sim@main
