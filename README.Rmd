@@ -67,6 +67,8 @@ You can read the help files with
 ?SSMSE
 ```
 
+Note that when SSMSE is installed, [Stock Synthesis](https://github.com/nmfs-stock-synthesis/stock-synthesis) binaries are included in the `SSMSE/bin/` folder downloaded to the user's local R library. Currently, the Stock Synthesis 3.30.18 is included. Separate binaries are included for Windows, Mac and Linux. Users may swap out these binaries, but SSMSE is not tested with other versions of SS3.
+
 # Troubleshooting Installation
 
 Here are some tips:
