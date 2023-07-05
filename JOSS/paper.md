@@ -111,9 +111,10 @@ adaptable to new analyses and populations.
 
 Existing generalized MSE tools [e.g., openMSE, @openMSEcite; FLR’s mse R
 package, @a4amsecite] have been built around custom OMs developed for use in
-each package. These applications provide the benefits of a generalized MSE
-codebase, but offer limited capacity to use existing stock assessment products
-created using SS3 for OM development. These tools do support importing
+each package. These tools provide the benefits of a generalized MSE
+codebase and a wide range of built-in procedures and estimation model options. However, existing 
+generalized MSE tools offer limited capacity to use existing stock assessment 
+products created using SS3 for OM development. These tools do support importing
 specifications from stock assessment model files such as SS3, but converting SS3
 models to a different model format often results in some loss of model
 structure. Additionally, it can be time consuming for the analyst to learn a
