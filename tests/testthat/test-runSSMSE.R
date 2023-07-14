@@ -78,7 +78,7 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   # TODO: add plot testing when updating ggplots.
 })
 
-test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs", {
+test_that("run_SSMSE runs multiple iterations/scenarios and works with summary funs, ex performance metrics", {
   # This tests takes a while to run, but is really helpful.
   new_temp_path <- file.path(temp_path, "mult_scenarios")
   skip_on_cran()
@@ -92,7 +92,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   result <- run_SSMSE(
     scen_name_vec = c("H-ctl", "H-scen-2"), # name of the scenario
     out_dir_scen_vec = new_temp_path, # directory in which to run the scenario
-    iter_vec = c(2, 2), # run with 5 iterations each
+    iter_vec = c(2, 2), # run with 2 iterations each
     OM_name_vec = "cod",
     EM_name_vec = "cod", # cod is included in package data
     MS_vec = "EM", # The management strategy is specified in the EM
@@ -133,6 +133,66 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   # summarize results
   summary <- SSMSE_summary_all(dir = new_temp_path, run_parallel = FALSE)
   expect_true(length(summary) == 3)
+  # convergance check function
+  
+  # calculate performance metrics
+  # to use in the tests
+    tmp_dat <- r4ss::SS_readdat(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"))
+  #check dimensions
+  # catch related
+  tot_catch <- get_total_catch(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"), 
+    yrs = 101:106)
+  
+  expect_length(tot_catch, 1)
+  tot_catch_zero <- get_total_catch(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"), 
+    yrs = 1:25)
+  expect_equivalent(tot_catch_zero, 0)
+  avg_catch <- get_avg_catch(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"), 
+    yrs = 101:106)
+  expect_length(avg_catch, 1)
+  avg_catch_2_yrs <- get_avg_catch(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"), 
+    yrs = 26:27)
+  compare_catch <- mean(tmp_dat$catch[tmp_dat$catch$year %in% c(26, 27), "catch"])
+  expect_equivalent(avg_catch_2_yrs, compare_catch)
+  var_sd_catch <- get_catch_sd(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"), 
+    yrs = 101:106)
+  expect_length(var_sd_catch, 1)
+  var_cv_catch <- get_catch_cv(
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"), 
+    yrs = 101:106)
+  expect_length(var_cv_catch, 1)
+  # SSB related
+  ssb_avg <- get_SSB_avg(summary, min_yr = 101, max_yr = 106)
+  expect_s3_class(ssb_avg, "data.frame")
+  expect_true(nrow(ssb_avg) == 4) # based on 2 scen. with 2 iter each.
+  ssb_rel_avg <- get_rel_SSB_avg(summary, min_yr = 101, max_yr = 106)
+  expect_s3_class(ssb_rel_avg, "data.frame")
+  expect_true(nrow(ssb_rel_avg) == 4) # based on 2 scen. with 2 iter each.
+  # convergance check
+  expect_message(
+    ssb_check <- check_convergence(summary, min_yr = 101, max_yr = 106)
+  )
+  expect_s3_class(ssb_check, "data.frame")
+  expect_true(nrow(ssb_check) == 4*3+4*6) # based on 2 scen. with 2 iter each, 2 tot em runs with 3 and 6 yrs.
+  # the following 2 checks should be correct because there are no convergance
+  # flags.
+  expect_true(all(ssb_check$SSB_ratio > .5) & all(ssb_check$SSB_ratio < 2))
+  # change one of the summary values so that the SSB_ratio > 2
+  summary$ts[4, "SpawnBio"] <- (summary$ts[4, "SpawnBio"])^2 # make really large
+  expect_warning(
+    ssb_check_warn <- check_convergence(summary, min_yr = 101, max_yr = 106),
+    "Some large")
+  expect_true(ssb_check_warn[1,"SSB_ratio"] > 2)
+  # mock params on a bound
+  summary$scalar[1,"params_on_bound"] <- "L_at_Amax_Fem_GP_1"
+  expect_warning(check_convergence(summary, min_yr = 101, max_yr = 106),
+    "on bounds")
 })
 
 
