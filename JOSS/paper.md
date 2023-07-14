@@ -285,7 +285,9 @@ by extracting point estimates of catch from the first 10 years of the
 projection, averaging for each iteration across years, and plotting.
 
 The R code used to set up this simulation is available at
-[https://nmfs-fish-tools.github.io/SSMSE/manual/M-case-study-ex.html](https://nmfs-fish-tools.github.io/SSMSE/manual/M-case-study-ex.html).
+[https://nmfs-fish-tools.github.io/SSMSE/manual/M-case-study-ex.html](https://nmfs-fish-tools.github.io/SSMSE/manual/M-case-study-ex.html). 
+The complete simulation may take hours or days to run, so we recommend reducing the 
+number of iterations if running for illustrative purposes.
 
 Iterations were excluded if any runs of the estimation model failed to converge,
 had a high maximum gradient (>2), or had parameters on bounds. This resulted in
