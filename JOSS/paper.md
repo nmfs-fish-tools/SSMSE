@@ -391,7 +391,7 @@ multiple iterations and/or scenarios could be called through
 ![Diagram illustrating a basic workflow for using SSMSE. This diagram shows the
 functions (ovals) in addition to input and output objects (rounded rectangles)
 and the steps for which users will write their own code (rectangle enclosed by
-dashed line).\label{fig:SSMSE-workflow}](images/SSMSE-workflow.png)
+dashed line). Note that the helper functions `create_sample_struct()` and `create_future_om_list()` may be used to assemble components of the "user inputs." \label{fig:SSMSE-workflow}](images/SSMSE-workflow.png)
 
 ![Natural mortality patterns in the case study OMs through the simulation years (years
 101-150). The EMs assumed constant natural mortality equivalent to the pattern
