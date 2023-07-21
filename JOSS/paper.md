@@ -66,13 +66,11 @@ Management Strategy Evaluation (MSE) is a decision-support tool for fisheries
 management. MSE uses closed-loop simulation to evaluate the long-term
 performance of management strategies with respect to societal goals like
 sustainability and profits [@smith1994; @punt2014 \; \autoref{fig:MSE-diagram}].
-Management strategies are pre-defined decision rules that dynamically adjust
+Management strategies are pre-defined decision rules that can dynamically adjust
 management advice given an estimate of population status. In addition to
-specifying management actions, management strategies may include the processes
-of stock assessment (i.e., using models to determine the size and status of a
-population) [@sainsburyetal2000].
+specifying management actions, management strategies may specify how a stock assessment model is configured to determine the size and status of a population [@sainsburyetal2000].
 
-Within MSE simulations, operating models (OMs) represent the “true” dynamics and
+Within MSE simulations, operating models (OMs) represent the hypothesized dynamics and
 relevant complexity of the system. Multiple OMs are typically generated for a
 single MSE to reflect different uncertainties and assess management performance
 under uncertainty. Developing suitable OMs requires an analyst to, at a
@@ -225,7 +223,7 @@ distinct management strategies. We used a cod-like species as the population and
 one fishing fleet and one survey in both the operating and estimation models.
 
 Because the pattern of natural mortality is uncertain, we built three OMs, each
-reflecting a different hypothesis of the “true” natural mortality dynamics of
+reflecting a different hypothesis of the natural mortality dynamics of
 the stock: 1) constant instantaneous natural mortality at 0.2 $yr^{-1}$ (per year);
 2) natural mortality at 0.2 $yr^{-1}$ with a spike in natural mortality of
 0.3 $yr^{-1}$ every 5 years; and 3) natural mortality at 0.2
@@ -254,7 +252,7 @@ harvest controls specified by the user in the estimation model forecast file.
 Two management strategies with alternative target harvest rates corresponding to
 a Spawning Potential Ratio (SPR) of 30% or 45% ($SPR_{30}$ and
 $SPR_{45}$, respectively) were used. The estimation model assumed constant
-natural mortality of 0.2 $yr^{-1}$ (i.e., matching true base natural
+natural mortality of 0.2 $yr^{-1}$ (i.e., matching the hypothesized base natural
 mortality but not accounting for episodic spikes in natural mortality included in some OMs). 
 
 The forecasting module of the SS3 estimation model estimated the management
@@ -376,7 +374,7 @@ Sample $n$ years of data | $n = 5$ | No | No
 # Figures
 
 ![The main components of MSE simulations. The operating model (OM) represents
-the “truth”. From the OM, data can be sampled (in sample data step) and passed
+the hypothesized dynamics. From the OM, data can be sampled (in sample data step) and passed
 to the management strategy. The management strategy is run and usually
 influences the OM (e.g., the management strategy may remove a certain
 amount of catch from the OM) as the OM is stepped forward in time. The
@@ -395,8 +393,9 @@ functions (ovals) in addition to input and output objects (rounded rectangles)
 and the steps for which users will write their own code (rectangle enclosed by
 dashed line).\label{fig:SSMSE-workflow}](images/SSMSE-workflow.png)
 
-![Natural mortality patterns in the OMs through the simulation years (years
-101-150).\label{fig:case-study-M}](images/case-study-M.png)
+![Natural mortality patterns in the case study OMs through the simulation years (years
+101-150). The EMs assumed constant natural mortality equivalent to the pattern
+labeled "none." \label{fig:case-study-M}](images/case-study-M.png)
 
 ![Performance metrics from the case study. Each plot shows a different performance metric. Each violin
 represents the distribution of the metric from a different
