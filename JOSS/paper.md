@@ -180,16 +180,16 @@ SSMSE:
    functional model structures in the estimation model and observational noise
    in data resulting in poor estimation of model parameter values (even if the 
    assessment is correctly specified outside of those estimated parameters). Users can
-   adjust errors in assessments by specifying different fixed values and
-   structures in different scenarios and by changing the sampling scheme through
-   the `sample_struct_list` input to `run_SSMSE()` to adjust observation
-   uncertainty.
+   adjust errors in assessments by 1) specifying different fixed values and
+   structures in different scenarios by directly changing the model files; and 2) 
+   by changing the sampling scheme through the `sample_struct_list` input to
+    `run_SSMSE()` to adjust observation uncertainty.
 5. Implementation uncertainty happens because it is difficult to perfectly
    implement a theoretical management strategy. For example, fishing may
    continue to occur after the theoretical catch limit is caught because there
    is a time lag in reporting and the catch limit is exceeded before fishing can
    be stopped. Implementation uncertainty (also known as implementation error)
-   can be specified in the `future_om_list` input to `run_SSMSE()`.
+   can be added by specifiying it in the `future_om_list` input to `run_SSMSE()`.
 
 The source code for SSMSE is available at
 [https://github.com/nmfs-fish-tools/SSMSE](https://github.com/nmfs-fish-tools/SSMSE).
