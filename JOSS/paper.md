@@ -194,7 +194,7 @@ SSMSE:
 The source code for SSMSE is available at
 [https://github.com/nmfs-fish-tools/SSMSE](https://github.com/nmfs-fish-tools/SSMSE).
 A [user
-manual](https://nmfs-fish-tools.github.io/SSMSE/manual/index.html) provides more details on how to use the SSMSE tool. SSMSE can be installed from
+manual](https://nmfs-fish-tools.github.io/SSMSE/manual) provides more details on how to use the SSMSE tool. SSMSE can be installed from
 the R console using the `remotes` package:
 
 ```{r}
