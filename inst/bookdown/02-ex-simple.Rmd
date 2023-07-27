@@ -392,9 +392,6 @@ This code was used to examine how different natural mortality scenarios performe
 library(SSMSE)
 library(r4ss)
 
-# functions for convergence and performance metrics, get from other gh repo
-source("https://raw.githubusercontent.com/k-doering-NOAA/ssmse-afs/master/code/get_metrics.R")
-
 # specify locations, create folders ----
 cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
 datfile_path <- file.path(cod_mod_path, "ss3.dat")
@@ -563,10 +560,15 @@ To examine simulations for non-convergance, calculate, and plot performance metr
 library(SSMSE)
 library(r4ss)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(patchwork)
+
 # functions for convergence and performance metrics, get from other gh repo
-source("https://raw.githubusercontent.com/k-doering-NOAA/ssmse-afs/master/code/get_metrics.R")
+# uncomment if using SSMSE v0.2.6 and lower
+# note: no need to source functions if using SSMSE >0.2.6, as these functions were moved into SSMSE
+# source("https://raw.githubusercontent.com/k-doering-NOAA/ssmse-afs/master/code/get_metrics.R")
+
 # path names ----
 mods_path <- "input_models"
 
