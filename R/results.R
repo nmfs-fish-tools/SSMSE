@@ -139,22 +139,24 @@ plot_index_sampling <- function(dir = getwd()) {
     full.names = FALSE
   ), value = TRUE)
   assertive.types::assert_is_a_string(om_name)
-  tmp_dat_OM <- r4ss::SS_readdat(file.path(
-    dir, as.character(iters[1]),
-    om_name, "data.ss_new"
-  ),
-  verbose = FALSE, section = 1
+  tmp_dat_OM <- r4ss::SS_readdat(
+    file.path(
+      dir, as.character(iters[1]),
+      om_name, "data.ss_new"
+    ),
+    verbose = FALSE, section = 1
   )
   tmp_dat_OM[["CPUE"]][["iteration"]] <- as.character(iters[1])
   tmp_dat_OM[["CPUE"]][["scenario"]] <- scenario
   tmp_dat_OM[["CPUE"]][["model_run"]] <- "historical_values"
   index_dat <- tmp_dat_OM[["CPUE"]]
   # get the OM expected values
-  tmp_dat_OM <- r4ss::SS_readdat(file.path(
-    dir, as.character(iters[1]),
-    om_name, "data.ss_new"
-  ),
-  verbose = FALSE, section = 2
+  tmp_dat_OM <- r4ss::SS_readdat(
+    file.path(
+      dir, as.character(iters[1]),
+      om_name, "data.ss_new"
+    ),
+    verbose = FALSE, section = 2
   )
   tmp_dat_OM[["CPUE"]][["iteration"]] <- as.character(iters[1])
   tmp_dat_OM[["CPUE"]][["scenario"]] <- scenario
@@ -168,11 +170,12 @@ plot_index_sampling <- function(dir = getwd()) {
   ), value = TRUE)
   assertive.types::assert_is_a_string(em_name)
   for (i in iters) {
-    tmp_dat_EM <- r4ss::SS_readdat(file.path(
-      dir, as.character(i),
-      em_name, "data.ss_new"
-    ),
-    verbose = FALSE, section = 1
+    tmp_dat_EM <- r4ss::SS_readdat(
+      file.path(
+        dir, as.character(i),
+        em_name, "data.ss_new"
+      ),
+      verbose = FALSE, section = 1
     )
     tmp_dat_EM[["CPUE"]][["iteration"]] <- i
     tmp_dat_EM[["CPUE"]][["scenario"]] <- scenario
@@ -233,13 +236,14 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
   ), value = TRUE)
   assertive.types::assert_is_a_string(om_name)
   # non-NULL compfile input provided and file exists
-  out_OM <- r4ss::SS_output(file.path(
-    dir, as.character(iters[1]),
-    om_name
-  ),
-  verbose = FALSE,
-  printstats = FALSE,
-  hidewarn = TRUE
+  out_OM <- r4ss::SS_output(
+    file.path(
+      dir, as.character(iters[1]),
+      om_name
+    ),
+    verbose = FALSE,
+    printstats = FALSE,
+    hidewarn = TRUE
   )
 
   if (comp_type == "agecomp") comp_dbase <- out_OM[["agedbase"]]
@@ -263,13 +267,14 @@ plot_comp_sampling <- function(dir = getwd(), comp_type = c("agecomp", "lencomp"
   ), value = TRUE)
   assertive.types::assert_is_a_string(em_name)
   for (i in iters) {
-    tmp_out_EM <- r4ss::SS_output(file.path(
-      dir, as.character(i),
-      em_name
-    ),
-    verbose = FALSE,
-    printstats = FALSE,
-    hidewarn = TRUE
+    tmp_out_EM <- r4ss::SS_output(
+      file.path(
+        dir, as.character(i),
+        em_name
+      ),
+      verbose = FALSE,
+      printstats = FALSE,
+      hidewarn = TRUE
     )
     if (comp_type == "agecomp") tmp_comp_dbase <- tmp_out_EM[["agedbase"]]
     if (comp_type == "lencomp") tmp_comp_dbase <- tmp_out_EM[["lendbase"]]

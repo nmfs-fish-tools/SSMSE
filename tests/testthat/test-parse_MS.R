@@ -124,24 +124,26 @@ test_that("parse_MS works as currently expected for estimation model methods", {
 
 test_that("parse_MS catches errors when it should", {
   # MS is invalid
-  expect_error(parse_MS(
-    MS = "bad_option", EM_out_dir = NULL,
-    OM_dat = "fake_2",
-    verbose = FALSE, dat_yrs = 101:103,
-    nyrs_assess = 3
-  ),
-  "Invalid management strategy",
-  fixed = TRUE
+  expect_error(
+    parse_MS(
+      MS = "bad_option", EM_out_dir = NULL,
+      OM_dat = "fake_2",
+      verbose = FALSE, dat_yrs = 101:103,
+      nyrs_assess = 3
+    ),
+    "Invalid management strategy",
+    fixed = TRUE
   )
   # invalid EM_dir
-  expect_error(parse_MS(
-    MS = "EM", EM_out_dir = "other_fake_dir",
-    OM_dat = "fake_2",
-    verbose = FALSE, dat_yrs = 101:103,
-    nyrs_assess = 3
-  ),
-  "Please change to a directory containing a valid SS model",
-  fixed = TRUE
+  expect_error(
+    parse_MS(
+      MS = "EM", EM_out_dir = "other_fake_dir",
+      OM_dat = "fake_2",
+      verbose = FALSE, dat_yrs = 101:103,
+      nyrs_assess = 3
+    ),
+    "Please change to a directory containing a valid SS model",
+    fixed = TRUE
   )
   # TODO: need to catch invalid OM_dat? What about nyrs_assess?
 })

@@ -142,16 +142,18 @@ test_that("get_retained_catch works", {
 
 
 test_that("get_retained_catch catches bad input", {
-  expect_error(get_retained_catch(test_timeseries,
-    units_of_catch = c(units_of_catch, 3)
-  ),
-  "is_of_length : units_of_catch has length 3, not 2.",
-  fixed = TRUE
+  expect_error(
+    get_retained_catch(test_timeseries,
+      units_of_catch = c(units_of_catch, 3)
+    ),
+    "is_of_length : units_of_catch has length 3, not 2.",
+    fixed = TRUE
   )
-  expect_error(get_retained_catch(as.matrix(test_timeseries),
-    units_of_catch = units_of_catch
-  ),
-  "is_data.frame : timeseries is not of class 'data.frame'",
-  fixed = TRUE
+  expect_error(
+    get_retained_catch(as.matrix(test_timeseries),
+      units_of_catch = units_of_catch
+    ),
+    "is_data.frame : timeseries is not of class 'data.frame'",
+    fixed = TRUE
   )
 })
