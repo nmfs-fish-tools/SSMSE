@@ -63,11 +63,12 @@ run_ss_model <- function(dir,
 
   if (verbose) message("Running SS.")
   if (os == "unix") {
-    system(paste0(
-      "cd ", dir, ";", paste0(bin, " "),
-      admb_options
-    ),
-    ignore.stdout = ignore.stdout, ...
+    system(
+      paste0(
+        "cd ", dir, ";", paste0(bin, " "),
+        admb_options
+      ),
+      ignore.stdout = ignore.stdout, ...
     )
   } else {
     setwd(dir)

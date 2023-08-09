@@ -207,11 +207,12 @@ test_that("run_SSMSE runs with mean size at age and mean body length", {
   )
   expect_true(result[[1]][["errored_iterations"]] == "No errored iterations")
   # read in the data file produced from the last EM to make sure sampling occured
-  out_dat <- r4ss::SS_readdat(file.path(
-    temp_path, "Simple_with_Discard", "test_1", "1",
-    "Simple_with_Discard_EM_2004", "data.ss_new"
-  ),
-  section = 1
+  out_dat <- r4ss::SS_readdat(
+    file.path(
+      temp_path, "Simple_with_Discard", "test_1", "1",
+      "Simple_with_Discard_EM_2004", "data.ss_new"
+    ),
+    section = 1
   )
   # convert to r4ss names so colnames match
   sample_struct_converted <- convert_to_r4ss_names(sample_struct)

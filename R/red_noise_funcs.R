@@ -17,7 +17,6 @@
 #' @return A list object with uncertainty and bias characteristics to inform data simulation.
 #'
 calc_comp_var <- function(data_obs, data_exp, bins, fleets = NULL, years = NULL, seasons = NULL, merge_genders = TRUE, genders = NULL, merge_seasons = TRUE, merge_fleets = FALSE) {
-
   # Create a list to hold the calculated uncertainty results
   Comp_uncert <- list()
 
@@ -213,7 +212,6 @@ calc_comp_var <- function(data_obs, data_exp, bins, fleets = NULL, years = NULL,
 #' @return A list object with uncertainty and bias characteristics to inform data simulation.
 #'
 Sim_comp <- function(Comp_uncert, data_exp, bins, years = NULL, seasons = NULL, fleets = NULL, genders = NULL) {
-
   # For each of years, seasons, genders, and fleets check if a fix simulation range has been set and
   # if not use the full range present in the expected data frame
   if (!is.null(years)) {
@@ -261,7 +259,6 @@ Sim_comp <- function(Comp_uncert, data_exp, bins, years = NULL, seasons = NULL, 
 
     # Now loop over all composition bins to calculate a new sample observation
     for (j in 1:length(bins)) {
-
       # Find the bounding variance estimates for the expected sample size
       ref_var_bound <- sub_var[c(max(which(sub_var[, 1] <= data_obs[i, (j + offset)])), min(which(sub_var[, 1] >= data_obs[i, (j + offset)]))), ]
       # Calculate weights to perform a linear interpolation of the variance for the exact expected sample size

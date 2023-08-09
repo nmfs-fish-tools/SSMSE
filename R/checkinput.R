@@ -231,24 +231,25 @@ check_sample_struct <- function(sample_struct,
     )
   }
   # Check correct names and column names
-  error <- mapply(function(x, x_name, valid_names) {
-    #
-    col_names <- colnames(x)
-    # find the valid_names that matches x_names
-    err <- NULL
-    if (!x_name %in% names(valid_names)) {
-      err <- "wrong list name"
-    } else {
-      valid_cols <- valid_names[[which(names(valid_names) == x_name)]]
-      if (any(!col_names %in% valid_cols)) {
-        err <- "wrong column names in list component"
+  error <- mapply(
+    function(x, x_name, valid_names) {
+      #
+      col_names <- colnames(x)
+      # find the valid_names that matches x_names
+      err <- NULL
+      if (!x_name %in% names(valid_names)) {
+        err <- "wrong list name"
+      } else {
+        valid_cols <- valid_names[[which(names(valid_names) == x_name)]]
+        if (any(!col_names %in% valid_cols)) {
+          err <- "wrong column names in list component"
+        }
       }
-    }
-    err
-  },
-  x = sample_struct, x_name = names(sample_struct),
-  MoreArgs = list(valid_names = valid_names),
-  SIMPLIFY = FALSE
+      err
+    },
+    x = sample_struct, x_name = names(sample_struct),
+    MoreArgs = list(valid_names = valid_names),
+    SIMPLIFY = FALSE
   )
 
   lapply(error, function(e, v) {

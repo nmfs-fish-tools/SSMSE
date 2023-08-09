@@ -1,42 +1,42 @@
-Package: SSMSE
 Type: Package
+Package: SSMSE
 Title: Management Strategy Evaluation (MSE) using Stock Synthesis (SS)
 Version: 0.2.6
 Authors@R: c(
-    person("Kathryn", "Doering", email = "kathryn.doering@noaa.gov",
-      role = c("aut", "cre")),
-    person("Nathan", "Vaughan", email = "nathan.vaughan@noaa.gov", 
-      role = c("aut")))
+    person("Kathryn", "Doering", , "kathryn.doering@noaa.gov", role = c("aut", "cre")),
+    person("Nathan", "Vaughan", , "nathan.vaughan@noaa.gov", role = "aut")
+  )
 Description: An R package for performing Management Strategy Evaluation
-    (MSE) using Stock Synthesis (SS). SS is used as the Operating Model (OM) 
-    and, if the user desires, the Estimation model (EM). SSMSE allows existing 
-    SS models to be used as the basis for an OM. These OMs are used in the MSE 
-    framework provided by SSMSE to evaluate the implications of management 
-    actions on a population given uncertainty.
-Depends: R (>= 4.0)
+    (MSE) using Stock Synthesis (SS). SS is used as the Operating Model
+    (OM) and, if the user desires, the Estimation model (EM). SSMSE allows
+    existing SS models to be used as the basis for an OM. These OMs are
+    used in the MSE framework provided by SSMSE to evaluate the
+    implications of management actions on a population given uncertainty.
 License: MIT + file LICENSE.md
 URL: https://github.com/nmfs-fish-tools/SSMSE
 BugReports: https://github.com/nmfs-fish-tools/SSMSE/issues
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.2.1
+Depends: 
+    R (>= 4.0)
 Imports:
-    stats,
-    utils,
-    r4ss,
-    assertive.types,
-    assertive.properties,
     assertive.base,
-    tidyr,
-    ss3sim,
+    assertive.properties,
+    assertive.types,
     dplyr,
+    ggplot2,
     magrittr,
-    ggplot2
+    r4ss,
+    ss3sim,
+    stats,
+    tidyr,
+    utils
 Suggests: 
-    testthat,
     doParallel,
+    foreach,
     parallel,
-    foreach
+    testthat
 Remotes:
     r4ss/r4ss@main,
     ss3sim/ss3sim@main
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3

@@ -60,12 +60,6 @@ user is on Unix or Windows and calls the binary correctly. This lower-level
 function is meant to be called by higher level functions. Modified from
 run_ss3model in \href{https://github.com/ss3sim/ss3sim}{ss3sim}.
 }
-\details{
-ss3sim requires you to place the SS executable in your
-path. See the vignette \code{vignette("ss3sim-vignette")} for details on
-this process. The executables themselves can be downloaded from:
-\url{https://www.dropbox.com/sh/zg0sec6j20sfyyz/AACQiuk787qW882U2euVKoPna}
-}
 \author{
 Sean C. Anderson, Kathryn Doering
 }

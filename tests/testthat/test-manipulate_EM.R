@@ -243,7 +243,6 @@ test_that("change_yrs_fcast works without allocation", {
     (fore[["FirstYear_for_caps_and_allocations"]] + nyrs_inc))
 })
 test_that("change_yrs_fcast works/errors with allocation as expected", {
-
   # mock a forecast file with allocation. assume has 3 fleets with catch.
   fore[["N_allocation_groups"]] <- 3
   fore[["fleet_assignment_to_allocation_group"]] <- data.frame(
@@ -281,14 +280,15 @@ test_that("change_yrs_fcast works/errors with allocation as expected", {
     `Group 1` = c(0.25, 0.75),
     `Group 2` = c(0.75, 0.25)
   )
-  expect_error(change_yrs_fcast(fore,
-    make_yrs_rel = FALSE,
-    nyrs_increment = nyrs_inc,
-    mod_styr = styr,
-    mod_endyr = endyr
-  ),
-  "Time-varying allocation in the forecasting file cannot yet be used",
-  fixed = TRUE
+  expect_error(
+    change_yrs_fcast(fore,
+      make_yrs_rel = FALSE,
+      nyrs_increment = nyrs_inc,
+      mod_styr = styr,
+      mod_endyr = endyr
+    ),
+    "Time-varying allocation in the forecasting file cannot yet be used",
+    fixed = TRUE
   )
   fore[["ForeCatch"]] <- data.frame(
     Year = 101:102, Seas = 1, Fleet = 1:2,
