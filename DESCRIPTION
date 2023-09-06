@@ -21,17 +21,17 @@ Imports:
     assertive.base,
     assertive.properties,
     assertive.types,
+    doParallel,
     dplyr,
+    foreach,
     ggplot2,
     magrittr,
+    parallel,
     r4ss,
     ss3sim,
     stats,
     tidyr,
-    utils,
-    doParallel,
-    foreach,
-    parallel
+    utils
 Suggests:
     testthat
 Remotes:

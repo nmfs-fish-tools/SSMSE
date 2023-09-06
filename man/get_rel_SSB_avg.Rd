@@ -21,7 +21,7 @@ Example performance metric that calculates the average Spawning Stock Biomass
 }
 \examples{
 \dontrun{
-  rel_avg_ssb <- get_rel_SSB_avg(run_SSMSE_summary, min_yr = 10, max_yr = 105)
-  rel_avg_ssb
+rel_avg_ssb <- get_rel_SSB_avg(run_SSMSE_summary, min_yr = 10, max_yr = 105)
+rel_avg_ssb
 }
 }
