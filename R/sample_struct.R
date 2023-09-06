@@ -71,8 +71,8 @@ convert_to_r4ss_names <- function(sample_struct,
 #' range. NAs are added if no pattern is found (and rm_NAs = FALSE). The types
 #' of structure that are added to this list (given their presence in the dat file)
 #' with their names as called in the list object in parentheses are:
-#'  catch (catch), relative indices (CPUE), length composition (lencomp), 
-#' age composition (agecomp), mean body weight (meanbodywt), and mean size at 
+#'  catch (catch), relative indices (CPUE), length composition (lencomp),
+#' age composition (agecomp), mean body weight (meanbodywt), and mean size at
 #' age (MeanSize_at_Age_obs). Details for creating the sample structure list are
 #' available in the [sampling options section of the SSMSE user manual](https://nmfs-fish-tools.github.io/SSMSE/manual/SSMSE.html#sampling-options).
 #'

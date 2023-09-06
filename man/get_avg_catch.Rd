@@ -22,7 +22,8 @@ Example performance metric that calculates average catch over a range of
 }
 \examples{
 \dontrun{
-avg_catch <- function(datfile = "ss3model/dat.ss", yrs = 30:75)
-avg_catch
+avg_catch <- function(datfile = "ss3model/dat.ss", yrs = 30:75) {
+  avg_catch
+}
 }
 }

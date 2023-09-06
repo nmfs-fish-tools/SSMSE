@@ -16,14 +16,14 @@ Stock Synthesis data file.}
 The catch standard deviation, a number.
 }
 \description{
-Example performance metric that calculates the standard deviation of catch 
- over a range of years in a Stock Synthesis data file. This function 
+Example performance metric that calculates the standard deviation of catch
+ over a range of years in a Stock Synthesis data file. This function
  aggregates across fleets, so may not be appropriate for models with multiple
  fleets.
 }
 \examples{
 \dontrun{
-  catch_sd <- get_catch_sd(datfile = "mod/dat.ss", yrs = c(20:50, 75:100))
-  catch_sd
+catch_sd <- get_catch_sd(datfile = "mod/dat.ss", yrs = c(20:50, 75:100))
+catch_sd
 }
 }

@@ -16,13 +16,13 @@ Stock Synthesis data file.}
 The total catch, a number.
 }
 \description{
-Example performance metric that calculates total catch over a range of years 
+Example performance metric that calculates total catch over a range of years
  in a Stock Synthesis data file. This function aggregates catch across
  fleets, so may not be appropriate for models with multiple fleets.
 }
 \examples{
 \dontrun{
-  total_catch <- get_total_catch(datfile = "ss3model/dat.ss", yrs = 25:100)
-  total_catch
+total_catch <- get_total_catch(datfile = "ss3model/dat.ss", yrs = 25:100)
+total_catch
 }
 }

@@ -17,13 +17,13 @@ The catch coefficient of variation, a number.
 }
 \description{
 Example performance metric that calculates the coefficient of variation (CV)
- of catch over a range of years in a Stock Synthesis data file. This function 
+ of catch over a range of years in a Stock Synthesis data file. This function
  aggregates across fleets, so may not be appropriate for models with multiple
  fleets.
 }
 \examples{
 \dontrun{
-  catch_cv <- get_catch_cv(datfile = "mod/dat.ss", yrs = c(20:50, 75:100))
-  catch_cv
+catch_cv <- get_catch_cv(datfile = "mod/dat.ss", yrs = c(20:50, 75:100))
+catch_cv
 }
 }

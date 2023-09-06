@@ -19,13 +19,13 @@ A tibble containing the SSB values in the EM relative to the OM by
 }
 \description{
 Does basic checks for convergance of estimation model runs from `run_SSMSE()`
- simulations. This function 1) warns if there are parameters on bounds; 2) 
+ simulations. This function 1) warns if there are parameters on bounds; 2)
  warns if the SSB in the EM is 2x as large or half as small as the OM. Note
  these warnings may not mean that the models have not converged, but can flag
  potential issues that can be investigated further
 }
 \examples{
 \dontrun{
-  check_convergance(SSMSE_summary, min_yr = 101, max_yr = 120)
+check_convergance(SSMSE_summary, min_yr = 101, max_yr = 120)
 }
 }
