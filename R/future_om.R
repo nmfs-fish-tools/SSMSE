@@ -3,7 +3,9 @@
 #' The future_om_list objects specify changes to make in the future to the
 #' OM as the OM is extended forward in time. In particular, this function helps
 #' users create these objects. For now, just returns examples based on cod
-#' model that comes with SSMSE.
+#' model that comes with SSMSE. To learn more about the options available for
+#' future_om_list object, see the
+#' [structure of future_om_list section of the SSMSE user manual](https://nmfs-fish-tools.github.io/SSMSE/manual/SSMSE.html#the-strucutre-of-future_om_list).
 #'
 #' @param example_type Type of example future_om_list object to create. Options are
 #' "model_change" or "custom". Defaults to "model_change".

@@ -67,6 +67,8 @@ You can read the help files with
 ?SSMSE
 ```
 
+Note that when SSMSE is installed, [Stock Synthesis](https://github.com/nmfs-stock-synthesis/stock-synthesis) binaries are included in the `SSMSE/bin/` folder downloaded to the user's local R library. Currently, the Stock Synthesis 3.30.18 is included. Separate binaries are included for Windows, Mac and Linux. Users may swap out these binaries, but SSMSE is not tested with other versions of SS3.
+
 # Troubleshooting Installation
 
 Here are some tips:
@@ -248,7 +250,7 @@ However, an assessment will be conducted every 3 years and thus 3 years of proje
 
 More information on using the forecast module in SS3 to forecast catches is available in the [Stock Synthesis users manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
-Users can also specify their own [custom management procedures]
+Users can also specify their own [custom management procedures](https://nmfs-fish-tools.github.io/SSMSE/manual/advanced-options-use-a-custom-management-strategyprocedure.html).
 
 ## Run SSMSE
 

@@ -1,7 +1,8 @@
 #' run an MSE using SS OMs
 #'
 #' High level function to run a management strategy evaluation using Stock
-#' Synthesis as the Operating model(s)
+#' Synthesis as the Operating model(s). For more examples and information on how
+#' to use SSMSE, see the [SSMSE user manual](https://nmfs-fish-tools.github.io/SSMSE/manual/).
 #' @template run_SSMSE_scen_list
 #' @template seed_input
 #' @template future_om_list
@@ -10,7 +11,6 @@
 #' @template verbose
 #' @template F_search_loops
 #' @export
-#' @import parallel
 #' @author Kathryn Doering & Nathan Vaughan
 #' @examples
 #' \dontrun{
@@ -171,23 +171,13 @@ run_SSMSE <- function(scen_name_vec,
   }
 
   if (run_parallel) {
-    if (!requireNamespace("doParallel", quietly = TRUE)) {
-      stop("Package \"doParallel\" needed if run_parallel = TRUE. Please install it.",
-        call. = FALSE
-      )
-    }
-    if (!requireNamespace("foreach", quietly = TRUE)) {
-      stop("Package \"foreach\" needed if run_parallel = TRUE. Please install it.",
-        call. = FALSE
-      )
-    }
     if (!is.null(n_cores)) {
-      n_cores <- min(max(n_cores, 1), (detectCores() - 1))
+      n_cores <- min(max(n_cores, 1), (parallel::detectCores() - 1))
       cl <- parallel::makeCluster((n_cores), setup_strategy = "sequential")
       doParallel::registerDoParallel(cl, cores = (n_cores))
     } else {
-      cl <- parallel::makeCluster((detectCores() - 1), setup_strategy = "sequential")
-      doParallel::registerDoParallel(cl, cores = (detectCores() - 1))
+      cl <- parallel::makeCluster((parallel::detectCores() - 1), setup_strategy = "sequential")
+      doParallel::registerDoParallel(cl, cores = (parallel::detectCores() - 1))
     }
   }
   # pass each scenario to run
