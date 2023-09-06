@@ -32,11 +32,12 @@ new_mod_dir <- file.path(temp_path, "new_mod_dir")
 
 test_that("test_no_par works as expected", {
   skip_on_cran()
-  expect_error(run_ss_model(orig_mod_dir, "-maxfn 0 -phase 50 -nohess",
-    verbose = FALSE
-  ),
-  "data.ss_new was not created during the model run",
-  fixed = TRUE
+  expect_error(
+    run_ss_model(orig_mod_dir, "-maxfn 0 -phase 50 -nohess",
+      verbose = FALSE
+    ),
+    "data.ss_new was not created during the model run",
+    fixed = TRUE
   )
   expect_error(
     test_no_par(
@@ -55,11 +56,12 @@ test_that("test_no_par works as expected", {
     dir = orig_mod_dir,
     verbose = FALSE, overwrite = TRUE
   )
-  expect_error(test_no_par(
-    orig_mod_dir = orig_mod_dir,
-    new_mod_dir = new_mod_dir
-  ),
-  "Problem with model - not ss.par related",
-  fixed = TRUE
+  expect_error(
+    test_no_par(
+      orig_mod_dir = orig_mod_dir,
+      new_mod_dir = new_mod_dir
+    ),
+    "Problem with model - not ss.par related",
+    fixed = TRUE
   )
 })

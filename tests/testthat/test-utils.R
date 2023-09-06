@@ -458,12 +458,13 @@ test_that("copy_model_files works", {
   expect_equivalent(success, c(TRUE, TRUE))
   unlink(OM_out_dir, recursive = TRUE)
   dir.create(OM_out_dir)
-  expect_error(copy_model_files(
-    OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
-    EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir
-  ),
-  "Problem copying SS EM files",
-  fixed = TRUE
+  expect_error(
+    copy_model_files(
+      OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
+      EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir
+    ),
+    "Problem copying SS EM files",
+    fixed = TRUE
   )
 })
 

@@ -1,4 +1,3 @@
-
 #' Add in future parameter values
 #'
 #' @template ctl_dat
@@ -206,7 +205,6 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
               # Conversion of exponential deviations to additive will require calculation of the underlying
               # parameter values which may have been modified by other block or environmental time varying inputs
               if (is.element(temp_ctl[current_par, c("dev_link")], c(1, 21))) {
-
                 # Block effects are implemented first so if applicable update the base_vals sequence based on these block effects
                 base_vals <- update_basevals_blocks(base_vals, base_dev_years, temp_block, current_par, ctl, dat, temp_ctl, base_range, baseparm = base_val, base_bounds)
 

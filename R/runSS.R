@@ -8,10 +8,6 @@
 #' function is meant to be called by higher level functions. Modified from
 #' run_ss3model in \href{https://github.com/ss3sim/ss3sim}{ss3sim}.
 #'
-#' @details ss3sim requires you to place the SS executable in your
-#' path. See the vignette \code{vignette("ss3sim-vignette")} for details on
-#' this process. The executables themselves can be downloaded from:
-#' \url{https://www.dropbox.com/sh/zg0sec6j20sfyyz/AACQiuk787qW882U2euVKoPna}
 #'
 #' @param dir The full or relative path to the model directory
 #' @param admb_options Any options to pass to SS command. Should be
@@ -67,11 +63,12 @@ run_ss_model <- function(dir,
 
   if (verbose) message("Running SS.")
   if (os == "unix") {
-    system(paste0(
-      "cd ", dir, ";", paste0(bin, " "),
-      admb_options
-    ),
-    ignore.stdout = ignore.stdout, ...
+    system(
+      paste0(
+        "cd ", dir, ";", paste0(bin, " "),
+        admb_options
+      ),
+      ignore.stdout = ignore.stdout, ...
     )
   } else {
     setwd(dir)

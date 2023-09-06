@@ -99,8 +99,8 @@ First, we will load the `SSMSE` package and create a folder in which to run the 
 devtools::install_local(".", upgrade = "never", quiet = TRUE, force = TRUE)
 ```
 ```{r Load-Packages, eval=TRUE}
-library(SSMSE) #load the package
-library(r4ss) #install using remotes::install_github("r4ss/r4ss)
+library(SSMSE) # load the package
+library(r4ss) # install using remotes::install_github("r4ss/r4ss)
 # library(foreach) #if using run_parallel = TRUE
 # library(doParallel) #if using run_parallel = TRUE
 ```
@@ -122,8 +122,10 @@ First, we identify where the base cod model is stored, modify it such that the s
 cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
 # develop_OMs will save a model called "cod_SR_BH_steep_1" in the out_dir
 # specified
-develop_OMs(OM_name = "cod", out_dir = run_SSMSE_dir, par_name = "SR_BH_steep",
-            par_vals = 1, refit_OMs = FALSE, hess = FALSE)
+develop_OMs(
+  OM_name = "cod", out_dir = run_SSMSE_dir, par_name = "SR_BH_steep",
+  par_vals = 1, refit_OMs = FALSE, hess = FALSE
+)
 # OM model for scenario 2
 cod_1_path <- file.path(run_SSMSE_dir, "cod_SR_BH_steep_1")
 ```
@@ -136,7 +138,7 @@ First, we'll set up the list to add recruitment deviations in the projection per
 
 ```{r Setup-Recdevs}
 # Start from a list created by a helper function
-template_mod_change <- create_future_om_list() 
+template_mod_change <- create_future_om_list()
 # add recruitment deviations
 rec_dev_specify <- template_mod_change[[1]]
 rec_dev_specify$pars <- "rec_devs" # apply change to rec devs
@@ -175,8 +177,10 @@ mod_change_sel
 
 Finally, add these two changes together into an object to pass to `run_SSMSE`
 ```{r Fut-OM}
-future_om_list_recdevs_sel <- list(rec_dev_specify, 
-                                   mod_change_sel) 
+future_om_list_recdevs_sel <- list(
+  rec_dev_specify,
+  mod_change_sel
+)
 ```
 
 ### Add observation error through sampling from OM
@@ -218,8 +222,9 @@ Let's take a look at step 2 in the management procedure, which is implemented us
 ```{r See-Fore-Vals}
 fore <- r4ss::SS_readforecast(
   system.file("extdata", "models", "cod", "forecast.ss", package = "SSMSE"),
-  verbose = FALSE)
-fore$Forecast 
+  verbose = FALSE
+)
+fore$Forecast
 fore$Btarget
 ```
 `fore$Forecast = 3` means our forecasts from the assessment will use fishing mortality (F) to attmpt to achieve a relative (to unfished) spawning stock biomass. Based on `fore$Btarget`, the relative biomass target is 40% of unfished spawning stock biomass. Note also that the control rule `fore$BforconstantF` and `fore$BfornoF` values are set low to make it unlikely that they will be used (these parameters are used for a ramp harvest control rule, which we do not want to use here):
@@ -255,21 +260,22 @@ Now, we create a directory to store our results, and use `run_SSMSE` to run the 
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
 res <- run_SSMSE(
-    scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
-    out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-    iter_vec = c(5,5), # run with 5 iterations each
-    OM_name_vec = NULL, # specify directories instead
-    OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
-    EM_name_vec = c("cod", "cod"), # cod is included in package data
-    MS_vec = c("EM","EM"), # The management strategy is specified in the EM
-    nyrs_vec = c(6, 6), # Years to project OM forward
-    nyrs_assess_vec = c(3, 3), # Years between assessments
-    future_om_list = future_om_list_recdevs_sel,
-    run_parallel = FALSE, # Run iterations in parallel
-    sample_struct_list = sample_struct_list_all, # How to sample data for running the EM.
-    sample_struct_hist_list = NULL, # because this is null, will just use sampling
-    # as in the current OM data file for the historical period.
-    seed = 12345) #Set a fixed integer seed that allows replication 
+  scen_name_vec = c("h-ctl", "h-1"), # name of the scenario
+  out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+  iter_vec = c(5, 5), # run with 5 iterations each
+  OM_name_vec = NULL, # specify directories instead
+  OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
+  EM_name_vec = c("cod", "cod"), # cod is included in package data
+  MS_vec = c("EM", "EM"), # The management strategy is specified in the EM
+  nyrs_vec = c(6, 6), # Years to project OM forward
+  nyrs_assess_vec = c(3, 3), # Years between assessments
+  future_om_list = future_om_list_recdevs_sel,
+  run_parallel = FALSE, # Run iterations in parallel
+  sample_struct_list = sample_struct_list_all, # How to sample data for running the EM.
+  sample_struct_hist_list = NULL, # because this is null, will just use sampling
+  # as in the current OM data file for the historical period.
+  seed = 12345
+) # Set a fixed integer seed that allows replication
 ```
 See `?run_SSMSE` for more details on function arguments. In a real MSE analysis, running 100+ iterations to reflect the full range of uncertainty (given observation and process errors) in the results would be preferred. However, we are only running 5 iterations per scenario in this demonstration to reduce computing time.
 
@@ -324,28 +330,28 @@ Check there are no params on bounds or SSB that is way too small or way too larg
 ```{r Conv}
 check_convergence <- function(summary, min_yr = 101, max_yr = 120, n_EMs = 5) {
   require(dplyr) # note: not the best way to do this
-  if(any(!is.na(summary$scalar$params_on_bound))) {
+  if (any(!is.na(summary$scalar$params_on_bound))) {
     warning("Params on bounds")
   } else {
     message("No params on bounds")
   }
   summary$ts$model_type <- ifelse(grepl("_EM_", summary$ts$model_run), "EM", "OM")
   calc_SSB <- summary$ts %>%
-    filter(year >= min_yr & year <= max_yr) %>% 
+    filter(year >= min_yr & year <= max_yr) %>%
     select(iteration, scenario, year, model_run, model_type, SpawnBio)
-  OM_vals <- calc_SSB %>% 
-              filter(model_type == "OM") %>% 
-              rename(SpawnBio_OM = SpawnBio ) %>% 
-              select(iteration, scenario, year, SpawnBio_OM)
-  EM_vals <- calc_SSB %>% 
-               filter(model_type == "EM") %>% 
-               rename(SpawnBio_EM = SpawnBio) %>% 
-               select(iteration, scenario, year, model_run, SpawnBio_EM)
-  bind_vals <- full_join(EM_vals, OM_vals, by = c("iteration", "scenario", "year")) %>% 
-                  mutate(SSB_ratio = SpawnBio_EM/SpawnBio_OM)
-  filter_SSB <- bind_vals %>% 
+  OM_vals <- calc_SSB %>%
+    filter(model_type == "OM") %>%
+    rename(SpawnBio_OM = SpawnBio) %>%
+    select(iteration, scenario, year, SpawnBio_OM)
+  EM_vals <- calc_SSB %>%
+    filter(model_type == "EM") %>%
+    rename(SpawnBio_EM = SpawnBio) %>%
+    select(iteration, scenario, year, model_run, SpawnBio_EM)
+  bind_vals <- full_join(EM_vals, OM_vals, by = c("iteration", "scenario", "year")) %>%
+    mutate(SSB_ratio = SpawnBio_EM / SpawnBio_OM)
+  filter_SSB <- bind_vals %>%
     filter(SSB_ratio > 2 | SSB_ratio < 0.5)
-  if(nrow(filter_SSB) > 0 ) {
+  if (nrow(filter_SSB) > 0) {
     warning("Some large/small SSBs relative to OM")
   } else {
     message("All SSBs in EM are no greater than double and no less than half SSB vals in the OM")
@@ -361,10 +367,12 @@ This plot shows that SSB estimated does not match perfectly with the operating m
 
 ```{r plot_SSB}
 # plot SSB by year and model run
-ggplot2::ggplot(data = subset(summary$ts, model_run %in% c("cod_OM", "cod_SR_BH_steep_1_OM", "cod_EM_103")), 
-                ggplot2::aes(x = year, y = SpawnBio)) +
+ggplot2::ggplot(
+  data = subset(summary$ts, model_run %in% c("cod_OM", "cod_SR_BH_steep_1_OM", "cod_EM_103")),
+  ggplot2::aes(x = year, y = SpawnBio)
+) +
   ggplot2::geom_vline(xintercept = 100, color = "gray") +
-  ggplot2::geom_line(ggplot2::aes(linetype = as.character(iteration), color = model_run))+
+  ggplot2::geom_line(ggplot2::aes(linetype = as.character(iteration), color = model_run)) +
   ggplot2::scale_color_manual(values = c("#D65F00", "black", "blue")) +
   ggplot2::scale_linetype_manual(values = rep("solid", 50)) +
   ggplot2::guides(linetype = FALSE) +
@@ -384,13 +392,13 @@ Now, we calculate and plot the performance metric, which is average spawning sto
 get_SSB_avg <- function(summary, min_yr, max_yr) {
   OM_vals <- unique(summary$ts$model_run)
   OM_vals <- grep("_OM$", OM_vals, value = TRUE)
-  SSB_yr <- summary$ts %>% 
-          filter(year >= min_yr & year <= max_yr) %>% 
-          filter(model_run %in% OM_vals) %>% 
-          select(iteration, scenario, year, SpawnBio) %>% 
-          group_by(iteration, scenario) %>% 
-          summarize(avg_SSB = mean(SpawnBio), .groups = "keep") %>% 
-          ungroup()
+  SSB_yr <- summary$ts %>%
+    filter(year >= min_yr & year <= max_yr) %>%
+    filter(model_run %in% OM_vals) %>%
+    select(iteration, scenario, year, SpawnBio) %>%
+    group_by(iteration, scenario) %>%
+    summarize(avg_SSB = mean(SpawnBio), .groups = "keep") %>%
+    ungroup()
   SSB_yr
 }
 avg_SSB <- get_SSB_avg(summary, min_yr = 104, max_yr = 106)
@@ -404,10 +412,14 @@ data_summary <- function(x) {
 }
 # Now, plot the average relative spawning stock biomass for years 104 - 106
 ggplot(data = avg_SSB, aes(x = scenario, y = avg_SSB)) +
-  stat_summary(fun.data = data_summary, 
-               position = position_dodge(width = 0.9), color = "blue") +
-  labs(title = "Long-term average  SSB\n(years 104-106)", 
-       x = "Scenario", y = "SSB") +
+  stat_summary(
+    fun.data = data_summary,
+    position = position_dodge(width = 0.9), color = "blue"
+  ) +
+  labs(
+    title = "Long-term average  SSB\n(years 104-106)",
+    x = "Scenario", y = "SSB"
+  ) +
   theme_classic()
 ```
 
@@ -429,24 +441,27 @@ unlink(run_SSMSE_dir, recursive = TRUE)
 Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:
 
 ```{r custom-MS, eval = FALSE}
-constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100, 
+constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100,
                               frac_catch = 0.5, ...) { # need to include ... to allow function to work
   # set catch the same as the previous year (sampled catch).
   # catch is in the same units as the operating model, in this case it is in
   # biomass.
   catch <- data.frame(
     year = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess), # the years to project the model forward
-    seas = 1, # hard coded from looking at model 
-    fleet = 1,  # hard coded from looking at model
-    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"]*frac_catch,
-    catch_se = 0.05) # hard coded from looking at model
+    seas = 1, # hard coded from looking at model
+    fleet = 1, # hard coded from looking at model
+    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"] * frac_catch,
+    catch_se = 0.05
+  ) # hard coded from looking at model
   catch_bio <- catch # catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL
   catch_F <- NULL # catch in terms of F, can be left as NULL.
   discards <- NULL # discards can be left as NULL if there are no discards
-  catch_list <- list(catch = catch,
-                     catch_bio = catch_bio, 
-                     catch_F = catch_F,
-                     discards = discards)
+  catch_list <- list(
+    catch = catch,
+    catch_bio = catch_bio,
+    catch_F = catch_F,
+    discards = discards
+  )
 }
 ```
 The function should be created in a separate file. In this case, assume this function is available in a file custom_funs.R.
@@ -454,18 +469,20 @@ The function should be created in a separate file. In this case, assume this fun
 This function can then be used in a call to `run_SSMSE`:
 
 ```{r custom-MS-run-SSMSE, eval = FALSE}
-run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the scenario
-                out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-                iter_vec = 1,
-                OM_name_vec = "cod", # specify directories instead
-                OM_in_dir_vec = NULL,
-                MS_vec = "constant_catch_MS", # use the custom function
-                custom_MS_source = "custom_funs.R", # File where the custom function is available.
-                nyrs_vec = 6,        # Years to project OM forward
-                nyrs_assess_vec = 3, # Years between assessments
-                future_om_list = future_om_list_recdevs_sel,
-                sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
-                seed = 12345) #Set a fixed integer seed that allows replication 
+run_result_custom <- run_SSMSE(
+  scen_name_vec = "constant-catch", # name of the scenario
+  out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+  iter_vec = 1,
+  OM_name_vec = "cod", # specify directories instead
+  OM_in_dir_vec = NULL,
+  MS_vec = "constant_catch_MS", # use the custom function
+  custom_MS_source = "custom_funs.R", # File where the custom function is available.
+  nyrs_vec = 6, # Years to project OM forward
+  nyrs_assess_vec = 3, # Years between assessments
+  future_om_list = future_om_list_recdevs_sel,
+  sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
+  seed = 12345
+) # Set a fixed integer seed that allows replication
 ```
 
 
