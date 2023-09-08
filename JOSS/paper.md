@@ -80,7 +80,7 @@ distribution of the population and any critical environmental covariates or
 species interactions. OMs should be calibrated (or “conditioned”) on available
 data to ensure that model protjections are consistent with historical
 observations [@punt2014]. Due to the many considerations, developing
-sufficiently realistic OMs is time-intensive. 
+sufficient OMs is time-intensive. 
 
 Fortunately, the requirements for specifying OMs are largely the same as the
 requirements for developing a stock assessment. Due to the overlap in
@@ -136,7 +136,7 @@ and employs other R dependencies developed for use with SS3 [e.g., ss3sim,
 Users only need a few functions to run an analysis using SSMSE
 (Table 1; \autoref{fig:SSMSE-workflow}). The `run_SSMSE()` wrapper function runs
 the SSMSE simulations (\autoref{fig:SSMSE-steps}). Inputs to `run_SSMSE()`
-include the names and locations of the conditioned SS3 models to use as
+include the file names and file directories of the conditioned SS3 models to use as
 operating models (`OM_name_vec` and `OM_in_dir_vec`), the type of management
 strategy for each scenario (`MS_vec`), the number of iterations to run for each
 scenario (`iter_vec`), how to sample from the operating model in each
@@ -183,7 +183,7 @@ SSMSE:
    adjust errors in assessments by 1) specifying different fixed values and
    structures in different scenarios by directly changing the model files; and 2) 
    by changing the sampling scheme through the `sample_struct_list` input to
-    `run_SSMSE()` to adjust observation uncertainty.
+    `run_SSMSE()` to adjust observation uncertainty. Assessment error is also an emergent property of the assessment model estimation algorithm itself, so the ability to run the estimation model rather than a placeholder captures this type of assessment error.
 5. Implementation uncertainty happens because it is difficult to perfectly
    implement a theoretical management strategy. For example, fishing may
    continue to occur after the theoretical catch limit is caught because there
@@ -195,12 +195,10 @@ The source code for SSMSE is available at
 [https://github.com/nmfs-fish-tools/SSMSE](https://github.com/nmfs-fish-tools/SSMSE).
 A [user
 manual](https://nmfs-fish-tools.github.io/SSMSE/manual) provides more details on how to use the SSMSE tool. SSMSE can be installed from
-the R console using the `remotes` package:
+the R console using the `remotes` R package:
 
-```{r}
-
+```r
 remotes::install_github(“nmfs-fish-tools/SSMSE”)
-
 ```
 
 # Case Study
