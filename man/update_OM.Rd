@@ -58,13 +58,13 @@ a cap of twice the historic maximum F for all cases)}
 \item{n_F_search_loops}{Number of times to try to find an F that achieves the
 catches input in the OM. Defaults to 20.}
 
-\item{tolerance_F_search}{How far apart the input catch and achieved 
+\item{tolerance_F_search}{How far apart the input catch and achieved
 catch can be in tried to find an F that achieves the catch input in the
 OM. Defaults to 0.001.}
 }
 \value{
 A new dat list object (format as created by r4ss::SS_readdat) that
- has been extended forward  as if read in by r4ss function SS_readdat
+has been extended forward  as if read in by r4ss function SS_readdat
 }
 \description{
 Add the EM defined catch values for the next years.

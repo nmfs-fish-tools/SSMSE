@@ -3,12 +3,12 @@
 \name{get_SSB_avg}
 \alias{get_SSB_avg}
 \title{Example Performance Metric: calculate the average SSB over a range of years
- for each iteration}
+for each iteration}
 \usage{
 get_SSB_avg(summary, min_yr, max_yr)
 }
 \arguments{
-\item{summary}{Summary returned from running `SSMSE_summary_all()`}
+\item{summary}{Summary returned from running \code{SSMSE_summary_all()}}
 
 \item{min_year}{The first year to include in the average}
 
@@ -19,8 +19,8 @@ A tibble containing the average SSB by iteration and scenario.
 }
 \description{
 Example performance metric that calculates the average Spawning Stock Biomass
- SSB (units as in the simulations) over a range of years for each iteration of
- each scenario in the SSMSE simulation run.
+SSB (units as in the simulations) over a range of years for each iteration of
+each scenario in the SSMSE simulation run.
 }
 \examples{
 \dontrun{

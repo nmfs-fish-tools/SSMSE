@@ -72,7 +72,7 @@ A modified datafile
 }
 \description{
 This function manipulates the OM as needed so that it can be used as an
- operating model.
+operating model.
 }
 \author{
 Kathryn Doering & Nathan Vaughan

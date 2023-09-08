@@ -14,7 +14,7 @@ will skip a check requiring this input.}
 }
 \value{
 Function mainly used for side effects, but returns TRUE invisibly if
- no errors created.
+no errors created.
 }
 \description{
 Check structure of forecast is suitable to use in the EM

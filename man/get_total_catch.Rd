@@ -17,8 +17,8 @@ The total catch, a number.
 }
 \description{
 Example performance metric that calculates total catch over a range of years
- in a Stock Synthesis data file. This function aggregates catch across
- fleets, so may not be appropriate for models with multiple fleets.
+in a Stock Synthesis data file. This function aggregates catch across
+fleets, so may not be appropriate for models with multiple fleets.
 }
 \examples{
 \dontrun{

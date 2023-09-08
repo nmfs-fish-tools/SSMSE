@@ -21,7 +21,7 @@ EM_dir.}
 }
 \value{
 the new EM data file. Side effect is saving over the OM_dat file in
-  EM_dir.
+EM_dir.
 }
 \description{
 Change dataset from OM into format for EM

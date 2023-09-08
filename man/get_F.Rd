@@ -14,11 +14,11 @@ ss model.}
 }
 \value{
 a list containing: F_df, a long dataframe with F by Yr, Era, Seas,
- and fleet; F_rate, a data frame with F for the time frame of the model
- only by Yr, Seas, and Fleet, ordered as the ss.par file expects; init_F,
- a named vector of initial F values by Season and Fleet, ordered (and named)
- as SS expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas,
- and fleet, ordered as SS would expect in F_rate.
+and fleet; F_rate, a data frame with F for the time frame of the model
+only by Yr, Seas, and Fleet, ordered as the ss.par file expects; init_F,
+a named vector of initial F values by Season and Fleet, ordered (and named)
+as SS expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas,
+and fleet, ordered as SS would expect in F_rate.
 }
 \description{
 Get the Fishing mortality from the timeseries Report.sso table

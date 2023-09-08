@@ -17,8 +17,8 @@ The average catch, a number.
 }
 \description{
 Example performance metric that calculates average catch over a range of
- years in a Stock Synthesis data file. This function aggregates across
- fleets, so may not be appropriate for models with multiple fleets.
+years in a Stock Synthesis data file. This function aggregates across
+fleets, so may not be appropriate for models with multiple fleets.
 }
 \examples{
 \dontrun{

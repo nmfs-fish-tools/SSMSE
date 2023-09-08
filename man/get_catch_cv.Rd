@@ -17,9 +17,9 @@ The catch coefficient of variation, a number.
 }
 \description{
 Example performance metric that calculates the coefficient of variation (CV)
- of catch over a range of years in a Stock Synthesis data file. This function
- aggregates across fleets, so may not be appropriate for models with multiple
- fleets.
+of catch over a range of years in a Stock Synthesis data file. This function
+aggregates across fleets, so may not be appropriate for models with multiple
+fleets.
 }
 \examples{
 \dontrun{

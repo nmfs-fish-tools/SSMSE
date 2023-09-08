@@ -94,17 +94,17 @@ Currently, the only available sampling option is to use the bootstrapping module
 
 Users also need to specify how and which data types should be sampled for each future year in the simulation in `sample_struct_list`. `sample_struct_list` is a list of lists. The first level is a list for each scenario; then, for the scenario, there is a list of dataframes, each of which specifying which years and fleets of data should be sampled in the future as well as which standard errors or sample sizes should be used.
 
-The helper function `create_sample_struct()` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#sample) or by typing `?SSMSE::create_sample_struct()` into the R console.
+The helper function `create_sample_struct()` can be used to help users generate the list of dataframes for a scenario. See an example of this function's use in the [simple example](#simple) or by typing `?SSMSE::create_sample_struct()` into the R console.
 
 Currently, users can sample data for catches (treated as fixed if `sample_catch = FALSE` for the scenario), CPUE (i.e., indices of abundance), length and age composition, conditional length at age compositions, mean size at age, and mean size. It is not yet possible to sample data for generalized size compositions, tagging data, and morph compositions.
 
 Users can specify the sampling during the historical period of the model through the `sample_struct_hist` input to `run_SSMSE`. This is an optional input and has the same structure as `sample_struct_list`, but the years will be before the original end year of the OM.
 
-## Future changes to the operating model (#future)
+## Projecting the operating model {#future}
 
 By default, SSMSE will simply extend the structure of the OM into the future using the same parameter values as in the last year of the model. However, the user may want to allow changes in parameter values to occur as the OM is extended forward in time. Users can input values into the `future_om_list` to accomplish this. This input is a list of lists. For the first level of lists, each represents a separate change to make. Within the first level, there are 4 list components that outline the details of the change to make. There are 2 main choices: 1) to specify model changes by telling SSMSE how values should be sampled or 2) to input your own custom values for future values of a given parameter. 
 
-### The strucutre of `future_om_list`
+### The structure of `future_om_list` {#structurefutureom}
 
 For example, here is an example list containing just one future change for the model. It shows that the model should be changed to 4.5 in year 103 and afterwards:
 
@@ -134,7 +134,7 @@ In this case, we just want to apply the change to the `SizeSel_P_3_Fishery(1)` p
 * `first_yr_averaging`: The first year to average historical values from the model, if using for the change. This should be `NA` if historical averaging will not be used.
 * `last_yr_averaging`: The last year to average historical values from the model, if using for the change. This should be `NA` if historical averaging will not be used.
 * `last_yr_orig_val`: The last year of the future deviations with the original model value. This value will not be changed, but the following year's value will be.
-* `first_yr_final_val`: The first year where the final value as specified will be reached. If no future changes are made, the final value will continue forward in the OM through all projected years. For step changes, the `first_yr_final_val` is just 1 year after the `last_yr_orig_val`. However, if a more gradual adjustment toward the final value is desired, this could be any number of years after the original value.
+* `first_yr_final_val`: The first year where the final value as specified will be reached. If no changes are made, the final value will continue forward in the OM through all projected years. For step changes, the `first_yr_final_val` is just 1 year after the `last_yr_orig_val`. However, if a more gradual adjustment toward the final value is desired, this could be any number of years after the original value.
 * ts_param: The sampling parameter to modify. Options are "mean", "ar_1_phi" (if using autocorrelation), "sd", and "cv". If not included in the dataframe, "mean" is assumed to be the same as in the previous model year, sd is assumed to be 0, and we assume no autocorrelation (as specified through an autoregressive AR1 process). Phi should be between -1 and 1 (this creates a stationary process) and if phi = 1, this creates a random walk (as random walk is a special case of an AR1 model). Note that both sd and cv cannot be specified within the same input dataframe.
 * method: How to apply the change relative to the historical (if specified) or previous year's value (if first_yr_averaging and last_yr_averaging for that row are NA). Options are "multiplicative", "additive", and "absolute". This example uses "absolute", meaning that the number in "value" is directly used.
 * value. The value of the parameter change. This may be NA if historical averaging is used.

@@ -250,7 +250,7 @@ However, an assessment will be conducted every 3 years and thus 3 years of proje
 
 More information on using the forecast module in SS3 to forecast catches is available in the [Stock Synthesis users manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
-Users can also specify their own [custom management procedures](https://nmfs-fish-tools.github.io/SSMSE/manual/advanced-options-use-a-custom-management-strategyprocedure.html).
+Users can also specify their own [custom management procedures](https://nmfs-fish-tools.github.io/SSMSE/manual/custom-MS.html).
 
 ## Run SSMSE
 

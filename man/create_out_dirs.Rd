@@ -30,8 +30,8 @@ model outside of the SSMSE package. Should be a string.}
 }
 \value{
 A list with 2 named components each of length 1 characters. The
- components are: OM_dir, where OM will be run, and OM_in_dir, where the model
- files will be copied from.
+components are: OM_dir, where OM will be run, and OM_in_dir, where the model
+files will be copied from.
 }
 \description{
 Create an OM directory within the out_dir specified (named by the value of

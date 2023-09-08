@@ -34,15 +34,15 @@ to 123.}
 }
 \value{
 A list including 3 dataframes and one list: devs_df, the additive deviations
- relative to the base values; base_df, the base values of the parameter with
- deviations; abs_df, the absolute future values by year (first col) and
- parameter (parameterss in different cols). Also includes a modified version
- of the future_om_list which includes the seed applied to each list component
- (note that this is not the ultimate seed used for sampling, as addiitonal)
- seeds are generated from this seed based on the scenario, iteration, and
- option for randomness (replicate across scenarios or randomize across scenarios).
- Note that no OM files are modified or created as part of this function
- (i.e., it does not have side effects).
+relative to the base values; base_df, the base values of the parameter with
+deviations; abs_df, the absolute future values by year (first col) and
+parameter (parameterss in different cols). Also includes a modified version
+of the future_om_list which includes the seed applied to each list component
+(note that this is not the ultimate seed used for sampling, as addiitonal)
+seeds are generated from this seed based on the scenario, iteration, and
+option for randomness (replicate across scenarios or randomize across scenarios).
+Note that no OM files are modified or created as part of this function
+(i.e., it does not have side effects).
 }
 \description{
 This function parses user inputs to convert it into a dataframe of deviations.
