@@ -21,7 +21,6 @@ simple-convergence-check
 plot-spawning-stock-biomass-ssb
 example-mse-results
 delete-the-files
-advanced-options-use-a-custom-management-strategyprocedure
 M-case-study-ex
 SSMSE
 scenarios-in-ssmse
@@ -30,8 +29,8 @@ the-management-strategy-and-if-applicable-estimation-model-em
 specify-the-management-strategy-in-a-ss3-model
 custom-MS
 sampling-options
-future-changes-to-the-operating-model-future
-the-strucutre-of-future_om_list
+future
+structurefutureom
 example-of-future_om_list-denoting-a-gradual-change
 example-of-future_om_list-with-random-deviations
 example-of-using-historical-values-for-determining-parameter-values
