@@ -18,15 +18,15 @@ clean_init_mod_files(
 model outside of the SSMSE package.}
 
 \item{MS}{The management strategy to use. Current options
-are:  \code{"last_yr_catch"} which uses the previous year's catch; 
-\code{"no_catch"} which uses 0 catch; \code{"EM"} which uses an stock 
-synthesis model as the estimation method and the management strategy as 
+are:  \code{"last_yr_catch"} which uses the previous year's catch;
+\code{"no_catch"} which uses 0 catch; \code{"EM"} which uses an stock
+synthesis model as the estimation method and the management strategy as
 defined in the forecast file of the stock synthesis estimation method;
 \code{"Interim"} to modify catch based on survey predictions between
 assessments. Users can also specify their own management strategies as a
 function. For example, if the function is
-called "my_ms" then the user should specify MS = "my_ms" and specify the 
-path to the file containing the function in `custom_MS_source`.}
+called "my_ms" then the user should specify MS = "my_ms" and specify the
+path to the file containing the function in \code{custom_MS_source}.}
 
 \item{overwrite}{Allow existing files to be overwritten?}
 }

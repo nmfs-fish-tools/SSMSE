@@ -3,7 +3,7 @@
 \name{check_avail_dat}
 \alias{check_avail_dat}
 \title{check all index years/fleets in EM available in OM. (but not vice versa)
- a general function that can be used}
+a general function that can be used}
 \usage{
 check_avail_dat(
   EM_dat,
@@ -24,7 +24,7 @@ This should be a single string value.}
 }
 \description{
 check all index years/fleets in EM available in OM. (but not vice versa)
- a general function that can be used
+a general function that can be used
 }
 \author{
 Kathryn Doering

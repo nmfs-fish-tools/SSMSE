@@ -14,7 +14,7 @@ the current working directory.}
 }
 \value{
 A list containing 2 components: 1) the ggplot object and 2) the
- dataframe used to make the ggplot object
+dataframe used to make the ggplot object
 }
 \description{
 Creates a plot that can be used to see how sampling lines up with

@@ -17,8 +17,8 @@ the estimation model}
 }
 \value{
 A data list in the same format that can be read/written by r4ss that
- has index. lcomps, and age comps from OM_dat, but with the same structure as
- EM_dat.
+has index. lcomps, and age comps from OM_dat, but with the same structure as
+EM_dat.
 }
 \description{
 This does the technical part of changing the EM data. Note this may be unnecessary

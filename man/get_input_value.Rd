@@ -24,15 +24,15 @@ before calculating the input value to use. Defaults to NULL.}
 }
 \value{
 A value of the same type as \code{data[, colname]} if \code{group}
- is NULL, or a data.frame if \code{group} is specified.
+is NULL, or a data.frame if \code{group} is specified.
 }
 \description{
 Return a single value from a column of a dataframe using the method specified
 }
 \details{
 Note that this function was created intially to return a value to
- use as the input uncertainty, but it should be generalizable to pulling a
- value from a column in any data frame using the method specified.
+use as the input uncertainty, but it should be generalizable to pulling a
+value from a column in any data frame using the method specified.
 }
 \examples{
 dfr <- data.frame(

@@ -40,7 +40,7 @@ will reference, if using a relative method.}
 }
 \value{
 A vector of values with length ncol(vals_df), the number of future
- years.
+years.
 }
 \description{
 Calculate the parameter trend

@@ -33,7 +33,7 @@ default to the working directory.}
 in the same order as scen_name_vec.}
 
 \item{OM_name_vec}{Names of a valid Stock Synthesis stock assessment model.
-To see the names of built-in models, type 
+To see the names of built-in models, type
 \code{list.dirs(system.file("extdata", "models", package = "SSMSE"),full.names = FALSE, recursive = FALSE)}
 into the R console.}
 
@@ -44,7 +44,7 @@ model, if using a model outside of the SSMSE package.}
 Synthesis stock assessment model to use as an EM. If the value of EM_name
 is NULL and  \code{MS = "EM"}, then SSMSE will look for the estimation model
 in the path specified in EM_in_dir. valid inputs for EM_name are: \code{"cod"}
- or \code{NULL}.}
+or \code{NULL}.}
 
 \item{EM_in_dir_vec}{Relative or absolute path to the estimation model, if using
 model outside of the SSMSE package. Note that this value should be NULL if
@@ -85,8 +85,8 @@ sampled for the historical period for the data generated from the OM. If
 this is left as NULL, then the same sampling scheme will be used as in the
 OM's data file. If it is not NULL, then each year}
 
-\item{sample_catch_vec}{Should catch be sampled or fixed at the OM values? 
-This can be a single Boolean (TRUE or FALSE) to apply to all scenarios or 
+\item{sample_catch_vec}{Should catch be sampled or fixed at the OM values?
+This can be a single Boolean (TRUE or FALSE) to apply to all scenarios or
 a vector of the same length as the number of scenarios. Defaults to FALSE.}
 
 \item{interim_struct_list}{A optional list of parameters to control an interim assessment
@@ -95,7 +95,7 @@ MA_years= the number of years to average index observations of when calculating 
 assess_freq=the number of years between full assessments during with an interim assessment will happen
 every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
 inference.
-interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))}
+interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index\link{,3})))}
 }
 \description{
 Function to create parameter \code{scen_list} in

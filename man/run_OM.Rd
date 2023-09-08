@@ -36,7 +36,7 @@ error_check will be created, and the model will be run from control start
 values instead of ss.par. The 2 par files are then compared to help debug
 the issue with the model run. Defaults to TRUE.}
 
-\item{sample_catch}{Should catch be sampled or fixed at the OM values? 
+\item{sample_catch}{Should catch be sampled or fixed at the OM values?
 Defaults to FALSE.}
 
 \item{seed}{A random seed so that reproducible results are possible.}

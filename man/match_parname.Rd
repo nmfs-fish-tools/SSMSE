@@ -13,7 +13,7 @@ match_parname(list_pars, parlist)
 }
 \value{
 A dataframe containing the parameter name and which object it is in
- in the par object.
+in the par object.
 }
 \description{
 Match parameter name to parameter names in the par file

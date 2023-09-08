@@ -14,7 +14,7 @@ names are the fleets (to provide an extra check)}
 }
 \value{
 a data frame with retained catch by Yr, Era, Seas, Fleet, and
- units (long format)
+units (long format)
 }
 \description{
 Get retained catch from the timeseries Report.sso table

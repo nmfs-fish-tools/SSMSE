@@ -9,7 +9,7 @@ rm_vals(return_obj, compare_obj, name_in_obj, colnames)
 \arguments{
 \item{return_obj}{the object (containing list component of name in obj) that
 will be modified. Only combinations of the columns found in compare object
- will be retained}
+will be retained}
 
 \item{compare_obj}{the object (containing list component of name_in_obj) that
 return_obj will be compared to}
@@ -22,8 +22,8 @@ with the same column names}
 compare.}
 }
 \value{
-return_obj[[name_in_obj]], modified to only include elements present
- in compare_obj[[name_in_obj]].
+return_obj[\link{name_in_obj}], modified to only include elements present
+in compare_obj[\link{name_in_obj}].
 }
 \description{
 From 2 list components with the same name, remove vals that aren't in the

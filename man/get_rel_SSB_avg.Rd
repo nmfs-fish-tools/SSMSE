@@ -8,16 +8,16 @@ over a range of years for each iteration}
 get_rel_SSB_avg(summary, min_yr, max_yr)
 }
 \arguments{
-\item{summary}{Summary returned from running `SSMSE_summary_all()`}
+\item{summary}{Summary returned from running \code{SSMSE_summary_all()}}
 }
 \value{
 A tibble containing the relative avg SSB per year by iteration and
- scenario.
+scenario.
 }
 \description{
 Example performance metric that calculates the average Spawning Stock Biomass
- SSB (units as in the simulations) relative to the  unfished SSB over a range
- of years for each iteration of each scenario in the SSMSE simulation run.
+SSB (units as in the simulations) relative to the  unfished SSB over a range
+of years for each iteration of each scenario in the SSMSE simulation run.
 }
 \examples{
 \dontrun{

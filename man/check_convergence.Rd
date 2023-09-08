@@ -7,7 +7,7 @@
 check_convergence(summary, min_yr, max_yr)
 }
 \arguments{
-\item{summary}{Summary returned from running `SSMSE_summary_all()`}
+\item{summary}{Summary returned from running \code{SSMSE_summary_all()}}
 
 \item{min_yr}{The first year of SSB checked}
 
@@ -15,14 +15,14 @@ check_convergence(summary, min_yr, max_yr)
 }
 \value{
 A tibble containing the SSB values in the EM relative to the OM by
- model run of each iteration of each scenario.
+model run of each iteration of each scenario.
 }
 \description{
-Does basic checks for convergance of estimation model runs from `run_SSMSE()`
- simulations. This function 1) warns if there are parameters on bounds; 2)
- warns if the SSB in the EM is 2x as large or half as small as the OM. Note
- these warnings may not mean that the models have not converged, but can flag
- potential issues that can be investigated further
+Does basic checks for convergance of estimation model runs from \code{run_SSMSE()}
+simulations. This function 1) warns if there are parameters on bounds; 2)
+warns if the SSB in the EM is 2x as large or half as small as the OM. Note
+these warnings may not mean that the models have not converged, but can flag
+potential issues that can be investigated further
 }
 \examples{
 \dontrun{

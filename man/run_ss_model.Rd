@@ -27,7 +27,7 @@ valid ADMB command}
 \item{ss_bin}{Name of the SS executable. Defaults to "ss"}
 
 \item{ignore.stdout}{Passed to \code{system}. If \code{TRUE} then ADMB
- output is not printed on screen. This will be slightly faster. Set to
+output is not printed on screen. This will be slightly faster. Set to
 \code{FALSE} to help with debugging.}
 
 \item{admb_pause}{A length of time (in seconds) to pause after running the

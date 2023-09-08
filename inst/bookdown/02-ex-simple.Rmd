@@ -337,49 +337,6 @@ If you wish to delete the files created from this example, you can use:
 ```{r delete-dir, results="hide"}
 unlink(run_SSMSE_dir, recursive = TRUE)
 ```
-# Advanced options: use a custom management strategy/procedure
-
-Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:
-
-```{r custom-MS, eval = FALSE}
-constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100, 
-                              frac_catch = 0.5, ...) { # need to include ... to allow function to work
-  # set catch the same as the previous year (sampled catch).
-  # catch is in the same units as the operating model, in this case it is in
-  # biomass.
-  catch <- data.frame(
-    year = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess), # the years to project the model forward
-    seas = 1, # hard coded from looking at model 
-    fleet = 1,  # hard coded from looking at model
-    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"]*frac_catch,
-    catch_se = 0.05) # hard coded from looking at model
-  catch_bio <- catch # catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL
-  catch_F <- NULL # catch in terms of F, can be left as NULL.
-  discards <- NULL # discards can be left as NULL if there are no discards
-  catch_list <- list(catch = catch,
-                     catch_bio = catch_bio, 
-                     catch_F = catch_F,
-                     discards = discards)
-}
-```
-The function should be created in a separate file. In this case, assume this function is available in a file custom_funs.R.
-
-This function can then be used in a call to `run_SSMSE`:
-
-```{r custom-MS-run-SSMSE, eval = FALSE}
-run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the scenario
-                out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-                iter_vec = 1,
-                OM_name_vec = "cod", # specify directories instead
-                OM_in_dir_vec = NULL,
-                MS_vec = "constant_catch_MS", # use the custom function
-                custom_MS_source = "custom_funs.R", # File where the custom function is available.
-                nyrs_vec = 6,        # Years to project OM forward
-                nyrs_assess_vec = 3, # Years between assessments
-                future_om_list = future_om_list_recdevs_sel,
-                sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
-                seed = 12345) #Set a fixed integer seed that allows replication 
-```
 
 # A more complex example, Natural Mortality case study {#M-case-study-ex}
 
