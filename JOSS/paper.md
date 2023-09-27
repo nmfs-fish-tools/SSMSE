@@ -11,6 +11,7 @@ authors:
     orcid: 0000-0002-0396-7044
     affiliation: 1
   - name: Nathan R. Vaughan^[Co-first author]
+    orcid: 0009-0000-3054-6950
     affiliation: 2
   - name: John F. Walter
     affiliation: 3
@@ -78,7 +79,7 @@ minimum, define: the life history characteristics of the population and the fish
 effort and selectivity of all fisheries affecting the population; and consider: the spatial
 distribution of the population and any critical environmental covariates or
 species interactions. OMs should be calibrated (or “conditioned”) on available
-data to ensure that model protjections are consistent with historical
+data to ensure that model projections are consistent with historical
 observations [@punt2014]. Due to the many considerations, developing
 sufficient OMs is time-intensive. 
 
@@ -116,7 +117,7 @@ generalized MSE tools offer limited capacity to use existing stock assessment
 products directly as OMs. These tools do support importing
 specifications from stock assessment model files such as SS3, but converting SS3
 models to a different model format often results in some loss of model
-structure. For complex populations, loosing model structure may not 
+structure. For complex populations, losing model structure may not 
 represent the population well. Additionally, it can be time consuming for the analyst to learn a
 different model format.
 
@@ -189,7 +190,7 @@ SSMSE:
    continue to occur after the theoretical catch limit is caught because there
    is a time lag in reporting and the catch limit is exceeded before fishing can
    be stopped. Implementation uncertainty (also known as implementation error)
-   can be added by specifiying it in the `future_om_list` input to `run_SSMSE()`.
+   can be added by specifying it in the `future_om_list` input to `run_SSMSE()`.
 
 The source code for SSMSE is available at
 [https://github.com/nmfs-fish-tools/SSMSE](https://github.com/nmfs-fish-tools/SSMSE).
@@ -222,10 +223,10 @@ one fishing fleet and one survey in both the operating and estimation models.
 
 Because the pattern of natural mortality is uncertain, we built three OMs, each
 reflecting a different hypothesis of the natural mortality dynamics of
-the stock: 1) constant instantaneous natural mortality at 0.2 $yr^{-1}$ (per year);
-2) natural mortality at 0.2 $yr^{-1}$ with a spike in natural mortality of
-0.3 $yr^{-1}$ every 5 years; and 3) natural mortality at 0.2
-$yr^{-1}$ with a spike in natural mortality of 0.4 $yr^{-1}$ every 5
+the stock: 1) constant instantaneous natural mortality at 0.2 y^{-1} (per year);
+2) natural mortality at 0.2 y^{-1} with a spike in natural mortality of
+0.3 y^{-1} every 5 years; and 3) natural mortality at 0.2
+y^{-1} with a spike in natural mortality of 0.4 y^{-1} every 5
 years (\autoref{fig:case-study-M}). In all OMs, process uncertainty in
 selectivity and recruitment was considered. One fishery length selectivity
 parameter was assumed to vary randomly from year to year in the simulations. In
@@ -250,7 +251,7 @@ harvest controls specified by the user in the estimation model forecast file.
 Two management strategies with alternative target harvest rates corresponding to
 a Spawning Potential Ratio (SPR) of 30% or 45% ($SPR_{30}$ and
 $SPR_{45}$, respectively) were used. The estimation model assumed constant
-natural mortality of 0.2 $yr^{-1}$ (i.e., matching the hypothesized base natural
+natural mortality of 0.2 y^{-1} (i.e., matching the hypothesized base natural
 mortality but not accounting for episodic spikes in natural mortality included in some OMs). 
 
 The forecasting module of the SS3 estimation model estimated the management
@@ -309,7 +310,7 @@ The result that managing with more precaution results in higher long-term yields
 and less variability in yields is not surprising given that the level of
 spawning biomass that results in maximum sustainable yield is closer to
 $SPR_{45}$ than to $SPR_{30}$ for these populations ($SSB_{MSY}$ was the same 
-regardless if there were episodic spkes of natural mortality or not in the OMs). 
+regardless if there were episodic spikes of natural mortality or not in the OMs). 
 @harfordetal2018 used a custom-built MSE and found that managing with more 
 precaution in the face of episodic natural mortality spikes resulted in lower 
 probabilities of overfishing and being overfished, but at the expense of lower 
@@ -372,7 +373,7 @@ Sample $n$ years of data | $n = 5$ | No | No
 # Figures
 
 ![The main components of MSE simulations. The operating model (OM) represents
-the hypothesized dynamics. From the OM, data can be sampled (in sample data step) and passed
+the hypothesized dynamics. From the OM, data can be sampled (in the sample data step) and passed
 to the management strategy. The management strategy is run and usually
 influences the OM (e.g., the management strategy may remove a certain
 amount of catch from the OM) as the OM is stepped forward in time. The
