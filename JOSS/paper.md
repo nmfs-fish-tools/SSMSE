@@ -223,10 +223,10 @@ one fishing fleet and one survey in both the operating and estimation models.
 
 Because the pattern of natural mortality is uncertain, we built three OMs, each
 reflecting a different hypothesis of the natural mortality dynamics of
-the stock: 1) constant instantaneous natural mortality at 0.2 y^{-1} (per year);
-2) natural mortality at 0.2 y^{-1} with a spike in natural mortality of
-0.3 y^{-1} every 5 years; and 3) natural mortality at 0.2
-y^{-1} with a spike in natural mortality of 0.4 y^{-1} every 5
+the stock: 1) constant instantaneous natural mortality at 0.2 $\text{y}^{-1}$ (per year);
+2) natural mortality at 0.2 $\text{y}^{-1}$ with a spike in natural mortality of
+0.3 $\text{y}^{-1}$ every 5 years; and 3) natural mortality at 0.2
+$\text{y}^{-1}$ with a spike in natural mortality of 0.4 $\text{y}^{-1}$ every 5
 years (\autoref{fig:case-study-M}). In all OMs, process uncertainty in
 selectivity and recruitment was considered. One fishery length selectivity
 parameter was assumed to vary randomly from year to year in the simulations. In
@@ -251,7 +251,7 @@ harvest controls specified by the user in the estimation model forecast file.
 Two management strategies with alternative target harvest rates corresponding to
 a Spawning Potential Ratio (SPR) of 30% or 45% ($SPR_{30}$ and
 $SPR_{45}$, respectively) were used. The estimation model assumed constant
-natural mortality of 0.2 y^{-1} (i.e., matching the hypothesized base natural
+natural mortality of 0.2 $\text{y}^{-1}$ (i.e., matching the hypothesized base natural
 mortality but not accounting for episodic spikes in natural mortality included in some OMs). 
 
 The forecasting module of the SS3 estimation model estimated the management
