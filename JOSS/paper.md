@@ -118,7 +118,7 @@ generalized MSE tools offer limited capacity to use existing stock assessment
 products directly as OMs. These tools do support importing
 specifications from stock assessment model files such as SS3, but converting SS3
 models to a different model format often results in some loss of model
-structure. For complex populations, losing model structure may not 
+structure. For complex populations, the loss of model structure may not 
 represent the population well. Additionally, it can be time consuming for the analyst to learn a
 different model format.
 
@@ -226,8 +226,8 @@ Because the pattern of natural mortality is uncertain, we built three OMs, each
 reflecting a different hypothesis of the natural mortality dynamics of
 the stock: 1) constant instantaneous natural mortality at 0.2 $\text{y}^{-1}$ (per year);
 2) natural mortality at 0.2 $\text{y}^{-1}$ with a spike in natural mortality of
-0.3 $\text{y}^{-1}$ every 5 years; and 3) natural mortality at 0.2
-$\text{y}^{-1}$ with a spike in natural mortality of 0.4 $\text{y}^{-1}$ every 5
+0.3 $\text{y}^{-1}$ every five years; and 3) natural mortality at 0.2
+$\text{y}^{-1}$ with a spike in natural mortality of 0.4 $\text{y}^{-1}$ every five
 years (\autoref{fig:case-study-M}). In all OMs, process uncertainty in
 selectivity and recruitment was considered. One fishery length selectivity
 parameter was assumed to vary randomly from year to year in the simulations. In
@@ -264,12 +264,12 @@ rate). The $SPR_{30}$ and $SPR_{45}$ management strategies
 demonstrate potential tradeoffs associated with managing with less precaution by
 allowing more fishing in the short term ($SPR_{30}$) or by managing with
 more precaution by allowing less fishing in the short term ($SPR_{45}$).
-The assessment and associated management action happened every 5 years in all
+The assessment and associated management action happened every five years in all
 scenarios, so the SS3 forecast module for each scenario also generated
 projections of five years of catch at the fishing mortality rate corresponding
 to $SPR_{45}$ or $SPR_{30}$. The five years of catch was then
 removed from the simulated population in the OM as each OM was projected forward
-in time until the next management strategy time step (in this case study, every 5 years). The simulations applied a management
+in time until the next management strategy time step (in this case study, every five years). The simulations applied a management
 period of 50 years into the future. 
 
 Performance metrics quantify the goals of the management system and are used to
@@ -310,9 +310,7 @@ larger difference in performance.
 The result that managing with more precaution results in higher long-term yields
 and less variability in yields is not surprising given that the level of
 spawning biomass that results in maximum sustainable yield is closer to
-$SPR_{45}$ than to $SPR_{30}$ for these populations ($SSB_{MSY}$ was the same 
-regardless if there were episodic spikes of natural mortality or not in the OMs). 
-@harfordetal2018 used a custom-built MSE and found that managing with more 
+$SPR_{45}$ than to $SPR_{30}$ for these populations. @harfordetal2018 used a custom-built MSE and found that managing with more 
 precaution in the face of episodic natural mortality spikes resulted in lower 
 probabilities of overfishing and being overfished, but at the expense of lower 
 catches. Here with only a few lines of code, SSMSE demonstrates similar findings,
@@ -353,7 +351,7 @@ Function               | Description
 `create_sample_struct()`  | Helper function to create a list for future sampling from a model to use as input in `run_SSMSE()`
 `create_future_om_list()` | Helper function that provides examples of the structure for the `future_om_list` input to `run_SSMSE()`
 `develop_OMs()`           | Helper function to turn one OM into many
-`run_EM()`       |  Run an SS3 estimation model (uses run_ss_model)
+`run_EM()`       |  Run an SS3 estimation model (uses `run_ss_model()`)
 `run_ss_model()` | Run an SS3 model
 `get_bin()`      | Get location of the SS3 binary
 `parse_MS()`     | Run the management strategy and get catch by fleet for the projections. A function to reference for setting up custom management strategies. 
@@ -377,7 +375,7 @@ Sample $n$ years of data | $n = 5$ | No | No
 the hypothesized dynamics. From the OM, data can be sampled (in the sample data step) and passed
 to the management strategy. The management strategy is run and usually
 influences the OM (e.g., the management strategy may remove a certain
-amount of catch from the OM) as the OM is stepped forward in time. The
+amount of catch from the OM) as the OM is projected forward in time. The
 management strategy can be subdivided into a step that estimates the population
 quantities (often using an estimation method) and a step that simulates
 management actions (including error in implementing the management actions).
