@@ -40,6 +40,7 @@ authors:
     orcid: 0000-0002-4232-5669
     affiliation: 6
   - name: Chantel R. Wetzel
+    orcid: 0000-0002-7573-8240
     affiliation: 6
 
 affiliations:
@@ -97,7 +98,7 @@ population dynamics modeling platform widely used to assess marine fish
 populations. In the U.S., more than 220 stock assessments for federally managed
 populations were conducted using SS3 between 2010 and 2020 [@stocksmart]. The
 rich set of feature options in SS3 allows model parameterizations that are
-specific to a population. SS3 models have been used successfully as OMs in a few
+specific to a population. SS3 models have been used successfully as OMs in several
 MSEs [e.g., @isc2019; @sharmaetal2020;  @maunder2014]. However, in all cases, a
 large amount of time and effort was required to write specialized code modifying
 input files and model structure to implement MSE-specific simulations. The
