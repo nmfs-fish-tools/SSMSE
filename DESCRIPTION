@@ -1,7 +1,7 @@
 Type: Package
 Package: SSMSE
 Title: Management Strategy Evaluation (MSE) using Stock Synthesis (SS)
-Version: 0.2.7
+Version: 0.2.8
 Authors@R: c(
     person("Kathryn", "Doering", , "kathryn.doering@noaa.gov", role = c("aut", "cre")),
     person("Nathan", "Vaughan", , "nathan.vaughan@noaa.gov", role = "aut")
