@@ -54,7 +54,7 @@
 #'  assess_freq=the number of years between full assessments during with an interim assessment will happen
 #'  every year, and Index_weights is a vector of length n indexes that weights all indexes for multi index
 #'  inference.
-#'  interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))
+#'  `interim_struct_list<-list(Beta=1,MA_years=3,assess_freq=5,Index_weights=rep(1,max(ref_index[,3])))`
 #' @param sample_catch_vec Should catch be sampled or fixed at the OM values? 
 #'   This can be a single Boolean (TRUE or FALSE) to apply to all scenarios or 
 #'   a vector of the same length as the number of scenarios. Defaults to FALSE.
