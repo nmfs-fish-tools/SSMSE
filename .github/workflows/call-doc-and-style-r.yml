@@ -11,7 +11,6 @@ on:
       - '.gitignore'
       - '.Rbuildignore'
       - 'JOSS/**'
-  pull_request:
 name: call-doc-and-style-r
 jobs:
   call-workflow:
