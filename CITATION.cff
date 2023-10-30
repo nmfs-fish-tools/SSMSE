@@ -1,0 +1,96 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Doering
+  given-names: Kathryn L.
+  orcid: "https://orcid.org/0000-0002-0396-7044"
+- family-names: Vaughan
+  given-names: Nathan R.
+  orcid: "https://orcid.org/0009-0000-3054-6950"
+- family-names: Walter
+  given-names: John F.
+- family-names: Methot
+  given-names: Richard D.
+- family-names: Sagarese
+  given-names: Skyler R.
+  orcid: "https://orcid.org/0000-0002-6631-0103"
+- family-names: Smith
+  given-names: Matthew
+- family-names: Farmer
+  given-names: Nicholas A.
+- family-names: Calay
+  given-names: Shannon
+- family-names: Cummings
+  given-names: Nancie J.
+- family-names: Johnson
+  given-names: Kelli F.
+  orcid: "https://orcid.org/0000-0002-5149-451X"
+- family-names: Marshall
+  given-names: Kristin
+- family-names: Peterson
+  given-names: Cassidy D.
+  orcid: "https://orcid.org/0000-0002-0836-3039"
+- family-names: Taylor
+  given-names: Ian G.
+  orcid: "https://orcid.org/0000-0002-4232-5669"
+- family-names: Wetzel
+  given-names: Chantel R.
+  orcid: "https://orcid.org/0000-0002-7573-8240"
+contact:
+- family-names: Doering
+  given-names: Kathryn L.
+  orcid: "https://orcid.org/0000-0002-0396-7044"
+doi: 10.5281/zenodo.10014307
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Doering
+    given-names: Kathryn L.
+    orcid: "https://orcid.org/0000-0002-0396-7044"
+  - family-names: Vaughan
+    given-names: Nathan R.
+    orcid: "https://orcid.org/0009-0000-3054-6950"
+  - family-names: Walter
+    given-names: John F.
+  - family-names: Methot
+    given-names: Richard D.
+  - family-names: Sagarese
+    given-names: Skyler R.
+    orcid: "https://orcid.org/0000-0002-6631-0103"
+  - family-names: Smith
+    given-names: Matthew
+  - family-names: Farmer
+    given-names: Nicholas A.
+  - family-names: Calay
+    given-names: Shannon
+  - family-names: Cummings
+    given-names: Nancie J.
+  - family-names: Johnson
+    given-names: Kelli F.
+    orcid: "https://orcid.org/0000-0002-5149-451X"
+  - family-names: Marshall
+    given-names: Kristin
+  - family-names: Peterson
+    given-names: Cassidy D.
+    orcid: "https://orcid.org/0000-0002-0836-3039"
+  - family-names: Taylor
+    given-names: Ian G.
+    orcid: "https://orcid.org/0000-0002-4232-5669"
+  - family-names: Wetzel
+    given-names: Chantel R.
+    orcid: "https://orcid.org/0000-0002-7573-8240"
+  date-published: 2023-10-30
+  doi: 10.21105/joss.04937
+  issn: 2475-9066
+  issue: 90
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 4937
+  title: "SSMSE: An R package for Management Strategy Evaluation with
+    Stock Synthesis Operating Models"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.04937"
+  volume: 8
+title: "SSMSE: An R package for Management Strategy Evaluation with
+  Stock Synthesis Operating Models"

@@ -16,3 +16,4 @@
 ^inst/bookdown$
 ^JOSS$
 ^\.devcontainer/*
+^CITATION\.cff$
