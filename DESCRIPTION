@@ -35,11 +35,11 @@ Imports:
 Suggests:
     testthat
 Remotes:
-    r4ss/r4ss@main,
-    ss3sim/ss3sim@main,
     cran/assertive.base@master,
     cran/assertive.properties@master,
-    cran/assertive.types@master
+    cran/assertive.types@master,
+    r4ss/r4ss@main,
+    ss3sim/ss3sim@main
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
