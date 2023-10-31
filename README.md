@@ -1,34 +1,59 @@
 SSMSE: Management Strategy Evaluation for Stock Synthesis
 ================
 
-  - [SSMSE build status](#ssmse-build-status)
-  - [Motivation for developing SSMSE](#motivation-for-developing-ssmse)
-  - [Need Help?](#need-help)
-  - [Installing the SSMSE R package](#installing-the-ssmse-r-package)
-  - [Troubleshooting Installation](#troubleshooting-installation)
-  - [An SSMSE example](#an-ssmse-example)
-      - [Setup R workspace folders](#setup-r-workspace-folders)
-      - [Create the operating models
-        (OMs)](#create-the-operating-models-oms)
-      - [Adding process error through recruitment deviations and
-        time-varying
-        selectivity](#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity)
-      - [Examine the management procedure
-        used](#examine-the-management-procedure-used)
-      - [Run SSMSE](#run-ssmse)
-      - [run\_SSMSE output](#run_ssmse-output)
-      - [Performance metrics](#performance-metrics)
-      - [Summarize results](#summarize-results)
-      - [Simple Convergence Check](#simple-convergence-check)
-      - [Plot Spawning Stock Biomass
-        (SSB)](#plot-spawning-stock-biomass-ssb)
-      - [Example MSE Results](#example-mse-results)
-      - [Delete the files](#delete-the-files)
-  - [Advanced options: use a custom management
-    strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure)
-  - [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
-  - [Roadmap: Where is SSMSE headed
-    next?](#roadmap-where-is-ssmse-headed-next)
+- <a href="#ssmse-build-status" id="toc-ssmse-build-status">SSMSE build
+  status</a>
+- <a href="#motivation-for-developing-ssmse"
+  id="toc-motivation-for-developing-ssmse">Motivation for developing
+  SSMSE</a>
+- <a href="#how-to-cite-ssmse" id="toc-how-to-cite-ssmse">How to cite
+  SSMSE</a>
+- <a href="#need-help" id="toc-need-help">Need Help?</a>
+- <a href="#installing-the-ssmse-r-package"
+  id="toc-installing-the-ssmse-r-package">Installing the SSMSE R
+  package</a>
+- <a href="#troubleshooting-installation"
+  id="toc-troubleshooting-installation">Troubleshooting Installation</a>
+- <a href="#an-ssmse-example" id="toc-an-ssmse-example">An SSMSE
+  example</a>
+  - <a href="#setup-r-workspace-folders"
+    id="toc-setup-r-workspace-folders">Setup R workspace folders</a>
+  - <a href="#create-the-operating-models-oms"
+    id="toc-create-the-operating-models-oms">Create the operating models
+    (OMs)</a>
+  - <a
+    href="#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"
+    id="toc-adding-process-error-through-recruitment-deviations-and-time-varying-selectivity">Adding
+    process error through recruitment deviations and time-varying
+    selectivity</a>
+  - <a href="#examine-the-management-procedure-used"
+    id="toc-examine-the-management-procedure-used">Examine the management
+    procedure used</a>
+  - <a href="#run-ssmse" id="toc-run-ssmse">Run SSMSE</a>
+  - <a href="#run_ssmse-output" id="toc-run_ssmse-output">run_SSMSE
+    output</a>
+  - <a href="#performance-metrics" id="toc-performance-metrics">Performance
+    metrics</a>
+  - <a href="#summarize-results" id="toc-summarize-results">Summarize
+    results</a>
+  - <a href="#simple-convergence-check"
+    id="toc-simple-convergence-check">Simple Convergence Check</a>
+  - <a href="#plot-spawning-stock-biomass-ssb"
+    id="toc-plot-spawning-stock-biomass-ssb">Plot Spawning Stock Biomass
+    (SSB)</a>
+  - <a href="#example-mse-results" id="toc-example-mse-results">Example MSE
+    Results</a>
+  - <a href="#delete-the-files" id="toc-delete-the-files">Delete the
+    files</a>
+- <a href="#advanced-options-use-a-custom-management-strategyprocedure"
+  id="toc-advanced-options-use-a-custom-management-strategyprocedure">Advanced
+  options: use a custom management strategy/procedure</a>
+- <a href="#how-can-i-contribute-to-ssmse"
+  id="toc-how-can-i-contribute-to-ssmse">How can I contribute to
+  SSMSE?</a>
+- <a href="#roadmap-where-is-ssmse-headed-next"
+  id="toc-roadmap-where-is-ssmse-headed-next">Roadmap: Where is SSMSE
+  headed next?</a>
 
 <!-- README.md is generated from README.Rmd. Please edit README.Rmd -->
 
@@ -36,18 +61,19 @@ SSMSE: Management Strategy Evaluation for Stock Synthesis
 
 # SSMSE build status
 
-[![R-CMD-check](https://github.com/r4ss/r4ss/workflows/R-CMD-check/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions?query=workflow%3AR-CMD-check)
+[![call-r-cmd-check](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml)
 [![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04937/status.svg)](https://doi.org/10.21105/joss.04937)
 
------
+------------------------------------------------------------------------
 
 <https://nmfs-fish-tools.github.io/SSMSE/>
 
------
+------------------------------------------------------------------------
 
 **This is a repository for the Stock Assessment Tool: SSMSE**
 
-  - Supported by the NOAA Fisheries Integrated Toolbox
+- Supported by the NOAA Fisheries Integrated Toolbox
 
 **Disclaimer**
 
@@ -65,9 +91,7 @@ The Department of Commerce seal and logo, or the seal and logo of a DOC
 bureau, shall not be used in any manner to imply endorsement of any
 commercial product or activity by DOC or the United States Government.”
 
-<!-- - This project code is made available through GitHub but is managed by NOAA at https://vlab.noaa.gov/redmine/projects/integrated-fisheries-toolbox/files -->
-
------
+------------------------------------------------------------------------
 
 # Motivation for developing SSMSE
 
@@ -78,16 +102,23 @@ conditioned Stock Synthesis mode to use as the OM. The intended users
 are those who conduct MSEs.
 
 Below, we’ll work through a simple example MSE as a way of introducing
-the SSMSE package.
+the SSMSE package. An additional example is included in the [Journal Of
+Open Source Software SSMSE paper](https://doi.org/10.21105/joss.04937).
+
+# How to cite SSMSE
+
+Doering et al., (2023). SSMSE: An R package for Management Strategy
+Evaluation with Stock Synthesis Operating Models. Journal of Open Source
+Software, 8(90), 4937, <https://doi.org/10.21105/joss.04937>
 
 # Need Help?
 
-  - Get questions answered in
-    [discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions).
-  - Submit bug reports and feature requests to
-    [issues](https://github.com/nmfs-fish-tools/SSMSE/issues).
-  - Alternatively, contact the develpers via email at
-    <nmfs.stock.synthesis@noaa.gov>.
+- Get questions answered in
+  [discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions).
+- Submit bug reports and feature requests to
+  [issues](https://github.com/nmfs-fish-tools/SSMSE/issues).
+- Alternatively, contact the develpers via email at
+  <nmfs.stock.synthesis@noaa.gov>.
 
 # Installing the SSMSE R package
 
@@ -103,31 +134,39 @@ You can read the help files with
 ?SSMSE
 ```
 
+Note that when SSMSE is installed, [Stock
+Synthesis](https://github.com/nmfs-stock-synthesis/stock-synthesis)
+binaries are included in the `SSMSE/bin/` folder downloaded to the
+user’s local R library. Currently, the Stock Synthesis 3.30.18 is
+included. Separate binaries are included for Windows, Mac and Linux.
+Users may swap out these binaries, but SSMSE is not tested with other
+versions of SS3.
+
 # Troubleshooting Installation
 
 Here are some tips:
 
-  - Make sure you are using the main branch versions of R packages
-    `r4ss` and `ss3sim`. These can be installed separately using
-    `remotes::install_github("r4ss/r4ss")` and
-    `remotes::install_github("ss3sim/ss3sim")`.
-  - If R asks “Would you like to download from sources that need
-    compilation?”, select “no”, as the older compiled versions should
-    work fine.
-  - If R asks which packages you would like to update, select “none.”
-    Although it is good to update to keep packages current, install can
-    sometimes be frustrating when updating many packages and skipping
-    this step can eliminate issues in the short term.
-  - If running into an error during install, try closing out all R
-    sessions open (e.g., other R GUI or R studio windows), restarting
-    the R session and trying
-    `remotes::install_github("nmfs-fish-tools/SSMSE")` again.
-  - If still running into an error during install, and it seems to be a
-    problem installing a particular package, try restarting the R
-    session, using `install.packages()` to download the package that
-    caused the error, restarting the R session, and trying
-    `remotes::install_github("nmfs-fish-tools/SSMSE")` again. This step
-    may need to be done several times for different R packages.
+- Make sure you are using the main branch versions of R packages `r4ss`
+  and `ss3sim`. These can be installed separately using
+  `remotes::install_github("r4ss/r4ss")` and
+  `remotes::install_github("ss3sim/ss3sim")`.
+- If R asks “Would you like to download from sources that need
+  compilation?”, select “no”, as the older compiled versions should work
+  fine.
+- If R asks which packages you would like to update, select “none.”
+  Although it is good to update to keep packages current, install can
+  sometimes be frustrating when updating many packages and skipping this
+  step can eliminate issues in the short term.
+- If running into an error during install, try closing out all R
+  sessions open (e.g., other R GUI or R studio windows), restarting the
+  R session and trying
+  `remotes::install_github("nmfs-fish-tools/SSMSE")` again.
+- If still running into an error during install, and it seems to be a
+  problem installing a particular package, try restarting the R session,
+  using `install.packages()` to download the package that caused the
+  error, restarting the R session, and trying
+  `remotes::install_github("nmfs-fish-tools/SSMSE")` again. This step
+  may need to be done several times for different R packages.
 
 Still having trouble installing SSMSE? Please don’t hesitate to [post in
 discussions about the
@@ -164,8 +203,9 @@ First, we will load the `SSMSE` package and create a folder in which to
 run the example:
 
 ``` r
-library(SSMSE) #load the package
-library(r4ss) #install using remotes::install_github("r4ss/r4ss)
+library(SSMSE) # load the package
+## Welcome to SSMSE version 0.2.8 using Stock Synthesis 3.30.18.
+library(r4ss) # install using remotes::install_github("r4ss/r4ss)
 ## 
 ## Attaching package: 'r4ss'
 ## The following object is masked from 'package:stats':
@@ -191,9 +231,9 @@ dir.create(run_SSMSE_dir)
 The cod model with h = 0.65 (as in scenario 1) is included as external
 package data in SSMSE. However, we will need to modify it to use as an
 operating model with h = 1 (as in scenario 2). Note in this case that
-refit\_OM is false, so the model is not being refit, just run through
+refit_OM is false, so the model is not being refit, just run through
 without fitting. To condition the new model on the same data as the
-input model, refit\_OM should be TRUE.
+input model, refit_OM should be TRUE.
 
 First, we identify where the base cod model is stored, modify it such
 that the steepness parameter is 1, and save the modified cod OM for
@@ -203,8 +243,10 @@ scenario 2 in a new folder in the `run_SSMSE_dir` directory.
 cod_mod_path <- system.file("extdata", "models", "cod", package = "SSMSE")
 # develop_OMs will save a model called "cod_SR_BH_steep_1" in the out_dir
 # specified
-develop_OMs(OM_name = "cod", out_dir = run_SSMSE_dir, par_name = "SR_BH_steep",
-            par_vals = 1, refit_OMs = FALSE, hess = FALSE)
+develop_OMs(
+  OM_name = "cod", out_dir = run_SSMSE_dir, par_name = "SR_BH_steep",
+  par_vals = 1, refit_OMs = FALSE, hess = FALSE
+)
 # OM model for scenario 2
 cod_1_path <- file.path(run_SSMSE_dir, "cod_SR_BH_steep_1")
 ```
@@ -224,7 +266,7 @@ assumed default).
 
 ``` r
 # Start from a list created by a helper function
-template_mod_change <- create_future_om_list() 
+template_mod_change <- create_future_om_list()
 # add recruitment deviations
 rec_dev_specify <- template_mod_change[[1]]
 rec_dev_specify$pars <- "rec_devs" # apply change to rec devs
@@ -296,8 +338,10 @@ Finally, add these two changes together into an object to pass to
 `run_SSMSE`
 
 ``` r
-future_om_list_recdevs_sel <- list(rec_dev_specify, 
-                                   mod_change_sel) 
+future_om_list_recdevs_sel <- list(
+  rec_dev_specify,
+  mod_change_sel
+)
 ```
 
 ### Add observation error through sampling from OM
@@ -390,8 +434,9 @@ it is likely that multiple management procedures would be compared.
 ``` r
 fore <- r4ss::SS_readforecast(
   system.file("extdata", "models", "cod", "forecast.ss", package = "SSMSE"),
-  verbose = FALSE)
-fore$Forecast 
+  verbose = FALSE
+)
+fore$Forecast
 ## [1] 3
 fore$Btarget
 ## [1] 0.4
@@ -435,7 +480,8 @@ More information on using the forecast module in SS3 to forecast catches
 is available in the [Stock Synthesis users
 manual](https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132).
 
-Users can also specify their own \[custom management procedures\]
+Users can also specify their own [custom management
+procedures](https://nmfs-fish-tools.github.io/SSMSE/manual/custom-MS.html).
 
 ## Run SSMSE
 
@@ -447,21 +493,22 @@ min):
 run_res_path <- file.path(run_SSMSE_dir, "results")
 dir.create(run_res_path)
 res <- run_SSMSE(
-    scen_name_vec = c("h-ctl", "h-1"),# name of the scenario
-    out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-    iter_vec = c(5,5), # run with 5 iterations each
-    OM_name_vec = NULL, # specify directories instead
-    OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
-    EM_name_vec = c("cod", "cod"), # cod is included in package data
-    MS_vec = c("EM","EM"), # The management strategy is specified in the EM
-    nyrs_vec = c(6, 6), # Years to project OM forward
-    nyrs_assess_vec = c(3, 3), # Years between assessments
-    future_om_list = future_om_list_recdevs_sel,
-    run_parallel = FALSE, # Run iterations in parallel
-    sample_struct_list = sample_struct_list_all, # How to sample data for running the EM.
-    sample_struct_hist_list = NULL, # because this is null, will just use sampling
-    # as in the current OM data file for the historical period.
-    seed = 12345) #Set a fixed integer seed that allows replication 
+  scen_name_vec = c("h-ctl", "h-1"), # name of the scenario
+  out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+  iter_vec = c(5, 5), # run with 5 iterations each
+  OM_name_vec = NULL, # specify directories instead
+  OM_in_dir_vec = c(cod_mod_path, normalizePath(cod_1_path)), # OM files
+  EM_name_vec = c("cod", "cod"), # cod is included in package data
+  MS_vec = c("EM", "EM"), # The management strategy is specified in the EM
+  nyrs_vec = c(6, 6), # Years to project OM forward
+  nyrs_assess_vec = c(3, 3), # Years between assessments
+  future_om_list = future_om_list_recdevs_sel,
+  run_parallel = FALSE, # Run iterations in parallel
+  sample_struct_list = sample_struct_list_all, # How to sample data for running the EM.
+  sample_struct_hist_list = NULL, # because this is null, will just use sampling
+  # as in the current OM data file for the historical period.
+  seed = 12345
+) # Set a fixed integer seed that allows replication
 ```
 
 See `?run_SSMSE` for more details on function arguments. In a real MSE
@@ -470,13 +517,13 @@ uncertainty (given observation and process errors) in the results would
 be preferred. However, we are only running 5 iterations per scenario in
 this demonstration to reduce computing time.
 
-## run\_SSMSE output
+## run_SSMSE output
 
 `run_SSMSE` will create new folders in the folders specified in
 `out_dir_scen_vec` (note that in this case, we are running both
 scenarios in the same folder). After is complete, there will be a folder
-for each scenario in `run_res_path` (since `out_dir_scen_vec =
-run_res_path` in this example):
+for each scenario in `run_res_path` (since
+`out_dir_scen_vec = run_res_path` in this example):
 
 ``` r
 list.dirs(run_res_path, recursive = FALSE)
@@ -537,17 +584,15 @@ the results are stored.
 summary <- SSMSE_summary_all(run_res_path)
 ## Extracting results from 2 scenarios
 ## Starting h-1 with 5 iterations
-## Warning: The `ncols` argument of `SS_output()` is deprecated as of r4ss 1.46.0.
-## Input 'ncols' no longer needed.
 ## Starting h-ctl with 5 iterations
 ```
 
 Plotting and data manipulation can then be done with these summaries.
 For example, SSB over time by model can be plotted. The models include
-the Operating Model (cod\_OM), Estimation model (EM) for the historical
-period of years 0-100 (cod\_EM\_init), and the EM run with last year of
-data in year 103 (cod\_EM\_103). The operating models are shown in blue
-or black (depending on the scenario), and the estimation model runs are
+the Operating Model (cod_OM), Estimation model (EM) for the historical
+period of years 0-100 (cod_EM_init), and the EM run with last year of
+data in year 103 (cod_EM_103). The operating models are shown in blue or
+black (depending on the scenario), and the estimation model runs are
 shown in orange, and the scenarios are shown on different subplots:
 
 ``` r
@@ -572,28 +617,28 @@ too large
 ``` r
 check_convergence <- function(summary, min_yr = 101, max_yr = 120, n_EMs = 5) {
   require(dplyr) # note: not the best way to do this
-  if(any(!is.na(summary$scalar$params_on_bound))) {
+  if (any(!is.na(summary$scalar$params_on_bound))) {
     warning("Params on bounds")
   } else {
     message("No params on bounds")
   }
   summary$ts$model_type <- ifelse(grepl("_EM_", summary$ts$model_run), "EM", "OM")
   calc_SSB <- summary$ts %>%
-    filter(year >= min_yr & year <= max_yr) %>% 
+    filter(year >= min_yr & year <= max_yr) %>%
     select(iteration, scenario, year, model_run, model_type, SpawnBio)
-  OM_vals <- calc_SSB %>% 
-              filter(model_type == "OM") %>% 
-              rename(SpawnBio_OM = SpawnBio ) %>% 
-              select(iteration, scenario, year, SpawnBio_OM)
-  EM_vals <- calc_SSB %>% 
-               filter(model_type == "EM") %>% 
-               rename(SpawnBio_EM = SpawnBio) %>% 
-               select(iteration, scenario, year, model_run, SpawnBio_EM)
-  bind_vals <- full_join(EM_vals, OM_vals, by = c("iteration", "scenario", "year")) %>% 
-                  mutate(SSB_ratio = SpawnBio_EM/SpawnBio_OM)
-  filter_SSB <- bind_vals %>% 
+  OM_vals <- calc_SSB %>%
+    filter(model_type == "OM") %>%
+    rename(SpawnBio_OM = SpawnBio) %>%
+    select(iteration, scenario, year, SpawnBio_OM)
+  EM_vals <- calc_SSB %>%
+    filter(model_type == "EM") %>%
+    rename(SpawnBio_EM = SpawnBio) %>%
+    select(iteration, scenario, year, model_run, SpawnBio_EM)
+  bind_vals <- full_join(EM_vals, OM_vals, by = c("iteration", "scenario", "year")) %>%
+    mutate(SSB_ratio = SpawnBio_EM / SpawnBio_OM)
+  filter_SSB <- bind_vals %>%
     filter(SSB_ratio > 2 | SSB_ratio < 0.5)
-  if(nrow(filter_SSB) > 0 ) {
+  if (nrow(filter_SSB) > 0) {
     warning("Some large/small SSBs relative to OM")
   } else {
     message("All SSBs in EM are no greater than double and no less than half SSB vals in the OM")
@@ -613,17 +658,22 @@ interest.
 
 ``` r
 # plot SSB by year and model run
-ggplot2::ggplot(data = subset(summary$ts, model_run %in% c("cod_OM", "cod_SR_BH_steep_1_OM", "cod_EM_103")), 
-                ggplot2::aes(x = year, y = SpawnBio)) +
+ggplot2::ggplot(
+  data = subset(summary$ts, model_run %in% c("cod_OM", "cod_SR_BH_steep_1_OM", "cod_EM_103")),
+  ggplot2::aes(x = year, y = SpawnBio)
+) +
   ggplot2::geom_vline(xintercept = 100, color = "gray") +
-  ggplot2::geom_line(ggplot2::aes(linetype = as.character(iteration), color = model_run))+
+  ggplot2::geom_line(ggplot2::aes(linetype = as.character(iteration), color = model_run)) +
   ggplot2::scale_color_manual(values = c("#D65F00", "black", "blue")) +
   ggplot2::scale_linetype_manual(values = rep("solid", 50)) +
   ggplot2::guides(linetype = FALSE) +
   ggplot2::facet_wrap(. ~ scenario) +
   ggplot2::theme_classic()
-## Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> =
-## "none")` instead.
+## Warning: The `<scale>` argument of `guides()` cannot be `FALSE`. Use "none" instead as
+## of ggplot2 3.3.4.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
 ```
 
 ![](man/figures/README-plot_SSB-1.png)<!-- -->
@@ -639,13 +689,13 @@ spawning stock biomass (SSB) from years 104 to 106.
 get_SSB_avg <- function(summary, min_yr, max_yr) {
   OM_vals <- unique(summary$ts$model_run)
   OM_vals <- grep("_OM$", OM_vals, value = TRUE)
-  SSB_yr <- summary$ts %>% 
-          filter(year >= min_yr & year <= max_yr) %>% 
-          filter(model_run %in% OM_vals) %>% 
-          select(iteration, scenario, year, SpawnBio) %>% 
-          group_by(iteration, scenario) %>% 
-          summarize(avg_SSB = mean(SpawnBio), .groups = "keep") %>% 
-          ungroup()
+  SSB_yr <- summary$ts %>%
+    filter(year >= min_yr & year <= max_yr) %>%
+    filter(model_run %in% OM_vals) %>%
+    select(iteration, scenario, year, SpawnBio) %>%
+    group_by(iteration, scenario) %>%
+    summarize(avg_SSB = mean(SpawnBio), .groups = "keep") %>%
+    ungroup()
   SSB_yr
 }
 avg_SSB <- get_SSB_avg(summary, min_yr = 104, max_yr = 106)
@@ -659,10 +709,14 @@ data_summary <- function(x) {
 }
 # Now, plot the average relative spawning stock biomass for years 104 - 106
 ggplot(data = avg_SSB, aes(x = scenario, y = avg_SSB)) +
-  stat_summary(fun.data = data_summary, 
-               position = position_dodge(width = 0.9), color = "blue") +
-  labs(title = "Long-term average  SSB\n(years 104-106)", 
-       x = "Scenario", y = "SSB") +
+  stat_summary(
+    fun.data = data_summary,
+    position = position_dodge(width = 0.9), color = "blue"
+  ) +
+  labs(
+    title = "Long-term average  SSB\n(years 104-106)",
+    x = "Scenario", y = "SSB"
+  ) +
   theme_classic()
 ```
 
@@ -695,51 +749,56 @@ simple function that just sets future catches as half the sampled
 catches in a specified year:
 
 ``` r
-constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100, 
+constant_catch_MS <- function(OM_dat, nyrs_assess, catch_yr = 100,
                               frac_catch = 0.5, ...) { # need to include ... to allow function to work
   # set catch the same as the previous year (sampled catch).
   # catch is in the same units as the operating model, in this case it is in
   # biomass.
   catch <- data.frame(
     year = (OM_dat$endyr + 1):(OM_dat$endyr + nyrs_assess), # the years to project the model forward
-    seas = 1, # hard coded from looking at model 
-    fleet = 1,  # hard coded from looking at model
-    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"]*frac_catch,
-    catch_se = 0.05) # hard coded from looking at model
+    seas = 1, # hard coded from looking at model
+    fleet = 1, # hard coded from looking at model
+    catch = OM_dat$catch[OM_dat$catch$year == catch_yr, "catch"] * frac_catch,
+    catch_se = 0.05
+  ) # hard coded from looking at model
   catch_bio <- catch # catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL
   catch_F <- NULL # catch in terms of F, can be left as NULL.
   discards <- NULL # discards can be left as NULL if there are no discards
-  catch_list <- list(catch = catch,
-                     catch_bio = catch_bio, 
-                     catch_F = catch_F,
-                     discards = discards)
+  catch_list <- list(
+    catch = catch,
+    catch_bio = catch_bio,
+    catch_F = catch_F,
+    discards = discards
+  )
 }
 ```
 
 The function should be created in a separate file. In this case, assume
-this function is available in a file custom\_funs.R.
+this function is available in a file custom_funs.R.
 
 This function can then be used in a call to `run_SSMSE`:
 
 ``` r
-run_result_custom <- run_SSMSE(scen_name_vec = "constant-catch", # name of the scenario
-                out_dir_scen_vec = run_res_path, # directory in which to run the scenario
-                iter_vec = 1,
-                OM_name_vec = "cod", # specify directories instead
-                OM_in_dir_vec = NULL,
-                MS_vec = "constant_catch_MS", # use the custom function
-                custom_MS_source = "custom_funs.R", # File where the custom function is available.
-                nyrs_vec = 6,        # Years to project OM forward
-                nyrs_assess_vec = 3, # Years between assessments
-                future_om_list = future_om_list_recdevs_sel,
-                sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
-                seed = 12345) #Set a fixed integer seed that allows replication 
+run_result_custom <- run_SSMSE(
+  scen_name_vec = "constant-catch", # name of the scenario
+  out_dir_scen_vec = run_res_path, # directory in which to run the scenario
+  iter_vec = 1,
+  OM_name_vec = "cod", # specify directories instead
+  OM_in_dir_vec = NULL,
+  MS_vec = "constant_catch_MS", # use the custom function
+  custom_MS_source = "custom_funs.R", # File where the custom function is available.
+  nyrs_vec = 6, # Years to project OM forward
+  nyrs_assess_vec = 3, # Years between assessments
+  future_om_list = future_om_list_recdevs_sel,
+  sample_struct_list = list(sample_struct_list[[1]]), # How to sample data for running the MS.
+  seed = 12345
+) # Set a fixed integer seed that allows replication
 ```
 
 # How can I contribute to SSMSE?
 
 Currently, feedback on how using SSMSE is working or not would be most
-hopeful\! Please open an issue if a problem is found. The developers can
+hopeful! Please open an issue if a problem is found. The developers can
 also be contacted through [github
 discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions) or by
 emailing <nmfs.stock.synthesis@noaa.gov>.
