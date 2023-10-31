@@ -19,9 +19,9 @@ knitr::opts_chunk$set(
 
 # SSMSE build status
 
-[![R-CMD-check](https://github.com/r4ss/r4ss/workflows/R-CMD-check/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions?query=workflow%3AR-CMD-check)
+[![call-r-cmd-check](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml)
 [![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
-
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04937/status.svg)](https://doi.org/10.21105/joss.04937)
 
 **************
 
@@ -38,8 +38,6 @@ knitr::opts_chunk$set(
 **Disclaimer**
   
 "The United States Department of Commerce (DOC) GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. DOC has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information. Any claims against the Department of Commerce stemming from the use of its GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
-
-<!-- - This project code is made available through GitHub but is managed by NOAA at https://vlab.noaa.gov/redmine/projects/integrated-fisheries-toolbox/files -->
   
   ***** *******
 
@@ -47,7 +45,11 @@ knitr::opts_chunk$set(
   
 This package was developed to increase the ease of using the stock assessment software Stock Synthesis (SS3) directly as an operating model (OM) in Management Strategy Evaluation (MSE). The approach requires a conditioned Stock Synthesis mode to use as the OM. The intended users are those who conduct MSEs.
 
-Below, we'll work through a simple example MSE as a way of introducing the SSMSE package. 
+Below, we'll work through a simple example MSE as a way of introducing the SSMSE package. An additional example is included in the [Journal Of Open Source Software SSMSE paper](https://doi.org/10.21105/joss.04937).
+
+# How to cite SSMSE
+
+Doering et al., (2023). SSMSE: An R package for Management Strategy Evaluation with Stock Synthesis Operating Models. Journal of Open Source Software, 8(90), 4937, [https://doi.org/10.21105/joss.04937](https://doi.org/10.21105/joss.04937)
 
 # Need Help?
 
