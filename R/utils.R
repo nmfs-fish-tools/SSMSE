@@ -589,17 +589,38 @@ copy_model_files <- function(OM_in_dir = NULL,
                              EM_out_dir = NULL,
                              verbose = FALSE) {
   # checks
-  if (!is.null(OM_in_dir)) {
-    if (!all(c(
-      "control.ss_new", "data.ss_new", "starter.ss_new",
-      "forecast.ss_new", "ss.par"
-    ) %in% list.files(OM_in_dir))) {
-      stop(
-        ".ss_new files not found in the original OM directory ",
-        OM_in_dir, ". Please run the model to make the .ss_new files available."
-      )
+  if(file.exists(file.path(OM_in_dir, "data.ss_new"))){
+    if (!is.null(OM_in_dir)) {
+      if (!all(c(
+        "control.ss_new", "data.ss_new", "starter.ss_new",
+        "forecast.ss_new", "ss.par"
+      ) %in% list.files(OM_in_dir))) {
+        stop(
+          ".ss_new files not found in the original OM directory ",
+          OM_in_dir, ". Please run the model to make .ss_new files available."
+        )
+      }
     }
+  }else if(file.exists(file.path(OM_in_dir, "data_echo.ss_new"))){
+    if (!is.null(OM_in_dir)) {
+      if (!all(c(
+        "control.ss_new", "data_echo.ss_new", "starter.ss_new",
+        "forecast.ss_new", "ss.par"
+      ) %in% list.files(OM_in_dir))) {
+        stop(
+          ".ss_new files not found in the original OM directory ",
+          OM_in_dir, ". Please run the model to make .ss_new files available."
+        )
+      }
+    }
+  }else{
+    stop(
+      ".ss_new files not found in the original OM directory ",
+      OM_in_dir, ". Please run the model to make the .ss_new files available."
+    )
   }
+  
+  
   # copy over OM ----
   if (!is.null(OM_in_dir) & !is.null(OM_out_dir)) {
     if (verbose == TRUE) {

@@ -27,8 +27,8 @@
 #' @param show.output.on.console Logical: passed on to
 #'   \code{\link[base]{system}}.
 #' @param check_run Should it be checked that the model ran by deleting the
-#'  data.ss_new file if one exists and then checking if one was created?
-#'  Defaults to TRUE.
+#'  data.ss_new or data_echo.ss_new file if one exists and then checking if one 
+#'  was created? Defaults to TRUE.
 #' @param debug_par_run If set to TRUE, and the run fails, a new folder called
 #'  error_check will be created, and the model will be run from control start
 #'  values instead of ss.par. The 2 par files are then compared to help debug
@@ -59,6 +59,11 @@ run_ss_model <- function(dir,
     if (file.exists(ss_new_path)) {
       file.remove(ss_new_path)
     }
+    
+    ss_new_path2 <- file.path(dir, "data_echo.ss_new")
+    if (file.exists(ss_new_path2)) {
+      file.remove(ss_new_path2)
+    }
   }
 
   if (verbose) message("Running SS.")
@@ -78,7 +83,7 @@ run_ss_model <- function(dir,
     )
   }
   if (check_run == TRUE) {
-    if (!file.exists(ss_new_path)) {
+    if (!file.exists(ss_new_path) & !file.exists(ss_new_path2)) {
       if (debug_par_run) {
         test_no_par(
           orig_mod_dir = dir,
@@ -87,12 +92,12 @@ run_ss_model <- function(dir,
         # note that this will exit on error.
       } else {
         stop(
-          "data.ss_new was not created during the model run, which suggests ",
-          "SS did not run correctly"
+          "data.ss_new or data_echo.ss_new were not created during the model ",
+          "run, which suggests SS did not run correctly"
         )
       }
     } else {
-      if (verbose) "data.ss_new created during model run."
+      if (verbose) "data.ss_new or data_echo.ss_new created during model run."
     }
   }
   Sys.sleep(admb_pause)

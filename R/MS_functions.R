@@ -672,11 +672,20 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
 
     run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
 
-
-    Reference_dat <- SS_readdat(
-      file = file.path(EM_out_dir, "data.ss_new"),
-      version = 3.30, section = 2, verbose = FALSE
-    )
+    if(file.exists(file.path(EM_out_dir, "data.ss_new"))){
+      Reference_dat <- SS_readdat(
+        file = file.path(EM_out_dir, "data.ss_new"),
+        version = 3.30, section = 2, verbose = FALSE
+      )
+    }else if(file.exists(file.path(EM_out_dir, "data_echo.ss_new"))){
+      Reference_dat <- SS_readdat(
+        file = file.path(EM_out_dir, "data_echo.ss_new"),
+        version = 3.30, section = 2, verbose = FALSE
+      )
+    }else{
+      stop("Error: No data.ss_new file or data_echo.ss_new file was found.")
+    }
+    
 
 
     ### This is test code that calculates the standard error of index residuals that could be

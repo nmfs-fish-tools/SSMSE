@@ -378,14 +378,28 @@ create_OM <- function(OM_out_dir,
       )
     }
     # check model runs without producing nans in the data file
-    tmp_new_dat <- readLines(file.path(OM_out_dir, "data.ss_new"))
-    nan_vals <- grep("nan", tmp_new_dat)
-    if (length(nan_vals) > 0) {
-      stop(
-        "NAN values present in the data.ss_new om file, suggesting an issue ",
-        "setting up the OM. See ", file.path(OM_out_dir, "data.ss_new")
-      )
+    if(file.exists(file.path(OM_out_dir, "data.ss_new"))){
+      tmp_new_dat <- readLines(file.path(OM_out_dir, "data.ss_new"))
+      nan_vals <- grep("nan", tmp_new_dat)
+      if (length(nan_vals) > 0) {
+        stop(
+          "NAN values present in the data.ss_new om file, suggesting an issue ",
+          "setting up the OM. See ", file.path(OM_out_dir, "data.ss_new")
+        )
+      }
+    }else if(file.exists(file.path(OM_out_dir, "data_echo.ss_new"))){
+      tmp_new_dat <- readLines(file.path(OM_out_dir, "data.ss_new"))
+      nan_vals <- grep("nan", tmp_new_dat)
+      if (length(nan_vals) > 0) {
+        stop(
+          "NAN values present in the data_echo.ss_new om file, suggesting an issue ",
+          "setting up the OM. See ", file.path(OM_out_dir, "data_echo.ss_new")
+        )
+      }
+    }else{
+      stop("Error: No data.ss_new file or data_echo.ss_new file was found.")
     }
+    
 
     # check the names of F parameters in the Parameters section of the report
     # file.
@@ -482,17 +496,37 @@ run_OM <- function(OM_dir,
     debug_par_run = debug_par_run
   )
 
-  dat <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
-    section = max_section,
-    verbose = FALSE
-  )
+  if(file.exists(file.path(OM_dir, "data.ss_new"))){
+    dat <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
+                            section = max_section,
+                            verbose = FALSE
+    )
+  }else if(file.exists(file.path(OM_dir, "data_echo.ss_new"))){
+    dat <- r4ss::SS_readdat(file.path(OM_dir, "data_echo.ss_new"),
+                            section = max_section,
+                            verbose = FALSE
+    )
+  }else{
+    stop("Error: No data.ss_new file or data_echo.ss_new file was found.")
+  }
+  
   # replace with the expected catch values if sample_catch is FALSE and using
   # bootstrap
   if (boot == TRUE & sample_catch == FALSE) {
-    exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
-      section = 2,
-      verbose = FALSE
-    )
+    if(file.exists(file.path(OM_dir, "data.ss_new"))){
+      exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
+                                   section = 2,
+                                   verbose = FALSE
+      )
+    }else if(file.exists(file.path(OM_dir, "data_echo.ss_new"))){
+      exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data_echo.ss_new"),
+                                   section = 2,
+                                   verbose = FALSE
+      )
+    }else{
+      stop("Error: No data.ss_new file or data_echo.ss_new file was found.")
+    }
+    
     dat[["catch"]] <- exp_vals[["catch"]]
   }
   return(dat)
