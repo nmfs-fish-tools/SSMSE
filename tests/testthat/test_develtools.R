@@ -36,7 +36,7 @@ test_that("test_no_par works as expected", {
     run_ss_model(orig_mod_dir, "-maxfn 0 -phase 50 -nohess",
       verbose = FALSE
     ),
-    "data.ss_new was not created during the model run",
+    "data.ss_new or data_echo.ss_new were not created during the model run, which suggests SS did not run correctly",
     fixed = TRUE
   )
   expect_error(
