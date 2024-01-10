@@ -152,10 +152,10 @@ match_parname <- function(list_pars, parlist) {
       obj = "S_parms"
     )
   )
-  par_name_tbl <- rbind(
-    par_name_tbl,
-    data.frame(pars = "rec_devs", obj = "recdev1")
-  )
+  ## Edit to allow for recdevs labeled recdev2 not recdev1
+  rdnme<-names(parlist)[grepl("recdev", names(parlist))][1]               
+  par_name_tbl <- rbind(par_name_tbl, data.frame(pars = "rec_devs",       
+                                                 obj = rdnme))      
   par_name_tbl <- rbind(par_name_tbl, data.frame(pars = "impl_error", obj = NA))
   if (isTRUE(list_pars == "all")) {
     # TODO: consider which parameters should be included in the "all" option.
@@ -444,7 +444,11 @@ calc_par_trend <- function(val_info,
   if (isTRUE(!is.na(val_info[val_info[["ts_param"]] == val_line, "first_yr_averaging"]) &
     !is.na(val_info[val_info[["ts_param"]] == val_line, "last_yr_averaging"]))) {
     if (parname == "rec_devs") {
-      tmp_vals <- data.frame(yrs = parlist[["recdev1"]][, 1], rec_devs = parlist[["recdev1"]][, 2])
+      
+      # EDITED bc par file labeled "recdev2" NOT "recdev1"
+      rdnme<-names(parlist)[grepl("recdev", names(parlist))][1]            
+      tmp_vals <- data.frame(yrs = parlist[[rdnme]][, 1],                  
+                             rec_devs = parlist[[rdnme]][, 2])              
       tmp_vals_2 <- data.frame(yrs = vals_df[["yrs"]], rec_devs = vals_df[["rec_devs"]])
       tmp_vals <- rbind(tmp_vals, tmp_vals_2)
       to_include <- which(tmp_vals[["yrs"]] >= val_info[val_info[["ts_param"]] == val_line, "first_yr_averaging"] &
