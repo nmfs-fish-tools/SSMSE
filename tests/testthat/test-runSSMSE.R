@@ -248,7 +248,7 @@ test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE wo
 test_that("run_SSMSE runs with mean size at age and mean body length", {
   skip_on_cran()
   # this test is skipped unless the model it needs to run is available.
-  # model from https://github.com/nmfs-stock-synthesis/ss3-test-models/tree/main/models/Simple_with_Discard
+  # model from https://github.com/nmfs-ost/ss3-test-models/tree/main/models/Simple_with_Discard
   skip_if(!file.exists(file.path(extdat_path, "models", "Simple_with_Discard")))
   size_age_temp_path <- file.path(temp_path, "Simple_with_Discard")
   dir.create(size_age_temp_path)
