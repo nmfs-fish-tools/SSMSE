@@ -199,8 +199,9 @@ create_OM <- function(OM_out_dir,
   # use report.sso time series table to find the F's to put into the parlist.
   F_list <- get_F(
     timeseries = outlist[["timeseries"]],
-    fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
-  )
+    fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"],
+    fleetnames_all = dat[["fleetinfo"]][["fleetname"]] # add to account for fleets type=3
+  ) 
 
   # SINGLE_RUN_MODS:
   update_F_years <- (dat[["endyr"]] + 1):(dat[["endyr"]] + nyrs)

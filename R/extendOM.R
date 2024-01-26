@@ -379,7 +379,8 @@ update_OM <- function(OM_dir,
       # Extract the achieved F and Catch
       F_list <- get_F(
         timeseries = outlist[["timeseries"]],
-        fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
+        fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"],
+        fleetnames_all = dat[["fleetinfo"]][["fleetname"]] # added to account for fleets of type==3
       )
 
       units_of_catch <- dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "units"]

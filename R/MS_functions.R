@@ -499,7 +499,8 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     )
     # get F.
     F_vals <- get_F(outlist[["timeseries"]],
-      fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"]
+      fleetnames = dat[["fleetinfo"]][dat[["fleetinfo"]][["type"]] %in% c(1, 2), "fleetname"],
+      fleetnames_all = dat[["fleetinfo"]][["fleetname"]] # added to account for fleets of type==3
     )
     catch_F <- F_vals[["F_rate_fcast"]][
       ,
