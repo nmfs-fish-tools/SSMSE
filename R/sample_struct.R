@@ -292,6 +292,7 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
           )
           tmp_n <- unique(df[df[[seas_col]] == tmp_seas &
             df[[flt_col]] == tmp_flt, n_col])
+          tmp_n <- unlist(tmp_n, use.names = FALSE)
           tmp_n <- unique(as.numeric(tmp_n))
           if (length(tmp_n) == 1) {
             future_pat[["N_"]] <- tmp_n
