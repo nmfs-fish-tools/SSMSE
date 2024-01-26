@@ -36,7 +36,7 @@ test_timeseries <- data.frame(
 test_fleetnames <- c("Fishery", "Survey")
 
 test_that("get_F works with multi yrs, fleets, and seasons", {
-  F_list <- get_F(timeseries = test_timeseries, fleetnames = test_fleetnames)
+  F_list <- get_F(timeseries = test_timeseries, fleetnames = test_fleetnames, fleetnames_all=test_fleetnames)
 
   expect_true(NROW(F_list[["F_df"]]) == nfleets * NROW(test_timeseries))
   expect_true(length(F_list) == 4) # b/c 4 components of output
@@ -66,7 +66,7 @@ test_that("get_F works with multi yrs, fleets, and seasons", {
 test_that("get_F works with multi yrs, fleets, and seasons but no init F", {
   no_init_F_timeseries <- test_timeseries
   no_init_F_timeseries[no_init_F_timeseries[["Era"]] == "INIT", c("F:_1", "F:_2")] <- 0
-  F_list <- get_F(timeseries = no_init_F_timeseries, fleetnames = test_fleetnames)
+  F_list <- get_F(timeseries = no_init_F_timeseries, fleetnames = test_fleetnames, fleetnames_all = test_fleetnames)
   expect_true(NROW(F_list[["F_df"]]) == nfleets * NROW(no_init_F_timeseries))
   expect_true(length(F_list) == 4) # b/c 4 components of output
   expect_equal(
@@ -88,7 +88,7 @@ test_that("get_F works with multi yrs, fleets, and seasons but no init F", {
 test_that("get_F works with multi yrs, fleets, and seasons but no F_rate_fcast", {
   no_fcast_F_timeseries <- test_timeseries
   no_fcast_F_timeseries[no_fcast_F_timeseries[["Era"]] == "FORE", c("F:_1", "F:_2")] <- 0
-  F_list <- get_F(timeseries = no_fcast_F_timeseries, fleetnames = test_fleetnames)
+  F_list <- get_F(timeseries = no_fcast_F_timeseries, fleetnames = test_fleetnames, fleetnames_all = test_fleetnames)
   expect_true(NROW(F_list[["F_df"]]) == nfleets * NROW(no_fcast_F_timeseries))
   expect_true(length(F_list) == 4) # b/c 4 components of output
   expect_equal(
@@ -113,11 +113,11 @@ test_that("get_F works with multi yrs, fleets, and seasons but no F_rate_fcast",
 
 test_that("get_F can catch bad input", {
   fleetnames_wrong_len <- c(test_fleetnames, "extra_fleetname")
-  expect_error(get_F(test_timeseries, fleetnames_wrong_len),
+  expect_error(get_F(test_timeseries, fleetnames_wrong_len, fleetnames_wrong_len),
     "is_of_length : fleetnames has length 3, not 2.",
     fixed = TRUE
   )
-  expect_error(get_F(as.matrix(test_timeseries), test_fleetnames),
+  expect_error(get_F(as.matrix(test_timeseries), test_fleetname, test_fleetnames),
     "is_data.frame : timeseries is not of class 'data.frame'",
     fixed = TRUE
   )

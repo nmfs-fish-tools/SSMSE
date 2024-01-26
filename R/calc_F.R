@@ -12,7 +12,7 @@
 #'  a named vector of initial F values by Season and Fleet, ordered (and named)
 #'  as SS expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas,
 #'  and fleet, ordered as SS would expect in F_rate.
-get_F <- function(timeseries, fleetnames) {
+get_F <- function(timeseries, fleetnames, fleetnames_all) {
   assertive.types::assert_is_data.frame(timeseries)
   # find the F columns
   F_col_ind <- grep("^F:_\\d+$", colnames(timeseries))
@@ -74,10 +74,11 @@ get_F <- function(timeseries, fleetnames) {
     # feed back as a named vector sorted by fleet, then season. Names are the
     # same as in the PARAMETERS section of report.sso
     init_F <- init_F[order(init_F[, "Fleet"], init_F[, "Seas"]), ]
-    fleetnames_df <- data.frame(
-      Fleet = seq_along(fleetnames),
-      fleetname = fleetnames
-    )
+    
+    # edit to account for fleets of type==3 in list of fleets
+    fleetnumbers = which(fleetnames_all %in% fleetnames)            
+    fleetnames_df<- data.frame(Fleet=fleetnumbers, fleetname=fleetnames)    
+    
     init_F <- merge(init_F, fleetnames_df)
     init_F_names <- paste0(
       "InitF_seas_", init_F[["Seas"]], "_flt_", init_F[["Fleet"]],
