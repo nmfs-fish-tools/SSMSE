@@ -283,8 +283,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       r4ss::SS_writestarter(EM_start,
         dir = EM_out_dir,
         overwrite = TRUE,
-        verbose = FALSE,
-        warn = FALSE
+        verbose = FALSE
       )
     }
   }

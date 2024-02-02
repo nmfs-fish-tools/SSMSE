@@ -152,8 +152,7 @@ run_EM <- function(EM_dir,
     start <- SS_readstarter(file.path(EM_dir, "starter.ss"), verbose = FALSE)
     start[["init_values_src"]] <- 1
     SS_writestarter(start,
-      dir = EM_dir, overwrite = TRUE, verbose = FALSE,
-      warn = FALSE
+      dir = EM_dir, overwrite = TRUE, verbose = FALSE
     )
   }
   if (hess == TRUE) {
