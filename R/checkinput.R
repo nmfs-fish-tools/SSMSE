@@ -202,7 +202,7 @@ check_sample_struct <- function(sample_struct,
                                   ),
                                   meanbodywt = c(
                                     "Yr", "Seas", "FltSvy", "Part",
-                                    "Type", "SE"
+                                    "Type", "Std_in"
                                   ),
                                   MeanSize_at_Age_obs = c(
                                     "Yr", "Seas",
