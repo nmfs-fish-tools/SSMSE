@@ -74,11 +74,11 @@ get_F <- function(timeseries, fleetnames, fleetnames_all) {
     # feed back as a named vector sorted by fleet, then season. Names are the
     # same as in the PARAMETERS section of report.sso
     init_F <- init_F[order(init_F[, "Fleet"], init_F[, "Seas"]), ]
-    
+
     # edit to account for fleets of type==3 in list of fleets
-    fleetnumbers = which(fleetnames_all %in% fleetnames)            
-    fleetnames_df<- data.frame(Fleet=fleetnumbers, fleetname=fleetnames)    
-    
+    fleetnumbers <- which(fleetnames_all %in% fleetnames)
+    fleetnames_df <- data.frame(Fleet = fleetnumbers, fleetname = fleetnames)
+
     init_F <- merge(init_F, fleetnames_df)
     init_F_names <- paste0(
       "InitF_seas_", init_F[["Seas"]], "_flt_", init_F[["Fleet"]],

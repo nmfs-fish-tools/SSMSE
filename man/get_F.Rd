@@ -4,7 +4,7 @@
 \alias{get_F}
 \title{Get the Fishing mortality from the timeseries Report.sso table}
 \usage{
-get_F(timeseries, fleetnames)
+get_F(timeseries, fleetnames, fleetnames_all)
 }
 \arguments{
 \item{timeseries}{The timeseries table from \code{r4ss::SS_output()}.}
