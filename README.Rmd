@@ -492,7 +492,7 @@ run_result_custom <- run_SSMSE(
 
 Currently, feedback on how using SSMSE is working or not would be most hopeful! Please open an issue if a problem is found. The developers can also be contacted through [github discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions) or by emailing nmfs.stock.synthesis@noaa.gov.
   
- If you are interested in contributing, please read the [NMFS Fisheries Toolbox R Contribution Guide](https://github.com/nmfs-fish-tools/Resources/blob/master/CONTRIBUTING.md). This project and everyone participating in it is governed by the [NMFS Fisheries Toolbox Code of Conduct](https://github.com/nmfs-fish-tools/Resources/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [fisheries.toolbox@noaa.gov](mailto:fisheries.toolbox@noaa.gov).
+ If you are interested in contributing, please read the [NMFS Fisheries Toolbox R Contribution Guide](https://github.com/nmfs-fish-tools/Resources/blob/master/CONTRIBUTING.md). This project and everyone participating in it is governed by the [NMFS Fisheries Toolbox Code of Conduct](https://github.com/nmfs-fish-tools/Resources/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
   
 # Roadmap: Where is SSMSE headed next?
 
