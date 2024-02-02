@@ -36,7 +36,7 @@ test_timeseries <- data.frame(
 test_fleetnames <- c("Fishery", "Survey")
 
 test_that("get_F works with multi yrs, fleets, and seasons", {
-  F_list <- get_F(timeseries = test_timeseries, fleetnames = test_fleetnames, fleetnames_all=test_fleetnames)
+  F_list <- get_F(timeseries = test_timeseries, fleetnames = test_fleetnames, fleetnames_all = test_fleetnames)
 
   expect_true(NROW(F_list[["F_df"]]) == nfleets * NROW(test_timeseries))
   expect_true(length(F_list) == 4) # b/c 4 components of output
