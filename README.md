@@ -135,12 +135,11 @@ You can read the help files with
 ```
 
 Note that when SSMSE is installed, [Stock
-Synthesis](https://github.com/nmfs-stock-synthesis/stock-synthesis)
-binaries are included in the `SSMSE/bin/` folder downloaded to the
-user’s local R library. Currently, the Stock Synthesis 3.30.18 is
-included. Separate binaries are included for Windows, Mac and Linux.
-Users may swap out these binaries, but SSMSE is not tested with other
-versions of SS3.
+Synthesis](https://github.com/nmfs-ost/ss3-source-code) binaries are
+included in the `SSMSE/bin/` folder downloaded to the user’s local R
+library. Currently, the Stock Synthesis 3.30.18 is included. Separate
+binaries are included for Windows, Mac and Linux. Users may swap out
+these binaries, but SSMSE is not tested with other versions of SS3.
 
 # Troubleshooting Installation
 
@@ -809,8 +808,7 @@ Guide](https://github.com/nmfs-fish-tools/Resources/blob/master/CONTRIBUTING.md)
 This project and everyone participating in it is governed by the [NMFS
 Fisheries Toolbox Code of
 Conduct](https://github.com/nmfs-fish-tools/Resources/blob/master/CODE_OF_CONDUCT.md).
-By participating, you are expected to uphold this code. Please report
-unacceptable behavior to <fisheries.toolbox@noaa.gov>.
+By participating, you are expected to uphold this code.
 
 # Roadmap: Where is SSMSE headed next?
 
