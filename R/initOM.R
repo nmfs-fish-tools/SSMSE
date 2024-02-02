@@ -473,8 +473,7 @@ run_OM <- function(OM_dir,
   start[["N_bootstraps"]] <- max_section
   start[["seed"]] <- seed
   r4ss::SS_writestarter(start,
-    dir = OM_dir, verbose = FALSE, overwrite = TRUE,
-    warn = FALSE
+    dir = OM_dir, verbose = FALSE, overwrite = TRUE
   )
 
   # run SS and get the data set
