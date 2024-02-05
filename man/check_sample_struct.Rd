@@ -9,8 +9,8 @@ check_sample_struct(
   valid_names = list(catch = c("Yr", "Seas", "FltSvy", "SE"), CPUE = c("Yr", "Seas",
     "FltSvy", "SE"), lencomp = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp"), agecomp
     = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp"),
-    meanbodywt = c("Yr", "Seas", "FltSvy", "Part", "Type", "SE"), MeanSize_at_Age_obs =
-    c("Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "N_"))
+    meanbodywt = c("Yr", "Seas", "FltSvy", "Part", "Type", "Std_in"), MeanSize_at_Age_obs
+    = c("Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr", "N_"))
 )
 }
 \arguments{
