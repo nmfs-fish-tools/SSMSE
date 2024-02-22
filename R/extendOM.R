@@ -424,9 +424,9 @@ update_OM <- function(OM_dir,
           achieved_F <- F_achieved[F_achieved[, "year"] == catch_intended[i, "year"] &
             F_achieved[, "seas"] == catch_intended[i, "seas"] &
             F_achieved[, "fleet"] == catch_intended[i, "fleet"], "F"]
-          if(length(achieved_F) > 1) {
+          if (length(achieved_F) > 1) {
             achieved_F <- achieved_F[achieved_F != 0]
-            if(length(achieved_F) > 1) {
+            if (length(achieved_F) > 1) {
               stop("achieved_F has a length greater than 1. Contact the SSMSE developers for assistance.")
             }
           }
