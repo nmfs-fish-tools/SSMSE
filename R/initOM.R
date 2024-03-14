@@ -50,10 +50,10 @@ create_OM <- function(OM_out_dir,
   start[["init_values_src"]] <- 1
   start[["detailed_age_structure"]] <- 1
   start[["last_estimation_phase"]] <- 0
-  start[["depl_basis"]] <- 0
+  start[["depl_basis"]] <- 1
   start[["depl_denom_frac"]] <- 1
-  start[["SPR_basis"]] <- 0
-  start[["F_report_units"]] <- 0
+  start[["SPR_basis"]] <- 4
+  start[["F_report_units"]] <- 1
   start[["F_report_basis"]] <- 0
   start[["F_age_range"]] <- NULL
   start[["ALK_tolerance"]] <- 0
