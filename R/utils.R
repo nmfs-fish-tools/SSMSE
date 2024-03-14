@@ -173,6 +173,11 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
   styr <- OM_dat[["styr"]]
   endyr <- OM_dat[["endyr"]]
 
+  # turn on sd reporting for all em model years by default
+  EM_start[["minyr_sdreport"]] <- -1
+  EM_start[["maxyr_sdreport"]] <- -2
+  
+  
   # get years in range function
   get_yrs_in_range <- function(list_name, dat, styr, endyr) {
     df <- dat[[list_name]]
