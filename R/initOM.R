@@ -57,6 +57,8 @@ create_OM <- function(OM_out_dir,
   start[["F_report_basis"]] <- 0
   start[["F_age_range"]] <- NULL
   start[["ALK_tolerance"]] <- 0
+  start[["minyr_sdreport"]] <- -1
+  start[["maxyr_sdreport"]] <- -2
   start[["seed"]] <- seed
   r4ss::SS_writestarter(start,
     dir = OM_out_dir, verbose = FALSE,
