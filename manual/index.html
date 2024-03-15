@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
 
   <meta property="og:title" content="SSMSE user manual" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2024-02-27" />
+<meta name="date" content="2024-03-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -229,19 +229,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">SSMSE user manual</h1>
 <p class="author"><em>Kathryn Doering and Nathan Vaughan</em></p>
-<p class="date"><em>2024-02-27</em></p>
+<p class="date"><em>2024-03-15</em></p>
 </div>
 <div id="preface" class="section level1 unnumbered hasAnchor">
 <h1>Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div class="figure">
-<img src="images/ssmse_icon_small.png" alt="" />
-<p class="caption">Logo for the SSMSE package</p>
+<div class="float">
+<img src="images/ssmse_icon_small.png" alt="Logo for the SSMSE package" />
+<div class="figcaption">Logo for the SSMSE package</div>
 </div>
 <p>This is the user manual for SSMSE, an R package for Management Strategy Evaluation with Stock Synthesis Operating models. This document is still a work in progress! If you would like to suggest changes, the R markdown files used to generate the user manual are available in a <a href="https://github.com/nmfs-fish-tools/SSMSE/tree/main/inst/bookdown">bookdown folder within the SSMSE repository</a>. Please feel free to open an <a href="https://github.com/nmfs-fish-tools/SSMSE/issues">issue</a> or <a href="https://github.com/nmfs-fish-tools/SSMSE/pulls">submit a pull request</a> to suggest changes.</p>
 <div id="r-session-information" class="section level2 unnumbered hasAnchor">
 <h2>R session information<a href="index.html#r-session-information" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
-<pre><code>R version 4.3.2 (2023-10-31)
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>R version 4.3.3 (2024-02-29)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 22.04.4 LTS
 
@@ -261,7 +261,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
-[1] ss3sim_1.20.1 r4ss_1.49.2  </code></pre>
+[1] ss3sim_1.20.2 r4ss_1.49.2  </code></pre>
 
 </div>
 </div>

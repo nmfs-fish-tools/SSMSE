@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>2 A simple example | SSMSE user manual</title>
   <meta name="description" content="This is a user manual for the SSMSE package. It includes documentation and examples." />
-  <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
 
   <meta property="og:title" content="2 A simple example | SSMSE user manual" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Kathryn Doering and Nathan Vaughan" />
 
 
-<meta name="date" content="2024-02-27" />
+<meta name="date" content="2024-03-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -236,13 +236,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">2.1</span> Setup R workspace folders<a href="simple.html#setup-r-workspace-folders" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>First, we will load the <code>SSMSE</code> package and create a folder in which to run the example:</p>
 <pre><code>Installing 4 packages: mvtnorm, bdsmatrix, numDeriv, bbmle</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="simple.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SSMSE) <span class="co">#load the package</span></span>
-<span id="cb4-2"><a href="simple.html#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(r4ss) <span class="co">#install using remotes::install_github(&quot;r4ss/r4ss)</span></span>
-<span id="cb4-3"><a href="simple.html#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(foreach) <span class="co">#if using run_parallel = TRUE</span></span>
-<span id="cb4-4"><a href="simple.html#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel) <span class="co">#if using run_parallel = TRUE</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="simple.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a folder for the output in the working directory.</span></span>
-<span id="cb5-2"><a href="simple.html#cb5-2" aria-hidden="true" tabindex="-1"></a>run_SSMSE_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;run_SSMSE-ex&quot;</span>)</span>
-<span id="cb5-3"><a href="simple.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(run_SSMSE_dir)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="simple.html#cb4-1" tabindex="-1"></a><span class="fu">library</span>(SSMSE) <span class="co">#load the package</span></span>
+<span id="cb4-2"><a href="simple.html#cb4-2" tabindex="-1"></a><span class="fu">library</span>(r4ss) <span class="co">#install using remotes::install_github(&quot;r4ss/r4ss)</span></span>
+<span id="cb4-3"><a href="simple.html#cb4-3" tabindex="-1"></a><span class="fu">library</span>(foreach) <span class="co">#if using run_parallel = TRUE</span></span>
+<span id="cb4-4"><a href="simple.html#cb4-4" tabindex="-1"></a><span class="fu">library</span>(doParallel) <span class="co">#if using run_parallel = TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="simple.html#cb5-1" tabindex="-1"></a><span class="co"># Create a folder for the output in the working directory.</span></span>
+<span id="cb5-2"><a href="simple.html#cb5-2" tabindex="-1"></a>run_SSMSE_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;run_SSMSE-ex&quot;</span>)</span>
+<span id="cb5-3"><a href="simple.html#cb5-3" tabindex="-1"></a><span class="fu">dir.create</span>(run_SSMSE_dir)</span></code></pre></div>
 </div>
 <div id="create-the-operating-models-oms" class="section level2 hasAnchor" number="2.2">
 <h2><span class="header-section-number">2.2</span> Create the operating models (OMs)<a href="simple.html#create-the-operating-models-oms" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -250,37 +250,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3><span class="header-section-number">2.2.1</span> Specify alternative values for h<a href="simple.html#specify-alternative-values-for-h" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The cod model with h = 0.65 (as in scenario 1) is included as external package data in SSMSE. However, we will need to modify it to use as an operating model with h = 1 (as in scenario 2). Note in this case that refit_OM is false, so the model is not being refit, just run through without fitting. To condition the new model on the same data as the input model, refit_OM should be TRUE.</p>
 <p>First, we identify where the base cod model is stored, modify it such that the steepness parameter is 1, and save the modified cod OM for scenario 2 in a new folder in the <code>run_SSMSE_dir</code> directory.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="simple.html#cb6-1" aria-hidden="true" tabindex="-1"></a>cod_mod_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
-<span id="cb6-2"><a href="simple.html#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># develop_OMs will save a model called &quot;cod_SR_BH_steep_1&quot; in the out_dir</span></span>
-<span id="cb6-3"><a href="simple.html#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># specified</span></span>
-<span id="cb6-4"><a href="simple.html#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">develop_OMs</span>(<span class="at">OM_name =</span> <span class="st">&quot;cod&quot;</span>, <span class="at">out_dir =</span> run_SSMSE_dir, <span class="at">par_name =</span> <span class="st">&quot;SR_BH_steep&quot;</span>,</span>
-<span id="cb6-5"><a href="simple.html#cb6-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">par_vals =</span> <span class="dv">1</span>, <span class="at">refit_OMs =</span> <span class="cn">FALSE</span>, <span class="at">hess =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb6-6"><a href="simple.html#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># OM model for scenario 2</span></span>
-<span id="cb6-7"><a href="simple.html#cb6-7" aria-hidden="true" tabindex="-1"></a>cod_1_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(run_SSMSE_dir, <span class="st">&quot;cod_SR_BH_steep_1&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="simple.html#cb6-1" tabindex="-1"></a>cod_mod_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
+<span id="cb6-2"><a href="simple.html#cb6-2" tabindex="-1"></a><span class="co"># develop_OMs will save a model called &quot;cod_SR_BH_steep_1&quot; in the out_dir</span></span>
+<span id="cb6-3"><a href="simple.html#cb6-3" tabindex="-1"></a><span class="co"># specified</span></span>
+<span id="cb6-4"><a href="simple.html#cb6-4" tabindex="-1"></a><span class="fu">develop_OMs</span>(<span class="at">OM_name =</span> <span class="st">&quot;cod&quot;</span>, <span class="at">out_dir =</span> run_SSMSE_dir, <span class="at">par_name =</span> <span class="st">&quot;SR_BH_steep&quot;</span>,</span>
+<span id="cb6-5"><a href="simple.html#cb6-5" tabindex="-1"></a>            <span class="at">par_vals =</span> <span class="dv">1</span>, <span class="at">refit_OMs =</span> <span class="cn">FALSE</span>, <span class="at">hess =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-6"><a href="simple.html#cb6-6" tabindex="-1"></a><span class="co"># OM model for scenario 2</span></span>
+<span id="cb6-7"><a href="simple.html#cb6-7" tabindex="-1"></a>cod_1_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(run_SSMSE_dir, <span class="st">&quot;cod_SR_BH_steep_1&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="adding-process-error-through-recruitment-deviations-and-time-varying-selectivity" class="section level2 hasAnchor" number="2.3">
 <h2><span class="header-section-number">2.3</span> Adding process error through recruitment deviations and time-varying selectivity<a href="simple.html#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Recruitment deviations, implementation error, and changes in parameters in the projection period of the OM can be added through the <code>future_om_list</code> input to <code>run_SSMSE</code>.</p>
 <p>First, we’ll set up the list to add recruitment deviations in the projection period. The same recruitment deviation patterns are used across scenarios, but different patterns are use across iterations in the same scenario. We also want these deviations to have the same standard deviations as the historical deviations with 0 mean (the assumed default).</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="simple.html#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start from a list created by a helper function</span></span>
-<span id="cb7-2"><a href="simple.html#cb7-2" aria-hidden="true" tabindex="-1"></a>template_mod_change <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>() </span>
-<span id="cb7-3"><a href="simple.html#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># add recruitment deviations</span></span>
-<span id="cb7-4"><a href="simple.html#cb7-4" aria-hidden="true" tabindex="-1"></a>rec_dev_specify <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
-<span id="cb7-5"><a href="simple.html#cb7-5" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>pars <span class="ot">&lt;-</span> <span class="st">&quot;rec_devs&quot;</span> <span class="co"># apply change to rec devs</span></span>
-<span id="cb7-6"><a href="simple.html#cb7-6" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>scen <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
-<span id="cb7-7"><a href="simple.html#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># using 1 to 100 means the sd or mean will be calculated by taking the sd across years</span></span>
-<span id="cb7-8"><a href="simple.html#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># from 1 to 100</span></span>
-<span id="cb7-9"><a href="simple.html#cb7-9" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_averaging <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb7-10"><a href="simple.html#cb7-10" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_averaging <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb7-11"><a href="simple.html#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># The following 2 lines suggest that this change is immediately applied in year</span></span>
-<span id="cb7-12"><a href="simple.html#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 101, with no transitory period for using sd 0 to the new sd.</span></span>
-<span id="cb7-13"><a href="simple.html#cb7-13" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb7-14"><a href="simple.html#cb7-14" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
-<span id="cb7-15"><a href="simple.html#cb7-15" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span> <span class="co"># this change is for the sd</span></span>
-<span id="cb7-16"><a href="simple.html#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># no input value needed since it will be calclated from the historical rec devs.</span></span>
-<span id="cb7-17"><a href="simple.html#cb7-17" aria-hidden="true" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
-<span id="cb7-18"><a href="simple.html#cb7-18" aria-hidden="true" tabindex="-1"></a>rec_dev_specify</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="simple.html#cb7-1" tabindex="-1"></a><span class="co"># Start from a list created by a helper function</span></span>
+<span id="cb7-2"><a href="simple.html#cb7-2" tabindex="-1"></a>template_mod_change <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>() </span>
+<span id="cb7-3"><a href="simple.html#cb7-3" tabindex="-1"></a><span class="co"># add recruitment deviations</span></span>
+<span id="cb7-4"><a href="simple.html#cb7-4" tabindex="-1"></a>rec_dev_specify <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
+<span id="cb7-5"><a href="simple.html#cb7-5" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>pars <span class="ot">&lt;-</span> <span class="st">&quot;rec_devs&quot;</span> <span class="co"># apply change to rec devs</span></span>
+<span id="cb7-6"><a href="simple.html#cb7-6" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>scen <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
+<span id="cb7-7"><a href="simple.html#cb7-7" tabindex="-1"></a><span class="co"># using 1 to 100 means the sd or mean will be calculated by taking the sd across years</span></span>
+<span id="cb7-8"><a href="simple.html#cb7-8" tabindex="-1"></a><span class="co"># from 1 to 100</span></span>
+<span id="cb7-9"><a href="simple.html#cb7-9" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_averaging <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb7-10"><a href="simple.html#cb7-10" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_averaging <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb7-11"><a href="simple.html#cb7-11" tabindex="-1"></a><span class="co"># The following 2 lines suggest that this change is immediately applied in year</span></span>
+<span id="cb7-12"><a href="simple.html#cb7-12" tabindex="-1"></a><span class="co"># 101, with no transitory period for using sd 0 to the new sd.</span></span>
+<span id="cb7-13"><a href="simple.html#cb7-13" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb7-14"><a href="simple.html#cb7-14" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
+<span id="cb7-15"><a href="simple.html#cb7-15" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span> <span class="co"># this change is for the sd</span></span>
+<span id="cb7-16"><a href="simple.html#cb7-16" tabindex="-1"></a><span class="co"># no input value needed since it will be calclated from the historical rec devs.</span></span>
+<span id="cb7-17"><a href="simple.html#cb7-17" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb7-18"><a href="simple.html#cb7-18" tabindex="-1"></a>rec_dev_specify</span></code></pre></div>
 <pre><code>$pars
 [1] &quot;rec_devs&quot;
 
@@ -296,19 +296,19 @@ $input
   ts_param   method value
 1       sd absolute    NA</code></pre>
 <p>Next, suppose we want to allow selectivity to vary annually for 1 selectivity parameter of the fishery throughout the projection period. The following specifies that the value for selectivity varies randomly around the base value with a sd of 0.2.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="simple.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># put together the change for selectivity (random values around the orig val, with</span></span>
-<span id="cb9-2"><a href="simple.html#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># an sd of 0.2)</span></span>
-<span id="cb9-3"><a href="simple.html#cb9-3" aria-hidden="true" tabindex="-1"></a>mod_change_sel <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
-<span id="cb9-4"><a href="simple.html#cb9-4" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>scen[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;all&quot;</span> <span class="co"># apply to all scenarios</span></span>
-<span id="cb9-5"><a href="simple.html#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The following 2 lines suggest that this change is immediately applied in year</span></span>
-<span id="cb9-6"><a href="simple.html#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 101, with no transitory period for using sd 0 to the new sd.</span></span>
-<span id="cb9-7"><a href="simple.html#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># historical values are NA in this case, because they are not used to determine</span></span>
-<span id="cb9-8"><a href="simple.html#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># the sd to use.</span></span>
-<span id="cb9-9"><a href="simple.html#cb9-9" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb9-10"><a href="simple.html#cb9-10" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
-<span id="cb9-11"><a href="simple.html#cb9-11" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span> <span class="co"># this change is for the sd</span></span>
-<span id="cb9-12"><a href="simple.html#cb9-12" aria-hidden="true" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="fl">0.2</span> <span class="co"># se to use in the projection period</span></span>
-<span id="cb9-13"><a href="simple.html#cb9-13" aria-hidden="true" tabindex="-1"></a>mod_change_sel</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="simple.html#cb9-1" tabindex="-1"></a><span class="co"># put together the change for selectivity (random values around the orig val, with</span></span>
+<span id="cb9-2"><a href="simple.html#cb9-2" tabindex="-1"></a><span class="co"># an sd of 0.2)</span></span>
+<span id="cb9-3"><a href="simple.html#cb9-3" tabindex="-1"></a>mod_change_sel <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
+<span id="cb9-4"><a href="simple.html#cb9-4" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>scen[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;all&quot;</span> <span class="co"># apply to all scenarios</span></span>
+<span id="cb9-5"><a href="simple.html#cb9-5" tabindex="-1"></a><span class="co"># The following 2 lines suggest that this change is immediately applied in year</span></span>
+<span id="cb9-6"><a href="simple.html#cb9-6" tabindex="-1"></a><span class="co"># 101, with no transitory period for using sd 0 to the new sd.</span></span>
+<span id="cb9-7"><a href="simple.html#cb9-7" tabindex="-1"></a><span class="co"># historical values are NA in this case, because they are not used to determine</span></span>
+<span id="cb9-8"><a href="simple.html#cb9-8" tabindex="-1"></a><span class="co"># the sd to use.</span></span>
+<span id="cb9-9"><a href="simple.html#cb9-9" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb9-10"><a href="simple.html#cb9-10" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
+<span id="cb9-11"><a href="simple.html#cb9-11" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span> <span class="co"># this change is for the sd</span></span>
+<span id="cb9-12"><a href="simple.html#cb9-12" tabindex="-1"></a>mod_change_sel<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="fl">0.2</span> <span class="co"># se to use in the projection period</span></span>
+<span id="cb9-13"><a href="simple.html#cb9-13" tabindex="-1"></a>mod_change_sel</span></code></pre></div>
 <pre><code>$pars
 [1] &quot;SizeSel_P_3_Fishery(1)&quot;
 
@@ -324,16 +324,16 @@ $input
   ts_param   method value
 1       sd absolute   0.2</code></pre>
 <p>Finally, add these two changes together into an object to pass to <code>run_SSMSE</code></p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="simple.html#cb11-1" aria-hidden="true" tabindex="-1"></a>future_om_list_recdevs_sel <span class="ot">&lt;-</span> <span class="fu">list</span>(rec_dev_specify, </span>
-<span id="cb11-2"><a href="simple.html#cb11-2" aria-hidden="true" tabindex="-1"></a>                                   mod_change_sel) </span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="simple.html#cb11-1" tabindex="-1"></a>future_om_list_recdevs_sel <span class="ot">&lt;-</span> <span class="fu">list</span>(rec_dev_specify, </span>
+<span id="cb11-2"><a href="simple.html#cb11-2" tabindex="-1"></a>                                   mod_change_sel) </span></code></pre></div>
 <div id="add-observation-error-through-sampling-from-om" class="section level3 hasAnchor" number="2.3.1">
 <h3><span class="header-section-number">2.3.1</span> Add observation error through sampling from OM<a href="simple.html#add-observation-error-through-sampling-from-om" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The argument <code>sample_struct</code> specifies the structure for sampling from the OM (and passing to the EM). The function <code>create_sample_struct</code> can be used to construct a simple sampling structure consistent with an input data file:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="simple.html#cb12-1" aria-hidden="true" tabindex="-1"></a>datfile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
-<span id="cb12-2"><a href="simple.html#cb12-2" aria-hidden="true" tabindex="-1"></a>sample_struct_1_scen <span class="ot">&lt;-</span> <span class="fu">create_sample_struct</span>(<span class="at">dat =</span> datfile, <span class="at">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="simple.html#cb12-1" tabindex="-1"></a>datfile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
+<span id="cb12-2"><a href="simple.html#cb12-2" tabindex="-1"></a>sample_struct_1_scen <span class="ot">&lt;-</span> <span class="fu">create_sample_struct</span>(<span class="at">dat =</span> datfile, <span class="at">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></span></code></pre></div>
 <pre><code>Warning in FUN(X[[i]], ...): Pattern not found for lencomp: FltSvy 1, Seas 1.
 Returning NA for Yr in this dataframe.</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="simple.html#cb14-1" aria-hidden="true" tabindex="-1"></a>sample_struct_1_scen</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="simple.html#cb14-1" tabindex="-1"></a>sample_struct_1_scen</span></code></pre></div>
 <pre><code>$catch
    Yr Seas FltSvy    SE
 1 101    1      1 0.005
@@ -364,9 +364,9 @@ $MeanSize_at_Age_obs
 <p>Note that length comp (lencomp) includes an <code>NA</code> value for year. This is because
 no consistent pattern was identified, so the user must define their own input.
 In this case, we will remove sampling length comps all together:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="simple.html#cb16-1" aria-hidden="true" tabindex="-1"></a>sample_struct_1_scen<span class="sc">$</span>lencomp <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># don&#39;t use length sampling</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="simple.html#cb16-1" tabindex="-1"></a>sample_struct_1_scen<span class="sc">$</span>lencomp <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># don&#39;t use length sampling</span></span></code></pre></div>
 <p>The same sampling structure will be used for both scenarios, which we define in a list below:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="simple.html#cb17-1" aria-hidden="true" tabindex="-1"></a>sample_struct_list_all <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;h-ctl&quot;</span> <span class="ot">=</span> sample_struct_1_scen, <span class="st">&quot;h-1&quot;</span> <span class="ot">=</span> sample_struct_1_scen)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="simple.html#cb17-1" tabindex="-1"></a>sample_struct_list_all <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;h-ctl&quot;</span> <span class="ot">=</span> sample_struct_1_scen, <span class="st">&quot;h-1&quot;</span> <span class="ot">=</span> sample_struct_1_scen)</span></code></pre></div>
 </div>
 </div>
 <div id="examine-the-management-procedure-used" class="section level2 hasAnchor" number="2.4">
@@ -378,23 +378,23 @@ In this case, we will remove sampling length comps all together:</p>
 <li>Put this projected catch (without implementation error, in the case of this example) back into the OM. Extend the OM forward in time to get the true values for the population.</li>
 </ol>
 <p>Let’s take a look at step 2 in the management procedure, which is implemented using the forecasting module in SS3. We will examine the forecast file for the estimation model to better understand how catches will be forecasted from the assessment. We will use the same management procedure in both of these scenarios, although for a full MSE analysis, it is likely that multiple management procedures would be compared.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="simple.html#cb18-1" aria-hidden="true" tabindex="-1"></a>fore <span class="ot">&lt;-</span> r4ss<span class="sc">::</span><span class="fu">SS_readforecast</span>(</span>
-<span id="cb18-2"><a href="simple.html#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;forecast.ss&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>),</span>
-<span id="cb18-3"><a href="simple.html#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb18-4"><a href="simple.html#cb18-4" aria-hidden="true" tabindex="-1"></a>fore<span class="sc">$</span>Forecast </span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="simple.html#cb18-1" tabindex="-1"></a>fore <span class="ot">&lt;-</span> r4ss<span class="sc">::</span><span class="fu">SS_readforecast</span>(</span>
+<span id="cb18-2"><a href="simple.html#cb18-2" tabindex="-1"></a>  <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;forecast.ss&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>),</span>
+<span id="cb18-3"><a href="simple.html#cb18-3" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb18-4"><a href="simple.html#cb18-4" tabindex="-1"></a>fore<span class="sc">$</span>Forecast </span></code></pre></div>
 <pre><code>[1] 3</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="simple.html#cb20-1" aria-hidden="true" tabindex="-1"></a>fore<span class="sc">$</span>Btarget</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="simple.html#cb20-1" tabindex="-1"></a>fore<span class="sc">$</span>Btarget</span></code></pre></div>
 <pre><code>[1] 0.4</code></pre>
 <p><code>fore$Forecast = 3</code> means our forecasts from the assessment will use fishing mortality (F) to attmpt to achieve a relative (to unfished) spawning stock biomass. Based on <code>fore$Btarget</code>, the relative biomass target is 40% of unfished spawning stock biomass. Note also that the control rule <code>fore$BforconstantF</code> and <code>fore$BfornoF</code> values are set low to make it unlikely that they will be used (these parameters are used for a ramp harvest control rule, which we do not want to use here):</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="simple.html#cb22-1" aria-hidden="true" tabindex="-1"></a>fore<span class="sc">$</span>BforconstantF</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="simple.html#cb22-1" tabindex="-1"></a>fore<span class="sc">$</span>BforconstantF</span></code></pre></div>
 <pre><code>[1] 0.03</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="simple.html#cb24-1" aria-hidden="true" tabindex="-1"></a>fore<span class="sc">$</span>BfornoF</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="simple.html#cb24-1" tabindex="-1"></a>fore<span class="sc">$</span>BfornoF</span></code></pre></div>
 <pre><code>[1] 0.01</code></pre>
 <p>Futhermore, <code>fore$Flimitfraction</code> is set to 1 so that the forecasted catch is set equal to the overfishing limit (for simplicity):</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="simple.html#cb26-1" aria-hidden="true" tabindex="-1"></a>fore<span class="sc">$</span>Flimitfraction</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="simple.html#cb26-1" tabindex="-1"></a>fore<span class="sc">$</span>Flimitfraction</span></code></pre></div>
 <pre><code>[1] 1</code></pre>
 <p>Note that the number of forecast years is 1:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="simple.html#cb28-1" aria-hidden="true" tabindex="-1"></a>fore<span class="sc">$</span>Nforecastyrs</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="simple.html#cb28-1" tabindex="-1"></a>fore<span class="sc">$</span>Nforecastyrs</span></code></pre></div>
 <pre><code>[1] 1</code></pre>
 <p>However, an assessment will be conducted every 3 years and thus 3 years of projections is required. SSMSE will automatically modify this value in the estimation model to the appropriate number of forecasting years.</p>
 <p>More information on using the forecast module in SS3 to forecast catches is available in the <a href="https://vlab.noaa.gov/web/stock-synthesis/document-library/-/document_library/0LmuycloZeIt/view/4513132">Stock Synthesis users manual</a>.</p>
@@ -403,24 +403,24 @@ In this case, we will remove sampling length comps all together:</p>
 <div id="run-ssmse" class="section level2 hasAnchor" number="2.5">
 <h2><span class="header-section-number">2.5</span> Run SSMSE<a href="simple.html#run-ssmse" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Now, we create a directory to store our results, and use <code>run_SSMSE</code> to run the MSE analysis loop (note this will take some time to run, ~ 20 min):</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="simple.html#cb30-1" aria-hidden="true" tabindex="-1"></a>run_res_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(run_SSMSE_dir, <span class="st">&quot;results&quot;</span>)</span>
-<span id="cb30-2"><a href="simple.html#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(run_res_path)</span>
-<span id="cb30-3"><a href="simple.html#cb30-3" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">run_SSMSE</span>(</span>
-<span id="cb30-4"><a href="simple.html#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">scen_name_vec =</span> <span class="fu">c</span>(<span class="st">&quot;h-ctl&quot;</span>, <span class="st">&quot;h-1&quot;</span>),<span class="co"># name of the scenario</span></span>
-<span id="cb30-5"><a href="simple.html#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">out_dir_scen_vec =</span> run_res_path, <span class="co"># directory in which to run the scenario</span></span>
-<span id="cb30-6"><a href="simple.html#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">iter_vec =</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>), <span class="co"># run with 5 iterations each</span></span>
-<span id="cb30-7"><a href="simple.html#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">OM_name_vec =</span> <span class="cn">NULL</span>, <span class="co"># specify directories instead</span></span>
-<span id="cb30-8"><a href="simple.html#cb30-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">OM_in_dir_vec =</span> <span class="fu">c</span>(cod_mod_path, <span class="fu">normalizePath</span>(cod_1_path)), <span class="co"># OM files</span></span>
-<span id="cb30-9"><a href="simple.html#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">EM_name_vec =</span> <span class="fu">c</span>(<span class="st">&quot;cod&quot;</span>, <span class="st">&quot;cod&quot;</span>), <span class="co"># cod is included in package data</span></span>
-<span id="cb30-10"><a href="simple.html#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">MS_vec =</span> <span class="fu">c</span>(<span class="st">&quot;EM&quot;</span>,<span class="st">&quot;EM&quot;</span>), <span class="co"># The management strategy is specified in the EM</span></span>
-<span id="cb30-11"><a href="simple.html#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">nyrs_vec =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">6</span>), <span class="co"># Years to project OM forward</span></span>
-<span id="cb30-12"><a href="simple.html#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">nyrs_assess_vec =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>), <span class="co"># Years between assessments</span></span>
-<span id="cb30-13"><a href="simple.html#cb30-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">future_om_list =</span> future_om_list_recdevs_sel,</span>
-<span id="cb30-14"><a href="simple.html#cb30-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">run_parallel =</span> <span class="cn">TRUE</span>, <span class="co"># Run iterations in parallel</span></span>
-<span id="cb30-15"><a href="simple.html#cb30-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">sample_struct_list =</span> sample_struct_list_all, <span class="co"># How to sample data for running the EM.</span></span>
-<span id="cb30-16"><a href="simple.html#cb30-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">sample_struct_hist_list =</span> <span class="cn">NULL</span>, <span class="co"># because this is null, will just use sampling</span></span>
-<span id="cb30-17"><a href="simple.html#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># as in the current OM data file for the historical period.</span></span>
-<span id="cb30-18"><a href="simple.html#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">seed =</span> <span class="dv">12345</span>) <span class="co">#Set a fixed integer seed that allows replication </span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="simple.html#cb30-1" tabindex="-1"></a>run_res_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(run_SSMSE_dir, <span class="st">&quot;results&quot;</span>)</span>
+<span id="cb30-2"><a href="simple.html#cb30-2" tabindex="-1"></a><span class="fu">dir.create</span>(run_res_path)</span>
+<span id="cb30-3"><a href="simple.html#cb30-3" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">run_SSMSE</span>(</span>
+<span id="cb30-4"><a href="simple.html#cb30-4" tabindex="-1"></a>    <span class="at">scen_name_vec =</span> <span class="fu">c</span>(<span class="st">&quot;h-ctl&quot;</span>, <span class="st">&quot;h-1&quot;</span>),<span class="co"># name of the scenario</span></span>
+<span id="cb30-5"><a href="simple.html#cb30-5" tabindex="-1"></a>    <span class="at">out_dir_scen_vec =</span> run_res_path, <span class="co"># directory in which to run the scenario</span></span>
+<span id="cb30-6"><a href="simple.html#cb30-6" tabindex="-1"></a>    <span class="at">iter_vec =</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>), <span class="co"># run with 5 iterations each</span></span>
+<span id="cb30-7"><a href="simple.html#cb30-7" tabindex="-1"></a>    <span class="at">OM_name_vec =</span> <span class="cn">NULL</span>, <span class="co"># specify directories instead</span></span>
+<span id="cb30-8"><a href="simple.html#cb30-8" tabindex="-1"></a>    <span class="at">OM_in_dir_vec =</span> <span class="fu">c</span>(cod_mod_path, <span class="fu">normalizePath</span>(cod_1_path)), <span class="co"># OM files</span></span>
+<span id="cb30-9"><a href="simple.html#cb30-9" tabindex="-1"></a>    <span class="at">EM_name_vec =</span> <span class="fu">c</span>(<span class="st">&quot;cod&quot;</span>, <span class="st">&quot;cod&quot;</span>), <span class="co"># cod is included in package data</span></span>
+<span id="cb30-10"><a href="simple.html#cb30-10" tabindex="-1"></a>    <span class="at">MS_vec =</span> <span class="fu">c</span>(<span class="st">&quot;EM&quot;</span>,<span class="st">&quot;EM&quot;</span>), <span class="co"># The management strategy is specified in the EM</span></span>
+<span id="cb30-11"><a href="simple.html#cb30-11" tabindex="-1"></a>    <span class="at">nyrs_vec =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">6</span>), <span class="co"># Years to project OM forward</span></span>
+<span id="cb30-12"><a href="simple.html#cb30-12" tabindex="-1"></a>    <span class="at">nyrs_assess_vec =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>), <span class="co"># Years between assessments</span></span>
+<span id="cb30-13"><a href="simple.html#cb30-13" tabindex="-1"></a>    <span class="at">future_om_list =</span> future_om_list_recdevs_sel,</span>
+<span id="cb30-14"><a href="simple.html#cb30-14" tabindex="-1"></a>    <span class="at">run_parallel =</span> <span class="cn">TRUE</span>, <span class="co"># Run iterations in parallel</span></span>
+<span id="cb30-15"><a href="simple.html#cb30-15" tabindex="-1"></a>    <span class="at">sample_struct_list =</span> sample_struct_list_all, <span class="co"># How to sample data for running the EM.</span></span>
+<span id="cb30-16"><a href="simple.html#cb30-16" tabindex="-1"></a>    <span class="at">sample_struct_hist_list =</span> <span class="cn">NULL</span>, <span class="co"># because this is null, will just use sampling</span></span>
+<span id="cb30-17"><a href="simple.html#cb30-17" tabindex="-1"></a>    <span class="co"># as in the current OM data file for the historical period.</span></span>
+<span id="cb30-18"><a href="simple.html#cb30-18" tabindex="-1"></a>    <span class="at">seed =</span> <span class="dv">12345</span>) <span class="co">#Set a fixed integer seed that allows replication </span></span></code></pre></div>
 <p>See <code>?run_SSMSE</code> for more details on function arguments. In a real MSE analysis, running 100+ iterations to reflect the full range of uncertainty (given observation and process errors) in the results would be preferred. However, we are only running 5 iterations per scenario in this demonstration to reduce computing time.</p>
 </div>
 <div id="run_ssmse-output" class="section level2 hasAnchor" number="2.6">
@@ -437,15 +437,15 @@ In this case, we will remove sampling length comps all together:</p>
 <div id="summarize-results" class="section level2 hasAnchor" number="2.8">
 <h2><span class="header-section-number">2.8</span> Summarize results<a href="simple.html#summarize-results" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>The function <code>SSMSE_summary_all</code> can be used to summarize the model results in a list of 3 dataframes, one for scalar outputs (named <code>scalar</code>), one for timeseries outputs (<code>ts</code>), one for derived quantities (<code>dq</code>). This function also creates summary csv files in the folder where the results are stored.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="simple.html#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize 1 iteration of output</span></span>
-<span id="cb31-2"><a href="simple.html#cb31-2" aria-hidden="true" tabindex="-1"></a>summary <span class="ot">&lt;-</span> <span class="fu">SSMSE_summary_all</span>(run_res_path)</span>
-<span id="cb31-3"><a href="simple.html#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Extracting results from 2 scenarios</span></span>
-<span id="cb31-4"><a href="simple.html#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Starting h-1 with 5 iterations</span></span>
-<span id="cb31-5"><a href="simple.html#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Starting h-ctl with 5 iterations</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="simple.html#cb31-1" tabindex="-1"></a><span class="co"># Summarize 1 iteration of output</span></span>
+<span id="cb31-2"><a href="simple.html#cb31-2" tabindex="-1"></a>summary <span class="ot">&lt;-</span> <span class="fu">SSMSE_summary_all</span>(run_res_path)</span>
+<span id="cb31-3"><a href="simple.html#cb31-3" tabindex="-1"></a><span class="do">## Extracting results from 2 scenarios</span></span>
+<span id="cb31-4"><a href="simple.html#cb31-4" tabindex="-1"></a><span class="do">## Starting h-1 with 5 iterations</span></span>
+<span id="cb31-5"><a href="simple.html#cb31-5" tabindex="-1"></a><span class="do">## Starting h-ctl with 5 iterations</span></span></code></pre></div>
 <p>Plotting and data manipulation can then be done with these summaries. For example, SSB over time by model can be plotted. The models include the Operating Model (cod_OM), Estimation model (EM) for the historical period of years 0-100 (cod_EM_init), and the EM run with last year of data in year 103 (cod_EM_103). The operating models are shown in blue or black (depending on the scenario), and the estimation model runs are shown in orange, and the scenarios are shown on different subplots:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="simple.html#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2) <span class="co"># use install.packages(&quot;ggplot2&quot;) to install package if needed</span></span>
-<span id="cb32-2"><a href="simple.html#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr) <span class="co"># use install.packages(&quot;tidyr&quot;) to install package if needed</span></span>
-<span id="cb32-3"><a href="simple.html#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># use install.packages(&quot;dplyr&quot;) to install package if needed</span></span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="simple.html#cb32-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2) <span class="co"># use install.packages(&quot;ggplot2&quot;) to install package if needed</span></span>
+<span id="cb32-2"><a href="simple.html#cb32-2" tabindex="-1"></a><span class="fu">library</span>(tidyr) <span class="co"># use install.packages(&quot;tidyr&quot;) to install package if needed</span></span>
+<span id="cb32-3"><a href="simple.html#cb32-3" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># use install.packages(&quot;dplyr&quot;) to install package if needed</span></span></code></pre></div>
 <pre><code>
 Attaching package: &#39;dplyr&#39;</code></pre>
 <pre><code>The following objects are masked from &#39;package:stats&#39;:
@@ -458,53 +458,53 @@ Attaching package: &#39;dplyr&#39;</code></pre>
 <div id="simple-convergence-check" class="section level2 hasAnchor" number="2.9">
 <h2><span class="header-section-number">2.9</span> Simple Convergence Check<a href="simple.html#simple-convergence-check" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Check there are no params on bounds or SSB that is way too small or way too large</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="simple.html#cb36-1" aria-hidden="true" tabindex="-1"></a>check_convergence <span class="ot">&lt;-</span> <span class="cf">function</span>(summary, <span class="at">min_yr =</span> <span class="dv">101</span>, <span class="at">max_yr =</span> <span class="dv">120</span>, <span class="at">n_EMs =</span> <span class="dv">5</span>) {</span>
-<span id="cb36-2"><a href="simple.html#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span>(dplyr) <span class="co"># note: not the best way to do this</span></span>
-<span id="cb36-3"><a href="simple.html#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.na</span>(summary<span class="sc">$</span>scalar<span class="sc">$</span>params_on_bound))) {</span>
-<span id="cb36-4"><a href="simple.html#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">&quot;Params on bounds&quot;</span>)</span>
-<span id="cb36-5"><a href="simple.html#cb36-5" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb36-6"><a href="simple.html#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">&quot;No params on bounds&quot;</span>)</span>
-<span id="cb36-7"><a href="simple.html#cb36-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb36-8"><a href="simple.html#cb36-8" aria-hidden="true" tabindex="-1"></a>  summary<span class="sc">$</span>ts<span class="sc">$</span>model_type <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;_EM_&quot;</span>, summary<span class="sc">$</span>ts<span class="sc">$</span>model_run), <span class="st">&quot;EM&quot;</span>, <span class="st">&quot;OM&quot;</span>)</span>
-<span id="cb36-9"><a href="simple.html#cb36-9" aria-hidden="true" tabindex="-1"></a>  calc_SSB <span class="ot">&lt;-</span> summary<span class="sc">$</span>ts <span class="sc">%&gt;%</span></span>
-<span id="cb36-10"><a href="simple.html#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(year <span class="sc">&gt;=</span> min_yr <span class="sc">&amp;</span> year <span class="sc">&lt;=</span> max_yr) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-11"><a href="simple.html#cb36-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(iteration, scenario, year, model_run, model_type, SpawnBio)</span>
-<span id="cb36-12"><a href="simple.html#cb36-12" aria-hidden="true" tabindex="-1"></a>  OM_vals <span class="ot">&lt;-</span> calc_SSB <span class="sc">%&gt;%</span> </span>
-<span id="cb36-13"><a href="simple.html#cb36-13" aria-hidden="true" tabindex="-1"></a>              <span class="fu">filter</span>(model_type <span class="sc">==</span> <span class="st">&quot;OM&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-14"><a href="simple.html#cb36-14" aria-hidden="true" tabindex="-1"></a>              <span class="fu">rename</span>(<span class="at">SpawnBio_OM =</span> SpawnBio ) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-15"><a href="simple.html#cb36-15" aria-hidden="true" tabindex="-1"></a>              <span class="fu">select</span>(iteration, scenario, year, SpawnBio_OM)</span>
-<span id="cb36-16"><a href="simple.html#cb36-16" aria-hidden="true" tabindex="-1"></a>  EM_vals <span class="ot">&lt;-</span> calc_SSB <span class="sc">%&gt;%</span> </span>
-<span id="cb36-17"><a href="simple.html#cb36-17" aria-hidden="true" tabindex="-1"></a>               <span class="fu">filter</span>(model_type <span class="sc">==</span> <span class="st">&quot;EM&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-18"><a href="simple.html#cb36-18" aria-hidden="true" tabindex="-1"></a>               <span class="fu">rename</span>(<span class="at">SpawnBio_EM =</span> SpawnBio) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-19"><a href="simple.html#cb36-19" aria-hidden="true" tabindex="-1"></a>               <span class="fu">select</span>(iteration, scenario, year, model_run, SpawnBio_EM)</span>
-<span id="cb36-20"><a href="simple.html#cb36-20" aria-hidden="true" tabindex="-1"></a>  bind_vals <span class="ot">&lt;-</span> <span class="fu">full_join</span>(EM_vals, OM_vals, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;iteration&quot;</span>, <span class="st">&quot;scenario&quot;</span>, <span class="st">&quot;year&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-21"><a href="simple.html#cb36-21" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">mutate</span>(<span class="at">SSB_ratio =</span> SpawnBio_EM<span class="sc">/</span>SpawnBio_OM)</span>
-<span id="cb36-22"><a href="simple.html#cb36-22" aria-hidden="true" tabindex="-1"></a>  filter_SSB <span class="ot">&lt;-</span> bind_vals <span class="sc">%&gt;%</span> </span>
-<span id="cb36-23"><a href="simple.html#cb36-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(SSB_ratio <span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">|</span> SSB_ratio <span class="sc">&lt;</span> <span class="fl">0.5</span>)</span>
-<span id="cb36-24"><a href="simple.html#cb36-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">nrow</span>(filter_SSB) <span class="sc">&gt;</span> <span class="dv">0</span> ) {</span>
-<span id="cb36-25"><a href="simple.html#cb36-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">&quot;Some large/small SSBs relative to OM&quot;</span>)</span>
-<span id="cb36-26"><a href="simple.html#cb36-26" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb36-27"><a href="simple.html#cb36-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">&quot;All SSBs in EM are no greater than double and no less than half SSB vals in the OM&quot;</span>)</span>
-<span id="cb36-28"><a href="simple.html#cb36-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb36-29"><a href="simple.html#cb36-29" aria-hidden="true" tabindex="-1"></a>  return_val <span class="ot">&lt;-</span> bind_vals</span>
-<span id="cb36-30"><a href="simple.html#cb36-30" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb36-31"><a href="simple.html#cb36-31" aria-hidden="true" tabindex="-1"></a>values <span class="ot">&lt;-</span> <span class="fu">check_convergence</span>(<span class="at">summary =</span> summary, <span class="at">min_yr =</span> <span class="dv">101</span>, <span class="at">max_yr =</span> <span class="dv">106</span>, <span class="at">n_EMs =</span> <span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="simple.html#cb36-1" tabindex="-1"></a>check_convergence <span class="ot">&lt;-</span> <span class="cf">function</span>(summary, <span class="at">min_yr =</span> <span class="dv">101</span>, <span class="at">max_yr =</span> <span class="dv">120</span>, <span class="at">n_EMs =</span> <span class="dv">5</span>) {</span>
+<span id="cb36-2"><a href="simple.html#cb36-2" tabindex="-1"></a>  <span class="fu">require</span>(dplyr) <span class="co"># note: not the best way to do this</span></span>
+<span id="cb36-3"><a href="simple.html#cb36-3" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.na</span>(summary<span class="sc">$</span>scalar<span class="sc">$</span>params_on_bound))) {</span>
+<span id="cb36-4"><a href="simple.html#cb36-4" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">&quot;Params on bounds&quot;</span>)</span>
+<span id="cb36-5"><a href="simple.html#cb36-5" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb36-6"><a href="simple.html#cb36-6" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">&quot;No params on bounds&quot;</span>)</span>
+<span id="cb36-7"><a href="simple.html#cb36-7" tabindex="-1"></a>  }</span>
+<span id="cb36-8"><a href="simple.html#cb36-8" tabindex="-1"></a>  summary<span class="sc">$</span>ts<span class="sc">$</span>model_type <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;_EM_&quot;</span>, summary<span class="sc">$</span>ts<span class="sc">$</span>model_run), <span class="st">&quot;EM&quot;</span>, <span class="st">&quot;OM&quot;</span>)</span>
+<span id="cb36-9"><a href="simple.html#cb36-9" tabindex="-1"></a>  calc_SSB <span class="ot">&lt;-</span> summary<span class="sc">$</span>ts <span class="sc">%&gt;%</span></span>
+<span id="cb36-10"><a href="simple.html#cb36-10" tabindex="-1"></a>    <span class="fu">filter</span>(year <span class="sc">&gt;=</span> min_yr <span class="sc">&amp;</span> year <span class="sc">&lt;=</span> max_yr) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-11"><a href="simple.html#cb36-11" tabindex="-1"></a>    <span class="fu">select</span>(iteration, scenario, year, model_run, model_type, SpawnBio)</span>
+<span id="cb36-12"><a href="simple.html#cb36-12" tabindex="-1"></a>  OM_vals <span class="ot">&lt;-</span> calc_SSB <span class="sc">%&gt;%</span> </span>
+<span id="cb36-13"><a href="simple.html#cb36-13" tabindex="-1"></a>              <span class="fu">filter</span>(model_type <span class="sc">==</span> <span class="st">&quot;OM&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-14"><a href="simple.html#cb36-14" tabindex="-1"></a>              <span class="fu">rename</span>(<span class="at">SpawnBio_OM =</span> SpawnBio ) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-15"><a href="simple.html#cb36-15" tabindex="-1"></a>              <span class="fu">select</span>(iteration, scenario, year, SpawnBio_OM)</span>
+<span id="cb36-16"><a href="simple.html#cb36-16" tabindex="-1"></a>  EM_vals <span class="ot">&lt;-</span> calc_SSB <span class="sc">%&gt;%</span> </span>
+<span id="cb36-17"><a href="simple.html#cb36-17" tabindex="-1"></a>               <span class="fu">filter</span>(model_type <span class="sc">==</span> <span class="st">&quot;EM&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-18"><a href="simple.html#cb36-18" tabindex="-1"></a>               <span class="fu">rename</span>(<span class="at">SpawnBio_EM =</span> SpawnBio) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-19"><a href="simple.html#cb36-19" tabindex="-1"></a>               <span class="fu">select</span>(iteration, scenario, year, model_run, SpawnBio_EM)</span>
+<span id="cb36-20"><a href="simple.html#cb36-20" tabindex="-1"></a>  bind_vals <span class="ot">&lt;-</span> <span class="fu">full_join</span>(EM_vals, OM_vals, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;iteration&quot;</span>, <span class="st">&quot;scenario&quot;</span>, <span class="st">&quot;year&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-21"><a href="simple.html#cb36-21" tabindex="-1"></a>                  <span class="fu">mutate</span>(<span class="at">SSB_ratio =</span> SpawnBio_EM<span class="sc">/</span>SpawnBio_OM)</span>
+<span id="cb36-22"><a href="simple.html#cb36-22" tabindex="-1"></a>  filter_SSB <span class="ot">&lt;-</span> bind_vals <span class="sc">%&gt;%</span> </span>
+<span id="cb36-23"><a href="simple.html#cb36-23" tabindex="-1"></a>    <span class="fu">filter</span>(SSB_ratio <span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">|</span> SSB_ratio <span class="sc">&lt;</span> <span class="fl">0.5</span>)</span>
+<span id="cb36-24"><a href="simple.html#cb36-24" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">nrow</span>(filter_SSB) <span class="sc">&gt;</span> <span class="dv">0</span> ) {</span>
+<span id="cb36-25"><a href="simple.html#cb36-25" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">&quot;Some large/small SSBs relative to OM&quot;</span>)</span>
+<span id="cb36-26"><a href="simple.html#cb36-26" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb36-27"><a href="simple.html#cb36-27" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">&quot;All SSBs in EM are no greater than double and no less than half SSB vals in the OM&quot;</span>)</span>
+<span id="cb36-28"><a href="simple.html#cb36-28" tabindex="-1"></a>  }</span>
+<span id="cb36-29"><a href="simple.html#cb36-29" tabindex="-1"></a>  return_val <span class="ot">&lt;-</span> bind_vals</span>
+<span id="cb36-30"><a href="simple.html#cb36-30" tabindex="-1"></a>}</span>
+<span id="cb36-31"><a href="simple.html#cb36-31" tabindex="-1"></a>values <span class="ot">&lt;-</span> <span class="fu">check_convergence</span>(<span class="at">summary =</span> summary, <span class="at">min_yr =</span> <span class="dv">101</span>, <span class="at">max_yr =</span> <span class="dv">106</span>, <span class="at">n_EMs =</span> <span class="dv">5</span>)</span></code></pre></div>
 <pre><code>No params on bounds</code></pre>
 <pre><code>All SSBs in EM are no greater than double and no less than half SSB vals in the OM</code></pre>
 </div>
 <div id="plot-spawning-stock-biomass-ssb" class="section level2 hasAnchor" number="2.10">
 <h2><span class="header-section-number">2.10</span> Plot Spawning Stock Biomass (SSB)<a href="simple.html#plot-spawning-stock-biomass-ssb" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>This plot shows that SSB estimated does not match perfectly with the operating model. A similar plot could be made for any parameter of interest.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="simple.html#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot SSB by year and model run</span></span>
-<span id="cb39-2"><a href="simple.html#cb39-2" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(<span class="at">data =</span> <span class="fu">subset</span>(summary<span class="sc">$</span>ts, model_run <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;cod_OM&quot;</span>, <span class="st">&quot;cod_SR_BH_steep_1_OM&quot;</span>, <span class="st">&quot;cod_EM_103&quot;</span>)), </span>
-<span id="cb39-3"><a href="simple.html#cb39-3" aria-hidden="true" tabindex="-1"></a>                ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> SpawnBio)) <span class="sc">+</span></span>
-<span id="cb39-4"><a href="simple.html#cb39-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">100</span>, <span class="at">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="sc">+</span></span>
-<span id="cb39-5"><a href="simple.html#cb39-5" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">linetype =</span> <span class="fu">as.character</span>(iteration), <span class="at">color =</span> model_run))<span class="sc">+</span></span>
-<span id="cb39-6"><a href="simple.html#cb39-6" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#D65F00&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;blue&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb39-7"><a href="simple.html#cb39-7" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">rep</span>(<span class="st">&quot;solid&quot;</span>, <span class="dv">50</span>)) <span class="sc">+</span></span>
-<span id="cb39-8"><a href="simple.html#cb39-8" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">guides</span>(<span class="at">linetype =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb39-9"><a href="simple.html#cb39-9" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">facet_wrap</span>(. <span class="sc">~</span> scenario) <span class="sc">+</span></span>
-<span id="cb39-10"><a href="simple.html#cb39-10" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">theme_classic</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="simple.html#cb39-1" tabindex="-1"></a><span class="co"># plot SSB by year and model run</span></span>
+<span id="cb39-2"><a href="simple.html#cb39-2" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(<span class="at">data =</span> <span class="fu">subset</span>(summary<span class="sc">$</span>ts, model_run <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;cod_OM&quot;</span>, <span class="st">&quot;cod_SR_BH_steep_1_OM&quot;</span>, <span class="st">&quot;cod_EM_103&quot;</span>)), </span>
+<span id="cb39-3"><a href="simple.html#cb39-3" tabindex="-1"></a>                ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> SpawnBio)) <span class="sc">+</span></span>
+<span id="cb39-4"><a href="simple.html#cb39-4" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">100</span>, <span class="at">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="sc">+</span></span>
+<span id="cb39-5"><a href="simple.html#cb39-5" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">linetype =</span> <span class="fu">as.character</span>(iteration), <span class="at">color =</span> model_run))<span class="sc">+</span></span>
+<span id="cb39-6"><a href="simple.html#cb39-6" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#D65F00&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;blue&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb39-7"><a href="simple.html#cb39-7" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">rep</span>(<span class="st">&quot;solid&quot;</span>, <span class="dv">50</span>)) <span class="sc">+</span></span>
+<span id="cb39-8"><a href="simple.html#cb39-8" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">guides</span>(<span class="at">linetype =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb39-9"><a href="simple.html#cb39-9" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">facet_wrap</span>(. <span class="sc">~</span> scenario) <span class="sc">+</span></span>
+<span id="cb39-10"><a href="simple.html#cb39-10" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">theme_classic</span>()</span></code></pre></div>
 <pre><code>Warning: The `&lt;scale&gt;` argument of `guides()` cannot be `FALSE`. Use &quot;none&quot; instead as
 of ggplot2 3.3.4.
 This warning is displayed once every 8 hours.
@@ -512,38 +512,38 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
 generated.</code></pre>
 <p><img src="manual_files/figure-html/plot_SSB-1.png" width="672" /></p>
 <p>Now, we calculate and plot the performance metric, which is average spawning stock biomass (SSB) from years 104 to 106.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="simple.html#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get_SSB_avg calculates the SSB in each year for each</span></span>
-<span id="cb41-2"><a href="simple.html#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="co"># iteration of the operating model, then takes the average over the years from</span></span>
-<span id="cb41-3"><a href="simple.html#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co"># min_yr, to max_year. It uses the summary object as input to do these</span></span>
-<span id="cb41-4"><a href="simple.html#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># calculations.</span></span>
-<span id="cb41-5"><a href="simple.html#cb41-5" aria-hidden="true" tabindex="-1"></a>get_SSB_avg <span class="ot">&lt;-</span> <span class="cf">function</span>(summary, min_yr, max_yr) {</span>
-<span id="cb41-6"><a href="simple.html#cb41-6" aria-hidden="true" tabindex="-1"></a>  OM_vals <span class="ot">&lt;-</span> <span class="fu">unique</span>(summary<span class="sc">$</span>ts<span class="sc">$</span>model_run)</span>
-<span id="cb41-7"><a href="simple.html#cb41-7" aria-hidden="true" tabindex="-1"></a>  OM_vals <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;_OM$&quot;</span>, OM_vals, <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb41-8"><a href="simple.html#cb41-8" aria-hidden="true" tabindex="-1"></a>  SSB_yr <span class="ot">&lt;-</span> summary<span class="sc">$</span>ts <span class="sc">%&gt;%</span> </span>
-<span id="cb41-9"><a href="simple.html#cb41-9" aria-hidden="true" tabindex="-1"></a>          <span class="fu">filter</span>(year <span class="sc">&gt;=</span> min_yr <span class="sc">&amp;</span> year <span class="sc">&lt;=</span> max_yr) <span class="sc">%&gt;%</span> </span>
-<span id="cb41-10"><a href="simple.html#cb41-10" aria-hidden="true" tabindex="-1"></a>          <span class="fu">filter</span>(model_run <span class="sc">%in%</span> OM_vals) <span class="sc">%&gt;%</span> </span>
-<span id="cb41-11"><a href="simple.html#cb41-11" aria-hidden="true" tabindex="-1"></a>          <span class="fu">select</span>(iteration, scenario, year, SpawnBio) <span class="sc">%&gt;%</span> </span>
-<span id="cb41-12"><a href="simple.html#cb41-12" aria-hidden="true" tabindex="-1"></a>          <span class="fu">group_by</span>(iteration, scenario) <span class="sc">%&gt;%</span> </span>
-<span id="cb41-13"><a href="simple.html#cb41-13" aria-hidden="true" tabindex="-1"></a>          <span class="fu">summarize</span>(<span class="at">avg_SSB =</span> <span class="fu">mean</span>(SpawnBio), <span class="at">.groups =</span> <span class="st">&quot;keep&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb41-14"><a href="simple.html#cb41-14" aria-hidden="true" tabindex="-1"></a>          <span class="fu">ungroup</span>()</span>
-<span id="cb41-15"><a href="simple.html#cb41-15" aria-hidden="true" tabindex="-1"></a>  SSB_yr</span>
-<span id="cb41-16"><a href="simple.html#cb41-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-17"><a href="simple.html#cb41-17" aria-hidden="true" tabindex="-1"></a>avg_SSB <span class="ot">&lt;-</span> <span class="fu">get_SSB_avg</span>(summary, <span class="at">min_yr =</span> <span class="dv">104</span>, <span class="at">max_yr =</span> <span class="dv">106</span>)</span>
-<span id="cb41-18"><a href="simple.html#cb41-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-19"><a href="simple.html#cb41-19" aria-hidden="true" tabindex="-1"></a><span class="co"># function to summarize data in plot</span></span>
-<span id="cb41-20"><a href="simple.html#cb41-20" aria-hidden="true" tabindex="-1"></a>data_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb41-21"><a href="simple.html#cb41-21" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)</span>
-<span id="cb41-22"><a href="simple.html#cb41-22" aria-hidden="true" tabindex="-1"></a>  ymin <span class="ot">&lt;-</span> m <span class="sc">-</span> <span class="fu">sd</span>(x)</span>
-<span id="cb41-23"><a href="simple.html#cb41-23" aria-hidden="true" tabindex="-1"></a>  ymax <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">sd</span>(x)</span>
-<span id="cb41-24"><a href="simple.html#cb41-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="at">y =</span> m, <span class="at">ymin =</span> ymin, <span class="at">ymax =</span> ymax))</span>
-<span id="cb41-25"><a href="simple.html#cb41-25" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-26"><a href="simple.html#cb41-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Now, plot the average relative spawning stock biomass for years 104 - 106</span></span>
-<span id="cb41-27"><a href="simple.html#cb41-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> avg_SSB, <span class="fu">aes</span>(<span class="at">x =</span> scenario, <span class="at">y =</span> avg_SSB)) <span class="sc">+</span></span>
-<span id="cb41-28"><a href="simple.html#cb41-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> data_summary, </span>
-<span id="cb41-29"><a href="simple.html#cb41-29" aria-hidden="true" tabindex="-1"></a>               <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.9</span>), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span></span>
-<span id="cb41-30"><a href="simple.html#cb41-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Long-term average  SSB</span><span class="sc">\n</span><span class="st">(years 104-106)&quot;</span>, </span>
-<span id="cb41-31"><a href="simple.html#cb41-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Scenario&quot;</span>, <span class="at">y =</span> <span class="st">&quot;SSB&quot;</span>) <span class="sc">+</span></span>
-<span id="cb41-32"><a href="simple.html#cb41-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="simple.html#cb41-1" tabindex="-1"></a><span class="co"># get_SSB_avg calculates the SSB in each year for each</span></span>
+<span id="cb41-2"><a href="simple.html#cb41-2" tabindex="-1"></a><span class="co"># iteration of the operating model, then takes the average over the years from</span></span>
+<span id="cb41-3"><a href="simple.html#cb41-3" tabindex="-1"></a><span class="co"># min_yr, to max_year. It uses the summary object as input to do these</span></span>
+<span id="cb41-4"><a href="simple.html#cb41-4" tabindex="-1"></a><span class="co"># calculations.</span></span>
+<span id="cb41-5"><a href="simple.html#cb41-5" tabindex="-1"></a>get_SSB_avg <span class="ot">&lt;-</span> <span class="cf">function</span>(summary, min_yr, max_yr) {</span>
+<span id="cb41-6"><a href="simple.html#cb41-6" tabindex="-1"></a>  OM_vals <span class="ot">&lt;-</span> <span class="fu">unique</span>(summary<span class="sc">$</span>ts<span class="sc">$</span>model_run)</span>
+<span id="cb41-7"><a href="simple.html#cb41-7" tabindex="-1"></a>  OM_vals <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;_OM$&quot;</span>, OM_vals, <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb41-8"><a href="simple.html#cb41-8" tabindex="-1"></a>  SSB_yr <span class="ot">&lt;-</span> summary<span class="sc">$</span>ts <span class="sc">%&gt;%</span> </span>
+<span id="cb41-9"><a href="simple.html#cb41-9" tabindex="-1"></a>          <span class="fu">filter</span>(year <span class="sc">&gt;=</span> min_yr <span class="sc">&amp;</span> year <span class="sc">&lt;=</span> max_yr) <span class="sc">%&gt;%</span> </span>
+<span id="cb41-10"><a href="simple.html#cb41-10" tabindex="-1"></a>          <span class="fu">filter</span>(model_run <span class="sc">%in%</span> OM_vals) <span class="sc">%&gt;%</span> </span>
+<span id="cb41-11"><a href="simple.html#cb41-11" tabindex="-1"></a>          <span class="fu">select</span>(iteration, scenario, year, SpawnBio) <span class="sc">%&gt;%</span> </span>
+<span id="cb41-12"><a href="simple.html#cb41-12" tabindex="-1"></a>          <span class="fu">group_by</span>(iteration, scenario) <span class="sc">%&gt;%</span> </span>
+<span id="cb41-13"><a href="simple.html#cb41-13" tabindex="-1"></a>          <span class="fu">summarize</span>(<span class="at">avg_SSB =</span> <span class="fu">mean</span>(SpawnBio), <span class="at">.groups =</span> <span class="st">&quot;keep&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb41-14"><a href="simple.html#cb41-14" tabindex="-1"></a>          <span class="fu">ungroup</span>()</span>
+<span id="cb41-15"><a href="simple.html#cb41-15" tabindex="-1"></a>  SSB_yr</span>
+<span id="cb41-16"><a href="simple.html#cb41-16" tabindex="-1"></a>}</span>
+<span id="cb41-17"><a href="simple.html#cb41-17" tabindex="-1"></a>avg_SSB <span class="ot">&lt;-</span> <span class="fu">get_SSB_avg</span>(summary, <span class="at">min_yr =</span> <span class="dv">104</span>, <span class="at">max_yr =</span> <span class="dv">106</span>)</span>
+<span id="cb41-18"><a href="simple.html#cb41-18" tabindex="-1"></a></span>
+<span id="cb41-19"><a href="simple.html#cb41-19" tabindex="-1"></a><span class="co"># function to summarize data in plot</span></span>
+<span id="cb41-20"><a href="simple.html#cb41-20" tabindex="-1"></a>data_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb41-21"><a href="simple.html#cb41-21" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)</span>
+<span id="cb41-22"><a href="simple.html#cb41-22" tabindex="-1"></a>  ymin <span class="ot">&lt;-</span> m <span class="sc">-</span> <span class="fu">sd</span>(x)</span>
+<span id="cb41-23"><a href="simple.html#cb41-23" tabindex="-1"></a>  ymax <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">sd</span>(x)</span>
+<span id="cb41-24"><a href="simple.html#cb41-24" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="at">y =</span> m, <span class="at">ymin =</span> ymin, <span class="at">ymax =</span> ymax))</span>
+<span id="cb41-25"><a href="simple.html#cb41-25" tabindex="-1"></a>}</span>
+<span id="cb41-26"><a href="simple.html#cb41-26" tabindex="-1"></a><span class="co"># Now, plot the average relative spawning stock biomass for years 104 - 106</span></span>
+<span id="cb41-27"><a href="simple.html#cb41-27" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> avg_SSB, <span class="fu">aes</span>(<span class="at">x =</span> scenario, <span class="at">y =</span> avg_SSB)) <span class="sc">+</span></span>
+<span id="cb41-28"><a href="simple.html#cb41-28" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> data_summary, </span>
+<span id="cb41-29"><a href="simple.html#cb41-29" tabindex="-1"></a>               <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.9</span>), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb41-30"><a href="simple.html#cb41-30" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Long-term average  SSB</span><span class="sc">\n</span><span class="st">(years 104-106)&quot;</span>, </span>
+<span id="cb41-31"><a href="simple.html#cb41-31" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Scenario&quot;</span>, <span class="at">y =</span> <span class="st">&quot;SSB&quot;</span>) <span class="sc">+</span></span>
+<span id="cb41-32"><a href="simple.html#cb41-32" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div>
 <p><img src="manual_files/figure-html/plot_SSB_avg-1.png" width="672" /></p>
 <p>From the above plot, we see differences in the average SSb between the 2 scenarios.</p>
 </div>
@@ -554,7 +554,7 @@ generated.</code></pre>
 <div id="delete-the-files" class="section level2 hasAnchor" number="2.12">
 <h2><span class="header-section-number">2.12</span> Delete the files<a href="simple.html#delete-the-files" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>If you wish to delete the files created from this example, you can use:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="simple.html#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(run_SSMSE_dir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="simple.html#cb42-1" tabindex="-1"></a><span class="fu">unlink</span>(run_SSMSE_dir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
 </div>
             </section>
