@@ -91,7 +91,8 @@ run_SSMSE <- function(scen_name_vec,
                       n_F_search_loops = 20,
                       tolerance_F_search = 0.001,
                       run_parallel = FALSE,
-                      n_cores = NULL) {
+                      n_cores = NULL,
+                      EM2OM = NULL) { ## adding capacity to account for a bias between EM catch and OM catch. Default to NULL or no bias. 
   if (!is.null(custom_MS_source)) {
     source(custom_MS_source)
   }
@@ -211,7 +212,8 @@ run_SSMSE <- function(scen_name_vec,
       tolerance_F_search = tolerance_F_search,
       verbose = verbose,
       run_parallel = run_parallel,
-      n_cores = n_cores
+      n_cores = n_cores,
+      EM2OM = EM2OM # build in catch bias option
     )
     scen_list[[i]][["errored_iterations"]] <- return_df
   }
@@ -287,7 +289,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            run_parallel = FALSE,
                            n_cores = NULL,
                            n_F_search_loops = 20,
-                           tolerance_F_search = 0.001) {
+                           tolerance_F_search = 0.001,
+                           EM2OM=NULL) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
   assertive.properties::assert_is_atomic(iter)
@@ -361,7 +364,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           interim_struct = interim_struct,
           n_F_search_loops = n_F_search_loops,
           tolerance_F_search = tolerance_F_search,
-          verbose = verbose
+          verbose = verbose,
+          EM2OM = EM2OM ## ADD catch bias functionality
         )
       }
     )
@@ -396,7 +400,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         interim_struct = interim_struct,
         n_F_search_loops = n_F_search_loops,
         tolerance_F_search = tolerance_F_search,
-        verbose = verbose
+        verbose = verbose,
+        EM2OM = EM2OM ## ADD catch bias functionality
       ), error = function(e) e)
     }
   }
@@ -511,7 +516,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            interim_struct = NULL,
                            n_F_search_loops = 20,
                            tolerance_F_search = 0.001,
-                           verbose = FALSE) {
+                           verbose = FALSE,
+                           EM2OM = NULL ) {
   # input checks ----
   # checks for out_dir, OM_name, OM_in_dir, EM_name, EM_in_dir done in create_out_dirs
   assertive.types::assert_is_a_bool(use_SS_boot)
@@ -601,6 +607,14 @@ run_SSMSE_iter <- function(out_dir = NULL,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
   impl_error <- init_mod[["impl_error"]]
+  
+  # add EM2OMdf to allow for catch bias between OM and EM
+  if(!is.null(EM2OM)){ EM2OMdf<-data.frame("year"=impl_error$year, "multC" = rep(EM2OM,length=nrow(impl_error))) 
+  } else {
+    EM2OMdf<-data.frame("year"=impl_error$year, "multC" = rep(1,length=nrow(impl_error))) 
+  }
+ 
+  
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(
@@ -644,7 +658,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
     verbose = verbose, nyrs_assess = nyrs_assess,
     interim_struct = interim_struct,
     dat_yrs = (init_mod[["dat"]][["endyr"]] - nyrs + 1):(init_mod[["dat"]][["endyr"]] - nyrs + nyrs_assess),
-    seed = (iter_seed[["iter"]][1] + 123456)
+    seed = (iter_seed[["iter"]][1] + 123456),
+    EM2OMdf = EM2OMdf
   )
 
   message(

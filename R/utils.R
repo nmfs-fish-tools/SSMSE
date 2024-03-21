@@ -39,7 +39,8 @@ create_scen_list <- function(scen_name_vec,
                              sample_struct_list = NULL,
                              sample_struct_hist_list = NULL,
                              sample_catch_vec = NULL,
-                             interim_struct_list = NULL) {
+                             interim_struct_list = NULL,
+                             EM2OM=NULL) {
   # note that input checking
   scen_name_vec <- as.character(scen_name_vec)
   # construct list. Note that it may not be usable at this stage, but there
