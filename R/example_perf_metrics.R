@@ -52,7 +52,7 @@ get_avg_catch <- function(datfile, yrs) {
 #' }
 get_catch_sd <- function(datfile, yrs) {
   dat <- r4ss::SS_readdat(datfile, verbose = FALSE)
-  catch_var <- sd(dat[["catch"]][dat[["catch"]][["year"]] %in% yrs, "catch"])
+  catch_var <- stats::sd(dat[["catch"]][dat[["catch"]][["year"]] %in% yrs, "catch"])
 }
 
 #' Example Performance Metric: Calculate the coefficient of variation of catch
@@ -72,7 +72,7 @@ get_catch_sd <- function(datfile, yrs) {
 get_catch_cv <- function(datfile, yrs) {
   dat <- r4ss::SS_readdat(datfile, verbose = FALSE)
   catch <- dat[["catch"]][dat[["catch"]][["year"]] %in% yrs, "catch"]
-  catch_var <- sd(catch) / mean(catch)
+  catch_var <- stats::sd(catch) / mean(catch)
 }
 
 #' Example Performance Metric: calculate the average SSB over a range of years
