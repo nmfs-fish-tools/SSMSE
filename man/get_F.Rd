@@ -11,6 +11,10 @@ get_F(timeseries, fleetnames, fleetnames_all)
 
 \item{fleetnames}{A vector of fleet names, in the order they appear in the
 ss model.}
+
+\item{fleetnames_all}{A vector of ALL fleet names that are in the model in
+the order that they are specified in the model. This vector helps the
+function know which order the fleets appear in the model.}
 }
 \value{
 a list containing: F_df, a long dataframe with F by Yr, Era, Seas,

@@ -5,6 +5,9 @@
 #' @template timeseries
 #' @param fleetnames A vector of fleet names, in the order they appear in the
 #'  ss model.
+#' @param fleetnames_all A vector of ALL fleet names that are in the model in
+#'  the order that they are specified in the model. This vector helps the
+#'  function know which order the fleets appear in the model.
 #' @importFrom tidyr gather separate
 #' @return a list containing: F_df, a long dataframe with F by Yr, Era, Seas,
 #'  and fleet; F_rate, a data frame with F for the time frame of the model

@@ -9,6 +9,10 @@ get_rel_SSB_avg(summary, min_yr, max_yr)
 }
 \arguments{
 \item{summary}{Summary returned from running \code{SSMSE_summary_all()}}
+
+\item{min_yr}{The first year to include in the average}
+
+\item{max_yr}{The last year to include in the average}
 }
 \value{
 A tibble containing the relative avg SSB per year by iteration and
