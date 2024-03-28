@@ -51,6 +51,7 @@ update_OM <- function(OM_dir,
     stop("You have to input either a catch or a harvest rate")
   }
   if (!is.null(catch)) {
+    catch <- catch[catch[,"catch"]!=0,]
     check_catch_df(catch)
   }
   check_dir(OM_dir)
