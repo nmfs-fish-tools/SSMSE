@@ -82,8 +82,8 @@ get_catch_cv <- function(datfile, yrs) {
 #'  SSB (units as in the simulations) over a range of years for each iteration of
 #'  each scenario in the SSMSE simulation run.
 #' @param summary Summary returned from running `SSMSE_summary_all()`
-#' @param min_year The first year to include in the average
-#' @param max_year The last year to include in the average
+#' @param min_yr The first year to include in the average
+#' @param max_yr The last year to include in the average
 #' @export
 #' @importFrom magrittr %>%
 #' @examples
