@@ -838,3 +838,19 @@ set_MSE_seeds <- function(seed = NULL, iter_vec) {
   }
   return(seed)
 }
+
+# Create global variables to decrease warnings in check()
+utils::globalVariables(c(
+  "Rel_SSB",
+  "SSB_Unfished",
+  "SSB_ratio",
+  "SpawnBio",
+  "SpawnBio_EM",
+  "SpawnBio_OM",
+  "iteration",
+  "model_run",
+  "model_type",
+  "scenario",
+  "sd",
+  "year"
+))
