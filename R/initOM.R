@@ -311,7 +311,10 @@ create_OM <- function(OM_out_dir,
   # modify dat file ----
   dat[["endyr"]] <- dat[["endyr"]] + nyrs # because OM goes through the last simulated year.
   # remove the sampling components not needed
-  dat <- rm_sample_struct_hist(sample_struct = sample_struct_hist, dat = dat)
+  dat <- rm_sample_struct_hist(
+    sample_struct_hist = sample_struct_hist,
+    dat = dat
+  )
   # Add in the historical sampling structure, as defined by the user
   dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat)
   dat <- add_sample_struct(sample_struct = sample_struct, dat = dat)
