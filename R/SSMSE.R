@@ -11,5 +11,4 @@
 #'
 #' @docType package
 #' @name SSMSE
-
-NULL
+"_PACKAGE"

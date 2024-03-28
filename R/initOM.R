@@ -584,8 +584,8 @@ rm_sample_struct_hist <- function(sample_struct_hist, dat) {
 #'  with the same column names
 #' @param colnames The column names within the name_in_obj list components to
 #'  compare.
-#' @return return_obj[[name_in_obj]], modified to only include elements present
-#'  in compare_obj[[name_in_obj]].
+#' @return `return_obj[[name_in_obj]]`, modified to only include elements
+#'  present in `compare_obj[[name_in_obj]]`.
 #' @author Kathryn Doering
 rm_vals <- function(return_obj, compare_obj, name_in_obj, colnames) {
   # return early if nothing to compare.

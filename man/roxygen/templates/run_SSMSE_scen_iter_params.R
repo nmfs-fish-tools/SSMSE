@@ -21,7 +21,9 @@
 #'  number of years between full assessments during with an interim assessment
 #'  will happen every year, and Index_weights is a vector of length n indexes
 #'  that weights all indexes for multi index inference.
+#'  ```
 #'  interim_struct<-list(Beta = 1,
 #'                       MA_years = 3,
 #'                       assess_freq = 5,
 #'                       Index_weights = rep(1, max(ref_index[, 3])))
+#'  ```

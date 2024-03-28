@@ -22,8 +22,8 @@ with the same column names}
 compare.}
 }
 \value{
-return_obj[\link{name_in_obj}], modified to only include elements present
-in compare_obj[\link{name_in_obj}].
+\code{return_obj[[name_in_obj]]}, modified to only include elements
+present in \code{compare_obj[[name_in_obj]]}.
 }
 \description{
 From 2 list components with the same name, remove vals that aren't in the
