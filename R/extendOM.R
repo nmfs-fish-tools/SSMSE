@@ -9,7 +9,8 @@
 #'  add to the OM. The column names are the same as in an SS data file (e.g.,
 #'  year,	season, fleet,	catch,	catch_se). Must input either a catch and/or a harvest rate
 #'  data frame. If both are input the catch will override harvest rate as the management unit
-#'  but harvest rate will be used as a starting guess for search.
+#'  but harvest rate will be used as a starting guess for search, unless catch is zero then 
+#'  harvest rate will be used which is important for discard only fleets.
 #' @param harvest_rate A dataframe of harvest rate (F) values and associated information to
 #'  add to the OM. The column names are as in an SS datafile. If harvest rate is input without
 #'  a corresponding catch the OM will assume effort based management an use harvest rate directly
