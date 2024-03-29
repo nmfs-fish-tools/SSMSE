@@ -437,10 +437,10 @@ test_that("copy_model_files works", {
   expect_equivalent(success, c(TRUE, TRUE))
 
   # expect_error b/c model files still exist
-  expect_error(copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir),
+  suppressWarnings(expect_error(copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir),
     "Problem copying SS OM .ss_new files",
     fixed = TRUE
-  )
+  ))
   unlink(OM_out_dir, recursive = TRUE)
   dir.create(OM_out_dir)
   success <- copy_model_files(
@@ -458,14 +458,14 @@ test_that("copy_model_files works", {
   expect_equivalent(success, c(TRUE, TRUE))
   unlink(OM_out_dir, recursive = TRUE)
   dir.create(OM_out_dir)
-  expect_error(
+  suppressWarnings(expect_error(
     copy_model_files(
       OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
       EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir
     ),
     "Problem copying SS EM files",
     fixed = TRUE
-  )
+  ))
 })
 
 test_that("clean init_mod_files_works", {

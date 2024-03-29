@@ -30,11 +30,11 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   nyrs <- 7
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to determine its structure
-  sample_struct <- create_sample_struct(
+  sample_struct <- suppressWarnings(create_sample_struct(
     dat = datfile, nyrs = nyrs,
     rm_NAs = TRUE
-  ) # note warning
-  result <- run_SSMSE(
+  )) # note warning
+  result <- suppressWarnings(run_SSMSE(
     scen_name_vec = "H-ctl", # name of the scenario
     out_dir_scen_vec = temp_path, # directory in which to run the scenario
     iter_vec = 1, # run with 5 iterations each
@@ -48,7 +48,7 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
     nyrs_assess_vec = 3, # Years between assessments
     sample_struct_list = list(sample_struct), # How to sample data for running the EM.
     seed = 12345
-  ) # Set a fixed integer seed that allows replication
+  )) # Set a fixed integer seed that allows replication
   expect_equivalent(result[["H-ctl"]][["errored_iterations"]], "No errored iterations")
   expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
   expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
@@ -85,11 +85,11 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   nyrs <- 6
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to determine its structure
-  sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
+  sample_struct <- suppressWarnings(create_sample_struct(dat = datfile, nyrs = nyrs)) # note warning
   sample_struct[["lencomp"]] <- NULL
   sample_struct[["meanbodywt"]] <- NULL
   sample_struct[["MeanSize_at_Age_obs"]] <- NULL
-  result <- run_SSMSE(
+  result <- suppressWarnings(run_SSMSE(
     scen_name_vec = c("H-ctl", "H-scen-2"), # name of the scenario
     out_dir_scen_vec = new_temp_path, # directory in which to run the scenario
     iter_vec = c(2, 2), # run with 2 iterations each
@@ -104,7 +104,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
     run_parallel = FALSE,
     sample_struct_list = list(sample_struct, sample_struct), # How to sample data for running the EM.
     seed = 12345
-  ) # Set a fixed integer seed that allows replication
+  )) # Set a fixed integer seed that allows replication
   expect_equivalent(result[["H-ctl"]][["errored_iterations"]], "No errored iterations")
   expect_true(file.exists(
     file.path(new_temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")
@@ -214,7 +214,7 @@ test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE wo
   dir.create(new_temp_path)
   catch_add_yrs <- 101:106
   add_yrs <- c(102, 105)
-  result <- run_SSMSE_iter(
+  result <- suppressWarnings(run_SSMSE_iter(
     OM_name = NULL,
     OM_in_dir = OM_path_cod,
     MS = "EM",
@@ -239,7 +239,7 @@ test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE wo
         Lbin_lo = -1, Lbin_hi = -1
       )
     )
-  )
+  ))
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(file.exists(file.path(new_temp_path, "1", "cod_EM_106", "data.ss_new")))
   expect_true(result)
