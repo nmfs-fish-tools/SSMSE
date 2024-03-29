@@ -249,19 +249,19 @@ get_EM_catch_df <- function(EM_dir, dat) {
     dplyr::summarise(catch = sum(.data[["catch"]])) %>%
     merge(se, all.x = TRUE, all.y = FALSE) %>%
     dplyr::ungroup() %>%
-    dplyr::select(.data[["year"]], .data[["seas"]], .data[["fleet"]], .data[["catch"]], .data[["catch_se"]])
+    dplyr::select(dplyr::all_of(c("year", "seas", "fleet", "catch","catch_se")))
   catch_bio_df <- catch_bio_df %>%
     dplyr::group_by(.data[["year"]], .data[["seas"]], .data[["fleet"]]) %>%
     dplyr::summarise(catch = sum(.data[["catch"]])) %>%
     merge(se, all.x = TRUE, all.y = FALSE) %>%
     dplyr::ungroup() %>%
-    dplyr::select(.data[["year"]], .data[["seas"]], .data[["fleet"]], .data[["catch"]], .data[["catch_se"]])
+    dplyr::select(dplyr::all_of(c("year", "seas", "fleet", "catch", "catch_se")))
   catch_F_df <- catch_F_df %>%
     dplyr::group_by(.data[["year"]], .data[["seas"]], .data[["fleet"]]) %>%
     dplyr::summarise(catch = sum(.data[["catch"]])) %>%
     merge(se, all.x = TRUE, all.y = FALSE) %>%
     dplyr::ungroup() %>%
-    dplyr::select(.data[["year"]], .data[["seas"]], .data[["fleet"]], .data[["catch"]], .data[["catch_se"]])
+    dplyr::select(dplyr::all_of(c("year","seas","fleet","catch","catch_se")))
 
   catch_df <- as.data.frame(catch_df)
   catch_bio_df <- as.data.frame(catch_bio_df)
