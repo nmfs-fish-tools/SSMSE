@@ -232,7 +232,7 @@ test_that("sample_str works with other data types", {
   # dat_gen_size_comp <- r4ss::SS_readdat(
   #   system.file("extdata","test_dat_gen_size_comp.ss", package = "SSMSE"))
   # TODO: make type of the rows/columns standardized?
-  struct <- create_sample_struct(dat_all_types, nyrs = 5)
+  struct <- suppressWarnings(create_sample_struct(dat_all_types, nyrs = 5))
   expect_equivalent(struct[["meanbodywt"]], data.frame(
     Yr = c(2003, 2005),
     Seas = 7,

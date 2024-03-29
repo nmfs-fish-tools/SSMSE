@@ -197,22 +197,22 @@ test_that("incorrect inputs are caught", {
   )
   future_om_list_mod <- future_om_list
   future_om_list_mod[[1]][["input"]] <- NULL
-  expect_error(
+  suppressWarnings(expect_error(
     check_future_om_list_str(future_om_list = future_om_list_mod),
     "Names of list elements not correct"
-  )
+  ))
   future_om_list_mod <- future_om_list
   future_om_list_mod[[1]][["input"]] <- future_om_list_mod[[1]][["input"]][, -1]
-  expect_error(check_future_om_list_str(future_om_list = future_om_list_mod),
+  suppressWarnings(expect_error(check_future_om_list_str(future_om_list = future_om_list_mod),
     "Because pattern future_om_list[[",
     fixed = TRUE
-  )
+  ))
   future_om_list_mod <- future_om_list
-  future_om_list_mod[[2]]["scen"] <- c("dontreplicate", "scen2")
-  expect_error(check_future_om_list_str(future_om_list = future_om_list_mod),
+  future_om_list_mod[[2]][["scen"]] <- c("dontreplicate", "scen2")
+  suppressWarnings(expect_error(check_future_om_list_str(future_om_list = future_om_list_mod),
     "'arg' should be one of",
     fixed = TRUE
-  )
+  ))
 })
 
 future_om_list <- check_future_om_list_str(future_om_list)
@@ -520,12 +520,18 @@ test_that("creating the devs df works with cv", {
     future_om_list = tmp_future_om_list,
     scen_list = scen_list
   )
-  devs_list <- convert_future_om_list_to_devs_df(
+  # warnings are suppressed because the following warning is expected for many
+  # params:
+  # "Parameter [parameter name] has negative or 0 values and cv is used.The cv is 
+  # still used by calculating sd as abs(cv*mean), which may or may not be 
+  # reasonable for this variable."
+  # Other warnings are not expected.
+  suppressWarnings(devs_list <- convert_future_om_list_to_devs_df(
     future_om_list = tmp_future_om_list,
     scen_name = "scen2",
     niter = 1,
     om_mod_path = om_path, nyrs = 12
-  )
+  ))
   devs_df <- devs_list[["dev_vals"]]
   # modify the following expectations
   expect_true(nrow(devs_df) == 12)

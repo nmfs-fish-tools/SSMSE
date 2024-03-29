@@ -508,7 +508,7 @@ update_OM <- function(OM_dir,
           qmethod = "double"
         )
       } else {
-        utils::write.table(
+        suppressWarnings(utils::write.table(
           x = search_log,
           file = file.path(OM_dir, "OM_catch_search_log.csv"),
           append = TRUE,
@@ -517,7 +517,7 @@ update_OM <- function(OM_dir,
           sep = ",",
           dec = ".",
           qmethod = "double"
-        )
+        ))
       }
     }
   }
