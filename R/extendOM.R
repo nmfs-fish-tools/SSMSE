@@ -495,30 +495,16 @@ update_OM <- function(OM_dir,
         verbose = FALSE
       )
 
-
-      if (file.exists(file.path(OM_dir, "OM_catch_search_log.csv"))) {
-        utils::write.table(
-          x = search_log,
-          file = file.path(OM_dir, "OM_catch_search_log.csv"),
-          append = TRUE,
-          row.names = FALSE,
-          col.names = FALSE,
-          sep = ",",
-          dec = ".",
-          qmethod = "double"
+      utils::write.table(
+        x = search_log,
+        file = file.path(OM_dir, "OM_catch_search_log.csv"),
+        append = file.exists(file.path(OM_dir, "OM_catch_search_log.csv")),
+        row.names = FALSE,
+        col.names = !file.exists(file.path(OM_dir, "OM_catch_search_log.csv")),
+        sep = ",",
+        dec = ".",
+        qmethod = "double"
         )
-      } else {
-        suppressWarnings(utils::write.table(
-          x = search_log,
-          file = file.path(OM_dir, "OM_catch_search_log.csv"),
-          append = TRUE,
-          row.names = FALSE,
-          col.names = TRUE,
-          sep = ",",
-          dec = ".",
-          qmethod = "double"
-        ))
-      }
     }
   }
 
