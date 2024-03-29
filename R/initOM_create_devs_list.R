@@ -244,7 +244,6 @@ sample_vals <- function(mean,
     # need to think more about if this is correct or  not. this isn't exactly
     # an ar 1 process as described....because the variance isn't constant.
     samps <- vector(mode = "numeric", length = ndevs)
-    nonstat_warning <- TRUE
     for (d in seq_len(ndevs)) {
       if (d == 1) {
         past_samp <- 0 # I think
@@ -256,11 +255,8 @@ sample_vals <- function(mean,
           stats::rnorm(1, mean = 0, sd = sd[d] / sqrt(1 / (1 - ar_1_phi[d]^2)))
       } else {
         samps[d] <- mean[d] + ar_1_phi[d] * past_samp + stats::rnorm(1, mean = 0, sd = sd[d])
-        nonstat_warning <- TRUE
+        warning("An AR1 process with phi >= 1 was called, therefore will be nonstationary.")
       }
-    }
-    if (nonstat_warning) {
-      warning("An AR1 process with phi >= 1 was called, therefore will be nonstationary.")
     }
   }
   samps
