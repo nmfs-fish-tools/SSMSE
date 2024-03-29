@@ -19,22 +19,16 @@ knitr::opts_chunk$set(
 
 # SSMSE build status
 
-[![call-r-cmd-check](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml)
-[![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
-[![DOI](https://joss.theoj.org/papers/10.21105/joss.04937/status.svg)](https://doi.org/10.21105/joss.04937)
+[![badge for the github action call-r-cmd-check](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml)
+[![codecoverage badge](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
+[![DOI badge](https://joss.theoj.org/papers/10.21105/joss.04937/status.svg)](https://doi.org/10.21105/joss.04937)
+[![Lifecycle badge indicating this repository is stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html) 
+
+# Current support level for SSMSE
+
+SSMSE is not currently being actively developed. SSMSE is being maintained for bugs fixes only - bug fixes will be addressed, but suggestions for new features and enhancements will not. Changes in staffing in the future could support more active development.
 
 **************
-
-<https://nmfs-fish-tools.github.io/SSMSE/>
-  
-  
-**************
-  
-**This is a repository for the Stock Assessment Tool: SSMSE**
-  
-- Supported by the NOAA Fisheries Integrated Toolbox
-
-
 **Disclaimer**
   
 "The United States Department of Commerce (DOC) GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. DOC has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information. Any claims against the Department of Commerce stemming from the use of its GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
