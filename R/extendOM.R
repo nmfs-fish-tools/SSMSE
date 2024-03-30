@@ -47,12 +47,11 @@ update_OM <- function(OM_dir,
                       n_F_search_loops = 20,
                       tolerance_F_search = 0.001) {
   # input checks
-
+  
   if (is.null(catch) & is.null(harvest_rate)) {
     stop("You have to input either a catch or a harvest rate")
   }
   if (!is.null(catch)) {
-    catch <- catch[catch[,"catch"]!=0,]
     check_catch_df(catch)
   }
   check_dir(OM_dir)
@@ -129,7 +128,7 @@ update_OM <- function(OM_dir,
     }
     catch_intended[i, "basis_2"] <- basis_2
 
-    last_F <- parlist[["F_rate"]][which(parlist[["F_rate"]][, c("year")] == (catch_intended[i, c("year")] - 1) &
+    last_F <- parlist[["F_rate"]][which(parlist[["F_rate"]][, c("year")] == (min(catch_intended[, c("year")]) - 1) &
       parlist[["F_rate"]][, c("seas")] == catch_intended[i, c("seas")] &
       parlist[["F_rate"]][, c("fleet")] == catch_intended[i, c("fleet")]), "F"]
 
@@ -137,7 +136,7 @@ update_OM <- function(OM_dir,
       last_F <- 0
     }
 
-    last_catch <- dat[["catch"]][which(dat[["catch"]][, c("year")] == (catch_intended[i, c("year")] - 1) &
+    last_catch <- dat[["catch"]][which(dat[["catch"]][, c("year")] == (min(catch_intended[, c("year")]) - 1) &
       dat[["catch"]][, c("seas")] == catch_intended[i, c("seas")] &
       dat[["catch"]][, c("fleet")] == catch_intended[i, c("fleet")]), "catch"]
 
@@ -185,8 +184,13 @@ update_OM <- function(OM_dir,
         catch[, "seas"] == catch_intended[i, "seas"] &
         catch[, "fleet"] == catch_intended[i, "fleet"], "catch"]
       if (length(temp_catch) == 1) {
-        catch_intended[i, "catch"] <- temp_catch
-        catch_intended[i, "basis"] <- 1
+        if(temp_catch>0 & dat$fleetinfo[catch_intended[i, "fleet"],1]==1){
+          catch_intended[i, "catch"] <- temp_catch
+          catch_intended[i, "basis"] <- 1
+        }else{
+          catch_intended[i, "catch"] <- 0.001
+          catch_intended[i, "basis"] <- 2
+        }
       } else {
         catch_intended[i, "catch"] <- 0.001
         catch_intended[i, "basis"] <- 2
@@ -251,7 +255,7 @@ update_OM <- function(OM_dir,
         }
       }
     }
-
+    
     catch_intended[i, c("catch_targ", "F_targ")] <- catch_intended[i, c("catch", "F")]
     catch_intended[i, c("catch_imp", "F_imp")] <- catch_intended[i, c("catch", "F")]
     if (!is.null(impl_error)) {
@@ -300,8 +304,6 @@ update_OM <- function(OM_dir,
       }
     }
   }
-
-
 
   catch_intended <- catch_intended[catch_intended[, "catch"] > 0, , drop = FALSE]
   catch_intended <- catch_intended[catch_intended[, "F"] > 0, , drop = FALSE]
@@ -455,6 +457,13 @@ update_OM <- function(OM_dir,
           achieved_F <- F_achieved[F_achieved[, "year"] == catch_intended[i, "year"] &
             F_achieved[, "seas"] == catch_intended[i, "seas"] &
             F_achieved[, "fleet"] == catch_intended[i, "fleet"], "F"]
+          
+          if (length(achieved_F) > 1) {
+            achieved_F <- achieved_F[achieved_F != 0]
+            if (length(achieved_F) > 1) {
+              stop("achieved_F has a length greater than 1. Contact the SSMSE developers for assistance.")
+            }
+          }
         } else {
           stop(paste0("Something is wrong basis should be 1 or 2.
                              This occured for fleet ", catch_intended[i, "fleet"], "
