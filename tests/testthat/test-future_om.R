@@ -522,8 +522,8 @@ test_that("creating the devs df works with cv", {
   )
   # warnings are suppressed because the following warning is expected for many
   # params:
-  # "Parameter [parameter name] has negative or 0 values and cv is used.The cv is 
-  # still used by calculating sd as abs(cv*mean), which may or may not be 
+  # "Parameter [parameter name] has negative or 0 values and cv is used.The cv is
+  # still used by calculating sd as abs(cv*mean), which may or may not be
   # reasonable for this variable."
   # Other warnings are not expected.
   suppressWarnings(devs_list <- convert_future_om_list_to_devs_df(
