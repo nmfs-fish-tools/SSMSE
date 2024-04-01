@@ -405,7 +405,7 @@ add_dev_changes <- function(fut_list, scen, iter, parlist, dat, vals_df, nyrs, c
       custom_vals <- fut_list[["input"]][fut_list[["input"]][["scen"]] %in% c("all", scen) &
         fut_list[["input"]][["par"]] == i &
         fut_list[["input"]][["iter"]] == iter, ]
-      custom_vals <- dplyr::select(custom_vals, dplyr::all_of(c("yr","value"))) %>%
+      custom_vals <- dplyr::select(custom_vals, dplyr::all_of(c("yr", "value"))) %>%
         dplyr::rename(yrs = "yr")
       vals_df <- dplyr::left_join(vals_df, custom_vals, by = "yrs") %>%
         tidyr::replace_na(replace = list(value = tmp_base))

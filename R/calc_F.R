@@ -183,7 +183,7 @@ get_retained_catch <- function(timeseries, units_of_catch) {
   retain_catch_df <- retain_catch_df %>%
     dplyr::group_by(.data[["Yr"]], .data[["Era"]], .data[["Seas"]], .data[["Units"]], .data[["Fleet"]]) %>%
     dplyr::summarise(retained_catch = sum(.data[["retained_catch"]])) %>%
-    dplyr::select(dplyr::all_of(c("Yr","Era","Seas","Units","Fleet","retained_catch")))
+    dplyr::select(dplyr::all_of(c("Yr", "Era", "Seas", "Units", "Fleet", "retained_catch")))
   retain_catch_df <- as.data.frame(retain_catch_df) # want as df and not tibble
   # units are not as concise as they could be, but leave for now.
   retain_catch_df
@@ -242,8 +242,10 @@ get_dead_catch <- function(timeseries, units_of_catch) {
   dead_catch_df <- dead_catch_df %>%
     dplyr::group_by(.data[["Yr"]], .data[["Era"]], .data[["Seas"]], .data[["Units"]], .data[["Fleet"]]) %>%
     dplyr::summarise(retained_catch = sum(.data[["retained_catch"]])) %>%
-    dplyr::select(dplyr::all_of(c("Yr", "Era", "Seas", "Units", "Fleet",
-     "retained_catch")))
+    dplyr::select(dplyr::all_of(c(
+      "Yr", "Era", "Seas", "Units", "Fleet",
+      "retained_catch"
+    )))
   dead_catch_df <- as.data.frame(dead_catch_df)
   # units are not as concise as they could be, but leave for now.
 }
