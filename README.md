@@ -1,59 +1,36 @@
 SSMSE: Management Strategy Evaluation for Stock Synthesis
 ================
 
-- <a href="#ssmse-build-status" id="toc-ssmse-build-status">SSMSE build
-  status</a>
-- <a href="#motivation-for-developing-ssmse"
-  id="toc-motivation-for-developing-ssmse">Motivation for developing
-  SSMSE</a>
-- <a href="#how-to-cite-ssmse" id="toc-how-to-cite-ssmse">How to cite
-  SSMSE</a>
-- <a href="#need-help" id="toc-need-help">Need Help?</a>
-- <a href="#installing-the-ssmse-r-package"
-  id="toc-installing-the-ssmse-r-package">Installing the SSMSE R
-  package</a>
-- <a href="#troubleshooting-installation"
-  id="toc-troubleshooting-installation">Troubleshooting Installation</a>
-- <a href="#an-ssmse-example" id="toc-an-ssmse-example">An SSMSE
-  example</a>
-  - <a href="#setup-r-workspace-folders"
-    id="toc-setup-r-workspace-folders">Setup R workspace folders</a>
-  - <a href="#create-the-operating-models-oms"
-    id="toc-create-the-operating-models-oms">Create the operating models
-    (OMs)</a>
-  - <a
-    href="#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity"
-    id="toc-adding-process-error-through-recruitment-deviations-and-time-varying-selectivity">Adding
-    process error through recruitment deviations and time-varying
-    selectivity</a>
-  - <a href="#examine-the-management-procedure-used"
-    id="toc-examine-the-management-procedure-used">Examine the management
-    procedure used</a>
-  - <a href="#run-ssmse" id="toc-run-ssmse">Run SSMSE</a>
-  - <a href="#run_ssmse-output" id="toc-run_ssmse-output">run_SSMSE
-    output</a>
-  - <a href="#performance-metrics" id="toc-performance-metrics">Performance
-    metrics</a>
-  - <a href="#summarize-results" id="toc-summarize-results">Summarize
-    results</a>
-  - <a href="#simple-convergence-check"
-    id="toc-simple-convergence-check">Simple Convergence Check</a>
-  - <a href="#plot-spawning-stock-biomass-ssb"
-    id="toc-plot-spawning-stock-biomass-ssb">Plot Spawning Stock Biomass
-    (SSB)</a>
-  - <a href="#example-mse-results" id="toc-example-mse-results">Example MSE
-    Results</a>
-  - <a href="#delete-the-files" id="toc-delete-the-files">Delete the
-    files</a>
-- <a href="#advanced-options-use-a-custom-management-strategyprocedure"
-  id="toc-advanced-options-use-a-custom-management-strategyprocedure">Advanced
-  options: use a custom management strategy/procedure</a>
-- <a href="#how-can-i-contribute-to-ssmse"
-  id="toc-how-can-i-contribute-to-ssmse">How can I contribute to
-  SSMSE?</a>
-- <a href="#roadmap-where-is-ssmse-headed-next"
-  id="toc-roadmap-where-is-ssmse-headed-next">Roadmap: Where is SSMSE
-  headed next?</a>
+- [SSMSE build status](#ssmse-build-status)
+- [Current support level for SSMSE](#current-support-level-for-ssmse)
+- [Motivation for developing SSMSE](#motivation-for-developing-ssmse)
+- [How to cite SSMSE](#how-to-cite-ssmse)
+- [Need Help?](#need-help)
+- [Installing the SSMSE R package](#installing-the-ssmse-r-package)
+- [Troubleshooting Installation](#troubleshooting-installation)
+- [An SSMSE example](#an-ssmse-example)
+  - [Setup R workspace folders](#setup-r-workspace-folders)
+  - [Create the operating models
+    (OMs)](#create-the-operating-models-oms)
+  - [Adding process error through recruitment deviations and
+    time-varying
+    selectivity](#adding-process-error-through-recruitment-deviations-and-time-varying-selectivity)
+  - [Examine the management procedure
+    used](#examine-the-management-procedure-used)
+  - [Run SSMSE](#run-ssmse)
+  - [run_SSMSE output](#run_ssmse-output)
+  - [Performance metrics](#performance-metrics)
+  - [Summarize results](#summarize-results)
+  - [Simple Convergence Check](#simple-convergence-check)
+  - [Plot Spawning Stock Biomass
+    (SSB)](#plot-spawning-stock-biomass-ssb)
+  - [Example MSE Results](#example-mse-results)
+  - [Delete the files](#delete-the-files)
+- [Advanced options: use a custom management
+  strategy/procedure](#advanced-options-use-a-custom-management-strategyprocedure)
+- [How can I contribute to SSMSE?](#how-can-i-contribute-to-ssmse)
+- [Roadmap: Where is SSMSE headed
+  next?](#roadmap-where-is-ssmse-headed-next)
 
 <!-- README.md is generated from README.Rmd. Please edit README.Rmd -->
 
@@ -61,19 +38,23 @@ SSMSE: Management Strategy Evaluation for Stock Synthesis
 
 # SSMSE build status
 
-[![call-r-cmd-check](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml)
-[![codecov](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
-[![DOI](https://joss.theoj.org/papers/10.21105/joss.04937/status.svg)](https://doi.org/10.21105/joss.04937)
+[![badge for the github action
+call-r-cmd-check](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml/badge.svg)](https://github.com/nmfs-fish-tools/SSMSE/actions/workflows/call-r-cmd-check.yml)
+[![codecoverage
+badge](https://codecov.io/gh/nmfs-fish-tools/SSMSE/branch/master/graph/badge.svg)](https://codecov.io/gh/nmfs-fish-tools/SSMSE)
+[![DOI
+badge](https://joss.theoj.org/papers/10.21105/joss.04937/status.svg)](https://doi.org/10.21105/joss.04937)
+[![Lifecycle badge indicating this repository is
+stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+
+# Current support level for SSMSE
+
+SSMSE is not currently being actively developed. SSMSE is being
+maintained for bugs fixes only - bug fixes will be addressed, but
+suggestions for new features and enhancements will not. Changes in
+staffing in the future could support more active development.
 
 ------------------------------------------------------------------------
-
-<https://nmfs-fish-tools.github.io/SSMSE/>
-
-------------------------------------------------------------------------
-
-**This is a repository for the Stock Assessment Tool: SSMSE**
-
-- Supported by the NOAA Fisheries Integrated Toolbox
 
 **Disclaimer**
 
@@ -485,7 +466,7 @@ procedures](https://nmfs-fish-tools.github.io/SSMSE/manual/custom-MS.html).
 ## Run SSMSE
 
 Now, we create a directory to store our results, and use `run_SSMSE` to
-run the MSE analysis loop (note this will take some time to run, \~ 20
+run the MSE analysis loop (note this will take some time to run, ~ 20
 min):
 
 ``` r
