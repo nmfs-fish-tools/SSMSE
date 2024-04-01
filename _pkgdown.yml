@@ -1,0 +1,12 @@
+url: ~
+template:
+  bootstrap: 5
+navbar:
+  structure:
+    left:  [intro, reference, usermanual]
+    right: [search, github]
+  components:
+    usermanual:
+      text: User Manual
+      href: https://nmfs-fish-tools.github.io/SSMSE/manual
+      aria-label: User Manual

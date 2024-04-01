@@ -17,3 +17,7 @@
 ^JOSS$
 ^\.devcontainer/*
 ^CITATION\.cff$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
