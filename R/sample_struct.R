@@ -7,13 +7,14 @@
 convert_to_r4ss_names <- function(sample_struct,
                                   convert_key = data.frame(
                                     df_name = c(
-                                      rep("catch", 4), rep("CPUE", 4), rep("lencomp", 6),
+                                      rep("catch", 4), rep("CPUE", 4), rep("discard_data", 4), rep("lencomp", 6),
                                       rep("agecomp", 9), rep("meanbodywt", 6),
                                       rep("MeanSize_at_Age_obs", 7)
                                     ),
                                     r4ss_name = c(
                                       "year", "seas", "fleet", "catch_se",
                                       "year", "seas", "index", "se_log",
+                                      "Yr", "Seas", "Flt", "Std_in",
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Nsamp",
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
                                       "Lbin_hi", "Nsamp",
@@ -28,6 +29,7 @@ convert_to_r4ss_names <- function(sample_struct,
                                       # Morph comp
                                     ),
                                     sample_struct_name = c(
+                                      "Yr", "Seas", "FltSvy", "SE",
                                       "Yr", "Seas", "FltSvy", "SE",
                                       "Yr", "Seas", "FltSvy", "SE",
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp",
@@ -98,7 +100,7 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
   }
 
   list_name <- c(
-    "catch", "CPUE", "lencomp", "agecomp", "meanbodywt",
+    "catch", "CPUE", "discard_data", "lencomp", "agecomp", "meanbodywt",
     "MeanSize_at_Age_obs"
   )
   sample_struct <- lapply(list_name,
@@ -108,9 +110,9 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
         return(NA)
       }
       # get year, seas, fleet combo, ignoring -999 values.
-      yr_col <- grep("year|yr", colnames(df), ignore.case = TRUE, value = TRUE)
-      seas_col <- grep("seas|season", colnames(df), ignore.case = TRUE, value = TRUE)
-      flt_col <- grep("FltSvy|fleet|index", colnames(df),
+      yr_col <- grep("year|yr|Yr", colnames(df), ignore.case = TRUE, value = TRUE)
+      seas_col <- grep("seas|season|Seas", colnames(df), ignore.case = TRUE, value = TRUE)
+      flt_col <- grep("FltSvy|fleet|index|Flt", colnames(df),
         ignore.case = TRUE,
         value = TRUE
       )
@@ -566,6 +568,7 @@ get_full_sample_struct <- function(sample_struct,
         x <- switch(x_name,
           catch = x[, c("Yr", "Seas", "FltSvy", "SE")],
           CPUE = x[, c("Yr", "Seas", "FltSvy", "SE")],
+          discard_data = x[, c("Yr", "Seas", "FltSvy", "SE")],
           lencomp = x[, c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp")],
           agecomp = x[, c(
             "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
@@ -591,6 +594,9 @@ get_full_sample_struct <- function(sample_struct,
   }
   if (!is.null(full_samp_str[["CPUE"]])) {
     full_samp_str[["CPUE"]] <- full_samp_str[["CPUE"]][, tmp_colorder]
+  }
+  if (!is.null(full_samp_str[["discard_data"]])) {
+    full_samp_str[["discard_data"]] <- full_samp_str[["discard_data"]][, tmp_colorder]
   }
   tmp_colorder <- c(tmp_colorder[-length(tmp_colorder)], "Sex", "Part", "Nsamp")
   if (!is.null(full_samp_str[["lencomp"]])) {

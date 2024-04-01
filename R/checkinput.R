@@ -192,6 +192,7 @@ check_sample_struct <- function(sample_struct,
                                 valid_names = list(
                                   catch = c("Yr", "Seas", "FltSvy", "SE"),
                                   CPUE = c("Yr", "Seas", "FltSvy", "SE"),
+                                  discard_data = c("Yr", "Seas", "FltSvy", "SE"),
                                   lencomp = c(
                                     "Yr", "Seas", "FltSvy", "Sex",
                                     "Part", "Nsamp"

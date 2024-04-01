@@ -676,10 +676,12 @@ run_SSMSE_iter <- function(out_dir = NULL,
       )
     }
 
+
     update_OM(
       OM_dir = OM_out_dir,
       catch = new_catch_list[["catch"]],
       harvest_rate = new_catch_list[["catch_F"]],
+      discards = new_catch_list[["discards"]],
       catch_basis = NULL,
       F_limit = NULL,
       EM_pars = new_catch_list[["EM_pars"]],
@@ -753,7 +755,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       } else {
         tmp_EM_init_dir <- NULL
       }
-
+      
       new_catch_list <- parse_MS(
         MS = MS,
         EM_out_dir = EM_out_dir,
@@ -785,6 +787,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       OM_dir = OM_out_dir,
       catch = subset_catch_list[["catch"]],
       harvest_rate = subset_catch_list[["catch_F"]],
+      discards = new_catch_list[["discards"]],
       catch_basis = NULL,
       F_limit = NULL,
       EM_pars = subset_catch_list[["EM_pars"]],

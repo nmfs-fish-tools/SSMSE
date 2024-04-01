@@ -15,6 +15,8 @@
 #'  add to the OM. The column names are as in an SS datafile. If harvest rate is input without
 #'  a corresponding catch the OM will assume effort based management an use harvest rate directly
 #'  with implementation error added.
+#' @param discards A dataframe of discard values and associated information to
+#'  add to the OM. The column names are as in an SS datafile
 #' @param catch_basis data frame with columns year, seas, fleet, basis that specifies if catch
 #'  should reference retained biomass (1) or dead biomass (2). Any year/season/fleet not listed will assume
 #'  a value of 1 referencing retained biomass. Entering -99 for any of year, season, or fleet will
@@ -37,6 +39,7 @@
 update_OM <- function(OM_dir,
                       catch = NULL,
                       harvest_rate = NULL,
+                      discards = NULL,
                       catch_basis = NULL,
                       F_limit = NULL,
                       EM_pars = NULL,
@@ -304,7 +307,33 @@ update_OM <- function(OM_dir,
       }
     }
   }
-
+  
+  
+  if(!is.null(discards)){
+    for(i in seq_along(discards[,1])){
+      dup_discards <- discards[abs(discards[,"Yr"])==abs(discards[i,"Yr"]) &
+                                 abs(discards[,"Seas"])==abs(discards[i,"Seas"]) &
+                                 abs(discards[,"Flt"])==abs(discards[i,"Flt"]), ,drop=FALSE]
+      
+      if(length(dup_discards[,1])>1){
+        dup_discards <- dup_discards[dup_discards[,"Discard"]==max(dup_discards[,"Discard"]),,drop=FALSE]
+        dup_discards <- dup_discards[1,,drop=FALSE]
+      }
+      
+      existing_discard <- dat[["discard_data"]][abs(dat[["discard_data"]][,"Yr"])==abs(dup_discards[1,"Yr"]) &
+                                                  abs(dat[["discard_data"]][,"Seas"])==abs(dup_discards[1,"Seas"]) &
+                                                        abs(dat[["discard_data"]][,"Flt"])==abs(dup_discards[1,"Flt"]),,drop=FALSE]
+      
+      if(length(existing_discard[,1])==1){
+        dat[["discard_data"]][abs(dat[["discard_data"]][,"Yr"])==dup_discards[1,"Yr"] &
+                                abs(dat[["discard_data"]][,"Seas"])==dup_discards[1,"Seas"] &
+                                abs(dat[["discard_data"]][,"Flt"])==dup_discards[1,"Flt"],] <- dup_discards[1,,drop=FALSE]
+      }else{
+        dat[["discard_data"]] <- rbind(dat[["discard_data"]],dup_discards[1,,drop=FALSE])
+      }
+    }
+  }
+  
   catch_intended <- catch_intended[catch_intended[, "catch"] > 0, , drop = FALSE]
   catch_intended <- catch_intended[catch_intended[, "F"] > 0, , drop = FALSE]
 
