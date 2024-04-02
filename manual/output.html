@@ -231,9 +231,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="summarizing-output" class="section level2 hasAnchor" number="6.1">
 <h2><span class="header-section-number">6.1</span> Summarizing output<a href="output.html#summarizing-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Output is summarized using <code>SSMSE_summary_all()</code>:</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="output.html#cb62-1" tabindex="-1"></a>summary_list <span class="ot">&lt;-</span> <span class="fu">SSMSE_summary_all</span>(<span class="at">dir =</span> <span class="st">&quot;path/to/scenario/dir&quot;</span>,</span>
-<span id="cb62-2"><a href="output.html#cb62-2" tabindex="-1"></a>                  <span class="at">scenarios =</span> <span class="fu">c</span>(<span class="st">&quot;sample_low&quot;</span>, <span class="st">&quot;sample_high&quot;</span>),</span>
-<span id="cb62-3"><a href="output.html#cb62-3" tabindex="-1"></a>                  <span class="at">run_parallel =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="output.html#cb61-1" tabindex="-1"></a>summary_list <span class="ot">&lt;-</span> <span class="fu">SSMSE_summary_all</span>(<span class="at">dir =</span> <span class="st">&quot;path/to/scenario/dir&quot;</span>,</span>
+<span id="cb61-2"><a href="output.html#cb61-2" tabindex="-1"></a>                  <span class="at">scenarios =</span> <span class="fu">c</span>(<span class="st">&quot;sample_low&quot;</span>, <span class="st">&quot;sample_high&quot;</span>),</span>
+<span id="cb61-3"><a href="output.html#cb61-3" tabindex="-1"></a>                  <span class="at">run_parallel =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Relying on <code>ss3sim::get_results_all()</code>, this function creates:</p>
 <ul>
 <li>For each scenario, 3 scenario level .csv files</li>

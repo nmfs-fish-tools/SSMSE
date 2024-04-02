@@ -254,48 +254,48 @@ There are 3 built-in models that comes with SSMSE: cod, growth_timevary, and SR_
 <div id="custom-MS" class="section level3 hasAnchor" number="4.3.2">
 <h3><span class="header-section-number">4.3.2</span> Using a custom management strategy/procedure<a href="SSMSE.html#custom-MS" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Users can outline a custom managment strategy as an R function to use. As long as the correct inputs and outputs are used, any estimation method and management procedure can be used. For example, here is a simple function that just sets future catches as half the sampled catches in a specified year:</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="SSMSE.html#cb45-1" tabindex="-1"></a>constant_catch_MS <span class="ot">&lt;-</span> <span class="cf">function</span>(OM_dat, nyrs_assess, <span class="at">catch_yr =</span> <span class="dv">100</span>, </span>
-<span id="cb45-2"><a href="SSMSE.html#cb45-2" tabindex="-1"></a>                              <span class="at">frac_catch =</span> <span class="fl">0.5</span>, ...) { <span class="co"># need to include ... to allow function to work</span></span>
-<span id="cb45-3"><a href="SSMSE.html#cb45-3" tabindex="-1"></a>  <span class="co"># set catch the same as the previous year (sampled catch).</span></span>
-<span id="cb45-4"><a href="SSMSE.html#cb45-4" tabindex="-1"></a>  <span class="co"># catch is in the same units as the operating model, in this case it is in</span></span>
-<span id="cb45-5"><a href="SSMSE.html#cb45-5" tabindex="-1"></a>  <span class="co"># biomass.</span></span>
-<span id="cb45-6"><a href="SSMSE.html#cb45-6" tabindex="-1"></a>  catch <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb45-7"><a href="SSMSE.html#cb45-7" tabindex="-1"></a>    <span class="at">year =</span> (OM_dat<span class="sc">$</span>endyr <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(OM_dat<span class="sc">$</span>endyr <span class="sc">+</span> nyrs_assess), <span class="co"># the years to project the model forward</span></span>
-<span id="cb45-8"><a href="SSMSE.html#cb45-8" tabindex="-1"></a>    <span class="at">seas =</span> <span class="dv">1</span>, <span class="co"># hard coded from looking at model </span></span>
-<span id="cb45-9"><a href="SSMSE.html#cb45-9" tabindex="-1"></a>    <span class="at">fleet =</span> <span class="dv">1</span>,  <span class="co"># hard coded from looking at model</span></span>
-<span id="cb45-10"><a href="SSMSE.html#cb45-10" tabindex="-1"></a>    <span class="at">catch =</span> OM_dat<span class="sc">$</span>catch[OM_dat<span class="sc">$</span>catch<span class="sc">$</span>year <span class="sc">==</span> catch_yr, <span class="st">&quot;catch&quot;</span>]<span class="sc">*</span>frac_catch,</span>
-<span id="cb45-11"><a href="SSMSE.html#cb45-11" tabindex="-1"></a>    <span class="at">catch_se =</span> <span class="fl">0.05</span>) <span class="co"># hard coded from looking at model</span></span>
-<span id="cb45-12"><a href="SSMSE.html#cb45-12" tabindex="-1"></a>  catch_bio <span class="ot">&lt;-</span> catch <span class="co"># catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL</span></span>
-<span id="cb45-13"><a href="SSMSE.html#cb45-13" tabindex="-1"></a>  catch_F <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># catch in terms of F, can be left as NULL.</span></span>
-<span id="cb45-14"><a href="SSMSE.html#cb45-14" tabindex="-1"></a>  discards <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># discards can be left as NULL if there are no discards</span></span>
-<span id="cb45-15"><a href="SSMSE.html#cb45-15" tabindex="-1"></a>  catch_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">catch =</span> catch,</span>
-<span id="cb45-16"><a href="SSMSE.html#cb45-16" tabindex="-1"></a>                     <span class="at">catch_bio =</span> catch_bio, </span>
-<span id="cb45-17"><a href="SSMSE.html#cb45-17" tabindex="-1"></a>                     <span class="at">catch_F =</span> catch_F,</span>
-<span id="cb45-18"><a href="SSMSE.html#cb45-18" tabindex="-1"></a>                     <span class="at">discards =</span> discards)</span>
-<span id="cb45-19"><a href="SSMSE.html#cb45-19" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="SSMSE.html#cb44-1" tabindex="-1"></a>constant_catch_MS <span class="ot">&lt;-</span> <span class="cf">function</span>(OM_dat, nyrs_assess, <span class="at">catch_yr =</span> <span class="dv">100</span>, </span>
+<span id="cb44-2"><a href="SSMSE.html#cb44-2" tabindex="-1"></a>                              <span class="at">frac_catch =</span> <span class="fl">0.5</span>, ...) { <span class="co"># need to include ... to allow function to work</span></span>
+<span id="cb44-3"><a href="SSMSE.html#cb44-3" tabindex="-1"></a>  <span class="co"># set catch the same as the previous year (sampled catch).</span></span>
+<span id="cb44-4"><a href="SSMSE.html#cb44-4" tabindex="-1"></a>  <span class="co"># catch is in the same units as the operating model, in this case it is in</span></span>
+<span id="cb44-5"><a href="SSMSE.html#cb44-5" tabindex="-1"></a>  <span class="co"># biomass.</span></span>
+<span id="cb44-6"><a href="SSMSE.html#cb44-6" tabindex="-1"></a>  catch <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb44-7"><a href="SSMSE.html#cb44-7" tabindex="-1"></a>    <span class="at">year =</span> (OM_dat<span class="sc">$</span>endyr <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(OM_dat<span class="sc">$</span>endyr <span class="sc">+</span> nyrs_assess), <span class="co"># the years to project the model forward</span></span>
+<span id="cb44-8"><a href="SSMSE.html#cb44-8" tabindex="-1"></a>    <span class="at">seas =</span> <span class="dv">1</span>, <span class="co"># hard coded from looking at model </span></span>
+<span id="cb44-9"><a href="SSMSE.html#cb44-9" tabindex="-1"></a>    <span class="at">fleet =</span> <span class="dv">1</span>,  <span class="co"># hard coded from looking at model</span></span>
+<span id="cb44-10"><a href="SSMSE.html#cb44-10" tabindex="-1"></a>    <span class="at">catch =</span> OM_dat<span class="sc">$</span>catch[OM_dat<span class="sc">$</span>catch<span class="sc">$</span>year <span class="sc">==</span> catch_yr, <span class="st">&quot;catch&quot;</span>]<span class="sc">*</span>frac_catch,</span>
+<span id="cb44-11"><a href="SSMSE.html#cb44-11" tabindex="-1"></a>    <span class="at">catch_se =</span> <span class="fl">0.05</span>) <span class="co"># hard coded from looking at model</span></span>
+<span id="cb44-12"><a href="SSMSE.html#cb44-12" tabindex="-1"></a>  catch_bio <span class="ot">&lt;-</span> catch <span class="co"># catch in biomass. In this case, catch is in biomass for both. Could also be left as NULL</span></span>
+<span id="cb44-13"><a href="SSMSE.html#cb44-13" tabindex="-1"></a>  catch_F <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># catch in terms of F, can be left as NULL.</span></span>
+<span id="cb44-14"><a href="SSMSE.html#cb44-14" tabindex="-1"></a>  discards <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># discards can be left as NULL if there are no discards</span></span>
+<span id="cb44-15"><a href="SSMSE.html#cb44-15" tabindex="-1"></a>  catch_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">catch =</span> catch,</span>
+<span id="cb44-16"><a href="SSMSE.html#cb44-16" tabindex="-1"></a>                     <span class="at">catch_bio =</span> catch_bio, </span>
+<span id="cb44-17"><a href="SSMSE.html#cb44-17" tabindex="-1"></a>                     <span class="at">catch_F =</span> catch_F,</span>
+<span id="cb44-18"><a href="SSMSE.html#cb44-18" tabindex="-1"></a>                     <span class="at">discards =</span> discards)</span>
+<span id="cb44-19"><a href="SSMSE.html#cb44-19" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s assume this function is saved in a file within the working directory named constant_catch_MS.R.</p>
 <p>This function can then be used in a call to <code>run_SSMSE()</code>:</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="SSMSE.html#cb46-1" tabindex="-1"></a><span class="co"># define sample structure</span></span>
-<span id="cb46-2"><a href="SSMSE.html#cb46-2" tabindex="-1"></a>datfile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
-<span id="cb46-3"><a href="SSMSE.html#cb46-3" tabindex="-1"></a>sample_struct <span class="ot">&lt;-</span> <span class="fu">create_sample_struct</span>(<span class="at">dat =</span> datfile, <span class="at">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></span>
-<span id="cb46-4"><a href="SSMSE.html#cb46-4" tabindex="-1"></a>sample_struct<span class="sc">$</span>lencomp <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># don&#39;t use length sampling</span></span>
-<span id="cb46-5"><a href="SSMSE.html#cb46-5" tabindex="-1"></a></span>
-<span id="cb46-6"><a href="SSMSE.html#cb46-6" tabindex="-1"></a><span class="co"># run the SSMSE routine</span></span>
-<span id="cb46-7"><a href="SSMSE.html#cb46-7" tabindex="-1"></a>run_result_custom <span class="ot">&lt;-</span> <span class="fu">run_SSMSE</span>(</span>
-<span id="cb46-8"><a href="SSMSE.html#cb46-8" tabindex="-1"></a>                              <span class="at">scen_name_vec =</span> <span class="st">&quot;constant-catch&quot;</span>,</span>
-<span id="cb46-9"><a href="SSMSE.html#cb46-9" tabindex="-1"></a>                              <span class="at">out_dir_scen_vec =</span> <span class="st">&quot;my_results&quot;</span>,</span>
-<span id="cb46-10"><a href="SSMSE.html#cb46-10" tabindex="-1"></a>                              <span class="at">iter_vec =</span> <span class="dv">1</span>,</span>
-<span id="cb46-11"><a href="SSMSE.html#cb46-11" tabindex="-1"></a>                              <span class="at">OM_name_vec =</span> <span class="st">&quot;cod&quot;</span>,</span>
-<span id="cb46-12"><a href="SSMSE.html#cb46-12" tabindex="-1"></a>                              <span class="at">OM_in_dir_vec =</span> <span class="cn">NULL</span>,</span>
-<span id="cb46-13"><a href="SSMSE.html#cb46-13" tabindex="-1"></a>                              <span class="at">MS_vec =</span> <span class="st">&quot;constant_catch_MS&quot;</span>, <span class="co"># use custom fun</span></span>
-<span id="cb46-14"><a href="SSMSE.html#cb46-14" tabindex="-1"></a>                              <span class="at">custom_MS_source =</span> <span class="st">&quot;constant_catch_MS.R&quot;</span>,</span>
-<span id="cb46-15"><a href="SSMSE.html#cb46-15" tabindex="-1"></a>                              <span class="at">use_SS_boot_vec =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb46-16"><a href="SSMSE.html#cb46-16" tabindex="-1"></a>                              <span class="at">nyrs_vec =</span> <span class="dv">6</span>,</span>
-<span id="cb46-17"><a href="SSMSE.html#cb46-17" tabindex="-1"></a>                              <span class="at">nyrs_assess_vec =</span> <span class="dv">3</span>,</span>
-<span id="cb46-18"><a href="SSMSE.html#cb46-18" tabindex="-1"></a>                              <span class="at">run_EM_last_yr =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb46-19"><a href="SSMSE.html#cb46-19" tabindex="-1"></a>                              <span class="at">run_parallel =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb46-20"><a href="SSMSE.html#cb46-20" tabindex="-1"></a>                              <span class="at">sample_struct_list =</span> <span class="fu">list</span>(sample_struct),</span>
-<span id="cb46-21"><a href="SSMSE.html#cb46-21" tabindex="-1"></a>                              <span class="at">seed =</span> <span class="dv">12345</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="SSMSE.html#cb45-1" tabindex="-1"></a><span class="co"># define sample structure</span></span>
+<span id="cb45-2"><a href="SSMSE.html#cb45-2" tabindex="-1"></a>datfile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;models&quot;</span>, <span class="st">&quot;cod&quot;</span>, <span class="st">&quot;ss3.dat&quot;</span>, <span class="at">package =</span> <span class="st">&quot;SSMSE&quot;</span>)</span>
+<span id="cb45-3"><a href="SSMSE.html#cb45-3" tabindex="-1"></a>sample_struct <span class="ot">&lt;-</span> <span class="fu">create_sample_struct</span>(<span class="at">dat =</span> datfile, <span class="at">nyrs =</span> <span class="dv">6</span>) <span class="co"># note warning</span></span>
+<span id="cb45-4"><a href="SSMSE.html#cb45-4" tabindex="-1"></a>sample_struct<span class="sc">$</span>lencomp <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="co"># don&#39;t use length sampling</span></span>
+<span id="cb45-5"><a href="SSMSE.html#cb45-5" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="SSMSE.html#cb45-6" tabindex="-1"></a><span class="co"># run the SSMSE routine</span></span>
+<span id="cb45-7"><a href="SSMSE.html#cb45-7" tabindex="-1"></a>run_result_custom <span class="ot">&lt;-</span> <span class="fu">run_SSMSE</span>(</span>
+<span id="cb45-8"><a href="SSMSE.html#cb45-8" tabindex="-1"></a>                              <span class="at">scen_name_vec =</span> <span class="st">&quot;constant-catch&quot;</span>,</span>
+<span id="cb45-9"><a href="SSMSE.html#cb45-9" tabindex="-1"></a>                              <span class="at">out_dir_scen_vec =</span> <span class="st">&quot;my_results&quot;</span>,</span>
+<span id="cb45-10"><a href="SSMSE.html#cb45-10" tabindex="-1"></a>                              <span class="at">iter_vec =</span> <span class="dv">1</span>,</span>
+<span id="cb45-11"><a href="SSMSE.html#cb45-11" tabindex="-1"></a>                              <span class="at">OM_name_vec =</span> <span class="st">&quot;cod&quot;</span>,</span>
+<span id="cb45-12"><a href="SSMSE.html#cb45-12" tabindex="-1"></a>                              <span class="at">OM_in_dir_vec =</span> <span class="cn">NULL</span>,</span>
+<span id="cb45-13"><a href="SSMSE.html#cb45-13" tabindex="-1"></a>                              <span class="at">MS_vec =</span> <span class="st">&quot;constant_catch_MS&quot;</span>, <span class="co"># use custom fun</span></span>
+<span id="cb45-14"><a href="SSMSE.html#cb45-14" tabindex="-1"></a>                              <span class="at">custom_MS_source =</span> <span class="st">&quot;constant_catch_MS.R&quot;</span>,</span>
+<span id="cb45-15"><a href="SSMSE.html#cb45-15" tabindex="-1"></a>                              <span class="at">use_SS_boot_vec =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb45-16"><a href="SSMSE.html#cb45-16" tabindex="-1"></a>                              <span class="at">nyrs_vec =</span> <span class="dv">6</span>,</span>
+<span id="cb45-17"><a href="SSMSE.html#cb45-17" tabindex="-1"></a>                              <span class="at">nyrs_assess_vec =</span> <span class="dv">3</span>,</span>
+<span id="cb45-18"><a href="SSMSE.html#cb45-18" tabindex="-1"></a>                              <span class="at">run_EM_last_yr =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb45-19"><a href="SSMSE.html#cb45-19" tabindex="-1"></a>                              <span class="at">run_parallel =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb45-20"><a href="SSMSE.html#cb45-20" tabindex="-1"></a>                              <span class="at">sample_struct_list =</span> <span class="fu">list</span>(sample_struct),</span>
+<span id="cb45-21"><a href="SSMSE.html#cb45-21" tabindex="-1"></a>                              <span class="at">seed =</span> <span class="dv">12345</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="sampling-options" class="section level2 hasAnchor" number="4.4">
@@ -312,8 +312,8 @@ There are 3 built-in models that comes with SSMSE: cod, growth_timevary, and SR_
 <div id="structurefutureom" class="section level3 hasAnchor" number="4.5.1">
 <h3><span class="header-section-number">4.5.1</span> The structure of <code>future_om_list</code><a href="SSMSE.html#structurefutureom" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>For example, here is an example list containing just one future change for the model. It shows that the model should be changed to 4.5 in year 103 and afterwards:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="SSMSE.html#cb47-1" tabindex="-1"></a>my_future_om_list <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">list_length =</span> <span class="dv">1</span>)</span>
-<span id="cb47-2"><a href="SSMSE.html#cb47-2" tabindex="-1"></a>my_future_om_list</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="SSMSE.html#cb46-1" tabindex="-1"></a>my_future_om_list <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">list_length =</span> <span class="dv">1</span>)</span>
+<span id="cb46-2"><a href="SSMSE.html#cb46-2" tabindex="-1"></a>my_future_om_list</span></code></pre></div>
 <pre><code>[[1]]
 [[1]]$pars
 [1] &quot;SizeSel_P_3_Fishery(1)&quot;
@@ -329,9 +329,9 @@ There are 3 built-in models that comes with SSMSE: cod, growth_timevary, and SR_
 1                 NA                NA              102                103
   ts_param   method value
 1     mean absolute   4.5</code></pre>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="SSMSE.html#cb49-1" tabindex="-1"></a><span class="fu">length</span>(my_future_om_list) <span class="co"># note has length 1 b/c 1 change</span></span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="SSMSE.html#cb48-1" tabindex="-1"></a><span class="fu">length</span>(my_future_om_list) <span class="co"># note has length 1 b/c 1 change</span></span></code></pre></div>
 <pre><code>[1] 1</code></pre>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="SSMSE.html#cb51-1" tabindex="-1"></a><span class="fu">length</span>(my_future_om_list[[<span class="dv">1</span>]]) <span class="co"># has length 4 because 4 list components, as for each change</span></span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="SSMSE.html#cb50-1" tabindex="-1"></a><span class="fu">length</span>(my_future_om_list[[<span class="dv">1</span>]]) <span class="co"># has length 4 because 4 list components, as for each change</span></span></code></pre></div>
 <pre><code>[1] 4</code></pre>
 <p>Note there is just one change specified here. For the change, there are four list items that are required for any specified change.</p>
 <ol style="list-style-type: decimal">
@@ -361,8 +361,8 @@ There are 3 built-in models that comes with SSMSE: cod, growth_timevary, and SR_
 <div id="example-of-future_om_list-denoting-a-gradual-change" class="section level3 hasAnchor" number="4.5.2">
 <h3><span class="header-section-number">4.5.2</span> Example of future_om_list denoting a gradual change<a href="SSMSE.html#example-of-future_om_list-denoting-a-gradual-change" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Suppose we wanted to change the value of “SizeSel_P_3_Fishery(1)” in scen2 over 4 years after year 102 to arrive at a value of 4.5 in year 106. We can do this by using <code>my_future_om_list</code>, but changing the value in the first row of <code>first_yr_final_val</code> to 106:</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="SSMSE.html#cb53-1" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]][<span class="dv">1</span>, <span class="st">&quot;first_yr_final_val&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">106</span></span>
-<span id="cb53-2"><a href="SSMSE.html#cb53-2" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="SSMSE.html#cb52-1" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]][<span class="dv">1</span>, <span class="st">&quot;first_yr_final_val&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">106</span></span>
+<span id="cb52-2"><a href="SSMSE.html#cb52-2" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]]</span></code></pre></div>
 <pre><code>$pars
 [1] &quot;SizeSel_P_3_Fishery(1)&quot;
 
@@ -381,17 +381,17 @@ $input
 <div id="example-of-future_om_list-with-random-deviations" class="section level3 hasAnchor" number="4.5.3">
 <h3><span class="header-section-number">4.5.3</span> Example of future_om_list with random deviations<a href="SSMSE.html#example-of-future_om_list-with-random-deviations" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Suppose we now wanted the value of “SizeSel_P_3_Fishery(1)” to change randomly according to a normal distribution with a standard deviation of 0.1 around a mean of 4.5 from 104 onwards. This can be done by adding a line specifying a change in standard deviation (which for now, has been assumed to be 0) to the data frame:</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="SSMSE.html#cb55-1" tabindex="-1"></a>new_vals <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">first_yr_averaging =</span> <span class="cn">NA</span>,</span>
-<span id="cb55-2"><a href="SSMSE.html#cb55-2" tabindex="-1"></a>                       <span class="at">last_yr_averaging  =</span> <span class="cn">NA</span>, </span>
-<span id="cb55-3"><a href="SSMSE.html#cb55-3" tabindex="-1"></a>                       <span class="at">last_yr_orig_val   =</span> <span class="dv">103</span>,</span>
-<span id="cb55-4"><a href="SSMSE.html#cb55-4" tabindex="-1"></a>                       <span class="at">first_yr_final_val =</span> <span class="dv">104</span>, </span>
-<span id="cb55-5"><a href="SSMSE.html#cb55-5" tabindex="-1"></a>                       <span class="at">ts_param =</span> <span class="st">&quot;sd&quot;</span>, </span>
-<span id="cb55-6"><a href="SSMSE.html#cb55-6" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">&quot;absolute&quot;</span>,</span>
-<span id="cb55-7"><a href="SSMSE.html#cb55-7" tabindex="-1"></a>                       <span class="at">value =</span> <span class="fl">0.1</span>)</span>
-<span id="cb55-8"><a href="SSMSE.html#cb55-8" tabindex="-1"></a></span>
-<span id="cb55-9"><a href="SSMSE.html#cb55-9" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">rbind</span>(my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]],</span>
-<span id="cb55-10"><a href="SSMSE.html#cb55-10" tabindex="-1"></a>                                           new_vals)</span>
-<span id="cb55-11"><a href="SSMSE.html#cb55-11" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="SSMSE.html#cb54-1" tabindex="-1"></a>new_vals <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">first_yr_averaging =</span> <span class="cn">NA</span>,</span>
+<span id="cb54-2"><a href="SSMSE.html#cb54-2" tabindex="-1"></a>                       <span class="at">last_yr_averaging  =</span> <span class="cn">NA</span>, </span>
+<span id="cb54-3"><a href="SSMSE.html#cb54-3" tabindex="-1"></a>                       <span class="at">last_yr_orig_val   =</span> <span class="dv">103</span>,</span>
+<span id="cb54-4"><a href="SSMSE.html#cb54-4" tabindex="-1"></a>                       <span class="at">first_yr_final_val =</span> <span class="dv">104</span>, </span>
+<span id="cb54-5"><a href="SSMSE.html#cb54-5" tabindex="-1"></a>                       <span class="at">ts_param =</span> <span class="st">&quot;sd&quot;</span>, </span>
+<span id="cb54-6"><a href="SSMSE.html#cb54-6" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">&quot;absolute&quot;</span>,</span>
+<span id="cb54-7"><a href="SSMSE.html#cb54-7" tabindex="-1"></a>                       <span class="at">value =</span> <span class="fl">0.1</span>)</span>
+<span id="cb54-8"><a href="SSMSE.html#cb54-8" tabindex="-1"></a></span>
+<span id="cb54-9"><a href="SSMSE.html#cb54-9" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">rbind</span>(my_future_om_list[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]],</span>
+<span id="cb54-10"><a href="SSMSE.html#cb54-10" tabindex="-1"></a>                                           new_vals)</span>
+<span id="cb54-11"><a href="SSMSE.html#cb54-11" tabindex="-1"></a>my_future_om_list[[<span class="dv">1</span>]]</span></code></pre></div>
 <pre><code>$pars
 [1] &quot;SizeSel_P_3_Fishery(1)&quot;
 
@@ -413,27 +413,27 @@ $input
 <div id="example-of-using-historical-values-for-determining-parameter-values" class="section level3 hasAnchor" number="4.5.4">
 <h3><span class="header-section-number">4.5.4</span> Example of using historical values for determining parameter values<a href="SSMSE.html#example-of-using-historical-values-for-determining-parameter-values" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>This example applies random annual deviations to all parameters for scenarios scen2 and scen3.</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="SSMSE.html#cb57-1" tabindex="-1"></a>future_om_list_2 <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="at">length =</span> <span class="dv">1</span>)</span>
-<span id="cb57-2"><a href="SSMSE.html#cb57-2" tabindex="-1"></a>future_om_list_2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(future_om_list_2, <span class="cf">function</span> (x) x <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="at">length =</span> <span class="dv">4</span>))</span>
-<span id="cb57-3"><a href="SSMSE.html#cb57-3" tabindex="-1"></a><span class="fu">names</span>(future_om_list_2[[<span class="dv">1</span>]]) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;pars&quot;</span>, <span class="st">&quot;scen&quot;</span>, <span class="st">&quot;pattern&quot;</span>, <span class="st">&quot;input&quot;</span>)</span>
-<span id="cb57-4"><a href="SSMSE.html#cb57-4" tabindex="-1"></a></span>
-<span id="cb57-5"><a href="SSMSE.html#cb57-5" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;pars&quot;</span>]] <span class="ot">&lt;-</span> <span class="st">&quot;all&quot;</span></span>
-<span id="cb57-6"><a href="SSMSE.html#cb57-6" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;scen&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;randomize&quot;</span>, <span class="st">&quot;scen2&quot;</span>, <span class="st">&quot;scen3&quot;</span>)</span>
-<span id="cb57-7"><a href="SSMSE.html#cb57-7" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;pattern&quot;</span>]] <span class="ot">&lt;-</span> <span class="st">&quot;model_change&quot;</span> <span class="co"># defaults to using normal dist</span></span>
-<span id="cb57-8"><a href="SSMSE.html#cb57-8" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">first_yr_averaging =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>),</span>
-<span id="cb57-9"><a href="SSMSE.html#cb57-9" tabindex="-1"></a>                                               <span class="at">last_yr_averaging =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</span>
-<span id="cb57-10"><a href="SSMSE.html#cb57-10" tabindex="-1"></a>                                               <span class="at">last_yr_orig_val =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</span>
-<span id="cb57-11"><a href="SSMSE.html#cb57-11" tabindex="-1"></a>                                               <span class="at">first_yr_final_val =</span> <span class="fu">c</span>(<span class="dv">101</span>, <span class="dv">101</span>), </span>
-<span id="cb57-12"><a href="SSMSE.html#cb57-12" tabindex="-1"></a>                                               <span class="at">ts_param =</span> <span class="fu">c</span>(<span class="st">&quot;cv&quot;</span>, <span class="st">&quot;mean&quot;</span>),</span>
-<span id="cb57-13"><a href="SSMSE.html#cb57-13" tabindex="-1"></a>                                               <span class="at">method =</span> <span class="fu">c</span>(<span class="st">&quot;absolute&quot;</span>, <span class="st">&quot;multiplier&quot;</span>), </span>
-<span id="cb57-14"><a href="SSMSE.html#cb57-14" tabindex="-1"></a>                                               <span class="at">value =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="SSMSE.html#cb56-1" tabindex="-1"></a>future_om_list_2 <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="at">length =</span> <span class="dv">1</span>)</span>
+<span id="cb56-2"><a href="SSMSE.html#cb56-2" tabindex="-1"></a>future_om_list_2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(future_om_list_2, <span class="cf">function</span> (x) x <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">&quot;list&quot;</span>, <span class="at">length =</span> <span class="dv">4</span>))</span>
+<span id="cb56-3"><a href="SSMSE.html#cb56-3" tabindex="-1"></a><span class="fu">names</span>(future_om_list_2[[<span class="dv">1</span>]]) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;pars&quot;</span>, <span class="st">&quot;scen&quot;</span>, <span class="st">&quot;pattern&quot;</span>, <span class="st">&quot;input&quot;</span>)</span>
+<span id="cb56-4"><a href="SSMSE.html#cb56-4" tabindex="-1"></a></span>
+<span id="cb56-5"><a href="SSMSE.html#cb56-5" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;pars&quot;</span>]] <span class="ot">&lt;-</span> <span class="st">&quot;all&quot;</span></span>
+<span id="cb56-6"><a href="SSMSE.html#cb56-6" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;scen&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;randomize&quot;</span>, <span class="st">&quot;scen2&quot;</span>, <span class="st">&quot;scen3&quot;</span>)</span>
+<span id="cb56-7"><a href="SSMSE.html#cb56-7" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;pattern&quot;</span>]] <span class="ot">&lt;-</span> <span class="st">&quot;model_change&quot;</span> <span class="co"># defaults to using normal dist</span></span>
+<span id="cb56-8"><a href="SSMSE.html#cb56-8" tabindex="-1"></a>future_om_list_2[[<span class="dv">1</span>]][[<span class="st">&quot;input&quot;</span>]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">first_yr_averaging =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb56-9"><a href="SSMSE.html#cb56-9" tabindex="-1"></a>                                               <span class="at">last_yr_averaging =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</span>
+<span id="cb56-10"><a href="SSMSE.html#cb56-10" tabindex="-1"></a>                                               <span class="at">last_yr_orig_val =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>),</span>
+<span id="cb56-11"><a href="SSMSE.html#cb56-11" tabindex="-1"></a>                                               <span class="at">first_yr_final_val =</span> <span class="fu">c</span>(<span class="dv">101</span>, <span class="dv">101</span>), </span>
+<span id="cb56-12"><a href="SSMSE.html#cb56-12" tabindex="-1"></a>                                               <span class="at">ts_param =</span> <span class="fu">c</span>(<span class="st">&quot;cv&quot;</span>, <span class="st">&quot;mean&quot;</span>),</span>
+<span id="cb56-13"><a href="SSMSE.html#cb56-13" tabindex="-1"></a>                                               <span class="at">method =</span> <span class="fu">c</span>(<span class="st">&quot;absolute&quot;</span>, <span class="st">&quot;multiplier&quot;</span>), </span>
+<span id="cb56-14"><a href="SSMSE.html#cb56-14" tabindex="-1"></a>                                               <span class="at">value =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>))</span></code></pre></div>
 <p>Note that the choice of year range for historical values does not matter unless the parameter is already time-varying in the original operating model or has become time varying through a previous change. Otherwise, the base model parameter will be applied. If no historical years are included, then the base parameter value will be the basis of comparison for relative changes (i.e., method = multiplier or additive).</p>
 </div>
 <div id="example-using-custom-pattern-instead-of-model_change" class="section level3 hasAnchor" number="4.5.5">
 <h3><span class="header-section-number">4.5.5</span> Example using “custom” pattern instead of “model_change”<a href="SSMSE.html#example-using-custom-pattern-instead-of-model_change" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="SSMSE.html#cb58-1" tabindex="-1"></a>custom_future_om_list <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">example_type =</span> <span class="st">&quot;custom&quot;</span>, </span>
-<span id="cb58-2"><a href="SSMSE.html#cb58-2" tabindex="-1"></a>                                               <span class="at">list_length =</span> <span class="dv">1</span>)</span>
-<span id="cb58-3"><a href="SSMSE.html#cb58-3" tabindex="-1"></a>custom_future_om_list</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="SSMSE.html#cb57-1" tabindex="-1"></a>custom_future_om_list <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">example_type =</span> <span class="st">&quot;custom&quot;</span>, </span>
+<span id="cb57-2"><a href="SSMSE.html#cb57-2" tabindex="-1"></a>                                               <span class="at">list_length =</span> <span class="dv">1</span>)</span>
+<span id="cb57-3"><a href="SSMSE.html#cb57-3" tabindex="-1"></a>custom_future_om_list</span></code></pre></div>
 <pre><code>[[1]]
 [[1]]$pars
 [1] &quot;impl_error&quot;
@@ -553,18 +553,18 @@ $input
 <div id="example-of-specifying-recruitment-deviations" class="section level3 hasAnchor" number="4.5.7">
 <h3><span class="header-section-number">4.5.7</span> Example of specifying recruitment deviations<a href="SSMSE.html#example-of-specifying-recruitment-deviations" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>This shows some code for putting recruitment deviations with a mean of 0 and the same standard deviation as the historical recruitment deviations in years 1 to 100:</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="SSMSE.html#cb60-1" tabindex="-1"></a>template_mod_change <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">list_length =</span> <span class="dv">1</span>)</span>
-<span id="cb60-2"><a href="SSMSE.html#cb60-2" tabindex="-1"></a>rec_dev_specify <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
-<span id="cb60-3"><a href="SSMSE.html#cb60-3" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>pars <span class="ot">&lt;-</span> <span class="st">&quot;rec_devs&quot;</span></span>
-<span id="cb60-4"><a href="SSMSE.html#cb60-4" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>scen <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
-<span id="cb60-5"><a href="SSMSE.html#cb60-5" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_averaging <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb60-6"><a href="SSMSE.html#cb60-6" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_averaging <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb60-7"><a href="SSMSE.html#cb60-7" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb60-8"><a href="SSMSE.html#cb60-8" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
-<span id="cb60-9"><a href="SSMSE.html#cb60-9" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span></span>
-<span id="cb60-10"><a href="SSMSE.html#cb60-10" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
-<span id="cb60-11"><a href="SSMSE.html#cb60-11" tabindex="-1"></a>rec_dev_list <span class="ot">&lt;-</span> <span class="fu">list</span>(rec_dev_specify)</span>
-<span id="cb60-12"><a href="SSMSE.html#cb60-12" tabindex="-1"></a>rec_dev_list</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="SSMSE.html#cb59-1" tabindex="-1"></a>template_mod_change <span class="ot">&lt;-</span> <span class="fu">create_future_om_list</span>(<span class="at">list_length =</span> <span class="dv">1</span>)</span>
+<span id="cb59-2"><a href="SSMSE.html#cb59-2" tabindex="-1"></a>rec_dev_specify <span class="ot">&lt;-</span> template_mod_change[[<span class="dv">1</span>]]</span>
+<span id="cb59-3"><a href="SSMSE.html#cb59-3" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>pars <span class="ot">&lt;-</span> <span class="st">&quot;rec_devs&quot;</span></span>
+<span id="cb59-4"><a href="SSMSE.html#cb59-4" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>scen <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;replicate&quot;</span>, <span class="st">&quot;all&quot;</span>)</span>
+<span id="cb59-5"><a href="SSMSE.html#cb59-5" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_averaging <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb59-6"><a href="SSMSE.html#cb59-6" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_averaging <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb59-7"><a href="SSMSE.html#cb59-7" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>last_yr_orig_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb59-8"><a href="SSMSE.html#cb59-8" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>first_yr_final_val <span class="ot">&lt;-</span> <span class="dv">101</span></span>
+<span id="cb59-9"><a href="SSMSE.html#cb59-9" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>ts_param <span class="ot">&lt;-</span> <span class="st">&quot;sd&quot;</span></span>
+<span id="cb59-10"><a href="SSMSE.html#cb59-10" tabindex="-1"></a>rec_dev_specify<span class="sc">$</span>input<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb59-11"><a href="SSMSE.html#cb59-11" tabindex="-1"></a>rec_dev_list <span class="ot">&lt;-</span> <span class="fu">list</span>(rec_dev_specify)</span>
+<span id="cb59-12"><a href="SSMSE.html#cb59-12" tabindex="-1"></a>rec_dev_list</span></code></pre></div>
 <pre><code>[[1]]
 [[1]]$pars
 [1] &quot;rec_devs&quot;
