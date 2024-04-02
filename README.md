@@ -798,3 +798,9 @@ using SSMSE, please don’t hesitate to reach out to the developers via
 [github
 discussions](https://github.com/nmfs-fish-tools/SSMSE/discussions) or by
 emailing <nmfs.stock.synthesis@noaa.gov>.
+
+<img src="https://raw.githubusercontent.com/nmfs-fish-tools/nmfspalette/main/man/figures/noaa-fisheries-rgb-2line-horizontal-small.png" height="75" alt="NOAA Fisheries Logo">
+
+[U.S. Department of Commerce](https://www.commerce.gov/) \| [National
+Oceanographic and Atmospheric Administration](https://www.noaa.gov) \|
+[NOAA Fisheries](https://www.fisheries.noaa.gov/)
