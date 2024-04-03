@@ -191,13 +191,13 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   # flags.
   expect_true(all(ssb_check$SSB_ratio > .5) & all(ssb_check$SSB_ratio < 2))
   # change the years summary values so that the SSB_ratio > 2
-  index <- which(summary$ts[,"year"] == 104)[1]
+  index <- which(summary$ts[, "year"] == 104)[1]
   summary$ts[index, "SpawnBio"] <- (summary$ts[index, "SpawnBio"])^2 # make really large
   expect_warning(
     ssb_check_warn <- check_convergence(summary, min_yr = 101, max_yr = 106),
     "Some large"
   )
-  row_warn <- which(ssb_check_warn[,"year"]==104)[1]
+  row_warn <- which(ssb_check_warn[, "year"] == 104)[1]
   expect_true(ssb_check_warn[row_warn, "SSB_ratio"] > 2)
   # mock params on a bound
   summary$scalar[1, "params_on_bound"] <- "L_at_Amax_Fem_GP_1"
