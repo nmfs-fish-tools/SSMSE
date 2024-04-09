@@ -1,3 +1,4 @@
+
 #' run an MSE using SS OMs
 #'
 #' High level function to run a management strategy evaluation using Stock
@@ -91,12 +92,11 @@ run_SSMSE <- function(scen_name_vec,
                       n_F_search_loops = 20,
                       tolerance_F_search = 0.001,
                       run_parallel = FALSE,
-                      n_cores = NULL,
-                      EM2OM = NULL) { ## adding capacity to account for a bias between EM catch and OM catch. Default to NULL or no bias. 
+                      n_cores = NULL) {
   if (!is.null(custom_MS_source)) {
     source(custom_MS_source)
   }
-
+  
   # input checks
   if (!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
     invalid_MS <- MS_vec[unlist(lapply(MS_vec, function(x) !exists(x)))]
@@ -110,16 +110,16 @@ run_SSMSE <- function(scen_name_vec,
       )
     }
   }
-
+  
   # if(length(sample_catch_vec) == 1) {
   #   sample_catch_vec <-
   #     rep(sample_catch_vec, length.out = length(scen_name_vec))
   # }
-
-
+  
+  
   # make sure the output directories exist
   result <- lapply(out_dir_scen_vec, function(x) if (!dir.exists(x)) dir.create(x, showWarnings = FALSE))
-
+  
   # check and add implicit inputs to the future_om_list
   future_om_list <- check_future_om_list_str(future_om_list = future_om_list)
   # Note that all input checks are done in the check_scen_list function.
@@ -148,7 +148,7 @@ run_SSMSE <- function(scen_name_vec,
     future_om_list = future_om_list,
     scen_list = scen_list
   )
-
+  
   # First reset the R random seed
   set.seed(seed = NULL)
   # Now set the global, scenario, and iteration seeds that will be used as needed
@@ -156,12 +156,12 @@ run_SSMSE <- function(scen_name_vec,
     seed = seed,
     iter_vec = unlist(lapply(scen_list, function(scen) scen["iter"]))
   )
-
+  
   # make sure values are the correct length
   nyrs_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs"]))
   nyrs_assess_vec <- unlist(lapply(scen_list, function(scen) scen["nyrs_assess"]))
   iter_vec <- unlist(lapply(scen_list, function(scen) scen["iter"]))
-
+  
   for (i in seq_along(scen_list)) {
     scen_seed <- vector(mode = "list", length = 3)
     names(scen_seed) <- c("global", "scenario", "iter")
@@ -170,7 +170,7 @@ run_SSMSE <- function(scen_name_vec,
     scen_seed[["iter"]] <- seed[["iter"]][[i]]
     scen_list[[i]][["scen_seed"]] <- scen_seed
   }
-
+  
   if (run_parallel) {
     if (!is.null(n_cores)) {
       n_cores <- min(max(n_cores, 1), (parallel::detectCores() - 1))
@@ -212,8 +212,7 @@ run_SSMSE <- function(scen_name_vec,
       tolerance_F_search = tolerance_F_search,
       verbose = verbose,
       run_parallel = run_parallel,
-      n_cores = n_cores,
-      EM2OM = EM2OM # build in catch bias option
+      n_cores = n_cores
     )
     scen_list[[i]][["errored_iterations"]] <- return_df
   }
@@ -289,8 +288,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
                            run_parallel = FALSE,
                            n_cores = NULL,
                            n_F_search_loops = 20,
-                           tolerance_F_search = 0.001,
-                           EM2OM=NULL) {
+                           tolerance_F_search = 0.001) {
   # input checks
   assertive.types::assert_is_a_string(scen_name)
   assertive.properties::assert_is_atomic(iter)
@@ -308,8 +306,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   if (!is.null(sample_struct)) assertive.types::assert_is_list(sample_struct)
   if (!is.null(sample_struct_hist)) assertive.types::assert_is_list(sample_struct_hist)
   assertive.types::assert_is_a_bool(verbose)
-
-
+  
+  
   # create the out_dir to store all files for all iter in the scenario.
   if (is.null(out_dir_scen)) {
     out_dir_iter <- scen_name
@@ -364,8 +362,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
           interim_struct = interim_struct,
           n_F_search_loops = n_F_search_loops,
           tolerance_F_search = tolerance_F_search,
-          verbose = verbose,
-          EM2OM = EM2OM ## ADD catch bias functionality
+          verbose = verbose
         )
       }
     )
@@ -400,8 +397,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
         interim_struct = interim_struct,
         n_F_search_loops = n_F_search_loops,
         tolerance_F_search = tolerance_F_search,
-        verbose = verbose,
-        EM2OM = EM2OM ## ADD catch bias functionality
+        verbose = verbose
       ), error = function(e) e)
     }
   }
@@ -516,8 +512,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
                            interim_struct = NULL,
                            n_F_search_loops = 20,
                            tolerance_F_search = 0.001,
-                           verbose = FALSE,
-                           EM2OM = NULL ) {
+                           verbose = FALSE) {
   # input checks ----
   # checks for out_dir, OM_name, OM_in_dir, EM_name, EM_in_dir done in create_out_dirs
   assertive.types::assert_is_a_bool(use_SS_boot)
@@ -538,13 +533,13 @@ run_SSMSE_iter <- function(out_dir = NULL,
     }
   }
   assertive.types::assert_is_a_bool(verbose)
-
+  
   if (!is.null(custom_MS_source)) {
     source(custom_MS_source)
   }
-
+  
   message("Starting iteration ", niter, ".")
-
+  
   set.seed((iter_seed[["iter"]][1] + 123))
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified
@@ -577,7 +572,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
     OM_out_dir = OM_out_dir, EM_out_dir = EM_out_dir,
     overwrite = TRUE
   )
-
+  
   # convert sample_struct names ----
   # get the full sampling structure for components that the user didnt specify.
   # if meaning is ambiguous, then this will exit on error.
@@ -590,10 +585,10 @@ run_SSMSE_iter <- function(out_dir = NULL,
     sample_struct <- convert_to_r4ss_names(sample_struct)
     sample_struct_hist <- convert_to_r4ss_names(sample_struct_hist)
   }
-
+  
   # Convert the user input parameter modifications into vectors of annual additive deviations
   future_om_dat <- convert_future_om_list_to_devs_df(future_om_list = future_om_list, scen_name = scen_name, niter = niter, om_mod_path = OM_out_dir, nyrs = nyrs, global_seed = (iter_seed[["iter"]][1] + 1234))
-
+  
   # MSE first iteration ----
   # turn the stock assessment model into an OM
   init_mod <- create_OM(
@@ -607,14 +602,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
     seed = (iter_seed[["iter"]][1] + 1234)
   )
   impl_error <- init_mod[["impl_error"]]
-  
-  # add EM2OMdf to allow for catch bias between OM and EM
-  if(!is.null(EM2OM)){ EM2OMdf<-data.frame("year"=impl_error$year, "multC" = rep(EM2OM,length=nrow(impl_error))) 
-  } else {
-    EM2OMdf<-data.frame("year"=impl_error$year, "multC" = rep(1,length=nrow(impl_error))) 
-  }
- 
-  
   # Complete the OM run so it can be use for expect values or bootstrap
   if (use_SS_boot == TRUE) {
     OM_dat <- run_OM(
@@ -641,33 +628,32 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # get catch/discard using the chosen management strategy ----
   # This can use an estimation model or EM proxy, or just be a simple management
   # strategy
-
+  
   # nyrs_lag <- 0
   # first_catch_yr <- (OM_dat[["endyr"]] - nyrs + 1)
   # n_yrs_catch <- nyrs_assess + nyrs_lag
   # EM_avail_dat <- OM_dat
   # EM_avail_dat[[endyr]] <- first_catch_yr - (1 + nyrs_lag)
-
+  
   # TODO: If we want to add in data lag then we will need to add a remove data
   # function I think as well as the ability to put in fixed catches for the
   # interim years using the Forecatch section.
-
+  
   new_catch_list <- parse_MS(
     MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
     OM_dat = OM_dat, OM_out_dir = OM_out_dir,
     verbose = verbose, nyrs_assess = nyrs_assess,
     interim_struct = interim_struct,
     dat_yrs = (init_mod[["dat"]][["endyr"]] - nyrs + 1):(init_mod[["dat"]][["endyr"]] - nyrs + nyrs_assess),
-    seed = (iter_seed[["iter"]][1] + 123456),
-    EM2OMdf = EM2OMdf
+    seed = (iter_seed[["iter"]][1] + 123456)
   )
-
+  
   message(
     "Finished getting catch (years ",
     min(new_catch_list[["catch"]][, "year"]), " to ", max(new_catch_list[["catch"]][, "year"]),
     ") to feed into OM for iteration ", niter, "."
   )
-
+  
   # Next iterations of MSE procedure ----
   # set up all the years when the assessment will be done.
   # remove first value, because done in the initialization stage.
@@ -690,7 +676,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
         "."
       )
     }
-
+    
     update_OM(
       OM_dir = OM_out_dir,
       catch = new_catch_list[["catch"]],
@@ -762,7 +748,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       } else {
         tmp_EM_init_dir <- NULL
       }
-
+      
       new_catch_list <- parse_MS(
         MS = MS,
         EM_out_dir = EM_out_dir,
@@ -787,8 +773,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
     assessment.")
     yr <- assess_yrs[length(assess_yrs)] + extra_yrs
     subset_catch_list <- lapply(new_catch_list,
-      function(x, yr) new_catch <- x[x[["year"]] <= yr, ],
-      yr = yr
+                                function(x, yr) new_catch <- x[x[["year"]] <= yr, ],
+                                yr = yr
     )
     update_OM(
       OM_dir = OM_out_dir,
@@ -803,7 +789,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       tolerance_F_search = tolerance_F_search,
       seed = (iter_seed[["iter"]][1] + 6789012)
     )
-
+    
     # Don't need bootstrapping, b/c not samplling
     run_OM(
       OM_dir = OM_out_dir, boot = FALSE, verbose = verbose,

@@ -33,7 +33,7 @@
 parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
                      init_loop = TRUE, OM_dat, OM_out_dir = NULL,
                      verbose = FALSE, nyrs_assess, dat_yrs, future_om_list = NULL,
-                     sample_struct = NULL, interim_struct = NULL, seed = NULL, EM2OMdf=NULL) {
+                     sample_struct = NULL, interim_struct = NULL, seed = NULL) {
   if (verbose) {
     message("Parsing the management strategy.")
   }
@@ -45,7 +45,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       "environment, if not built into SSMSE."
     )
   }
-
+  
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
@@ -64,8 +64,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
     dat_yrs = dat_yrs,
     sample_struct = sample_struct,
     interim_struct = interim_struct,
-    seed = seed,
-    EM2OMdf = EM2OMdf
+    seed = seed
   )
   new_catch_list <- do.call(MS, args = pars_list)
   # to do: need better checks on function name? Maybe be more explicit on
