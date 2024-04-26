@@ -1,9 +1,0 @@
-# Update ss3 executables and bump version and submit as a pull request
-# For now, only run this manually (not on a schedule) when we know there are 
-# updates to the ss3 binaries.
-on:
-  workflow_dispatch:
-name: call-update-ss3
-jobs:
-  call-workflow:
-    uses: ss3sim/ss3sim/.github/workflows/update-ss3-version.yml@main
