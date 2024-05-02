@@ -447,7 +447,14 @@ calc_par_trend <- function(val_info,
     !is.na(val_info[val_info[["ts_param"]] == val_line, "last_yr_averaging"]))) {
     if (parname == "rec_devs") {
       # EDITED bc par file labeled "recdev2" NOT "recdev1"
-      rdnme <- names(parlist)[grepl("recdev", names(parlist))][1]
+      rdnme <- names(parlist)[grepl("recdev", names(parlist))]
+      if(is.element("recdev1",rdnme)){
+        rdnme <- "recdev1"
+      }else if(is.element("recdev2",rdnme)){
+        rdnme <- "recdev2"
+      }else{
+        stop("No recdev1 or recdev2 parameter section found when there should be.")
+      }
       tmp_vals <- data.frame(
         yrs = parlist[[rdnme]][, 1],
         rec_devs = parlist[[rdnme]][, 2]

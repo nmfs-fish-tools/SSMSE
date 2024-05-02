@@ -203,6 +203,7 @@ add_new_dat <- function(OM_dat,
                         do_checks = TRUE,
                         new_datfile_name = NULL,
                         verbose = FALSE) {
+  
   if (do_checks) {
     # TODO: do input checks: check OM_dat is valid r4ss list, check data. only do if
     # do_checks = TRUE?
@@ -231,6 +232,7 @@ add_new_dat <- function(OM_dat,
         by_val <- switch(df_name,
           "catch" = c("year", "seas", "fleet"),
           "CPUE" = c("year", "seas", "index"),
+          "discard_data" = c("Yr", "Seas","Flt"),
           "lencomp" = c("Yr", "Seas", "FltSvy", "Gender", "Part"),
           "agecomp" = c(
             "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr",

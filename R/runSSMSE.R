@@ -680,11 +680,12 @@ run_SSMSE_iter <- function(out_dir = NULL,
         "."
       )
     }
-    
+
     update_OM(
       OM_dir = OM_out_dir,
       catch = new_catch_list[["catch"]],
       harvest_rate = new_catch_list[["catch_F"]],
+      discards = new_catch_list[["discards"]],
       catch_basis = NULL,
       F_limit = NULL,
       EM_pars = new_catch_list[["EM_pars"]],
@@ -695,6 +696,12 @@ run_SSMSE_iter <- function(out_dir = NULL,
       tolerance_F_search = tolerance_F_search,
       seed = (iter_seed[["iter"]][1] + 234567 + yr)
     )
+    
+    message(
+      "Finished updating OM through year ",  max(new_catch_list[["catch"]][, "year"]),
+      ". Now sample values to return as data to EM."
+    )
+    
     # rerun OM (without estimation), get samples (or expected values)
     if (use_SS_boot == TRUE) {
       if (!is.null(interim_struct)) {
@@ -784,6 +791,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       OM_dir = OM_out_dir,
       catch = subset_catch_list[["catch"]],
       harvest_rate = subset_catch_list[["catch_F"]],
+      discards = new_catch_list[["discards"]],
       catch_basis = NULL,
       F_limit = NULL,
       EM_pars = subset_catch_list[["EM_pars"]],

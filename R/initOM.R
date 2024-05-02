@@ -311,7 +311,10 @@ create_OM <- function(OM_out_dir,
   # modify dat file ----
   dat[["endyr"]] <- dat[["endyr"]] + nyrs # because OM goes through the last simulated year.
   # remove the sampling components not needed
-  dat <- rm_sample_struct_hist(sample_struct = sample_struct_hist, dat = dat)
+  dat <- rm_sample_struct_hist(
+    sample_struct_hist = sample_struct_hist,
+    dat = dat
+  )
   # Add in the historical sampling structure, as defined by the user
   dat <- add_sample_struct(sample_struct = sample_struct_hist, dat = dat)
   dat <- add_sample_struct(sample_struct = sample_struct, dat = dat)
@@ -581,8 +584,8 @@ rm_sample_struct_hist <- function(sample_struct_hist, dat) {
 #'  with the same column names
 #' @param colnames The column names within the name_in_obj list components to
 #'  compare.
-#' @return return_obj[[name_in_obj]], modified to only include elements present
-#'  in compare_obj[[name_in_obj]].
+#' @return `return_obj[[name_in_obj]]`, modified to only include elements
+#'  present in `compare_obj[[name_in_obj]]`.
 #' @author Kathryn Doering
 rm_vals <- function(return_obj, compare_obj, name_in_obj, colnames) {
   # return early if nothing to compare.

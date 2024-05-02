@@ -26,6 +26,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
     verbose = FALSE
   )
+  
   if (init_loop) {
     # copy over raw data file from the OM to EM folder
     SS_writedat(OM_dat,

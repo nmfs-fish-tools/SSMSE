@@ -193,6 +193,7 @@ check_sample_struct <- function(sample_struct,
                                   catch = c("Yr", "Seas", "FltSvy", "SE"),
                                   EM2OMcatch_bias = c("Yr", "Seas", "FltSvy", "EM2OM_bias"), # added for EM2OM
                                   CPUE = c("Yr", "Seas", "FltSvy", "SE"),
+                                  discard_data = c("Yr", "Seas", "FltSvy", "SE"),
                                   lencomp = c(
                                     "Yr", "Seas", "FltSvy", "Sex",
                                     "Part", "Nsamp"

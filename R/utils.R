@@ -161,11 +161,11 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
     EM_start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
       verbose = FALSE
     )
-    
+
     # turn on sd reporting for all em model years by default
     EM_start[["minyr_sdreport"]] <- -1
     EM_start[["maxyr_sdreport"]] <- -2
-    
+
     EM_dat <- SS_readdat(file.path(EM_out_dir, EM_start[["datfile"]]), verbose = FALSE)
 
     EM_ctl <- SS_readctl(file.path(EM_out_dir, EM_start[["ctlfile"]]), datlist = EM_dat, verbose = FALSE)
@@ -179,8 +179,8 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
   endyr <- OM_dat[["endyr"]]
 
 
-  
-  
+
+
   # get years in range function
   get_yrs_in_range <- function(list_name, dat, styr, endyr) {
     df <- dat[[list_name]]
@@ -838,3 +838,19 @@ set_MSE_seeds <- function(seed = NULL, iter_vec) {
   }
   return(seed)
 }
+
+# Create global variables to decrease warnings in check()
+utils::globalVariables(c(
+  "Rel_SSB",
+  "SSB_Unfished",
+  "SSB_ratio",
+  "SpawnBio",
+  "SpawnBio_EM",
+  "SpawnBio_OM",
+  "iteration",
+  "model_run",
+  "model_type",
+  "scenario",
+  "sd",
+  "year"
+))

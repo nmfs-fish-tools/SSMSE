@@ -7,20 +7,26 @@
 convert_to_r4ss_names <- function(sample_struct,
                                   convert_key = data.frame(
                                     df_name = c(
-                                      rep("catch", 4), 
-                                      rep("EM2OMcatch_bias", 4), # add for EM2OM catch bias
-                                      rep("CPUE", 4), rep("lencomp", 6),
+                                      rep("catch", 4), rep("EM2OMcatch_bias", 4), rep("CPUE", 4), 
+                                      rep("discard_data", 4), rep("lencomp", 6),
                                       rep("agecomp", 9), rep("meanbodywt", 6),
                                       rep("MeanSize_at_Age_obs", 7)
                                     ),
                                     r4ss_name = c(
+                                      #catch names
                                       "year", "seas", "fleet", "catch_se",
+                                      #EM2OM bias names
                                       "year", "seas", "fleet", "catch_bias", ## add for EM2OM catch bias
+                                      #CPUE names
                                       "year", "seas", "index", "se_log",
+                                      #Discard names
+                                      "Yr", "Seas", "Flt", "Std_in",
+                                      #Length Comp names
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Nsamp",
+                                      #Age Comp names
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
                                       "Lbin_hi", "Nsamp",
-                                      # mean size
+                                      # mean size names
                                       "Year", "Seas", "Fleet", "Partition", "Type", "Std_in",
                                       # generalized size comp
                                       # meansize at age - note sample sizes are for each bin and sex, but
@@ -31,10 +37,17 @@ convert_to_r4ss_names <- function(sample_struct,
                                       # Morph comp
                                     ),
                                     sample_struct_name = c(
+                                      #catch names
                                       "Yr", "Seas", "FltSvy", "SE",
+                                      #EM2OM bias names
                                       "Yr", "Seas", "FltSvy", "EM2OM_bias",
+                                      #CPUE names
                                       "Yr", "Seas", "FltSvy", "SE",
+                                      #Discard names
+                                      "Yr", "Seas", "FltSvy", "SE",
+                                      #Length Comp names
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp",
+                                      #Age Comp names
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
                                       "Lbin_lo", "Lbin_hi", "Nsamp",
                                       # mean weight or length (depends on Type)
@@ -102,8 +115,8 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) { ### edited to incl
   }
 
   list_name <- c(
-    "catch", "EM2OMcatch_bias", "CPUE", "lencomp", "agecomp", "meanbodywt", ## add EM2OMcatch_bias
-    "MeanSize_at_Age_obs"
+    "catch", "EM2OMcatch_bias", "CPUE", "discard_data", 
+    "lencomp", "agecomp", "meanbodywt", "MeanSize_at_Age_obs"
   )
   sample_struct <- lapply(list_name,
     function(name, dat) {
@@ -112,9 +125,9 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) { ### edited to incl
         return(NA)
       }
       # get year, seas, fleet combo, ignoring -999 values.
-      yr_col <- grep("year|yr", colnames(df), ignore.case = TRUE, value = TRUE)
-      seas_col <- grep("seas|season", colnames(df), ignore.case = TRUE, value = TRUE)
-      flt_col <- grep("FltSvy|fleet|index", colnames(df),
+      yr_col <- grep("year|yr|Yr", colnames(df), ignore.case = TRUE, value = TRUE)
+      seas_col <- grep("seas|season|Seas", colnames(df), ignore.case = TRUE, value = TRUE)
+      flt_col <- grep("FltSvy|fleet|index|Flt", colnames(df),
         ignore.case = TRUE,
         value = TRUE
       )
@@ -580,19 +593,20 @@ get_full_sample_struct <- function(sample_struct,
       } else {
         # reorder columns
         x <- switch(x_name,
-                    catch = x[, c("Yr", "Seas", "FltSvy", "SE")],
-                    EM2OMcatch_bias = x[, c("Yr", "Seas", "FltSvy", "EM2OM_bias")], # edit to include EM2OM catch bias
-                    CPUE = x[, c("Yr", "Seas", "FltSvy", "SE")],
-                    lencomp = x[, c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp")],
-                    agecomp = x[, c(
-                      "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
-                      "Lbin_lo", "Lbin_hi", "Nsamp"
-                    )],
-                    meanbodywt = x[, c("Yr", "Seas", "FltSvy", "Part", "Type", "Std_in")],
-                    MeanSize_at_Age_obs = x[, c(
-                      "Yr", "Seas", "FltSvy", "Sex",
-                      "Part", "Ageerr", "N_"
-                    )]
+          catch = x[, c("Yr", "Seas", "FltSvy", "SE")],
+          EM2OMcatch_bias = x[, c("Yr", "Seas", "FltSvy", "EM2OM_bias")],
+          CPUE = x[, c("Yr", "Seas", "FltSvy", "SE")],
+          discard_data = x[, c("Yr", "Seas", "FltSvy", "SE")],
+          lencomp = x[, c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp")],
+          agecomp = x[, c(
+            "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
+            "Lbin_lo", "Lbin_hi", "Nsamp"
+          )],
+          meanbodywt = x[, c("Yr", "Seas", "FltSvy", "Part", "Type", "Std_in")],
+          MeanSize_at_Age_obs = x[, c(
+            "Yr", "Seas", "FltSvy", "Sex",
+            "Part", "Ageerr", "N_"
+          )]
         )
       }
       x <- utils::type.convert(x, as.is = TRUE)
@@ -608,6 +622,9 @@ get_full_sample_struct <- function(sample_struct,
   }
   if (!is.null(full_samp_str[["CPUE"]])) {
     full_samp_str[["CPUE"]] <- full_samp_str[["CPUE"]][, tmp_colorder]
+  }
+  if (!is.null(full_samp_str[["discard_data"]])) {
+    full_samp_str[["discard_data"]] <- full_samp_str[["discard_data"]][, tmp_colorder]
   }
   tmp_colorder <- c(tmp_colorder[-length(tmp_colorder)], "Sex", "Part", "Nsamp")
   if (!is.null(full_samp_str[["lencomp"]])) {
