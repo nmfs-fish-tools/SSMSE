@@ -461,7 +461,8 @@ add_new_dat_BIAS<- function (OM_dat, EM_datfile, sample_struct, EM_dir, nyrs_ass
                                                       3])))
     } # end else if
     by_val <- switch(df_name, catch = c("year", "seas", "fleet"),
-                     CPUE = c("year", "seas", "index"), 
+                     CPUE = c("year", "seas", "index"),
+                     discard_data = c("Yr", "Seas","Flt"), 
                      lencomp = c("Yr", "Seas", "FltSvy", "Gender", "Part"), 
                      agecomp = c("Yr","Seas", "FltSvy", "Gender", "Part", 
                                  "Ageerr", "Lbin_lo", "Lbin_hi"), 
@@ -506,6 +507,10 @@ add_new_dat_BIAS<- function (OM_dat, EM_datfile, sample_struct, EM_dir, nyrs_ass
   
   tmp_catch<- merge(extracted_dat$catch, sample_struct$EM2OMcatch_bias)
   extracted_dat$catch$catch<- tmp_catch$catch / tmp_catch$catch_bias ### EM2OM edits to get EM catch back to OM
+  
+  tmp_discard<- merge(extracted_dat$discard_data, sample_struct$EM2OMcatch_bias)
+  extracted_dat$discard_data$Discard<- tmp_discard$Discard / tmp_discard$catch_bias 
+  
   extracted_dat[["EM2OMcatch_bias"]]<-NULL
   
   for (n in names(extracted_dat)) {
@@ -901,85 +906,3 @@ get_EM_catch_df <- function(EM_dir, dat) {
     catch_F = catch_F_df
   )
 }
-
-
-
-#### add_new_dat Function Line-By-Line ####
-add_new_dat_BIAS<- function (OM_dat, EM_datfile, sample_struct, EM_dir, nyrs_assess, 
-                             do_checks = TRUE, new_datfile_name = NULL, verbose = FALSE) 
-{
-  if (do_checks) {
-    if (OM_dat[["type"]] != "Stock_Synthesis_data_file") {
-      r4ss_obj_err("OM_dat", "data list")
-    }
-  }
-  EM_dat <- SS_readdat(file.path(EM_dir, EM_datfile), verbose = FALSE)
-  new_EM_dat <- EM_dat
-  new_EM_dat[["endyr"]] <- new_EM_dat[["endyr"]] + nyrs_assess
-  extracted_dat <- mapply(function(df, df_name, OM_dat) {
-    OM_df <- OM_dat[[df_name]]
-    if (is.integer(OM_df[1, 3]) | is.numeric(OM_df[1, 3])) {
-      OM_df[, 3] <- abs(OM_df[, 3])
-    } else if (is.character(OM_df[1, 3])) {
-      OM_df[, 3] <- as.character(abs(as.integer(OM_df[, 
-                                                      3])))
-    } # end else if
-    by_val <- switch(df_name, catch = c("year", "seas", "fleet"),
-                     CPUE = c("year", "seas", "index"), 
-                     lencomp = c("Yr", "Seas", "FltSvy", "Gender", "Part"), 
-                     agecomp = c("Yr","Seas", "FltSvy", "Gender", "Part", 
-                                 "Ageerr", "Lbin_lo", "Lbin_hi"), 
-                     meanbodywt = c("Year", "Seas", "Fleet", "Partition", "Type"),
-                     MeanSize_at_Age_obs = c("Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr"))
-    new_dat <- merge(df, OM_df, by = by_val, all.x = TRUE, all.y = FALSE)
-    if ("catch_se.y" %in% colnames(new_dat)) {
-      new_dat[["catch_se.x"]] <- NULL
-      colnames(new_dat)[which(colnames(new_dat) == "catch_se.y")] <- "catch_se"
-    }
-    if ("se_log.y" %in% colnames(new_dat)) {
-      new_dat[["se_log.x"]] <- NULL
-      colnames(new_dat)[which(colnames(new_dat) == "se_log.y")] <- "se_log"
-    }
-    if ("Nsamp.y" %in% colnames(new_dat)) {
-      new_dat[["Nsamp.x"]] <- NULL
-      colnames(new_dat)[which(colnames(new_dat) == "Nsamp.y")] <- "Nsamp"
-    }
-    if ("Std_in.y" %in% colnames(new_dat)) {
-      new_dat[["Std_in.x"]] <- NULL
-      colnames(new_dat)[which(colnames(new_dat) == "Std_in.y")] <- "Std_in"
-    }
-    if ("Ignore.y" %in% colnames(new_dat)) {
-      new_dat[["Ignore.y"]] <- NULL
-      colnames(new_dat)[which(colnames(new_dat) == "Ignore.x")] <- "Ignore"
-    }
-    if ("N_" %in% colnames(new_dat)) {
-      n_col <- which(colnames(new_dat) == "N_")
-      new_dat <- new_dat[, -n_col]
-    }
-    if (any(is.na(new_dat))) {
-      warning("Some values specified in sample_struct (list component ", 
-              df_name, ") were not found in OM_dat, so they will not be added to ", 
-              "the EM_dat.")
-      new_dat <- na.omit(new_dat)
-    }
-    new_dat
-  }, df = sample_struct, df_name = names(sample_struct), MoreArgs = list(OM_dat = OM_dat), 
-  SIMPLIFY = FALSE, USE.NAMES = TRUE)
-  
-  #extracted_dat takes observations from the OM; then below we use the EM2OM multiplier to put catch back into EM units and remove the EM2OMcatch_basis element so that it doesn't get added to the datafile. 
-  
-  tmp_catch<- merge(extracted_dat$catch, sample_struct$EM2OMcatch_bias)
-  extracted_dat$catch$catch<- tmp_catch$catch / tmp_catch$catch_bias ### EM2OM edits to get EM catch back to OM
-  extracted_dat[["EM2OMcatch_bias"]]<-NULL
-  
-  for (n in names(extracted_dat)) {
-    new_EM_dat[[n]] <- rbind(new_EM_dat[[n]], extracted_dat[[n]])
-  }
-  if (!is.null(new_datfile_name)) {
-    SS_writedat(new_EM_dat, file.path(EM_dir, new_datfile_name), 
-                overwrite = TRUE, verbose = FALSE)
-  }
-  new_EM_dat
-}
-# assignInNamespace("add_new_dat_BIAS", add_new_dat_BIAS, "SSMSE") ## ERROR
-

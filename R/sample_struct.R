@@ -115,7 +115,7 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) { ### edited to incl
   }
 
   list_name <- c(
-    "catch", "EM2OMcatch_bias", "CPUE", "discard_data", 
+    "catch", "CPUE", "discard_data", 
     "lencomp", "agecomp", "meanbodywt", "MeanSize_at_Age_obs"
   )
   sample_struct <- lapply(list_name,
@@ -322,6 +322,270 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) { ### edited to incl
       future_pat_all <- do.call("rbind", fill_vec)
     },
     dat = dat
+  )
+  sample_struct <- lapply(
+    sample_struct,
+    function(x) utils::type.convert(x, as.is = TRUE)
+  )
+  if (rm_NAs == TRUE) {
+    sample_struct <- lapply(
+      sample_struct,
+      function(x) {
+        x <- na.omit(x)
+        if (!is.data.frame(x)) {
+          x <- NA
+        }
+        x
+      }
+    )
+  }
+  names(sample_struct) <- list_name
+  
+  sample_struct
+}
+
+
+
+#' Create the sample_struct list
+#'
+#' Create a sampling structure list using the pattern in a data file and a year
+#' range. NAs are added if no pattern is found (and rm_NAs = FALSE). The types
+#' of structure that are added to this list (given their presence in the dat file)
+#' with their names as called in the list object in parentheses are:
+#'  catch (catch), relative indices (CPUE), length composition (lencomp),
+#' age composition (agecomp), mean body weight (meanbodywt), and mean size at
+#' age (MeanSize_at_Age_obs). Details for creating the sample structure list are
+#' available in the [sampling options section of the SSMSE user manual](https://nmfs-fish-tools.github.io/SSMSE/manual/SSMSE.html#sampling-options).
+#'
+#' @param dat An r4ss list object read in using r4ss::SS_readdat() or the path
+#'  (relative or absolute) to an SS data file to read in.
+#' @param nyrs Number of years beyond the years included in the dat file to run
+#'  the MSE. A single integer value.
+#' @param rm_NAs Should all NAs be removed from dataframes? Defaults to FALSE.
+#' @export
+#' @return A sample_struct list object, where each list element is a dataframe
+#'   containing sampling values. If there were no data for the type, NA is
+#'   returned for the element.
+#' @author Kathryn Doering
+#' @examples
+#' OM_path <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
+#' # note there is a warning for lencomp because it does not have a consistent pattern
+#' sample_struct <- create_sample_struct(OM_path, nyrs = 20)
+#' print(sample_struct)
+create_sample_struct_biased <- function(dat, nyrs, rm_NAs = FALSE) { ### edited to include EM2OMcatch_bias
+  assertive.types::assert_is_a_number(nyrs)
+  if (length(dat) == 1 & is.character(dat)) {
+    dat <- SS_readdat(dat, verbose = FALSE)
+  }
+  
+  list_name <- c(
+    "catch", "EM2OMcatch_bias", "CPUE", "discard_data", 
+    "lencomp", "agecomp", "meanbodywt", "MeanSize_at_Age_obs"
+  )
+  sample_struct <- lapply(list_name,
+                          function(name, dat) {
+                            df <- dat[[name]]
+                            if (is.null(df)) {
+                              return(NA)
+                            }
+                            # get year, seas, fleet combo, ignoring -999 values.
+                            yr_col <- grep("year|yr|Yr", colnames(df), ignore.case = TRUE, value = TRUE)
+                            seas_col <- grep("seas|season|Seas", colnames(df), ignore.case = TRUE, value = TRUE)
+                            flt_col <- grep("FltSvy|fleet|index|Flt", colnames(df),
+                                            ignore.case = TRUE,
+                                            value = TRUE
+                            )
+                            input_SE_col <- grep("_se|se_|Std_in", colnames(df),
+                                                 ignore.case = TRUE,
+                                                 value = TRUE
+                            ) # catch sample size
+                            Nsamp_col <- grep("Nsamp", colnames(df),
+                                              ignore.case = TRUE,
+                                              value = TRUE
+                            ) # input sample size
+                            # sanity checks. should match with 1 (or 0 in some cases) cols. Failing these
+                            # checks indicate a bug in the code (invalid assuptions of how to match the
+                            # cols.)
+                            assertive.properties::assert_is_of_length(yr_col, 1)
+                            assertive.properties::assert_is_of_length(seas_col, 1)
+                            assertive.properties::assert_is_of_length(flt_col, 1)
+                            # b/c only Nsamp or SE should exist for a df
+                            assertive.base::assert_is_identical_to_true(
+                              (length(input_SE_col) == 0 & length(Nsamp_col) == 1) |
+                                (length(input_SE_col) == 1 & length(Nsamp_col) == 0) |
+                                (length(input_SE_col) == 0 & length(Nsamp_col) == 0)
+                            )
+                            # remove equilibrium catch
+                            df <- df[df[[yr_col]] != -999, ]
+                            # find combinations of season and fleet in the df.
+                            df_combo <- unique(df[, c(seas_col, flt_col), drop = FALSE])
+                            fill_vec <- vector(mode = "list", length = nrow(df_combo))
+                            for (i in seq_len(nrow(df_combo))) {
+                              tmp_seas <- df_combo[i, seas_col]
+                              tmp_flt <- df_combo[i, flt_col]
+                              tmp_yrs <- df[df[[seas_col]] == tmp_seas &
+                                              df[[flt_col]] == tmp_flt, yr_col]
+                              tmp_yrs <- as.numeric(unique(tmp_yrs))
+                              tmp_yrs <- tmp_yrs[order(tmp_yrs)]
+                              
+                              
+                              # figure out diff between first and second yr.
+                              tmp_diff <- tmp_yrs[2] - tmp_yrs[1]
+                              # reconstruct the pattern
+                              pat <- seq(tmp_yrs[1], by = tmp_diff, length.out = length(tmp_yrs))
+                              if (all(!is.na(pat)) && all(pat == tmp_yrs)) { # a pattern was found
+                                future_pat <- seq(pat[length(pat)], dat[["endyr"]] + nyrs, by = tmp_diff)
+                                future_pat <- future_pat[future_pat > dat[["endyr"]]]
+                                if (length(future_pat) > 0) {
+                                  future_pat <- data.frame(
+                                    Yr = future_pat,
+                                    Seas = tmp_seas,
+                                    FltSvy = tmp_flt,
+                                    stringsAsFactors = FALSE
+                                  )
+                                } else {
+                                  message(
+                                    "Pattern found for ", name, ": FltSvy ", tmp_flt,
+                                    ", Seas ", tmp_seas, ", but no data to add for the ",
+                                    "timeframe specified. Returning NA for Yr in this ",
+                                    "dataframe."
+                                  )
+                                  future_pat <- data.frame(
+                                    Yr = NA,
+                                    Seas = tmp_seas,
+                                    FltSvy = tmp_flt,
+                                    stringsAsFactors = FALSE
+                                  )
+                                }
+                              } else {
+                                # the pattern was not found
+                                warning(
+                                  "Pattern not found for ", name, ": FltSvy ", tmp_flt,
+                                  ", Seas ", tmp_seas, ". Returning NA for Yr in this dataframe."
+                                )
+                                future_pat <- data.frame(
+                                  Yr = NA,
+                                  Seas = tmp_seas,
+                                  FltSvy = tmp_flt,
+                                  stringsAsFactors = FALSE
+                                )
+                              }
+                              if (name %in% c("lencomp", "agecomp", "MeanSize_at_Age_obs")) {
+                                # Sex
+                                sex_col <- grep("Sex|Gender", colnames(df),
+                                                ignore.case = TRUE,
+                                                value = TRUE
+                                )
+                                tmp_sex <- unique(df[df[[seas_col]] == tmp_seas &
+                                                       df[[flt_col]] == tmp_flt, sex_col])
+                                if (length(tmp_sex) == 1) {
+                                  future_pat[["Sex"]] <- tmp_sex
+                                } else {
+                                  future_pat[["Sex"]] <- NA
+                                }
+                              }
+                              if (name %in% c("lencomp", "agecomp", "meanbodywt", "MeanSize_at_Age_obs")) {
+                                # partition
+                                part_col <- grep("part", colnames(df),
+                                                 ignore.case = TRUE,
+                                                 value = TRUE
+                                )
+                                tmp_part <- unique(df[df[[seas_col]] == tmp_seas &
+                                                        df[[flt_col]] == tmp_flt, part_col])
+                                if (length(tmp_part) == 1) {
+                                  future_pat[["Part"]] <- tmp_part
+                                } else {
+                                  future_pat[["Part"]] <- NA
+                                }
+                              }
+                              if (name %in% c("agecomp", "MeanSize_at_Age_obs")) {
+                                # Ageerr
+                                ageerr_col <- grep("ageerr", colnames(df),
+                                                   ignore.case = TRUE,
+                                                   value = TRUE
+                                )
+                                tmp_err <- unique(df[df[[seas_col]] == tmp_seas &
+                                                       df[[flt_col]] == tmp_flt, ageerr_col])
+                                
+                                if (length(tmp_err) == 1) {
+                                  future_pat[["Ageerr"]] <- tmp_err
+                                } else {
+                                  future_pat[["Ageerr"]] <- NA
+                                }
+                              }
+                              if (name == "agecomp") {
+                                # Lbin_lo (expect should be -1)
+                                tmp_lo <- unique(df[df[[seas_col]] == tmp_seas &
+                                                      df[[flt_col]] == tmp_flt, "Lbin_lo"])
+                                if (length(tmp_lo) == 1) {
+                                  future_pat[["Lbin_lo"]] <- tmp_lo
+                                } else {
+                                  future_pat[["Lbin_lo"]] <- NA
+                                }
+                                # Lbin_hi (expect should be -1)
+                                tmp_hi <- unique(df[df[[seas_col]] == tmp_seas &
+                                                      df[[flt_col]] == tmp_flt, "Lbin_hi"])
+                                if (length(tmp_hi) == 1) {
+                                  future_pat[["Lbin_hi"]] <- tmp_hi
+                                } else {
+                                  future_pat[["Lbin_hi"]] <- NA
+                                }
+                              }
+                              if (name == "meanbodywt") {
+                                tmp_type <- unique(df[df[[seas_col]] == tmp_seas &
+                                                        df[[flt_col]] == tmp_flt, "Type"])
+                                if (length(tmp_type) == 1) {
+                                  future_pat[["Type"]] <- tmp_type
+                                } else {
+                                  future_pat[["Type"]] <- NA
+                                }
+                              }
+                              # add sample size, if possible
+                              # see if se or Nsamp is the same across years for the seas/flt. If so,
+                              # add to the df. If not, add NA's.
+                              if (length(input_SE_col) == 1) {
+                                tmp_SE <- unique(df[df[[seas_col]] == tmp_seas &
+                                                      df[[flt_col]] == tmp_flt &
+                                                      df[[yr_col]] != -999, input_SE_col])
+                                if (length(tmp_SE) == 1) {
+                                  future_pat[["SE"]] <- tmp_SE
+                                } else {
+                                  future_pat[["SE"]] <- NA
+                                  warning("NA included in column SE for ", name, ".")
+                                }
+                              }
+                              if (length(Nsamp_col) == 1) {
+                                tmp_Nsamp <- unique(df[df[[seas_col]] == tmp_seas &
+                                                         df[[flt_col]] == tmp_flt &
+                                                         df[[yr_col]] != -999, Nsamp_col])
+                                if (length(tmp_Nsamp) == 1) {
+                                  future_pat[["Nsamp"]] <- tmp_Nsamp
+                                } else {
+                                  future_pat[["Nsamp"]] <- NA
+                                  warning("NA included in column Nsamp for ", name, ".")
+                                }
+                              }
+                              if (name == "MeanSize_at_Age_obs") {
+                                # Ageerr
+                                n_col <- grep("N_", colnames(df),
+                                              ignore.case = FALSE,
+                                              value = TRUE
+                                )
+                                tmp_n <- unique(df[df[[seas_col]] == tmp_seas &
+                                                     df[[flt_col]] == tmp_flt, n_col])
+                                tmp_n <- unlist(tmp_n, use.names = FALSE)
+                                tmp_n <- unique(as.numeric(tmp_n))
+                                if (length(tmp_n) == 1) {
+                                  future_pat[["N_"]] <- tmp_n
+                                } else {
+                                  future_pat[["N_"]] <- NA
+                                }
+                              }
+                              fill_vec[[i]] <- future_pat
+                            }
+                            future_pat_all <- do.call("rbind", fill_vec)
+                          },
+                          dat = dat
   )
   sample_struct <- lapply(
     sample_struct,

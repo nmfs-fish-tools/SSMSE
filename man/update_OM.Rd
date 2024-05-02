@@ -8,6 +8,7 @@ update_OM(
   OM_dir,
   catch = NULL,
   harvest_rate = NULL,
+  discards = NULL,
   catch_basis = NULL,
   F_limit = NULL,
   EM_pars = NULL,
@@ -26,12 +27,16 @@ update_OM(
 add to the OM. The column names are the same as in an SS data file (e.g.,
 year,    season, fleet,    catch,    catch_se). Must input either a catch and/or a harvest rate
 data frame. If both are input the catch will override harvest rate as the management unit
-but harvest rate will be used as a starting guess for search.}
+but harvest rate will be used as a starting guess for search, unless catch is zero then
+harvest rate will be used which is important for discard only fleets.}
 
 \item{harvest_rate}{A dataframe of harvest rate (F) values and associated information to
 add to the OM. The column names are as in an SS datafile. If harvest rate is input without
 a corresponding catch the OM will assume effort based management an use harvest rate directly
 with implementation error added.}
+
+\item{discards}{A dataframe of discard values and associated information to
+add to the OM. The column names are as in an SS datafile}
 
 \item{catch_basis}{data frame with columns year, seas, fleet, basis that specifies if catch
 should reference retained biomass (1) or dead biomass (2). Any year/season/fleet not listed will assume

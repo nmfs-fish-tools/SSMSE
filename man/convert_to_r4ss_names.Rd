@@ -6,18 +6,20 @@
 \usage{
 convert_to_r4ss_names(
   sample_struct,
-  convert_key = data.frame(df_name = c(rep("catch", 4), rep("CPUE", 4), rep("lencomp",
-    6), rep("agecomp", 9), rep("meanbodywt", 6), rep("MeanSize_at_Age_obs", 7)),
-    r4ss_name = c("year", "seas", "fleet", "catch_se", "year", "seas", "index", "se_log",
-    "Yr", "Seas", "FltSvy", "Gender", "Part", "Nsamp", "Yr", "Seas", "FltSvy", "Gender",
-    "Part", "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp", "Year", "Seas", "Fleet",
-    "Partition", "Type", "Std_in", "Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr",
-    "N_"), sample_struct_name = c("Yr", 
-     "Seas", "FltSvy", "SE", "Yr", "Seas",
-    "FltSvy", "SE", "Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp", "Yr", "Seas",
-    "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp", "Yr", "Seas",
-    "FltSvy", "Part", "Type", "Std_in", "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
-    "N_"), stringsAsFactors = FALSE)
+  convert_key = data.frame(df_name = c(rep("catch", 4), rep("EM2OMcatch_bias", 4),
+    rep("CPUE", 4), rep("discard_data", 4), rep("lencomp", 6), rep("agecomp", 9),
+    rep("meanbodywt", 6), rep("MeanSize_at_Age_obs", 7)), r4ss_name = c("year", "seas",
+    "fleet", "catch_se", "year", "seas", "fleet", "catch_bias", "year", "seas", "index",
+    "se_log", "Yr", "Seas", "Flt", "Std_in", "Yr", "Seas", "FltSvy", "Gender", "Part",
+    "Nsamp", "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo", "Lbin_hi",
+    "Nsamp", "Year", "Seas", 
+     "Fleet", "Partition", "Type", "Std_in", "Yr", "Seas",
+    "FltSvy", "Gender", "Part", "AgeErr", "N_"), sample_struct_name = c("Yr", "Seas",
+    "FltSvy", "SE", "Yr", "Seas", "FltSvy", "EM2OM_bias", "Yr", "Seas", "FltSvy", "SE",
+    "Yr", "Seas", "FltSvy", "SE", "Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp", "Yr",
+    "Seas", "FltSvy", "Sex", "Part", "Ageerr", "Lbin_lo", "Lbin_hi", "Nsamp", "Yr",
+    "Seas", "FltSvy", "Part", "Type", "Std_in", "Yr", "Seas", "FltSvy", "Sex", "Part",
+    "Ageerr", "N_"), stringsAsFactors = FALSE)
 )
 }
 \arguments{
