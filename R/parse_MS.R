@@ -45,7 +45,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
       "environment, if not built into SSMSE."
     )
   }
-
+  
   if (!is.null(EM_out_dir)) check_dir(EM_out_dir) # make sure contains a valid model
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
@@ -66,7 +66,9 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
     interim_struct = interim_struct,
     seed = seed
   )
+  
   new_catch_list <- do.call(MS, args = pars_list)
+  
   # to do: need better checks on function name? Maybe be more explicit on
   # which environment the function is in?
   # check output before returning
@@ -76,3 +78,4 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
   }
   new_catch_list
 }
+

@@ -7,18 +7,26 @@
 convert_to_r4ss_names <- function(sample_struct,
                                   convert_key = data.frame(
                                     df_name = c(
-                                      rep("catch", 4), rep("CPUE", 4), rep("discard_data", 4), rep("lencomp", 6),
+                                      rep("catch", 4), rep("EM2OMcatch_bias", 4), rep("CPUE", 4), 
+                                      rep("discard_data", 4), rep("lencomp", 6),
                                       rep("agecomp", 9), rep("meanbodywt", 6),
                                       rep("MeanSize_at_Age_obs", 7)
                                     ),
                                     r4ss_name = c(
+                                      #catch names
                                       "year", "seas", "fleet", "catch_se",
+                                      #EM2OM bias names
+                                      "year", "seas", "fleet", "catch_bias", ## add for EM2OM catch bias
+                                      #CPUE names
                                       "year", "seas", "index", "se_log",
+                                      #Discard names
                                       "Yr", "Seas", "Flt", "Std_in",
+                                      #Length Comp names
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Nsamp",
+                                      #Age Comp names
                                       "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
                                       "Lbin_hi", "Nsamp",
-                                      # mean size
+                                      # mean size names
                                       "Year", "Seas", "Fleet", "Partition", "Type", "Std_in",
                                       # generalized size comp
                                       # meansize at age - note sample sizes are for each bin and sex, but
@@ -29,10 +37,17 @@ convert_to_r4ss_names <- function(sample_struct,
                                       # Morph comp
                                     ),
                                     sample_struct_name = c(
+                                      #catch names
                                       "Yr", "Seas", "FltSvy", "SE",
+                                      #EM2OM bias names
+                                      "Yr", "Seas", "FltSvy", "EM2OM_bias",
+                                      #CPUE names
                                       "Yr", "Seas", "FltSvy", "SE",
+                                      #Discard names
                                       "Yr", "Seas", "FltSvy", "SE",
+                                      #Length Comp names
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp",
+                                      #Age Comp names
                                       "Yr", "Seas", "FltSvy", "Sex", "Part", "Ageerr",
                                       "Lbin_lo", "Lbin_hi", "Nsamp",
                                       # mean weight or length (depends on Type)
@@ -93,15 +108,15 @@ convert_to_r4ss_names <- function(sample_struct,
 #' # note there is a warning for lencomp because it does not have a consistent pattern
 #' sample_struct <- create_sample_struct(OM_path, nyrs = 20)
 #' print(sample_struct)
-create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
+create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) { ### edited to include EM2OMcatch_bias
   assertive.types::assert_is_a_number(nyrs)
   if (length(dat) == 1 & is.character(dat)) {
     dat <- SS_readdat(dat, verbose = FALSE)
   }
 
   list_name <- c(
-    "catch", "CPUE", "discard_data", "lencomp", "agecomp", "meanbodywt",
-    "MeanSize_at_Age_obs"
+    "catch", "EM2OMcatch_bias", "CPUE", "discard_data", 
+    "lencomp", "agecomp", "meanbodywt", "MeanSize_at_Age_obs"
   )
   sample_struct <- lapply(list_name,
     function(name, dat) {
@@ -325,6 +340,12 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
     )
   }
   names(sample_struct) <- list_name
+  
+  ## ADD EM2OMcatch_bias
+  sample_struct$EM2OMcatch_bias<- sample_struct$catch
+  names(sample_struct$EM2OMcatch_bias)[4] = "EM2OM_bias"
+  sample_struct$EM2OMcatch_bias$EM2OM_bias= rep(1, length=nrow(sample_struct$catch))
+  
   sample_struct
 }
 
@@ -359,8 +380,8 @@ get_full_sample_struct <- function(sample_struct,
       if (!"FltSvy" %in% colnames(x)) {
         # there must only be 1 fleet
         flt_colname <- grep("Flt|fleet|index", colnames(tmp_dat),
-          ignore.case = TRUE,
-          value = TRUE
+                            ignore.case = TRUE,
+                            value = TRUE
         )
         flt <- unique(tmp_dat[, flt_colname])
         if (length(flt) == 1) {
@@ -372,15 +393,15 @@ get_full_sample_struct <- function(sample_struct,
       }
       if ("FltSvy" %in% colnames(x)) {
         flt_colname <- grep("Flt|fleet|index", colnames(tmp_dat),
-          ignore.case = TRUE,
-          value = TRUE
+                            ignore.case = TRUE,
+                            value = TRUE
         )
       }
       if (!"Seas" %in% colnames(x)) {
         x[["Seas"]] <- NA # initial value
         seas_colname <- grep("seas", colnames(tmp_dat),
-          ignore.case = TRUE,
-          value = TRUE
+                             ignore.case = TRUE,
+                             value = TRUE
         )
         for (i in unique(x[["FltSvy"]])) {
           tmp_seas <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, seas_colname])
@@ -395,8 +416,8 @@ get_full_sample_struct <- function(sample_struct,
       if (x_name == "catch" | x_name == "CPUE" | x_name == "discard_data") {
         if (!"SE" %in% colnames(x)) {
           se_colname <- grep("catch_se|se_log", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
+                             ignore.case = TRUE,
+                             value = TRUE
           )
           x[["SE"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
@@ -410,12 +431,18 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
       }
+      # if (x_name == "EM2OMcatch_bias") {
+      #   if (!"EM2OM_bias" %in% colnames(x)) {
+      #     x[["EM2OM_bias"]] <- rep(1, length=nrow(x))
+      #   }
+      # }
+      
       if (x_name == "lencomp" | x_name == "agecomp" |
-        x_name == "MeanSize_at_Age_obs") {
+          x_name == "MeanSize_at_Age_obs") {
         if (!"Sex" %in% colnames(x)) {
           flt_colname <- grep("FltSvy|fleet|index", colnames(tmp_dat),
-            ignore.case = TRUE,
-            value = TRUE
+                              ignore.case = TRUE,
+                              value = TRUE
           )
           x[["Sex"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
@@ -430,7 +457,7 @@ get_full_sample_struct <- function(sample_struct,
         }
       }
       if (x_name == "lencomp" | x_name == "agecomp" | x_name == "meanbodywt" |
-        x_name == "MeanSize_at_Age_obs") {
+          x_name == "MeanSize_at_Age_obs") {
         if (!"Part" %in% colnames(x)) {
           x[["Part"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
@@ -567,6 +594,7 @@ get_full_sample_struct <- function(sample_struct,
         # reorder columns
         x <- switch(x_name,
           catch = x[, c("Yr", "Seas", "FltSvy", "SE")],
+          EM2OMcatch_bias = x[, c("Yr", "Seas", "FltSvy", "EM2OM_bias")],
           CPUE = x[, c("Yr", "Seas", "FltSvy", "SE")],
           discard_data = x[, c("Yr", "Seas", "FltSvy", "SE")],
           lencomp = x[, c("Yr", "Seas", "FltSvy", "Sex", "Part", "Nsamp")],
@@ -606,6 +634,6 @@ get_full_sample_struct <- function(sample_struct,
   if (!is.null(full_samp_str[["agecomp"]])) {
     full_samp_str[["agecomp"]] <- full_samp_str[["agecomp"]][, tmp_colorder]
   }
-
+  
   full_samp_str
 }

@@ -6,3 +6,6 @@
 ss.log
 inst/bookdown/_bookdown_files
 .github/*.rds
+
+scen_1/
+R/GetResults_NEW.R

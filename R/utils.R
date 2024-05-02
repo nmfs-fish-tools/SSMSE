@@ -46,11 +46,11 @@ create_scen_list <- function(scen_name_vec,
   # will be another function to check it.
   scen_list <- lapply(scen_name_vec, function(x) NULL)
   names(scen_list) <- scen_name_vec
-
+  
   # Note that the below is written as a function with documentation because it
   # was fairly long and the meaning of the variables may not be immediately
   # clear.
-
+  
   # function to get the value for a scenario, which depends on if it is a list,
   # vector, or null. also includes error checking.
   #
@@ -118,14 +118,14 @@ create_scen_list <- function(scen_name_vec,
   scen_list <- vector(mode = "list", length = length(scen_name_vec))
   for (i in seq_along(scen_name_vec)) {
     tmp_vals <- lapply(all_vars,
-      function(x, var_name, num_scen, len_scen_name_vec) {
-        get_scen_list_val(get(x),
-          var_name = x,
-          num_scen,
-          len_scen_name_vec
-        )
-      },
-      num_scen = i, len_scen_name_vec = length(scen_name_vec)
+                       function(x, var_name, num_scen, len_scen_name_vec) {
+                         get_scen_list_val(get(x),
+                                           var_name = x,
+                                           num_scen,
+                                           len_scen_name_vec
+                         )
+                       },
+                       num_scen = i, len_scen_name_vec = length(scen_name_vec)
     )
     scen_list[[i]] <- tmp_vals
     # add names
