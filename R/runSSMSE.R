@@ -171,6 +171,7 @@ run_SSMSE <- function(scen_name_vec,
     scen_list[[i]][["scen_seed"]] <- scen_seed
   }
   
+  
   if (run_parallel) {
     if (!is.null(n_cores)) {
       n_cores <- min(max(n_cores, 1), (parallel::detectCores() - 1))
@@ -306,8 +307,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   if (!is.null(sample_struct)) assertive.types::assert_is_list(sample_struct)
   if (!is.null(sample_struct_hist)) assertive.types::assert_is_list(sample_struct_hist)
   assertive.types::assert_is_a_bool(verbose)
-  
-  
+   
   # create the out_dir to store all files for all iter in the scenario.
   if (is.null(out_dir_scen)) {
     out_dir_iter <- scen_name
@@ -330,6 +330,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   }
   # make a dataframe to store dataframes that error
   return_val <- vector(mode = "list", length = iter)
+  
+  
   if (run_parallel) {
     return_val <- foreach::`%dopar%`(
       foreach::foreach(i = seq_len(iter), .errorhandling = "pass"),
@@ -521,6 +523,8 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_any_of(nyrs_assess, c("integer", "numeric"))
   assertive.types::assert_is_any_of(niter, c("integer", "numeric"))
   assertive.types::assert_is_any_of(nscen, c("integer", "numeric"))
+  
+  
   if (!is.null(sample_struct)) {
     assertive.types::assert_is_list(sample_struct)
     sample_struct <- check_sample_struct(sample_struct)
@@ -537,6 +541,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   if (!is.null(custom_MS_source)) {
     source(custom_MS_source)
   }
+
   
   message("Starting iteration ", niter, ".")
   
@@ -638,16 +643,15 @@ run_SSMSE_iter <- function(out_dir = NULL,
   # TODO: If we want to add in data lag then we will need to add a remove data
   # function I think as well as the ability to put in fixed catches for the
   # interim years using the Forecatch section.
-  
   new_catch_list <- parse_MS(
     MS = MS, EM_out_dir = EM_out_dir, init_loop = TRUE,
     OM_dat = OM_dat, OM_out_dir = OM_out_dir,
     verbose = verbose, nyrs_assess = nyrs_assess,
     interim_struct = interim_struct,
     dat_yrs = (init_mod[["dat"]][["endyr"]] - nyrs + 1):(init_mod[["dat"]][["endyr"]] - nyrs + nyrs_assess),
-    seed = (iter_seed[["iter"]][1] + 123456)
+    seed = (iter_seed[["iter"]][1] + 123456),
+    sample_struct = sample_struct # add for bias
   )
-  
   message(
     "Finished getting catch (years ",
     min(new_catch_list[["catch"]][, "year"]), " to ", max(new_catch_list[["catch"]][, "year"]),
