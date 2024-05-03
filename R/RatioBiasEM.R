@@ -505,11 +505,15 @@ add_new_dat_BIAS<- function (OM_dat, EM_datfile, sample_struct, EM_dir, nyrs_ass
   
   #extracted_dat takes observations from the OM; then below we use the EM2OM multiplier to put catch back into EM units and remove the EM2OMcatch_basis element so that it doesn't get added to the datafile. 
   
-  tmp_catch<- merge(extracted_dat$catch, sample_struct$EM2OMcatch_bias)
-  extracted_dat$catch$catch<- tmp_catch$catch / tmp_catch$catch_bias ### EM2OM edits to get EM catch back to OM
+  if(!is.null(extracted_dat$catch)){
+    tmp_catch<- merge(extracted_dat$catch, sample_struct$EM2OMcatch_bias)
+    extracted_dat$catch$catch<- tmp_catch$catch / tmp_catch$catch_bias ### EM2OM edits to get EM catch back to OM
+  }
   
-  tmp_discard<- merge(extracted_dat$discard_data, sample_struct$EM2OMcatch_bias)
-  extracted_dat$discard_data$Discard<- tmp_discard$Discard / tmp_discard$catch_bias 
+  if(!is.null(extracted_dat$discard_data)){
+    tmp_discard<- merge(extracted_dat$discard_data, sample_struct$EM2OMcatch_bias)
+    extracted_dat$discard_data$Discard<- tmp_discard$Discard / tmp_discard$catch_bias
+  }
   
   extracted_dat[["EM2OMcatch_bias"]]<-NULL
   
@@ -622,10 +626,6 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
     } else {
       sample_struct_sub <- NULL
     }
-    
-    # if(!is.null(EM2OMdf)){ EM2OMs <- EM2OMdf$multC[which(EM2OMdf$year %in% dat_yrs)] ### CP BIAS EDIT #
-    # } else { EM2OMs <- rep(1, nyrs_assess)}
-    
     
     new_EM_dat <- add_new_dat_BIAS( ######## NEW FUNCTION TO BUILD IN CONVERSION FACTOR
       OM_dat = OM_dat,
