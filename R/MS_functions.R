@@ -267,7 +267,6 @@ get_EM_catch_df <- function(EM_dir, dat) {
   catch_df <- as.data.frame(catch_df)
   catch_bio_df <- as.data.frame(catch_bio_df)
   catch_F_df <- as.data.frame(catch_F_df)
-
   # get discard, if necessary
   if (dat[["N_discard_fleets"]] > 0) {
     # discard units: 1, biomass/number according to set in catch
@@ -313,7 +312,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
         }
         dis_df_list[[i]] <- data.frame(
           Yr = fcast_catch_df[["Yr"]],
-          Seas = fcast_catch_df[["Seas"]],
+          Seas = rep(dat$discard_data[dat$discard_data$Flt==tmp_flt,"Seas"][1],length(fcast_catch_df[["Yr"]])),
           Flt = tmp_flt,
           Discard = tmp_discard_amount,
           Std_in = se_dis[se_dis[["Flt"]] == tmp_flt, "Std_in"]

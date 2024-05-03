@@ -250,7 +250,7 @@ get_RatioEM_catch_df<-function(EM_dir, dat, dat_yrs,
         }
         dis_df_list[[i]] <- data.frame(
           Yr = fcast_catch_df[["Yr"]],
-          Seas = fcast_catch_df[["Seas"]],
+          Seas = rep(dat$discard_data[dat$discard_data$Flt==tmp_flt,"Seas"][1],length(fcast_catch_df[["Yr"]])),
           Flt = tmp_flt,
           Discard = tmp_discard_amount,
           Std_in = se_dis[se_dis[["Flt"]] == tmp_flt, "Std_in"]
@@ -424,7 +424,7 @@ RatioBiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = F
   # new_OM_catch_list$catch_bio <- NULL
   
   if(!is.null(new_OM_catch_list$discards)){
-    tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscards_bias, all.x=TRUE)
+    tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscard_bias, all.x=TRUE)
     new_OM_catch_list$discards$Discard <- new_OM_catch_list$discards$Discard * tmp_discards$bias 
   }
   
@@ -698,7 +698,7 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   # new_OM_catch_list$catch_bio <- NULL
   
   if(!is.null(new_OM_catch_list$discards)){
-    tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscards_bias, all.x=TRUE)
+    tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscard_bias, all.x=TRUE)
     new_OM_catch_list$discards$Discard <- new_OM_catch_list$discards$Discard * tmp_discards$bias 
   }
   
@@ -711,10 +711,8 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
     new_OM_catch_list$catch_F <- NULL
   }
   
-  
   new_catch_list<-new_OM_catch_list
   new_catch_list
-  
 }
 
 
