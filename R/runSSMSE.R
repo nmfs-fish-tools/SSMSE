@@ -116,7 +116,6 @@ run_SSMSE <- function(scen_name_vec,
   #     rep(sample_catch_vec, length.out = length(scen_name_vec))
   # }
   
-  
   # make sure the output directories exist
   result <- lapply(out_dir_scen_vec, function(x) if (!dir.exists(x)) dir.create(x, showWarnings = FALSE))
   
@@ -524,7 +523,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
   assertive.types::assert_is_any_of(niter, c("integer", "numeric"))
   assertive.types::assert_is_any_of(nscen, c("integer", "numeric"))
   
-  
   if (!is.null(sample_struct)) {
     assertive.types::assert_is_list(sample_struct)
     sample_struct <- check_sample_struct(sample_struct)
@@ -542,7 +540,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
     source(custom_MS_source)
   }
 
-  
   message("Starting iteration ", niter, ".")
   
   set.seed((iter_seed[["iter"]][1] + 123))

@@ -191,9 +191,10 @@ check_avail_dat <- function(EM_dat, OM_dat,
 check_sample_struct <- function(sample_struct,
                                 valid_names = list(
                                   catch = c("Yr", "Seas", "FltSvy", "SE"),
-                                  EM2OMcatch_bias = c("Yr", "Seas", "FltSvy", "EM2OM_bias"), # added for EM2OM
+                                  EM2OMcatch_bias = c("Yr", "Seas", "FltSvy", "bias"), # added for EM2OM
                                   CPUE = c("Yr", "Seas", "FltSvy", "SE"),
                                   discard_data = c("Yr", "Seas", "FltSvy", "SE"),
+                                  EM2OMdiscard_bias = c("Yr", "Seas", "FltSvy", "bias"), # added for EM2OM
                                   lencomp = c(
                                     "Yr", "Seas", "FltSvy", "Sex",
                                     "Part", "Nsamp"
