@@ -745,6 +745,7 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
 #' # note there is a warning for lencomp because it does not have a consistent pattern
 #' sample_struct <- create_sample_struct(OM_path, nyrs = 20)
 #' print(sample_struct)
+#' 
 create_sample_struct_biased <- function(dat, nyrs, rm_NAs = FALSE) { ### edited to include EM2OMcatch_bias
   assertive.types::assert_is_a_number(nyrs)
   if (length(dat) == 1 & is.character(dat)) {
@@ -984,14 +985,14 @@ create_sample_struct_biased <- function(dat, nyrs, rm_NAs = FALSE) { ### edited 
   sample_struct$EM2OMcatch_bias$bias= rep(1, length=nrow(sample_struct$catch))
   
   ## ADD EM2OMdiscard_bias
-  if(!is.na(sample_struct$discard_data)){
+  if(!is.null(ncol(sample_struct$discard_data))){
     sample_struct$EM2OMdiscard_bias<- sample_struct$discard_data
     names(sample_struct$EM2OMdiscard_bias)[4] = "bias"
     sample_struct$EM2OMdiscard_bias$bias= rep(1, length=nrow(sample_struct$discard_data))
   } else{
     sample_struct$EM2OMdiscard_bias<-NA
   }
-
+  
   
   sample_struct
 }
