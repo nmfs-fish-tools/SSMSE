@@ -86,6 +86,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
   datfile <- system.file("extdata", "models", "cod", "ss3.dat", package = "SSMSE")
   # use sample_struct to determine its structure
   sample_struct <- create_sample_struct(dat = datfile, nyrs = nyrs) # note warning
+  sample_struct[["discard_data"]] <- NULL
   sample_struct[["lencomp"]] <- NULL
   sample_struct[["meanbodywt"]] <- NULL
   sample_struct[["MeanSize_at_Age_obs"]] <- NULL
