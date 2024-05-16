@@ -248,13 +248,23 @@ get_RatioEM_catch_df<-function(EM_dir, dat, dat_yrs,
             "assistance with this problem."
           )
         }
-        dis_df_list[[i]] <- data.frame(
-          Yr = fcast_catch_df[["Yr"]],
-          Seas = rep(dat$discard_data[dat$discard_data$Flt==tmp_flt,"Seas"][1],length(fcast_catch_df[["Yr"]])),
-          Flt = tmp_flt,
-          Discard = tmp_discard_amount,
-          Std_in = se_dis[se_dis[["Flt"]] == tmp_flt, "Std_in"]
-        )
+        if(dat$discard_data[dat$discard_data$Flt==tmp_flt,"Seas"][1]<0){ # replace dis_df_list[[i]] - 5/16/2024
+          dis_df_list[[i]] <- data.frame(
+            Yr = -(abs(fcast_catch_df[["Yr"]])),
+            Seas = rep(abs(dat$discard_data[dat$discard_data$Flt==tmp_flt,"Seas"][1]),length(fcast_catch_df[["Yr"]])),
+            Flt = abs(tmp_flt),
+            Discard = tmp_discard_amount,
+            Std_in = se_dis[se_dis[["Flt"]] == tmp_flt, "Std_in"]
+          )
+        }else{
+          dis_df_list[[i]] <- data.frame(
+            Yr = fcast_catch_df[["Yr"]],
+            Seas = rep(dat$discard_data[dat$discard_data$Flt==tmp_flt,"Seas"][1],length(fcast_catch_df[["Yr"]])),
+            Flt = tmp_flt,
+            Discard = tmp_discard_amount,
+            Std_in = se_dis[se_dis[["Flt"]] == tmp_flt, "Std_in"]
+          )
+        }# end ifelse
       }
     }
     dis_df <- do.call("rbind", dis_df_list)
