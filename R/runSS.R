@@ -65,7 +65,7 @@ run_ss_model <- function(dir,
   if (os == "unix") {
     system(
       paste0(
-        "cd ", dir, ";", paste0(bin, " "),
+        "sudo chmod a+x ", bin, "; ", "cd ", dir, "; ", paste0(bin, " "),
         admb_options
       ),
       ignore.stdout = ignore.stdout, ...
@@ -119,7 +119,7 @@ get_bin <- function(bin_name = "ss") {
   if (.Platform[["OS.type"]] == "windows") {
     platform <- "Windows64"
     bin_name <- paste0(bin_name, ".exe")
-    bit <- gsub("\\/", "", Sys.getenv("R_ARCH"))
+    bit <- R.version$arch
     if (grepl("3", bit)) {
       if (!grepl("86", bit)) {
         platform <- "Windows32"
@@ -132,17 +132,21 @@ get_bin <- function(bin_name = "ss") {
       }
     }
   } else {
-    if (substr(R.version[["os"]], 1, 6) == "darwin") {
+    if (substr(R.version[["os"]], 1, 6) == "darwin" && R.version[["arch"]] == "x86_64") {
       platform <- "MacOS"
     } else {
-      if (R.version[["os"]] == "linux-gnu") {
-        platform <- "Linux64"
+      if (substr(R.version[["os"]], 1, 6) == "darwin" && R.version[["arch"]] == "aarch64") {
+        platform <- "MacOS_arm64"
       } else {
-        warning(
-          "SS3 binary is not available for OS ", R.version[["os"]],
-          " within the package. You must have an appropriate SS3 binary in your ",
-          "path. See the ss3sim vignette."
-        )
+        if (R.version[["os"]] == "linux-gnu") {
+          platform <- "Linux64"
+        } else {
+          warning(
+            "SS3 binary is not available for OS ", R.version[["os"]], " ", R.version[["arch"]],
+            " within the package. You must have an appropriate SS3 binary in your ",
+            "path. See the ss3sim vignette."
+          )
+        }
       }
     }
   }
