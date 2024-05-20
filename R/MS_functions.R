@@ -331,6 +331,13 @@ get_EM_catch_df <- function(EM_dir, dat) {
       }
     }
     dis_df <- do.call("rbind", dis_df_list)
+    dis_df <- dis_df %>%
+      dplyr::group_by(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]]) %>%
+      dplyr::summarise(catch = sum(.data[["Discard"]])) %>%
+      merge(se, all.x = TRUE, all.y = FALSE) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]], .data[["Discard"]], .data[["Std_in"]])
+    dis_df <- as.data.frame(dis_df)
   } else {
     dis_df <- NULL
   }

@@ -96,7 +96,7 @@ run_SSMSE <- function(scen_name_vec,
   if (!is.null(custom_MS_source)) {
     source(custom_MS_source)
   }
-  
+
   # input checks
   if (!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
     invalid_MS <- MS_vec[unlist(lapply(MS_vec, function(x) !exists(x)))]
@@ -169,7 +169,6 @@ run_SSMSE <- function(scen_name_vec,
     scen_seed[["iter"]] <- seed[["iter"]][[i]]
     scen_list[[i]][["scen_seed"]] <- scen_seed
   }
-  
   
   if (run_parallel) {
     if (!is.null(n_cores)) {

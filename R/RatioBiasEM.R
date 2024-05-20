@@ -268,6 +268,13 @@ get_RatioEM_catch_df<-function(EM_dir, dat, dat_yrs,
       }
     }
     dis_df <- do.call("rbind", dis_df_list)
+    dis_df <- dis_df %>%
+      dplyr::group_by(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]]) %>%
+      dplyr::summarise(catch = sum(.data[["Discard"]])) %>%
+      merge(se, all.x = TRUE, all.y = FALSE) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]], .data[["Discard"]], .data[["Std_in"]])
+    dis_df <- as.data.frame(dis_df)
   } else {
     dis_df <- NULL
   }
@@ -437,12 +444,12 @@ RatioBiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = F
     tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscard_bias, all.x=TRUE)
     new_OM_catch_list$discards$Discard <- new_OM_catch_list$discards$Discard * tmp_discards$bias 
   }
-  
   if(2 %in% OM_dat$fleetinfo$type){ # if bycatch fleet -- remove from catch list and keep only bycatch fleets in catch_F list
     byc_f <- as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
-    new_OM_catch_list$catch<- new_OM_catch_list$catch[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[new_OM_catch_list$catch_F$fleet==byc_f,]
+    
+    new_OM_catch_list$catch<- new_OM_catch_list$catch[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[which(is.element(new_OM_catch_list$catch_F$fleet,byc_f)),]
   } else{
     new_OM_catch_list$catch_F <- NULL
   }
@@ -714,9 +721,9 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   
   if(2 %in% OM_dat$fleetinfo$type){ # if bycatch fleet -- remove from catch list and keep only bycatch fleets in catch_F list
     byc_f <- as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
-    new_OM_catch_list$catch<- new_OM_catch_list$catch[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[new_OM_catch_list$catch_F$fleet==byc_f,]
+    new_OM_catch_list$catch<- new_OM_catch_list$catch[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[which(is.element(new_OM_catch_list$catch_F$fleet,byc_f)),]
   } else{
     new_OM_catch_list$catch_F <- NULL
   }
