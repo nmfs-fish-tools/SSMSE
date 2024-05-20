@@ -115,6 +115,7 @@ run_SSMSE <- function(scen_name_vec,
   #   sample_catch_vec <-
   #     rep(sample_catch_vec, length.out = length(scen_name_vec))
   # }
+  #
   
   # make sure the output directories exist
   result <- lapply(out_dir_scen_vec, function(x) if (!dir.exists(x)) dir.create(x, showWarnings = FALSE))
