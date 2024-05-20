@@ -139,10 +139,17 @@ plot_index_sampling <- function(dir = getwd()) {
     full.names = FALSE
   ), value = TRUE)
   assertive.types::assert_is_a_string(om_name)
+
+  data_file <- if(file.exists(file.path(dir, as.character(iters[1]), om_name, "data.ss_new"))){
+                  "data.ss_new"
+                  } else {
+                    "data_echo.ss_new"
+                    }
+
   tmp_dat_OM <- r4ss::SS_readdat(
     file.path(
       dir, as.character(iters[1]),
-      om_name, "data.ss_new"
+      om_name, data_file
     ),
     verbose = FALSE, section = 1
   )
@@ -154,7 +161,7 @@ plot_index_sampling <- function(dir = getwd()) {
   tmp_dat_OM <- r4ss::SS_readdat(
     file.path(
       dir, as.character(iters[1]),
-      om_name, "data.ss_new"
+      om_name, data_file
     ),
     verbose = FALSE, section = 2
   )

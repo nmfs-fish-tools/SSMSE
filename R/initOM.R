@@ -384,12 +384,17 @@ create_OM <- function(OM_out_dir,
       )
     }
     # check model runs without producing nans in the data file
-    tmp_new_dat <- readLines(file.path(OM_out_dir, "data.ss_new"))
+    data_filepath <- if(file.exists(file.path(OM_out_dir, "data.ss_new"))) {
+      file.path(OM_out_dir, "data.ss_new")
+    } else  { 
+      file.path(OM_out_dir, "data_echo.ss_new")
+    }
+    tmp_new_dat <- readLines(data_filepath)
     nan_vals <- grep("nan", tmp_new_dat)
     if (length(nan_vals) > 0) {
       stop(
-        "NAN values present in the data.ss_new om file, suggesting an issue ",
-        "setting up the OM. See ", file.path(OM_out_dir, "data.ss_new")
+        "NAN values present in the ", basename(data_filepath)," om file, suggesting an issue ",
+        "setting up the OM. See ", data_filepath
       )
     }
 
@@ -487,14 +492,20 @@ run_OM <- function(OM_dir,
     debug_par_run = debug_par_run
   )
 
-  dat <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
+  data_filename <- if(file.exists(file.path(OM_dir, "data.ss_new"))) {
+    "data.ss_new"
+  } else { 
+    "data_echo.ss_new"
+  }
+
+  dat <- r4ss::SS_readdat(file.path(OM_dir, data_filename),
     section = max_section,
     verbose = FALSE
   )
   # replace with the expected catch values if sample_catch is FALSE and using
   # bootstrap
   if (boot == TRUE & sample_catch == FALSE) {
-    exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data.ss_new"),
+    exp_vals <- r4ss::SS_readdat(file.path(OM_dir, data_filename),
       section = 2,
       verbose = FALSE
     )

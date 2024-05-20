@@ -673,9 +673,14 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
 
     run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
 
+    data_filename <- if(file.exists(file.path(OM_dir, "data.ss_new"))) {
+    "data.ss_new"
+      } else { 
+        "data_echo.ss_new"
+      }
 
     Reference_dat <- SS_readdat(
-      file = file.path(EM_out_dir, "data.ss_new"),
+      file = file.path(EM_out_dir, data_filename),
       version = 3.30, section = 2, verbose = FALSE
     )
 
