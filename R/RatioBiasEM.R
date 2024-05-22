@@ -715,7 +715,7 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   # new_OM_catch_list$catch_bio <- NULL
   
   if(!is.null(new_OM_catch_list$discards)){
-    tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscard_bias, all.x=TRUE)
+    tmp_discards <- base::merge(abs(new_OM_catch_list$discards), abs(sample_struct$EM2OMdiscard_bias), all.x=TRUE) #need to sort to figure this out
     new_OM_catch_list$discards$Discard <- new_OM_catch_list$discards$Discard * tmp_discards$bias 
   }
   

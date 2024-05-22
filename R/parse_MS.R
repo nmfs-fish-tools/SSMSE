@@ -66,7 +66,7 @@ parse_MS <- function(MS, EM_out_dir = NULL, EM_init_dir = NULL,
     interim_struct = interim_struct,
     seed = seed
   )
-  
+  # browser()
   new_catch_list <- do.call(MS, args = pars_list)
 
   # to do: need better checks on function name? Maybe be more explicit on
