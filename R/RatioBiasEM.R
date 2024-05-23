@@ -703,19 +703,24 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   # For the simple approach, we can just apply a series of scalars from the EM catch list to create an OM catch list
   new_OM_catch_list = new_EM_catch_list
   
-  
+  sample_struct$EM2OMcatch_bias <- sample_struct$EM2OMcatch_bias[order(abs(sample_struct$EM2OMcatch_bias$fleet),abs(sample_struct$EM2OMcatch_bias$year),abs(sample_struct$EM2OMcatch_bias$seas)),]
+  sample_struct$EM2OMcatch_bias <- sample_struct$EM2OMcatch_bias[!duplicated(sample_struct$EM2OMcatch_bias),]
   if(!is.null(new_OM_catch_list$catch)){
-    tmp_catch <- base::merge(new_OM_catch_list$catch, sample_struct$EM2OMcatch_bias, all.x=TRUE, all.y=FALSE)
+    tmp_catch <- base::merge(abs(new_OM_catch_list$catch), abs(sample_struct$EM2OMcatch_bias), all.x=TRUE, all.y=FALSE)
+    tmp_catch <- tmp_catch[order(abs(tmp_catch$fleet),abs(tmp_catch$year),abs(tmp_catch$seas)),]
     new_OM_catch_list$catch$catch <- new_OM_catch_list$catch$catch * tmp_catch$bias 
   }
   if(!is.null(new_OM_catch_list$catch_bio)){
-    tmp_catch_bio <- base::merge(new_OM_catch_list$catch_bio, sample_struct$EM2OMcatch_bias, all.x=TRUE)
+    tmp_catch_bio <- base::merge(abs(new_OM_catch_list$catch_bio), abs(sample_struct$EM2OMcatch_bias), all.x=TRUE)
+    tmp_catch_bio <- tmp_catch_bio[order(abs(tmp_catch_bio$fleet),abs(tmp_catch_bio$year),abs(tmp_catch_bio$seas)),]
     new_OM_catch_list$catch_bio$catch <- new_OM_catch_list$catch_bio$catch * tmp_catch_bio$bias
   }
   # new_OM_catch_list$catch_bio <- NULL
-  
+  sample_struct$EM2OMdiscard_bias <- sample_struct$EM2OMdiscard_bias[order(abs(sample_struct$EM2OMdiscard_bias$Flt),abs(sample_struct$EM2OMdiscard_bias$Yr),abs(sample_struct$EM2OMdiscard_bias$Seas)),]
+  sample_struct$EM2OMdiscard_bias <- sample_struct$EM2OMdiscard_bias[!duplicated(sample_struct$EM2OMdiscard_bias),]
   if(!is.null(new_OM_catch_list$discards)){
     tmp_discards <- base::merge(abs(new_OM_catch_list$discards), abs(sample_struct$EM2OMdiscard_bias), all.x=TRUE) #need to sort to figure this out
+    tmp_discards <- tmp_discards[order(abs(tmp_discards$Flt),abs(tmp_discards$Yr),abs(tmp_discards$Seas)),]
     new_OM_catch_list$discards$Discard <- new_OM_catch_list$discards$Discard * tmp_discards$bias 
   }
   

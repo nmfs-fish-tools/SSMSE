@@ -731,6 +731,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       "Finished running and sampling OM through year ", max(new_catch_list[["catch"]][, "year"]),
       "."
     )
+
     if (run_EM_last_yr == FALSE && isTRUE(yr == test_run_EM_yr)) {
       skip_EM_run <- TRUE
     } else {
