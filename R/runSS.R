@@ -119,7 +119,7 @@ get_bin <- function(bin_name = "ss") {
   if (.Platform[["OS.type"]] == "windows") {
     platform <- "Windows64"
     bin_name <- paste0(bin_name, ".exe")
-    bit <- R.version$arch
+    bit <- R.version[["arch"]]
     if (grepl("3", bit)) {
       if (!grepl("86", bit)) {
         platform <- "Windows32"
