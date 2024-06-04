@@ -639,7 +639,8 @@ test_that("Tests a model with env link using historical values", {
     om_mod_path = om_path, nyrs = 10
   )
   expect_length(unique(devs_list[["dev_vals"]][["SR_LN(R0)"]]), 1)
-  dat <- r4ss::SS_readdat(file.path(om_path, "data.ss_new"))
+  OM_dat_file <- list.files(om_path, pattern = "data.ss_new|data_echo.ss_new")
+  dat <- r4ss::SS_readdat(file.path(om_path, OM_dat_file))
   dat <- dat[["envdat"]]
   env_vals <- dat[dat[["Yr"]] >= tmp_list[[1]][["input"]][["first_yr_averaging"]] &
     dat[["Yr"]] <= tmp_list[[1]][["input"]][["last_yr_averaging"]], "Value"]

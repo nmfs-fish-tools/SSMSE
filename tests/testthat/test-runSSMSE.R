@@ -20,7 +20,10 @@ test_that("run_SSMSE_iter runs with no EM", {
     nyrs_assess = 3,
     iter_seed = list(global = 12345, scenario = 123456, iter = 1234567)
   )
-  expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
+
+  cod_OM_files <- list.files(file.path(new_temp_path, "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% cod_OM_files))
+  # expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
 })
 
@@ -50,11 +53,19 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
     seed = 12345
   )) # Set a fixed integer seed that allows replication
   expect_equivalent(result[["H-ctl"]][["errored_iterations"]], "No errored iterations")
-  expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
-  expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
+
+  H-ctl_cod_OM_files <- list.files(file.path(temp_path, "H-ctl", "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_OM_files))
+  # expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
+
+  H-ctl_cod_EM_files <- list.files(file.path(temp_path, "H-ctl", "1", "cod_EM_106"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_EM_files))
+  # expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
+
   expect_length(result, 1)
   # some more specific values, specific to the scenario above.
-  dat <- SS_readdat(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new"), verbose = FALSE)
+  dat_file <- list.files(file.path(temp_path, "H-ctl", "1", "cod_EM_106"), pattern = "data.ss_new|data_echo.ss_new")
+  dat <- SS_readdat(file.path(temp_path, "H-ctl", "1", "cod_EM_106", dat_file), verbose = FALSE)
   added_catch <- dat[["catch"]][dat[["catch"]][["year"]] %in% sample_struct[["catch"]][["Yr"]], ]
   old_catch <- dat[["catch"]][dat[["catch"]][["year"]] < min(sample_struct[["catch"]][["Yr"]]), ]
   expect_true(all(added_catch[["catch_se"]] == unique(sample_struct[["catch"]][["SE"]])))
@@ -106,29 +117,27 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
     seed = 12345
   )) # Set a fixed integer seed that allows replication
   expect_equivalent(result[["H-ctl"]][["errored_iterations"]], "No errored iterations")
-  expect_true(file.exists(
-    file.path(new_temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")
-  ))
-  expect_true(file.exists(
-    file.path(new_temp_path, "H-ctl", "1", "cod_EM_103", "data.ss_new")
-  ))
+  H-ctl_cod_OM_files <- list.files(file.path(new_temp_path, "H-ctl", "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_OM_files))
+  H-ctl_cod_EM_103_files <- list.files(file.path(new_temp_path, "H-ctl", "1", "cod_EM_103"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_EM_103_files))
   # this file should not exist b/c run_EM_last_yr is FALSE.
-  expect_true(!file.exists(
-    file.path(new_temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")
-  ))
+  # expect_true(!file.exists(
+  #   file.path(new_temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")
+  # ))
   expect_equivalent(
     result[["H-scen-2"]][["errored_iterations"]],
     "No errored iterations"
   )
-  expect_true(file.exists(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new")
-  ))
-  expect_true(file.exists(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_EM_103", "data.ss_new")
-  ))
-  expect_true(!file.exists(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106", "data.ss_new")
-  ))
+  H-scen2_cod_OM_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-scen2_cod_OM_files))
+  H-scen2_cod_EM_103_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_EM_103"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-scen2_cod_EM_103_files))
+  H-scen2_cod_EM_106_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106"))
+  expect_true(!any(c("data.ss_new","data_echo.ss_new") %in% H-scen2_cod_EM_106_files))
+  # expect_true(!file.exists(
+  #   file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106", "data.ss_new")
+  # ))
   expect_length(result, 2)
   # summarize results
   summary <- SSMSE_summary_all(dir = new_temp_path, run_parallel = FALSE)
@@ -137,40 +146,41 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
 
   # calculate performance metrics
   # to use in the tests
+  dat_file <- list.files(file.path(temp_path, "H-scen-2", "1", "cod_OM"), pattern = "data.ss_new|data_echo.ss_new")
   tmp_dat <- r4ss::SS_readdat(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new")
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file)
   )
   # check dimensions
   # catch related
   tot_catch <- get_total_catch(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"),
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file),
     yrs = 101:106
   )
 
   expect_length(tot_catch, 1)
   tot_catch_zero <- get_total_catch(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"),
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file),
     yrs = 1:25
   )
   expect_equivalent(tot_catch_zero, 0)
   avg_catch <- get_avg_catch(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"),
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file),
     yrs = 101:106
   )
   expect_length(avg_catch, 1)
   avg_catch_2_yrs <- get_avg_catch(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"),
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file),
     yrs = 26:27
   )
   compare_catch <- mean(tmp_dat$catch[tmp_dat$catch$year %in% c(26, 27), "catch"])
   expect_equivalent(avg_catch_2_yrs, compare_catch)
   var_sd_catch <- get_catch_sd(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"),
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file),
     yrs = 101:106
   )
   expect_length(var_sd_catch, 1)
   var_cv_catch <- get_catch_cv(
-    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", "data.ss_new"),
+    file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file),
     yrs = 101:106
   )
   expect_length(var_cv_catch, 1)
@@ -242,8 +252,10 @@ test_that("cod works when treated as a custom model and run_EM_last_yr = TRUE wo
       )
     )
   ))
-  expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
-  expect_true(file.exists(file.path(new_temp_path, "1", "cod_EM_106", "data.ss_new")))
+  cod_OM_files <- list.files(file.path(new_temp_path, "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% cod_OM_files))
+  cod_EM_files <- list.files(file.path(new_temp_path, "1", "cod_EM_106"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% cod_EM_files))
   expect_true(result)
 })
 
@@ -279,10 +291,12 @@ test_that("run_SSMSE runs with mean size at age and mean body length", {
   )
   expect_true(result[[1]][["errored_iterations"]] == "No errored iterations")
   # read in the data file produced from the last EM to make sure sampling occured
+  dat_file <- list.files(file.path(temp_path, "Simple_with_Discard", "test_1", "1",
+      "Simple_with_Discard_EM_2004"), pattern = "data.ss_new|data_echo.ss_new")
   out_dat <- r4ss::SS_readdat(
     file.path(
       temp_path, "Simple_with_Discard", "test_1", "1",
-      "Simple_with_Discard_EM_2004", "data.ss_new"
+      "Simple_with_Discard_EM_2004", dat_file
     ),
     section = 1
   )

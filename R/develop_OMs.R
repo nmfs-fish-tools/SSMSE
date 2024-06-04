@@ -104,6 +104,9 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
       if (!file.exists(file.path(tmp_mod_path, "control.ss_new"))) {
         warning("Problem refitting model in ", tmp_mod_path)
       }
+      if (file.exists(file.path(tmp_mod_path,"data.ss_new")) && file.exists(file.path(tmp_mod_path,"data_echo.ss_new"))) {
+        file.remove(file.path(tmp_mod_path,"data.ss_new"))
+      }
     } else {
       # run with no estimation
       run_ss_model(
@@ -113,6 +116,9 @@ develop_OMs <- function(OM_name = NULL, OM_in_dir = NULL, out_dir = getwd(), par
       )
       if (!file.exists(file.path(tmp_mod_path, "control.ss_new"))) {
         warning("Problem running model without estimation in ", tmp_mod_path)
+      }
+      if (file.exists(file.path(tmp_mod_path,"data.ss_new")) && file.exists(file.path(tmp_mod_path,"data_echo.ss_new"))) {
+        file.remove(file.path(tmp_mod_path,"data.ss_new"))
       }
       # add back original recdevs into the model (b/c not specified through the ctl file)
       new_parfile <- r4ss::SS_readpar_3.30(

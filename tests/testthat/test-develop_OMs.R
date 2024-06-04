@@ -17,7 +17,9 @@ test_that("develop_OMs works as expected", {
   )
   expect_true(file.exists(file.path(temp_path, "cod_SR_BH_steep_0.4", "control.ss_new")))
   expect_true(file.exists(file.path(temp_path, "cod_SR_BH_steep_0.8", "control.ss_new")))
-  dat <- r4ss::SS_readdat(file.path(temp_path, "cod_SR_BH_steep_0.4", "data.ss_new"),
+
+  dat_file <- list.files(file.path(temp_path, "cod_SR_BH_steep_0.4"), pattern = "data.ss_new|data_echo.ss_new")
+  dat <- r4ss::SS_readdat(file.path(temp_path, "cod_SR_BH_steep_0.4", dat_file),
     verbose = FALSE
   )
   ctl <- r4ss::SS_readctl(
@@ -58,7 +60,9 @@ test_that("develop_OMs works as expected when renaming the model", {
   )
   expect_true(file.exists(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "control.ss_new")))
   expect_true(file.exists(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.8", "control.ss_new")))
-  dat <- r4ss::SS_readdat(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", "data.ss_new"),
+
+  dat_file <- list.files(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4"), pattern = "data.ss_new|data_echo.ss_new")
+  dat <- r4ss::SS_readdat(file.path(temp_path_mod_rename, "rename-mod-test_SR_BH_steep_0.4", dat_file),
     verbose = FALSE
   )
   ctl <- r4ss::SS_readctl(

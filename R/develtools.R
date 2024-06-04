@@ -28,7 +28,10 @@ test_no_par <- function(orig_mod_dir, new_mod_dir) {
   try(run_ss_model(new_mod_dir, "-maxfn 0 -phase 50 -nohess", verbose = FALSE))
   # read in the 2 par files.
   orig_par <- readLines(file.path(orig_mod_dir, "ss.par"))
-  if (file.exists(file.path(new_mod_dir, "data.ss_new")) || file.exists(file.path(new_mod_dir, "data_echo.ss_new"))) {
+
+  dat_file <- list.files(file.path(new_mod_dir), pattern = "data.ss_new|data_echo.ss_new")
+
+  if (file.exists(file.path(new_mod_dir, dat_file))) {
     new_par <- readLines(file.path(new_mod_dir, "ss.par"))
     if (length(orig_par) != length(new_par)) {
       new_par_names <- grep("^# [^N]", new_par, value = TRUE)
@@ -49,7 +52,7 @@ test_no_par <- function(orig_mod_dir, new_mod_dir) {
       stop(
         "Problem with the ss.par file - same number of lines. ",
         "The original par file in ", orig_mod_dir,
-        " has the same number of values as the new ",
+        "has the same number of values as the new ",
         "par in ", new_mod_dir, ", so not sure what the issue is."
       )
     }

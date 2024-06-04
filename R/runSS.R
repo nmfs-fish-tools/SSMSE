@@ -56,19 +56,16 @@ run_ss_model <- function(dir,
   bin <- get_bin(ss3_bin)
   if (check_run == TRUE) {
     # new data file named for ss3 v.3.30.18 and prior
-    if(file.exists(file.path(dir, "data.ss_new"))) {
-      ss_new_path <- file.path(dir, "data.ss_new")
-    }
-    # new data file named for ss3 v.3.30.19 and after
-    if(file.exists(file.path(dir, "data_echo.ss_new"))) {
-      ss_new_path <- file.path(dir, "data_echo.ss_new")
+    if (file.exists(file.path(dir,"data.ss_new")) && file.exists(file.path(dir,"data_echo.ss_new"))) {
+        file.remove(file.path(dir,"data.ss_new"))
       }
-
-    if (file.exists(ss_new_path)) {
-      file.remove(ss_new_path)
+    ss_new_path <- list.files(dir, pattern = "data.ss_new|data_echo.ss_new", full.names = TRUE)
+    if (length(ss_new_path) > 0) {
+      if (file.exists(ss_new_path)) {
+            file.remove(ss_new_path)
+          }
     }
   }
-
   if (verbose) message("Running SS3.")
   if (os == "unix") {
     system(
@@ -86,7 +83,7 @@ run_ss_model <- function(dir,
     )
   }
   if (check_run == TRUE) {
-    if (!file.exists(ss_new_path)) {
+    if (!file.exists(file.path(dir, "data.ss_new")) && !file.exists(file.path(dir, "data_echo.ss_new"))) {
       if (debug_par_run) {
         test_no_par(
           orig_mod_dir = dir,
@@ -95,12 +92,13 @@ run_ss_model <- function(dir,
         # note that this will exit on error.
       } else {
         stop(
-          "data.ss_new was not created during the model run, which suggests ",
-          "SS3 did not run correctly"
+          "new data file (data.ss_new if using SS3 3.30.18 or data_echo.ss_new",
+          "if using SS3 3.30.21) was not created during the model run, which",
+          "suggests SS3 did not run correctly"
         )
       }
     } else {
-      if (verbose) "data.ss_new created during model run."
+      if (verbose) "new data file (data.ss_new if using SS3 3.30.18 or data_echo.ss_new if using SS3 3.30.21) created during model run."
     }
   }
   Sys.sleep(admb_pause)

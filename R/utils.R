@@ -597,8 +597,9 @@ copy_model_files <- function(OM_in_dir = NULL,
                              verbose = FALSE) {
   # checks
   if (!is.null(OM_in_dir)) {
+    dat_file <- list.files(OM_in_dir, pattern = "data.ss_new|data_echo.ss_new")
     if (!all(c(
-      "control.ss_new", "data.ss_new", "starter.ss_new",
+      "control.ss_new", dat_file, "starter.ss_new",
       "forecast.ss_new", "ss.par"
     ) %in% list.files(OM_in_dir))) {
       stop(

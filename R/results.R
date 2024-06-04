@@ -140,12 +140,7 @@ plot_index_sampling <- function(dir = getwd()) {
   ), value = TRUE)
   assertive.types::assert_is_a_string(om_name)
 
-  data_file <- if(file.exists(file.path(dir, as.character(iters[1]), om_name, "data.ss_new"))){
-                  "data.ss_new"
-                  } else {
-                    "data_echo.ss_new"
-                    }
-
+  data_file <- list.files(file.path(dir,as.character(iters[1]), om_name), pattern = "data.ss_new|data_echo.ss_new")
   tmp_dat_OM <- r4ss::SS_readdat(
     file.path(
       dir, as.character(iters[1]),
@@ -369,7 +364,8 @@ get_performance_metrics <- function(dir = getwd(),
           )
         }
         om_mod_path <- tmp_mods[om_mod]
-        dat <- r4ss::SS_readdat(file.path(om_mod_path, "data.ss_new"),
+        om_mod_dat <- list.files(file.path(om_mod_path), pattern = "data.ss_new|data_echo.ss_new")
+        dat <- r4ss::SS_readdat(file.path(om_mod_path, om_mod_dat),
           section = 1, verbose = FALSE
         )
         tmp_catch <- dat[["catch"]]

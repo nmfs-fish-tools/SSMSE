@@ -46,14 +46,19 @@ test_that("run_SSMSE runs with interim assessment workflow", {
   ) # Set a fixed integer seed that allows replication
 
   expect_true(result[["base"]][["errored_iterations"]] == "No errored iterations")
-  expect_true(file.exists(file.path(
-    temp_path, "base", "1", "cod_OM",
-    "data.ss_new"
-  )))
-  expect_true(file.exists(file.path(
-    temp_path, "base", "1", "cod_EM_init",
-    "data.ss_new"
-  )))
+
+  cod_OM_files <- list.files(file.path(temp_path,"base","1","cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% cod_OM_files))
+  # expect_true(file.exists(file.path(
+  #   temp_path, "base", "1", "cod_OM",
+  #   "data.ss_new"
+  # )))
+  cod_EM_files <- list.files(file.path(temp_path, "base", "1", "cod_EM_init"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% cod_EM_files))
+  # expect_true(file.exists(file.path(
+  #   temp_path, "base", "1", "cod_EM_init",
+  #   "data.ss_new"
+  # )))
   expect_length(result, 1)
   # could add some better tests to make sure this works.
 })

@@ -72,7 +72,7 @@ create_OM <- function(OM_out_dir,
   # read in files to use ----
   dat <- r4ss::SS_readdat(
     file = file.path(OM_out_dir, start[["datfile"]]),
-    verbose = FALSE, section = 1
+    verbose = FALSE
   )
   forelist <- r4ss::SS_readforecast(
     file = file.path(OM_out_dir, "forecast.ss"),
@@ -333,8 +333,6 @@ create_OM <- function(OM_out_dir,
     if (!is.null(dat[["age_info"]])) dat[["age_info"]][["mintailcomp"]] <- -1
   }
 
-
-
   # write all files
   r4ss::SS_writectl(
     ctllist = ctl, outfile = file.path(OM_out_dir, start[["ctlfile"]]),
@@ -365,6 +363,9 @@ create_OM <- function(OM_out_dir,
       verbose = verbose,
       debug_par_run = TRUE
     )
+    if (file.exists(file.path(OM_out_dir,"data.ss_new")) && file.exists(file.path(OM_out_dir,"data_echo.ss_new"))) {
+        file.remove(file.path(OM_out_dir,"data.ss_new"))
+      }
     # TODO: maybe add the following check into the debug par run arg of run_ss_model?
     check_par <- readLines(file.path(OM_out_dir, "ss.par"))
     check_sum_val <- check_par[grep("checksum999", check_par) + 1]
@@ -384,11 +385,7 @@ create_OM <- function(OM_out_dir,
       )
     }
     # check model runs without producing nans in the data file
-    data_filepath <- if(file.exists(file.path(OM_out_dir, "data.ss_new"))) {
-      file.path(OM_out_dir, "data.ss_new")
-    } else  { 
-      file.path(OM_out_dir, "data_echo.ss_new")
-    }
+    data_filepath <- list.files(file.path(OM_out_dir), pattern = "data.ss_new|data_echo.ss_new", full.names = TRUE)
     tmp_new_dat <- readLines(data_filepath)
     nan_vals <- grep("nan", tmp_new_dat)
     if (length(nan_vals) > 0) {
@@ -476,7 +473,7 @@ run_OM <- function(OM_dir,
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
   }
-
+  # browser()
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
     verbose = FALSE
   )
@@ -491,13 +488,10 @@ run_OM <- function(OM_dir,
     verbose = verbose,
     debug_par_run = debug_par_run
   )
-
-  data_filename <- if(file.exists(file.path(OM_dir, "data.ss_new"))) {
-    "data.ss_new"
-  } else { 
-    "data_echo.ss_new"
-  }
-
+  if (file.exists(file.path(OM_dir,"data.ss_new")) && file.exists(file.path(OM_dir,"data_echo.ss_new"))) {
+        file.remove(file.path(OM_dir,"data.ss_new"))
+      }
+  data_filename <- list.files(file.path(OM_dir), pattern = "data.ss_new|data_echo.ss_new")
   dat <- r4ss::SS_readdat(file.path(OM_dir, data_filename),
     section = max_section,
     verbose = FALSE
