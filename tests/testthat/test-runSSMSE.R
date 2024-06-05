@@ -23,7 +23,6 @@ test_that("run_SSMSE_iter runs with no EM", {
 
   cod_OM_files <- list.files(file.path(new_temp_path, "1", "cod_OM"))
   expect_true(any(c("data.ss_new","data_echo.ss_new") %in% cod_OM_files))
-  # expect_true(file.exists(file.path(new_temp_path, "1", "cod_OM", "data.ss_new")))
   expect_true(result)
 })
 
@@ -54,13 +53,11 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
   )) # Set a fixed integer seed that allows replication
   expect_equivalent(result[["H-ctl"]][["errored_iterations"]], "No errored iterations")
 
-  H-ctl_cod_OM_files <- list.files(file.path(temp_path, "H-ctl", "1", "cod_OM"))
-  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_OM_files))
-  # expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_OM", "data.ss_new")))
+  Hctl_cod_OM_files <- list.files(file.path(temp_path, "H-ctl", "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% Hctl_cod_OM_files))
 
-  H-ctl_cod_EM_files <- list.files(file.path(temp_path, "H-ctl", "1", "cod_EM_106"))
-  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_EM_files))
-  # expect_true(file.exists(file.path(temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")))
+  Hctl_cod_EM_files <- list.files(file.path(temp_path, "H-ctl", "1", "cod_EM_106"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% Hctl_cod_EM_files))
 
   expect_length(result, 1)
   # some more specific values, specific to the scenario above.
@@ -117,10 +114,10 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
     seed = 12345
   )) # Set a fixed integer seed that allows replication
   expect_equivalent(result[["H-ctl"]][["errored_iterations"]], "No errored iterations")
-  H-ctl_cod_OM_files <- list.files(file.path(new_temp_path, "H-ctl", "1", "cod_OM"))
-  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_OM_files))
-  H-ctl_cod_EM_103_files <- list.files(file.path(new_temp_path, "H-ctl", "1", "cod_EM_103"))
-  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-ctl_cod_EM_103_files))
+  Hctl_cod_OM_files <- list.files(file.path(new_temp_path, "H-ctl", "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% Hctl_cod_OM_files))
+  Hctl_cod_EM_103_files <- list.files(file.path(new_temp_path, "H-ctl", "1", "cod_EM_103"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% Hctl_cod_EM_103_files))
   # this file should not exist b/c run_EM_last_yr is FALSE.
   # expect_true(!file.exists(
   #   file.path(new_temp_path, "H-ctl", "1", "cod_EM_106", "data.ss_new")
@@ -129,15 +126,12 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
     result[["H-scen-2"]][["errored_iterations"]],
     "No errored iterations"
   )
-  H-scen2_cod_OM_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_OM"))
-  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-scen2_cod_OM_files))
-  H-scen2_cod_EM_103_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_EM_103"))
-  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% H-scen2_cod_EM_103_files))
-  H-scen2_cod_EM_106_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106"))
-  expect_true(!any(c("data.ss_new","data_echo.ss_new") %in% H-scen2_cod_EM_106_files))
-  # expect_true(!file.exists(
-  #   file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106", "data.ss_new")
-  # ))
+  Hscen2_cod_OM_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_OM"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% Hscen2_cod_OM_files))
+  Hscen2_cod_EM_103_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_EM_103"))
+  expect_true(any(c("data.ss_new","data_echo.ss_new") %in% Hscen2_cod_EM_103_files))
+  Hscen2_cod_EM_106_files <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_EM_106"))
+  expect_true(!any(c("data.ss_new","data_echo.ss_new") %in% Hscen2_cod_EM_106_files))
   expect_length(result, 2)
   # summarize results
   summary <- SSMSE_summary_all(dir = new_temp_path, run_parallel = FALSE)
@@ -146,7 +140,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
 
   # calculate performance metrics
   # to use in the tests
-  dat_file <- list.files(file.path(temp_path, "H-scen-2", "1", "cod_OM"), pattern = "data.ss_new|data_echo.ss_new")
+  dat_file <- list.files(file.path(new_temp_path, "H-scen-2", "1", "cod_OM"), pattern = "data.ss_new|data_echo.ss_new")
   tmp_dat <- r4ss::SS_readdat(
     file.path(new_temp_path, "H-scen-2", "1", "cod_OM", dat_file)
   )

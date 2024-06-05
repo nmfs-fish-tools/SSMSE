@@ -141,25 +141,45 @@ plot_index_sampling <- function(dir = getwd()) {
   assertive.types::assert_is_a_string(om_name)
 
   data_file <- list.files(file.path(dir,as.character(iters[1]), om_name), pattern = "data.ss_new|data_echo.ss_new")
-  tmp_dat_OM <- r4ss::SS_readdat(
-    file.path(
-      dir, as.character(iters[1]),
-      om_name, data_file
-    ),
-    verbose = FALSE, section = 1
-  )
+  if (data_file == "data.ss_new") {
+    tmp_dat_OM <- r4ss::SS_readdat(
+      file.path(
+        dir, as.character(iters[1]),
+        om_name, data_file
+      ),
+      verbose = FALSE, section = 1
+    )
+  } else {
+    tmp_dat_OM <- r4ss::SS_readdat(
+      file.path(
+        dir, as.character(iters[1]),
+        om_name, data_file
+      ),
+      verbose = FALSE
+    ) 
+  }
   tmp_dat_OM[["CPUE"]][["iteration"]] <- as.character(iters[1])
   tmp_dat_OM[["CPUE"]][["scenario"]] <- scenario
   tmp_dat_OM[["CPUE"]][["model_run"]] <- "historical_values"
   index_dat <- tmp_dat_OM[["CPUE"]]
   # get the OM expected values
-  tmp_dat_OM <- r4ss::SS_readdat(
-    file.path(
-      dir, as.character(iters[1]),
-      om_name, data_file
-    ),
+  if (data_file == "data.ss_new") {
+    tmp_dat_OM <- r4ss::SS_readdat(
+      file.path(
+        dir, as.character(iters[1]),
+        om_name, data_file
+      ),
     verbose = FALSE, section = 2
-  )
+    )
+  } else {
+    tmp_dat_OM <- r4ss::SS_readdat(
+      file.path(
+        dir, as.character(iters[1]),
+        om_name, "data_expval.ss"
+      ),
+      verbose = FALSE
+    )
+  }
   tmp_dat_OM[["CPUE"]][["iteration"]] <- as.character(iters[1])
   tmp_dat_OM[["CPUE"]][["scenario"]] <- scenario
   tmp_dat_OM[["CPUE"]][["model_run"]] <- "OM_expected_values"
@@ -172,13 +192,24 @@ plot_index_sampling <- function(dir = getwd()) {
   ), value = TRUE)
   assertive.types::assert_is_a_string(em_name)
   for (i in iters) {
-    tmp_dat_EM <- r4ss::SS_readdat(
-      file.path(
-        dir, as.character(i),
-        em_name, "data.ss_new"
-      ),
-      verbose = FALSE, section = 1
-    )
+    if(data_file == "data.ss_new"){
+      tmp_dat_EM <- r4ss::SS_readdat(
+        file.path(
+          dir, as.character(i),
+          em_name, data_file
+        ),
+        verbose = FALSE, section = 1
+      )
+    } else {
+      tmp_dat_EM <- r4ss::SS_readdat(
+        file.path(
+          dir, as.character(i),
+          em_name, data_file
+        ),
+        verbose = FALSE
+      )
+    }
+  
     tmp_dat_EM[["CPUE"]][["iteration"]] <- i
     tmp_dat_EM[["CPUE"]][["scenario"]] <- scenario
     tmp_dat_EM[["CPUE"]][["model_run"]] <- "sampled_dataset"
@@ -364,10 +395,16 @@ get_performance_metrics <- function(dir = getwd(),
           )
         }
         om_mod_path <- tmp_mods[om_mod]
-        om_mod_dat <- list.files(file.path(om_mod_path), pattern = "data.ss_new|data_echo.ss_new")
-        dat <- r4ss::SS_readdat(file.path(om_mod_path, om_mod_dat),
-          section = 1, verbose = FALSE
+        om_mod_dat <- list.files(om_mod_path, pattern = "data.ss_new|data_echo.ss_new")
+        if(om_mod_dat == "data.ss_new"){
+          dat <- r4ss::SS_readdat(file.path(om_mod_path, om_mod_dat),
+            section = 1, verbose = FALSE
         )
+        } else {
+          dat <- r4ss::SS_readdat(file.path(om_mod_path, om_mod_dat),
+           verbose = FALSE
+        )
+        }
         tmp_catch <- dat[["catch"]]
         tmp_catch <- tmp_catch[, c("year", "fleet", "catch")]
         colnames(tmp_catch) <- c("year", "fleet", "value")

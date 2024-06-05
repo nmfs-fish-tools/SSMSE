@@ -305,7 +305,6 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   if (!is.null(sample_struct_hist)) assertive.types::assert_is_list(sample_struct_hist)
   assertive.types::assert_is_a_bool(verbose)
 
-
   # create the out_dir to store all files for all iter in the scenario.
   if (is.null(out_dir_scen)) {
     out_dir_iter <- scen_name
@@ -537,7 +536,6 @@ run_SSMSE_iter <- function(out_dir = NULL,
   }
 
   message("Starting iteration ", niter, ".")
-  # browser()
   set.seed((iter_seed[["iter"]][1] + 123))
   # get and create directories, copy model files ----
   # assign or reassign OM_dir and OM_in_dir in case they weren't specified

@@ -92,9 +92,9 @@ run_ss_model <- function(dir,
         # note that this will exit on error.
       } else {
         stop(
-          "new data file (data.ss_new if using SS3 3.30.18 or data_echo.ss_new",
-          "if using SS3 3.30.21) was not created during the model run, which",
-          "suggests SS3 did not run correctly"
+          "New data file (data.ss_new if using SS3 v3.30.18 or data_echo.ss_new ",
+          "if using SS3 v3.30.21) was not created during the model run, which ",
+          "suggests SS3 did not run correctly."
         )
       }
     } else {

@@ -25,8 +25,8 @@ r4ss::SS_writestarter(start_orig,
 # mock a bad par file by deleting a line
 orig_par <- readLines(file.path(orig_mod_dir, "ss.par"))
 writeLines(orig_par, file.path(temp_path, "good_ss.par"))
-fcast_imp_line <- grep("^# Fcast_impl_error:$", orig_par)
-bad_par <- orig_par[-c(fcast_imp_line, fcast_imp_line + 1)]
+fcast_line <- grep("^# Fcast_impl_error:$|^# Fcast_recruitments:$", orig_par)
+bad_par <- orig_par[-c(fcast_line, fcast_line + 1)]
 writeLines(bad_par, file.path(orig_mod_dir, "ss.par"))
 new_mod_dir <- file.path(temp_path, "new_mod_dir")
 
@@ -36,9 +36,9 @@ test_that("test_no_par works as expected", {
     run_ss_model(orig_mod_dir, "-maxfn 0 -phase 50 -nohess",
       verbose = FALSE
     ),
-    "data.ss_new was not created during the model run",
+    "New data file (data.ss_new if using SS3 v3.30.18 or data_echo.ss_new ",
     fixed = TRUE
-  )
+    )
   expect_error(
     test_no_par(
       orig_mod_dir = orig_mod_dir,

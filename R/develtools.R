@@ -29,34 +29,36 @@ test_no_par <- function(orig_mod_dir, new_mod_dir) {
   # read in the 2 par files.
   orig_par <- readLines(file.path(orig_mod_dir, "ss.par"))
 
-  dat_file <- list.files(file.path(new_mod_dir), pattern = "data.ss_new|data_echo.ss_new")
+  dat_file <- list.files(new_mod_dir, pattern = "data.ss_new|data_echo.ss_new")
 
-  if (file.exists(file.path(new_mod_dir, dat_file))) {
-    new_par <- readLines(file.path(new_mod_dir, "ss.par"))
-    if (length(orig_par) != length(new_par)) {
-      new_par_names <- grep("^# [^N]", new_par, value = TRUE)
-      orig_par_names <- grep("^# [^N]", orig_par, value = TRUE)
-      missing_vars <- setdiff(new_par_names, orig_par_names)
-      if (length(orig_par) < length(new_par)) {
-        msg <- " is missing the "
+  if (length(dat_file) > 0) {
+    if (file.exists(file.path(new_mod_dir, dat_file))) {
+      new_par <- readLines(file.path(new_mod_dir, "ss.par"))
+      if (length(orig_par) != length(new_par)) {
+        new_par_names <- grep("^# [^N]", new_par, value = TRUE)
+        orig_par_names <- grep("^# [^N]", orig_par, value = TRUE)
+        missing_vars <- setdiff(new_par_names, orig_par_names)
+        if (length(orig_par) < length(new_par)) {
+          msg <- " is missing the "
+        }
+        if (length(orig_par) > length(new_par)) {
+          msg <- " has added "
+        }
+        stop(
+          "Problem with the ss.par file - different number of lines. ",
+          "The original par file in ", orig_mod_dir, msg, " parameters: ",
+          paste0(missing_vars, collapse = ", ")
+        )
+      } else {
+        stop(
+          "Problem with the ss.par file - same number of lines. ",
+          "The original par file in ", orig_mod_dir,
+          "has the same number of values as the new ",
+          "par in ", new_mod_dir, ", so not sure what the issue is."
+        )
       }
-      if (length(orig_par) > length(new_par)) {
-        msg <- " has added "
-      }
-      stop(
-        "Problem with the ss.par file - different number of lines. ",
-        "The original par file in ", orig_mod_dir, msg, " parameters: ",
-        paste0(missing_vars, collapse = ", ")
-      )
-    } else {
-      stop(
-        "Problem with the ss.par file - same number of lines. ",
-        "The original par file in ", orig_mod_dir,
-        "has the same number of values as the new ",
-        "par in ", new_mod_dir, ", so not sure what the issue is."
-      )
+      # TODO: develop some more sophisticated ways to look at par file diffs.
     }
-    # TODO: develop some more sophisticated ways to look at par file diffs.
   } else {
     # problem is not with the par file, but with some other model misspecification.
     stop(

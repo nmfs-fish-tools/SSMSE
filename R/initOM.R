@@ -492,17 +492,30 @@ run_OM <- function(OM_dir,
         file.remove(file.path(OM_dir,"data.ss_new"))
       }
   data_filename <- list.files(file.path(OM_dir), pattern = "data.ss_new|data_echo.ss_new")
-  dat <- r4ss::SS_readdat(file.path(OM_dir, data_filename),
-    section = max_section,
-    verbose = FALSE
-  )
+  if(data_filename == "data.ss_new"){
+    dat <- r4ss::SS_readdat(file.path(OM_dir, data_filename),
+      section = max_section, #bootstrap file in v3.30.21
+      verbose = FALSE
+    )
+  } else {
+    # for SS3 v3.30.21
+    dat <- r4ss::SS_readdat(file.path(OM_dir, "data_boot_001.ss"),
+      verbose = FALSE)
+  }
   # replace with the expected catch values if sample_catch is FALSE and using
   # bootstrap
   if (boot == TRUE & sample_catch == FALSE) {
-    exp_vals <- r4ss::SS_readdat(file.path(OM_dir, data_filename),
-      section = 2,
-      verbose = FALSE
-    )
+    if(data_filename == "data.ss_new"){
+      exp_vals <- r4ss::SS_readdat(file.path(OM_dir, data_filename),
+        section = 2, #expected values data file in v3.30.21
+        verbose = FALSE
+      )
+    } else {
+      # for SS3 v3.30.21
+      exp_vals <- r4ss::SS_readdat(file.path(OM_dir, "data_expval.ss"),
+        verbose = FALSE
+      )
+    }
     dat[["catch"]] <- exp_vals[["catch"]]
   }
   return(dat)
