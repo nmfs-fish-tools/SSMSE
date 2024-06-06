@@ -15,7 +15,7 @@ file.copy(file.path(extdat_path, "models", "cod"),
 )
 
 test_that("create_OM can modify model", {
-  skip_on_cran() # because runs ss.
+  skip_on_cran() # because runs SS3
   init_mod <- create_OM(
     OM_out_dir = file.path(temp_path, "cod"),
     overwrite = TRUE,

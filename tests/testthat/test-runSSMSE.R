@@ -44,7 +44,7 @@ test_that("run_SSMSE runs with an EM, and works with summary funs", {
     EM_name_vec = "cod", # cod is included in package data
     MS_vec = "EM", # The management strategy is specified in the EM
     custom_MS_source = NULL,
-    use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
+    use_SS_boot_vec = TRUE, # use the SS3 bootstrap module for sampling
     run_EM_last_yr = FALSE,
     nyrs_vec = nyrs, # Years to project OM forward
     nyrs_assess_vec = 3, # Years between assessments
@@ -105,7 +105,7 @@ test_that("run_SSMSE runs multiple iterations/scenarios and works with summary f
     EM_name_vec = "cod", # cod is included in package data
     MS_vec = "EM", # The management strategy is specified in the EM
     custom_MS_source = NULL,
-    use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
+    use_SS_boot_vec = TRUE, # use the SS3 bootstrap module for sampling
     nyrs_vec = nyrs, # Years to project OM forward
     nyrs_assess_vec = 3, # Years between assessments
     run_EM_last_yr = FALSE,

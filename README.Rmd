@@ -213,7 +213,7 @@ We will use the same management procedure for both scenarios:
 2. Project from this stock assessment using the SS3 forecast file to get projected future catch.
 3. Put this projected catch (without implementation error, in the case of this example) back into the OM. Extend the OM forward in time to get the true values for the population.
 
-Let's take a look at step 2 in the management procedure, which is implemented using the forecasting module in SS. We will examine the forecast file for the estimation model to better understand how catches will be forecasted from the assessment. We will use the same management procedure in both of these scenarios, although for a full MSE analysis, it is likely that multiple management procedures would be compared.
+Let's take a look at step 2 in the management procedure, which is implemented using the forecasting module in SS3. We will examine the forecast file for the estimation model to better understand how catches will be forecasted from the assessment. We will use the same management procedure in both of these scenarios, although for a full MSE analysis, it is likely that multiple management procedures would be compared.
 
 ```{r See-Fore-Vals}
 fore <- r4ss::SS_readforecast(
@@ -419,7 +419,7 @@ ggplot(data = avg_SSB, aes(x = scenario, y = avg_SSB)) +
   theme_classic()
 ```
 
-From the above plot, we see differences in the average SSb between the 2 scenarios.
+From the above plot, we see differences in the average SSB between the 2 scenarios.
 
 ## Example MSE Results
 

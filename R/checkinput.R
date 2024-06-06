@@ -29,12 +29,12 @@ check_catch_df <- function(df) {
 
 #' Check that the directory for an OM is valid
 #'
-#' Check that the directory contains starter and forecast SS files.
+#' Check that the directory contains starter and forecast SS3 files.
 #' @param dir Input to check. Should be a directory name that should contain an
-#'  SS model that can be used as an OM.
+#'  SS3 model that can be used as an OM.
 #'  @author Kathryn Doering
 check_dir <- function(dir) {
-  # chack that the dir contains expected SS model files
+  # chack that the dir contains expected SS3 model files
   all_files <- list.files(dir)
   errors <- NULL
   if (!"starter.ss" %in% all_files) {
@@ -47,7 +47,7 @@ check_dir <- function(dir) {
     stop(
       "The file(s): ", paste(errors, collapse = ", "), " is/are missing ",
       "from the directory ", dir, ", which suggests that it is not a valid ",
-      "SS directory. Please change to a directory containing a valid SS ",
+      "SS3 directory. Please change to a directory containing a valid SS3 ",
       "model."
     )
   }
@@ -99,7 +99,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
       EM_dat = EM_dat, OM_dat = OM_dat, list_item = "lencomp",
       colnames = c("Yr", "Seas", "FltSvy")
     )
-    # there may be more rigorous checks to do (checking that sex and partion
+    # there may be more rigorous checks to do (checking that sex and partition
     # is the same?
   }
   # check age comp
@@ -108,7 +108,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
     stop(
       "Column names for age composition were not the same for the OM ",
       "and EM. Please make the age comp bins the same or use a ",
-      "custom management strategy that includes steps to rebin the data."
+      "custom management strategy that includes steps to re-bin the data."
     )
   }
   check_avail_dat(
@@ -145,7 +145,7 @@ check_OM_dat <- function(OM_dat, EM_dat) {
       stop(
         "Column names for MeanSize_at_Age_obs were not the same for the OM ",
         "and EM. Please make the age comp bins the same or use a ",
-        "custom management strategy that includes steps to rebin the data."
+        "custom management strategy that includes steps to re-bin the data."
       )
     }
   }
@@ -155,8 +155,8 @@ check_OM_dat <- function(OM_dat, EM_dat) {
 
 #'  check all index years/fleets in EM available in OM. (but not vice versa)
 #'  a general function that can be used
-#' @param EM_dat An SS data file read in using r4ss for an EM
-#' @param OM_dat An SS data file read in using r4ss for an OM
+#' @param EM_dat An SS3 data file read in using r4ss for an EM
+#' @param OM_dat An SS3 data file read in using r4ss for an OM
 #' @param list_item A component in both EM_dat and OM_dat to check values for.
 #' This should be a single string value.
 #' @param colnames The column names of data to append together.
@@ -301,7 +301,7 @@ r4ss_obj_err <- function(obj_name = "object ", type = "list") {
 #' @template verbose
 check_scen_list <- function(list, verbose = FALSE) {
   # some columns are required, but others are optional. Check that the required
-  # columns are there, and warn if the optional ones arent, if verbose.
+  # columns are there, and warn if the optional ones aren't, if verbose.
   # TODO: write this function. Did not want to write until we decide on input
   assertive.types::assert_is_list(list)
   invisible(list)

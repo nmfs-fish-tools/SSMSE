@@ -30,7 +30,7 @@ is NULL, or a data.frame if \code{group} is specified.
 Return a single value from a column of a dataframe using the method specified
 }
 \details{
-Note that this function was created intially to return a value to
+Note that this function was created initially to return a value to
 use as the input uncertainty, but it should be generalizable to pulling a
 value from a column in any data frame using the method specified.
 }

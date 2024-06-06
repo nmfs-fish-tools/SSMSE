@@ -6,23 +6,23 @@
 #' @author Kathryn Doering & Nathan Vaughan
 #' @template OM_dir
 #' @param catch A dataframe of catch values and its associated information to
-#'  add to the OM. The column names are the same as in an SS data file (e.g.,
+#'  add to the OM. The column names are the same as in an SS3 data file (e.g.,
 #'  year,	season, fleet,	catch,	catch_se). Must input either a catch and/or a harvest rate
 #'  data frame. If both are input the catch will override harvest rate as the management unit
 #'  but harvest rate will be used as a starting guess for search.
 #' @param harvest_rate A dataframe of harvest rate (F) values and associated information to
-#'  add to the OM. The column names are as in an SS datafile. If harvest rate is input without
+#'  add to the OM. The column names are as in an SS3 datafile. If harvest rate is input without
 #'  a corresponding catch the OM will assume effort based management an use harvest rate directly
 #'  with implementation error added.
 #' @param catch_basis data frame with columns year, seas, fleet, basis that specifies if catch
 #'  should reference retained biomass (1) or dead biomass (2). Any year/season/fleet not listed will assume
 #'  a value of 1 referencing retained biomass. Entering -99 for any of year, season, or fleet will
-#'  apply the basis across all values of that variable (i.e. a single row with -99, -99, -99, 1 would implement
+#'  apply the basis across all values of that variable (i.e., a single row with -99, -99, -99, 1 would implement
 #'  retained biomass for all cases)
 #' @param F_limit data frame with columns year, fleet, season, limit that specifies a maximum F
 #'  allowed in the OM or a negative value to specify a multiple of the historic maximum F. Any year/season/fleet
 #'  not listed will assume a value of 1.5. Entering -99 for any of year, season, or fleet will
-#'  apply the limit across all values of that variable (i.e. a single row with -99, -99, -99, -2 would implement
+#'  apply the limit across all values of that variable (i.e., a single row with -99, -99, -99, -2 would implement
 #'  a cap of twice the historic maximum F for all cases)
 #' @param EM_pars a dataframe of parameter value updates to modify OM
 #' @param write_dat Should the datafile be overwritten? Defaults to TRUE.
@@ -31,7 +31,7 @@
 #' @template verbose
 #' @template F_search_loops
 #' @return A new dat list object (format as created by r4ss::SS_readdat) that
-#'  has been extended forward  as if read in by r4ss function SS_readdat
+#'  has been extended forward as if read in by r4ss function SS_readdat
 #' @importFrom r4ss SS_readdat SS_readstarter SS_writestarter
 update_OM <- function(OM_dir,
                       catch = NULL,
@@ -370,7 +370,7 @@ update_OM <- function(OM_dir,
         verbose = verbose,
         debug_par_run = TRUE
       )
-      # Load the SS results
+      # Load the SS3 results
       outlist <- r4ss::SS_output(OM_dir,
         verbose = FALSE, printstats = FALSE,
         covar = FALSE, warn = FALSE, readwt = FALSE
@@ -435,9 +435,9 @@ update_OM <- function(OM_dir,
           } else if (achieved_landings == 0) {
             if (achieved_F > 0) {
               catch_intended[i, "basis_2"] <- 2
-              warning(paste0("It appears that you set a fleet basis to retianed catch for a discard only fleet if that is not the case something is wrong.
-                      We automaticaly changed your basis to total dead catch to compensate and allow convervence.
-                             This occured for fleet ", catch_intended[i, "fleet"], "
+              warning(paste0("It appears that you set a fleet basis to retained catch for a discard only fleet if that is not the case something is wrong.
+                      We automatically changed your basis to total dead catch to compensate and allow convergence.
+                             This occurred for fleet ", catch_intended[i, "fleet"], "
                              in year ", catch_intended[i, "year"], "
                              and season ", catch_intended[i, "seas"], "."))
             } else {
@@ -478,8 +478,8 @@ update_OM <- function(OM_dir,
             catch_intended[i, "last_adjust"] <- 1
           }
         } else {
-          stop(paste0("Error NA F_refs should have been removed already someing is wrong.
-                      This occured for fleet ", catch_intended[i, "fleet"], "
+          stop(paste0("Error NA F_refs should have been removed already something is wrong.
+                      This occurred for fleet ", catch_intended[i, "fleet"], "
                       in year ", catch_intended[i, "year"], "
                       and season ", catch_intended[i, "seas"], "."))
         }
@@ -517,7 +517,7 @@ update_OM <- function(OM_dir,
 #' Note that it could still be possible to take out too much catch from the
 #' population, so this may not catch all instances of too much catch
 #' @param catch A dataframe of catch values and its associated information to
-#'  add to the OM. The column names are the same as in an SS data file (e.g.,
+#'  add to the OM. The column names are the same as in an SS3 data file (e.g.,
 #'  year,	season, fleet,	catch,	catch_se).
 #' length of the number of years (only works when catch is for 1 fleet)
 #' @template OM_dir
@@ -561,7 +561,7 @@ check_future_catch <- function(catch, OM_dir, catch_units = "bio",
       "file."
     )
   }
-  # TODO: check that can you always get biomass for any model? Probalby not if
+  # TODO: check that can you always get biomass for any model? Probably not if
   # catch units are in numbers. Any other scenarios when this is true?
   if (catch_units == "bio") {
     tot_bio_lyear <-

@@ -191,7 +191,6 @@ future_om_list_2[[1]][["input"]] <- data.frame(first_yr_averaging = c(1, 1),
 
 Note that the choice of year range for historical values does not matter unless the parameter is already time-varying in the original operating model or has become time varying through a previous change. Otherwise, the base model parameter will be applied. If no historical years are included, then the base parameter value will be the basis of comparison for relative changes (i.e., method = multiplier or additive).
 
-
 ### Example using "custom" pattern instead of "model_change"
 
 ```{r}

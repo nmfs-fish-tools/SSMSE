@@ -142,7 +142,7 @@ test_that("parse_MS catches errors when it should", {
       verbose = FALSE, dat_yrs = 101:103,
       nyrs_assess = 3
     ),
-    "Please change to a directory containing a valid SS model",
+    "Please change to a directory containing a valid SS3 model",
     fixed = TRUE
   )
   # TODO: need to catch invalid OM_dat? What about nyrs_assess?

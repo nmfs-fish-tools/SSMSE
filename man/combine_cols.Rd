@@ -7,7 +7,7 @@
 combine_cols(dat_list, list_item, colnames)
 }
 \arguments{
-\item{dat_list}{An SS data file as a list read in using r4ss}
+\item{dat_list}{An SS3 data file as a list read in using r4ss}
 
 \item{list_item}{List item in dat_list to extract and return a modified
 version of this value}

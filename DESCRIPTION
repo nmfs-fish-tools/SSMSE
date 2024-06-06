@@ -1,15 +1,15 @@
 Type: Package
 Package: SSMSE
-Title: Management Strategy Evaluation (MSE) using Stock Synthesis (SS)
+Title: Management Strategy Evaluation (MSE) using Stock Synthesis (SS3)
 Version: 0.2.8
 Authors@R: c(
     person("Kathryn", "Doering", , "kathryn.doering@noaa.gov", role = c("aut", "cre")),
     person("Nathan", "Vaughan", , "nathan.vaughan@noaa.gov", role = "aut")
   )
 Description: An R package for performing Management Strategy Evaluation
-    (MSE) using Stock Synthesis (SS). SS is used as the Operating Model
+    (MSE) using Stock Synthesis (SS3). SS3 is used as the Operating Model
     (OM) and, if the user desires, the Estimation model (EM). SSMSE allows
-    existing SS models to be used as the basis for an OM. These OMs are
+    existing SS3 models to be used as the basis for an OM. These OMs are
     used in the MSE framework provided by SSMSE to evaluate the
     implications of management actions on a population given uncertainty.
 License: MIT + file LICENSE.md

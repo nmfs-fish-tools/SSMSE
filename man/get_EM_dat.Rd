@@ -7,17 +7,17 @@
 get_EM_dat(OM_dat, EM_dat, do_checks = TRUE)
 }
 \arguments{
-\item{OM_dat}{An SS data file read in by as a list read in using r4ss from
+\item{OM_dat}{An SS3 data file read in by as a list read in using r4ss from
 the operating model}
 
-\item{EM_dat}{An SS data file read in by as a list read in using r4ss from
+\item{EM_dat}{An SS3 data file read in by as a list read in using r4ss from
 the estimation model}
 
 \item{do_checks}{Should checks on the data be performed? Defaults to TRUE.}
 }
 \value{
 A data list in the same format that can be read/written by r4ss that
-has index. lcomps, and age comps from OM_dat, but with the same structure as
+has index, lcomps, and age comps from OM_dat, but with the same structure as
 EM_dat.
 }
 \description{

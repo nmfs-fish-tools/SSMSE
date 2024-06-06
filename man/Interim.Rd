@@ -30,15 +30,15 @@ model outside of the SSMSE package.}
 MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 be FALSE.}
 
-\item{OM_dat}{An valid SS data file read in using r4ss. In particular,
+\item{OM_dat}{An valid SS3 data file read in using r4ss. In particular,
 this should be sampled data.}
 
 \item{OM_out_dir}{The full path to the directory in which the OM is run.}
 
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 
-\item{nyrs_assess}{The number of years between assessments. E.g., if an
-assessment is conducted every 3 years, put 3 here. A single integer value.}
+\item{nyrs_assess}{The number of years between assessments (e.g., if an
+assessment is conducted every 3 years, put 3 here). A single integer value.}
 
 \item{dat_yrs}{Which years should be added to the new model? Ignored if
 init_loop is TRUE.}

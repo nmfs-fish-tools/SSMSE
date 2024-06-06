@@ -102,8 +102,8 @@ create_scen_list <- function(scen_name_vec,
           "structure."
         )
       }
-      # use short circuiting && to avioid testing the second statement if legth
-      # isn't 1. want to change NAs to NULLs to be consistent with what the
+      # Use short circuiting && to avoid testing the second statement if length
+      # isn't 1. Want to change NAs to NULLs to be consistent with what the
       # function expects.
       if (length(return_val) == 1 && is.na(return_val)) {
         return_val <- NULL
@@ -111,7 +111,7 @@ create_scen_list <- function(scen_name_vec,
     }
     return_val
   }
-  # use the function to get values and put them in for each list component.
+  # Use the function to get values and put them in for each list component.
   all_vars <- names(formals(SSMSE::create_scen_list))[-1]
   # get names without _list or _vec
   all_vars_new_names <- unlist(strsplit(all_vars, split = "_list$|_vec$"))
@@ -228,7 +228,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       if (length(OM_ctl[["Variance_adjustment_list"]][, 1]) > 0) {
         warning(
           "Original OM model files have variance adjustment factors specified.",
-          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "This may have unintended effects such as causing sample sizes to differ from those specified.",
           "If you didn't do this intentionally we suggest turning of variance adjustments."
         )
       }
@@ -237,7 +237,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       if (sum(OM_ctl[["Q_options"]][["extra_se"]]) > 0) {
         warning(
           "Original OM model files have extra SE added to catchability specified.",
-          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "This may have unintended effects such as causing sample sizes to differ from those specified.",
           "If you didn't do this intentionally we suggest turning of variance adjustments."
         )
       }
@@ -248,7 +248,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       if (length(EM_ctl[["Variance_adjustment_list"]][, 1]) > 0) {
         warning(
           "Original EM model files have variance adjustment factors specified.",
-          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "This may have unintended effects such as causing sample sizes to differ from those specified.",
           "If you didn't do this intentionally we suggest turning of variance adjustments."
         )
       }
@@ -257,7 +257,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
       if (sum(EM_ctl[["Q_options"]][["extra_se"]]) > 0) {
         warning(
           "Original EM model files have extra SE added to catchability specified.",
-          "This may have unintended effects such as causeing sample sizes to differ from those specified.",
+          "This may have unintended effects such as causing sample sizes to differ from those specified.",
           "If you didn't do this intentionally we suggest turning of variance adjustments."
         )
       }
@@ -316,7 +316,7 @@ clean_init_mod_files <- function(OM_out_dir, EM_out_dir = NULL, MS = "EM",
 #' @return A value of the same type as \code{data[, colname]} if \code{group}
 #'  is NULL, or a data.frame if \code{group} is specified.
 #' @author Kathryn Doering
-#' @details Note that this function was created intially to return a value to
+#' @details Note that this function was created initially to return a value to
 #'  use as the input uncertainty, but it should be generalizable to pulling a
 #'  value from a column in any data frame using the method specified.
 #' @examples
@@ -551,7 +551,7 @@ create_out_dirs <- function(out_dir, niter, OM_name, OM_in_dir,
 #' @template OM_name
 #' @param OM_in_dir Relative or absolute path to the operating model, if using a
 #'   model outside of the SSMSE package. Should be a string.
-#' @return A list with on comonent, OM_in_dir, which contains the model location
+#' @return A list with a component, OM_in_dir, which contains the model location
 locate_in_dirs <- function(OM_name = NULL, OM_in_dir = NULL) {
   # checks
   if (!is.null(OM_name)) assertive.types::assert_is_a_string(OM_name)
@@ -620,13 +620,13 @@ copy_model_files <- function(OM_in_dir = NULL,
       dir.old = OM_in_dir,
       dir.new = OM_out_dir,
       overwrite = FALSE,
-      use_ss_new = TRUE, # will rename the ss new files, also.
+      use_ss_new = TRUE, # will rename the .ss_new files, also.
       copy_par = TRUE,
       verbose = FALSE
     )
     if (success_OM == FALSE) {
       stop(
-        "Problem copying SS OM .ss_new files from ", OM_in_dir, " to ",
+        "Problem copying SS3 OM .ss_new files from ", OM_in_dir, " to ",
         OM_out_dir, "."
       )
     }
@@ -650,7 +650,7 @@ copy_model_files <- function(OM_in_dir = NULL,
     )
     if (success_EM == FALSE) {
       stop(
-        "Problem copying SS EM files from ", EM_in_dir, "to",
+        "Problem copying SS3 EM files from ", EM_in_dir, "to",
         EM_out_dir, "."
       )
     }
@@ -662,7 +662,7 @@ copy_model_files <- function(OM_in_dir = NULL,
 
 #' function that creates a combined column to the list_item of interest
 #'
-#' @param dat_list An SS data file as a list read in using r4ss
+#' @param dat_list An SS3 data file as a list read in using r4ss
 #' @param list_item List item in dat_list to extract and return a modified
 #'  version of this value
 #' @param colnames Column names in list_item

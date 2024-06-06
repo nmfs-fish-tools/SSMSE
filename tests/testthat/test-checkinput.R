@@ -28,7 +28,7 @@ test_that("check_dir works", {
   expect_equal(out, good_dir)
   expect_error(
     check_dir(bad_dir),
-    "Please change to a directory containing a valid SS model"
+    "Please change to a directory containing a valid SS3 model"
   )
 })
 

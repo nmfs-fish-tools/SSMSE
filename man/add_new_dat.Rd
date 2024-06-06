@@ -16,7 +16,7 @@ add_new_dat(
 )
 }
 \arguments{
-\item{OM_dat}{An valid SS data file read in using r4ss. In particular,
+\item{OM_dat}{An valid SS3 data file read in using r4ss. In particular,
 this should be sampled data.}
 
 \item{EM_datfile}{Datafile name run in previous iterations with the EM.
@@ -46,7 +46,7 @@ to. If NULL, a new datafile will not be written.}
 \item{verbose}{Want verbose output? Defaults to FALSE.}
 }
 \value{
-A new SS datafile containing the data in EM_datfile with new data
+A new SS3 datafile containing the data in EM_datfile with new data
 from OM_dat appended
 }
 \description{

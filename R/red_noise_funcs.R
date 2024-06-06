@@ -1,7 +1,7 @@
 #' Calculate uncertainty and biases in historic composition data
 #'
-#' @param data_obs A data frame of observed composition data extracted from SS .dat file
-#' @param data_exp A data frame of the expected composition data as estimated by an SS assessment model
+#' @param data_obs A data frame of observed composition data extracted from SS3 .dat file
+#' @param data_exp A data frame of the expected composition data as estimated by an SS3 assessment model
 #' @param bins A vector object including the composition bins
 #' @param merge_fleets TRUE/FALSE should fleets be merged to calculate variance and biases (Defaults to FALSE)
 #' @param merge_seasons TRUE/FALSE should seasons be merged to calculate variance and biases (Defaults to TRUE)
@@ -122,7 +122,7 @@ calc_comp_var <- function(data_obs, data_exp, bins, fleets = NULL, years = NULL,
         output_array[, 1] <- out_seq
 
         # This is a two phase process of kernel smoothing in order to convert sample square
-        # residuals into a non-parameteric model of variance relative expected sample size
+        # residuals into a non-parametric model of variance relative expected sample size
 
         # The first phase uses a simple box kernel to extrapolate above the maximum
         # expected sample size in the data set without wild artifacts or a fixed
@@ -202,10 +202,10 @@ calc_comp_var <- function(data_obs, data_exp, bins, fleets = NULL, years = NULL,
 #' @param Comp_uncert A list object representing the output from the calc_comp_var function
 #' @param data_exp A vector representing the expected composition values for which to draw a random observation dataset
 #' @param bins A vector object including the composition bins
-#' @param years A vector of the years to simulate data for. default is all years in data_exp if NULL.
-#' @param seasons A vector of the seasons to simulate data for. default is all seasons in data_exp  if NULL.
-#' @param fleets A vector of the fleets to simulate data for. default is all fleets in data_exp  if NULL.
-#' @param genders A vector of the genders to simulate data for. default is all genders in data_exp  if NULL.
+#' @param years A vector of the years to simulate data. Default is all years in data_exp if NULL.
+#' @param seasons A vector of the seasons to simulate data. Default is all seasons in data_exp if NULL.
+#' @param fleets A vector of the fleets to simulate data. Default is all fleets in data_exp if NULL.
+#' @param genders A vector of the genders to simulate data. Default is all genders in data_exp if NULL.
 #'
 #' @author Nathan R. Vaughan
 #'

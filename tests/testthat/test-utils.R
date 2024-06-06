@@ -438,7 +438,7 @@ test_that("copy_model_files works", {
 
   # expect_error b/c model files still exist
   suppressWarnings(expect_error(copy_model_files(OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir),
-    "Problem copying SS OM .ss_new files",
+    "Problem copying SS3 OM .ss_new files",
     fixed = TRUE
   ))
   unlink(OM_out_dir, recursive = TRUE)
@@ -463,7 +463,7 @@ test_that("copy_model_files works", {
       OM_in_dir = cod_in_dir, OM_out_dir = OM_out_dir,
       EM_in_dir = cod_in_dir, EM_out_dir = EM_out_dir
     ),
-    "Problem copying SS EM files",
+    "Problem copying SS3 EM files",
     fixed = TRUE
   ))
 })

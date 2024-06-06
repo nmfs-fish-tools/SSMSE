@@ -18,9 +18,9 @@ calc_comp_var(
 )
 }
 \arguments{
-\item{data_obs}{A data frame of observed composition data extracted from SS .dat file}
+\item{data_obs}{A data frame of observed composition data extracted from SS3 .dat file}
 
-\item{data_exp}{A data frame of the expected composition data as estimated by an SS assessment model}
+\item{data_exp}{A data frame of the expected composition data as estimated by an SS3 assessment model}
 
 \item{bins}{A vector object including the composition bins}
 

@@ -5,11 +5,11 @@
 #' @param init_loop Logical. If this is the first initialization loop of the
 #'   MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 #'   be FALSE.
-#' @param OM_dat An valid SS data file read in using r4ss. In particular,
+#' @param OM_dat An valid SS3 data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template verbose
-#' @param nyrs_assess The number of years between assessments. E.g., if an
-#'   assessment is conducted every 3 years, put 3 here. A single integer value.
+#' @param nyrs_assess The number of years between assessments (e.g., if an
+#'   assessment is conducted every 3 years, put 3 here). A single integer value.
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
 #' @template OM_out_dir
@@ -91,7 +91,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
       verbose = verbose
     )
   }
-  # Update SS random seed
+  # Update SS3 random seed
   start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
     verbose = FALSE
   )
@@ -107,7 +107,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
     readAll = TRUE,
     verbose = FALSE
   )
-  # check that it can be used in the EM. fleets shoul
+  # check that it can be used in the EM.
   check_EM_forecast(fcast,
     n_flts_catch = length(which(new_EM_dat[["fleetinfo"]][, "type"] %in%
       c(1, 2)))
@@ -124,7 +124,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   )
   # given all checks are good, run the EM
   # check convergence (figure out way to error if need convergence)
-  # get the future catch using the management strategy used in the SS model.
+  # get the future catch using the management strategy used in the SS3 model.
   run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
   # get the forecasted catch.
   new_catch_list <- get_EM_catch_df(EM_dir = EM_out_dir, dat = new_EM_dat)
@@ -136,7 +136,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
 #' Get the data frame of catch for the next iterations when using a Stock
 #' Synthesis Estimation model from the Report.sso file.
 #' @param EM_dir Path to the EM files
-#' @param dat A SS datfile read into R using \code{r4ss::SS_readdat()}
+#' @param dat A SS3 datfile read into R using \code{r4ss::SS_readdat()}
 #' @author Kathryn Doering
 #' @return A data frame of future catch
 get_EM_catch_df <- function(EM_dir, dat) {
@@ -243,7 +243,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
   catch_bio_df <- do.call("rbind", bio_df_list)
   catch_F_df <- do.call("rbind", F_df_list)
 
-  # sum across area - this is necessary fo a multiarea model
+  # sum across area - this is necessary fo a multi-area model
   catch_df <- catch_df %>%
     dplyr::group_by(.data[["year"]], .data[["seas"]], .data[["fleet"]]) %>%
     dplyr::summarise(catch = sum(.data[["catch"]])) %>%
@@ -270,7 +270,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
   # get discard, if necessary
   if (dat[["N_discard_fleets"]] > 0) {
     # discard units: 1, biomass/number according to set in catch
-    # 2, value are fraction (biomass/numbers ) of total catch discarded
+    # 2, value are fraction (biomass/numbers) of total catch discarded
     # 3, values are in numbers(thousands)
     se_dis <- get_input_value(dat[["discard_data"]],
       method = "most_common_value",
@@ -333,7 +333,7 @@ get_EM_catch_df <- function(EM_dir, dat) {
 
 #' No Catch in the future management strategy
 #'
-#' @param OM_dat An valid SS data file read in using r4ss. In particular,
+#' @param OM_dat An valid SS3 data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template OM_out_dir
 #' @param dat_yrs Which years should be added to the new model? Ignored if
@@ -358,7 +358,7 @@ no_catch <- function(OM_out_dir, OM_dat, dat_yrs, ...) {
 
 #' Last year catch used in the future for management strategy
 #'
-#' @param OM_dat An valid SS data file read in using r4ss. In particular,
+#' @param OM_dat An valid SS3 data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template OM_out_dir
 #' @param dat_yrs Which years should be added to the new model? Ignored if
@@ -469,7 +469,7 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
   }
   df_catch <- do.call("rbind", tmp_df_list)
   if (MS == "last_yr_catch") {
-    # Now, use this to get catch in biomass and catch by F. Need to rerun SS OM
+    # Now, use this to get catch in biomass and catch by F. Need to rerun SS3 OM
     # with no estimation. modify forecast ----
     # put in the forecasting catch and make sure using the correct number of years
     fore[["ForeCatch"]] <- df_catch[, c("year", "seas", "fleet", "catch")]
@@ -486,13 +486,13 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
     Fcast_impl_err_line <- grep("^# Fcast_impl_error:$", par) + 1
     par[Fcast_impl_err_line] <- paste0(rep(0, fore[["Nforecastyrs"]]), collapse = " ")
     writeLines(par, file.path(OM_dir, "ss.par"))
-    # Run SS with the new catch set as forecast targets. This will use SS to
+    # Run SS3 with the new catch set as forecast targets. This will use SS3 to
     # calculate the F required in the OM to achieve these catches.
     run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess",
       verbose = FALSE,
       debug_par_run = TRUE
     )
-    # Load the SS results
+    # Load the SS3 results
     outlist <- r4ss::SS_output(OM_dir,
       verbose = FALSE, printstats = FALSE,
       covar = FALSE, warn = FALSE, readwt = FALSE
@@ -546,12 +546,12 @@ get_no_EM_catch_df <- function(OM_dir, yrs, MS = "last_yr_catch") {
 #' @param init_loop Logical. If this is the first initialization loop of the
 #'   MSE, \code{init_loop} should be TRUE. If it is in further loops, it should
 #'   be FALSE.
-#' @param OM_dat An valid SS data file read in using r4ss. In particular,
+#' @param OM_dat An valid SS3 data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @template OM_out_dir
 #' @template verbose
-#' @param nyrs_assess The number of years between assessments. E.g., if an
-#'   assessment is conducted every 3 years, put 3 here. A single integer value.
+#' @param nyrs_assess The number of years between assessments (e.g., if an
+#'   assessment is conducted every 3 years, put 3 here). A single integer value.
 #' @param dat_yrs Which years should be added to the new model? Ignored if
 #'  init_loop is TRUE.
 #' @template future_om_list
@@ -786,7 +786,7 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
       #                    verbose = FALSE)
       #   # given all checks are good, run the EM
       #   # check convergence (figure out way to error if need convergence)
-      #   # get the future catch using the management strategy used in the SS model.
+      #   # get the future catch using the management strategy used in the SS3 model.
       #   run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
       #
       #   SS_writeforecast(mylist = fcast,

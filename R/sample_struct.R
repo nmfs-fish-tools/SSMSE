@@ -77,7 +77,7 @@ convert_to_r4ss_names <- function(sample_struct,
 #' available in the [sampling options section of the SSMSE user manual](https://nmfs-fish-tools.github.io/SSMSE/manual/SSMSE.html#sampling-options).
 #'
 #' @param dat An r4ss list object read in using r4ss::SS_readdat() or the path
-#'  (relative or absolute) to an SS data file to read in.
+#'  (relative or absolute) to an SS3 data file to read in.
 #' @param nyrs Number of years beyond the years included in the dat file to run
 #'  the MSE. A single integer value.
 #' @param rm_NAs Should all NAs be removed from dataframes? Defaults to FALSE.
@@ -123,7 +123,7 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
         value = TRUE
       ) # input sample size
       # sanity checks. should match with 1 (or 0 in some cases) cols. Failing these
-      # checks indicate a bug in the code (invalid assuptions of how to match the
+      # checks indicate a bug in the code (invalid assumptions of how to match the
       # cols.)
       assertive.properties::assert_is_of_length(yr_col, 1)
       assertive.properties::assert_is_of_length(seas_col, 1)
@@ -536,7 +536,7 @@ get_full_sample_struct <- function(sample_struct,
           }
         }
         if (!"Ignore" %in% colnames(x)) {
-          x[, "Ignore"] <- 2 # this value doesn't matter.
+          x[, "Ignore"] <- 2 # this value doesn't matter
         }
         if (!"N_" %in% colnames(x)) {
           for (i in unique(x[["FltSvy"]])) {

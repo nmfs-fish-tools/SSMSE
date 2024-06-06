@@ -13,9 +13,9 @@ check_avail_dat(
 )
 }
 \arguments{
-\item{EM_dat}{An SS data file read in using r4ss for an EM}
+\item{EM_dat}{An SS3 data file read in using r4ss for an EM}
 
-\item{OM_dat}{An SS data file read in using r4ss for an OM}
+\item{OM_dat}{An SS3 data file read in using r4ss for an OM}
 
 \item{list_item}{A component in both EM_dat and OM_dat to check values for.
 This should be a single string value.}

@@ -8,7 +8,7 @@ check_future_catch(catch, OM_dir, catch_units = "bio", datfile = NULL)
 }
 \arguments{
 \item{catch}{A dataframe of catch values and its associated information to
-add to the OM. The column names are the same as in an SS data file (e.g.,
+add to the OM. The column names are the same as in an SS3 data file (e.g.,
 year,    season, fleet,    catch,    catch_se).
 length of the number of years (only works when catch is for 1 fleet)}
 

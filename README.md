@@ -405,7 +405,7 @@ We will use the same management procedure for both scenarios:
     get the true values for the population.
 
 Let’s take a look at step 2 in the management procedure, which is
-implemented using the forecasting module in SS. We will examine the
+implemented using the forecasting module in SS3. We will examine the
 forecast file for the estimation model to better understand how catches
 will be forecasted from the assessment. We will use the same management
 procedure in both of these scenarios, although for a full MSE analysis,

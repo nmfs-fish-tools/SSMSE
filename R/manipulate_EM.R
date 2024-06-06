@@ -49,14 +49,14 @@ change_dat <- function(OM_datfile, EM_datfile, EM_dir, do_checks = TRUE,
 #' Change the OM data to match the format of the original EM data
 #'
 #' This does the technical part of changing the EM data. Note this may be unnecessary
-#' @param OM_dat An SS data file read in by as a list read in using r4ss from
+#' @param OM_dat An SS3 data file read in by as a list read in using r4ss from
 #'  the operating model
-#' @param EM_dat An SS data file read in by as a list read in using r4ss from
+#' @param EM_dat An SS3 data file read in by as a list read in using r4ss from
 #'  the estimation model
 #' @param do_checks Should checks on the data be performed? Defaults to TRUE.
 #' @author Kathryn Doering
 #' @return A data list in the same format that can be read/written by r4ss that
-#'  has index. lcomps, and age comps from OM_dat, but with the same structure as
+#'  has index, lcomps, and age comps from OM_dat, but with the same structure as
 #'  EM_dat.
 get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   new_dat <- EM_dat # start by copying over to get the correct formatting.
@@ -178,7 +178,7 @@ run_EM <- function(EM_dir,
 #' Add new data to an existing EM dataset
 #'
 #' This should be used for the feedback loops when an EM is used.
-#' @param OM_dat An valid SS data file read in using r4ss. In particular,
+#' @param OM_dat An valid SS3 data file read in using r4ss. In particular,
 #'   this should be sampled data.
 #' @param EM_datfile Datafile name run in previous iterations with the EM.
 #'  Assumed to exist in EM_dir.
@@ -190,7 +190,7 @@ run_EM <- function(EM_dir,
 #' @param new_datfile_name An optional name of a file to write the new datafile
 #'  to. If NULL, a new datafile will not be written.
 #' @template verbose
-#' @return A new SS datafile containing the data in EM_datfile with new data
+#' @return A new SS3 datafile containing the data in EM_datfile with new data
 #' from OM_dat appended
 #' @importFrom r4ss SS_readdat SS_writedat
 #' @importFrom stats na.omit

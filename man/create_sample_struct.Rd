@@ -8,7 +8,7 @@ create_sample_struct(dat, nyrs, rm_NAs = FALSE)
 }
 \arguments{
 \item{dat}{An r4ss list object read in using r4ss::SS_readdat() or the path
-(relative or absolute) to an SS data file to read in.}
+(relative or absolute) to an SS3 data file to read in.}
 
 \item{nyrs}{Number of years beyond the years included in the dat file to run
 the MSE. A single integer value.}

@@ -64,7 +64,7 @@ test_that("run_EM exits on error when it should", {
   # specify a directory that is not valid
   expect_error(
     run_EM(EM_dir = temp_path),
-    "Please change to a directory containing a valid SS model."
+    "Please change to a directory containing a valid SS3 model."
   )
 })
 

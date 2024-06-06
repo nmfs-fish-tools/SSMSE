@@ -22,7 +22,7 @@ update_basevals_blocks(
 
 \item{base_years}{A vector of years for which the base values are needed}
 
-\item{temp_block}{The timevarying parameter lines for the block effects on the base parameter}
+\item{temp_block}{The time-varying parameter lines for the block effects on the base parameter}
 
 \item{current_par}{The index of the current parameter being updated}
 

@@ -380,7 +380,7 @@ create_OM <- function(OM_out_dir,
       stop(
         "The OM model created is not valid; it did not run and produce a\n",
         "control.ss_new file. Please try running the OM model created\n",
-        "with the create_OM function manually with SS to diagnose the\n",
+        "with the create_OM function manually with SS3 to diagnose the\n",
         "problem."
       )
     }
@@ -483,7 +483,7 @@ run_OM <- function(OM_dir,
     dir = OM_dir, verbose = FALSE, overwrite = TRUE
   )
 
-  # run SS and get the data set
+  # run SS3 and get the data set
   run_ss_model(OM_dir, "-maxfn 0 -phase 50 -nohess",
     verbose = verbose,
     debug_par_run = debug_par_run
@@ -526,7 +526,7 @@ run_OM <- function(OM_dir,
 #' Determine what the default sampling scheme is for a given data file.
 #' Produces a list object with the sampling scheme, which can be modified, if
 #' desired.
-#' @param dat An SS data file
+#' @param dat An SS3 data file
 #' @param dat_types Types of data to include
 # get the initial sampling values
 get_init_samp_scheme <- function(dat,

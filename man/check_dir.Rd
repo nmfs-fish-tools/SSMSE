@@ -8,9 +8,9 @@ check_dir(dir)
 }
 \arguments{
 \item{dir}{Input to check. Should be a directory name that should contain an
-SS model that can be used as an OM.
+SS3 model that can be used as an OM.
 @author Kathryn Doering}
 }
 \description{
-Check that the directory contains starter and forecast SS files.
+Check that the directory contains starter and forecast SS3 files.
 }

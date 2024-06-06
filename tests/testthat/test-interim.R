@@ -37,7 +37,7 @@ test_that("run_SSMSE runs with interim assessment workflow", {
     OM_name_vec = "cod",
     EM_name_vec = "cod", # cod is included in package data
     MS_vec = "Interim", # The management strategy is specified in the EM
-    use_SS_boot_vec = TRUE, # use the SS bootstrap module for sampling
+    use_SS_boot_vec = TRUE, # use the SS3 bootstrap module for sampling
     nyrs_vec = nyrs, # Years to project OM forward
     nyrs_assess_vec = 1, # Years between interim assessments
     sample_struct_list = list(sample_struct), # How to sample data for running the EM.

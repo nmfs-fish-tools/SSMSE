@@ -13,9 +13,9 @@
 #' @return A list including 3 dataframes and one list: devs_df, the additive deviations
 #'  relative to the base values; base_df, the base values of the parameter with
 #'  deviations; abs_df, the absolute future values by year (first col) and
-#'  parameter (parameterss in different cols). Also includes a modified version
+#'  parameter (parameters in different cols). Also includes a modified version
 #'  of the future_om_list which includes the seed applied to each list component
-#'  (note that this is not the ultimate seed used for sampling, as addiitonal)
+#'  (note that this is not the ultimate seed used for sampling, as additional)
 #'  seeds are generated from this seed based on the scenario, iteration, and
 #'  option for randomness (replicate across scenarios or randomize across scenarios).
 #'  Note that no OM files are modified or created as part of this function
@@ -424,11 +424,11 @@ add_dev_changes <- function(fut_list, scen, iter, parlist, dat, vals_df, nyrs, c
 #'  Can be NA if the there is no line in val_info for the given parameter
 #' @param vals_df The dataframe of the parameter values by year. Use to get
 #'  start val and last year
-#' @param parname Name of the parameter with devs from the SS model.
+#' @param parname Name of the parameter with devs from the SS3 model.
 #'  will reference, if using a relative method.
 #' @template parlist
 #' @template ctl_dat
-#' @param par_section Which parameter section should this variabile be in?
+#' @param par_section Which parameter section should this variable be in?
 #' @author Kathryn Doering
 #' @return A vector of values with length ncol(vals_df), the number of future
 #'  years.
@@ -528,7 +528,7 @@ calc_par_trend <- function(val_info,
             out <- r4ss::SS_output(dirname(dat[["sourcefile"]]), verbose = FALSE)
             timeseries <- out[["timeseries"]]
           } else {
-            timeseries <- NA # shouldnt need unless using biology.
+            timeseries <- NA # shouldn't need unless using biology.
           }
           vals <- update_basevals_env(
             base_vals = vals,

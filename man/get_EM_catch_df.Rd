@@ -9,7 +9,7 @@ get_EM_catch_df(EM_dir, dat)
 \arguments{
 \item{EM_dir}{Path to the EM files}
 
-\item{dat}{A SS datfile read into R using \code{r4ss::SS_readdat()}}
+\item{dat}{A SS3 datfile read into R using \code{r4ss::SS_readdat()}}
 }
 \value{
 A data frame of future catch

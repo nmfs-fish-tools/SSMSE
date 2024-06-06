@@ -10,7 +10,7 @@ get_init_samp_scheme(
 )
 }
 \arguments{
-\item{dat}{An SS data file}
+\item{dat}{An SS3 data file}
 
 \item{dat_types}{Types of data to include}
 }

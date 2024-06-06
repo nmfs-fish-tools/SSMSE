@@ -156,7 +156,7 @@ future_om_list_4[[2]][["input"]] <- data.frame(
 
 # Time-varying parameter input dataframe
 # This object will be passed from a sampling function that calculates environmental linkage devs
-# to a file update function that modifies SS files to incorporate new timevarying impacts
+# to a file update function that modifies SS3 files to incorporate new timevarying impacts
 nyrs <- 100 # the total number of years to run MSE simulations for
 Time_varying_devs <- data.frame(
   rec_devs = stats::rnorm(nyrs), # The functions I'm using are just examples. just input a vector of values of length nyrs

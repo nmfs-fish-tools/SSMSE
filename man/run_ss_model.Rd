@@ -7,7 +7,7 @@
 run_ss_model(
   dir,
   admb_options = "",
-  ss_bin = "ss",
+  ss3_bin = "ss3",
   ignore.stdout = TRUE,
   admb_pause = 0.05,
   show.output.on.console = FALSE,
@@ -20,11 +20,11 @@ run_ss_model(
 \arguments{
 \item{dir}{The full or relative path to the model directory}
 
-\item{admb_options}{Any options to pass to SS command. Should be
+\item{admb_options}{Any options to pass to SS3 command. Should be
 of the form '-option'. Note that no checks are done to ensure this is a
 valid ADMB command}
 
-\item{ss_bin}{Name of the SS executable. Defaults to "ss"}
+\item{ss3_bin}{Name of the SS3 executable. Defaults to "ss3"}
 
 \item{ignore.stdout}{Passed to \code{system}. If \code{TRUE} then ADMB
 output is not printed on screen. This will be slightly faster. Set to
@@ -55,7 +55,7 @@ the issue with the model run. Defaults to FALSE.}
 \item{...}{Anything else to pass to \code{\link[base]{system}}.}
 }
 \description{
-This function takes care of calling SS. Importantly, it parses whether the
+This function takes care of calling SS3. Importantly, it parses whether the
 user is on Unix or Windows and calls the binary correctly. This lower-level
 function is meant to be called by higher level functions. Modified from
 run_ss3model in \href{https://github.com/ss3sim/ss3sim}{ss3sim}.

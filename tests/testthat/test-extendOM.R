@@ -138,7 +138,7 @@ test_that("extend_OM exits on error when it should", {
   file.copy(cod_mod, temp_path, recursive = TRUE)
   expect_error(
     update_OM(new_catch, OM_dir = temp_path),
-    "Please change to a directory containing a valid SS model"
+    "Please change to a directory containing a valid SS3 model"
   )
 })
 

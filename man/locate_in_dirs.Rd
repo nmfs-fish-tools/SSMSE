@@ -13,7 +13,7 @@ locate_in_dirs(OM_name = NULL, OM_in_dir = NULL)
 model outside of the SSMSE package. Should be a string.}
 }
 \value{
-A list with on comonent, OM_in_dir, which contains the model location
+A list with a component, OM_in_dir, which contains the model location
 }
 \description{
 Locate the OM model files

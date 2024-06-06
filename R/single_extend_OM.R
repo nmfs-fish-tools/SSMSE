@@ -41,8 +41,8 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
       )
     }
 
-    # Set up dummy time varying parameter lines for the control file and parameter file which will be added in for new data
-    # Note that the first value corresponds with dev_se, the second with rho (autocorrelation). rho needs to be specified but
+    # Set up dummy time varying parameter lines for the control file and parameter file which will be added in for new data.
+    # Note that the first value corresponds with dev_se, the second with rho (autocorrelation). Rho needs to be specified but
     # is not used unless a random walk is specified in SS3.
     tv_dummy <- data.frame(LO = c(0, 0), HI = c(10, 1), INIT = c(1, .1), PRIOR = c(1, .1), PR_SD = c(1, 1), PR_type = c(0, 0), PHASE = c(-1, -1))
     tv_par_dummy <- data.frame(INIT = c(1, .1), ESTIM = c(1, .1))
@@ -51,7 +51,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
 
     # Now loop over each parameter group (i.e. Mortality and Growth params, Stock Recruitment params, Catchability params, and Selectivity params)
     for (s in 1:4) {
-      # For each group subset out the relevant sections of the control and paramter files for reading and modification
+      # For each group subset out the relevant sections of the control and parameter files for reading and modification
       if (s == 1) {
         temp_ctl <- ctl[["MG_parms"]]
         temp_tv <- ctl[["MG_parms_tv"]]
@@ -220,13 +220,13 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
                   current_par, temp_ctl, base_range, base_bounds
                 )
 
-                # Now calculate the coverted additive devs
+                # Now calculate the converted additive devs
                 converted_devs <- (final_vals - base_vals)
               } else if (is.element(temp_ctl[current_par, c("dev_link")], c(3, 23))) {
-                # Now calculate the coverted additive devs
+                # Now calculate the converted additive devs
                 converted_devs <- cumsum(scale_devs)
               } else if (is.element(temp_ctl[current_par, c("dev_link")], c(4, 6, 24, 26))) {
-                # Now calculate the coverted additive devs
+                # Now calculate the converted additive devs
                 converted_devs <- scale_devs
                 for (j in 2:length(scale_devs)) {
                   converted_devs[j] <- converted_devs[j] + converted_devs[j - 1] * temp_dev[2, "ESTIM"]
@@ -245,7 +245,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
                   current_par, temp_ctl, base_range, base_bounds
                 )
 
-                # Now calculate the coverted additive devs
+                # Now calculate the converted additive devs
                 converted_devs <- final_vals - base_vals
               }
 
@@ -455,7 +455,7 @@ add_OM_devs <- function(ctl, dat, parlist, timeseries, future_om_dat) {
 #'
 #' @param base_vals A vector of base parameter values that will be updated to include the impact of a time varying block change
 #' @param base_years A vector of years for which the base values are needed
-#' @param temp_block The timevarying parameter lines for the block effects on the base parameter
+#' @param temp_block The time-varying parameter lines for the block effects on the base parameter
 #' @param current_par The index of the current parameter being updated
 #' @param temp_ctl A subset of the control file representing the parameter section of interest (i.e. MG, SR, Q, or Selectivity)
 #' @param base_range the difference between the base parameters max and min bounds
@@ -550,7 +550,7 @@ update_basevals_env <- function(base_vals, base_years, temp_env, current_par, ti
     env_link <- floor(abs(temp_ctl[current_par, c("env_var&link")] / 100))
     env_index <- floor(abs(temp_ctl[current_par, c("env_var&link")]) - 100 * env_link)
     # These estimations of the model based environmental index are effects are accurate to the best of my
-    # knowledge. It is possible that there are slight discrepencies with how SS calculates the values during the
+    # knowledge. It is possible that there are slight discrepancies with how SS3 calculates the values during the
     # run such as the specific timing during the year. More testing will be needed to see if these work perfectly.
     if (env_index == 1) {
       SSB_base <- timeseries[2, "SpawnBio"]

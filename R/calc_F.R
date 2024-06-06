@@ -4,7 +4,7 @@
 #'
 #' @template timeseries
 #' @param fleetnames A vector of fleet names, in the order they appear in the
-#'  ss model.
+#'  SS3 model.
 #' @param fleetnames_all A vector of ALL fleet names that are in the model in
 #'  the order that they are specified in the model. This vector helps the
 #'  function know which order the fleets appear in the model.
@@ -13,8 +13,8 @@
 #'  and fleet; F_rate, a data frame with F for the time frame of the model
 #'  only by Yr, Seas, and Fleet, ordered as the ss.par file expects; init_F,
 #'  a named vector of initial F values by Season and Fleet, ordered (and named)
-#'  as SS expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas,
-#'  and fleet, ordered as SS would expect in F_rate.
+#'  as SS3 expects; and F_rate_fcast, a dataframe of forecasted F by Yr, Seas,
+#'  and fleet, ordered as SS3 would expect in F_rate.
 get_F <- function(timeseries, fleetnames, fleetnames_all) {
   assertive.types::assert_is_data.frame(timeseries)
   # find the F columns
@@ -56,7 +56,7 @@ get_F <- function(timeseries, fleetnames, fleetnames_all) {
     stop("Column names not in the correct order.")
   }
   # Make sure that the df is ordered correctly;
-  # verified F rate order by running a multiseason and multifleet model and
+  # verified F rate order by running a multi-season and multi-fleet model and
   # looking at order of F_rate in the PARAMETERS section of the report file.
   F_rate <- F_rate[order(F_rate[, "fleet"], F_rate[, "year"], F_rate[, "seas"]), ]
   # add a name col that is the same as naming in the Report.sso
@@ -108,7 +108,7 @@ get_F <- function(timeseries, fleetnames, fleetnames_all) {
     F_rate_fcast <- NULL
   } else {
     # Make sure that the df is ordered correctly;
-    # verified F rate order by running a multiseason and multifleet model and
+    # verified F rate order by running a multi-season and multi-fleet model and
     # looking at order of F_rate in the PARAMETERS section of the report file.
     F_rate_fcast <- F_rate_fcast[order(
       F_rate_fcast[, "fleet"],

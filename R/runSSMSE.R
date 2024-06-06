@@ -1,4 +1,4 @@
-#' run an MSE using SS OMs
+#' run an MSE using SS3 OMs
 #'
 #' High level function to run a management strategy evaluation using Stock
 #' Synthesis as the Operating model(s). For more examples and information on how
@@ -222,7 +222,7 @@ run_SSMSE <- function(scen_name_vec,
   invisible(scen_list)
 }
 
-#' Run an MSE scenario using SS OM
+#' Run an MSE scenario using SS3 OM
 #'
 #' High level function to run 1 scenario (but potentially many iterations) for
 #' a management strategy evaluation using Stock Synthesis as the Operating Model
@@ -424,7 +424,7 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   invisible(run_failed_df)
 }
 
-#' Run one iteration of an MSE using SS OM
+#' Run one iteration of an MSE using SS3 OM
 #'
 #' High level function to run 1 iteration of a scenario for a management
 #' strategy evaluation using Stock Synthesis as the Operating model.
@@ -434,8 +434,8 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
 #' @template OM_name
 #' @param out_dir The directory to which to write output. IF NULL, will default
 #'   to the working directory.
-#' @param nyrs_lag number of years of lag in obtaining data. i.e. the number of years
-#'  post EM assessment end yr before advice can be implemented. defaults to 0.
+#' @param nyrs_lag Number of years of lag in obtaining data (i.e., the number of years
+#'  post EM assessment end yr before advice can be implemented). Defaults to 0.
 #' @param niter The iteration number, which is also the name of the folder the
 #'  results will be written to.
 #' @template future_om_list
@@ -570,7 +570,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   )
 
   # convert sample_struct names ----
-  # get the full sampling structure for components that the user didnt specify.
+  # get the full sampling structure for components that the user didn't specify.
   # if meaning is ambiguous, then this will exit on error.
   if (!is.null(sample_struct)) {
     sample_struct <- get_full_sample_struct(
@@ -608,7 +608,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
   if (use_SS_boot == FALSE) {
     stop(
       "Currently, only sampling can be done using the bootstrapping ",
-      "capabilities within SS"
+      "capabilities within SS3"
     )
     # TODO: add sampling functions then run a future sampling function that would
     # make it into a dataset.

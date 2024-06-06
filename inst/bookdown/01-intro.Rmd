@@ -77,7 +77,7 @@ The basic steps are contained in functions:
 
 ### Conditioning the OM and sampling from the OM
 
-For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the "true" values and a bootstrapped data set from SS3. Note that any modifications to the OM's parameters specified by the users as it is extended forward in time are also applied.
+For each scenario, SSMSE starts with the user providing a fitted SSS3 model (or selecting an model from the SSMSE package) to use as an OM. For each iteration of the scenario, SSMSE turns the SS3 fitted model into an OM and runs it once with no estimation with Stock Synthesis in order to get the "true" values and a bootstrapped data set from SS3. Note that any modifications to the OM's parameters specified by the users as it is extended forward in time are also applied.
 
 ### First run of the management strategy in the MSE simulation
 
