@@ -67,6 +67,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   }
   dat <- list(OM_dat = OM_dat, EM_dat = EM_dat)
   
+  if (OM_dat[["discard_data"]] == 1) {
   Catches <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "catch", c("year", "seas", "fleet"))
   })
@@ -74,15 +75,19 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   matches <- which(Catches[[1]][, "combo"] %in% Catches[[2]][, "combo"])
   # extract only the rows of interest and get rid of the "combo" column
   new_dat[["catch"]] <- Catches[[1]][matches, -ncol(Catches[[1]])]
+  }
   
-  Discards <- lapply(dat, function(x) {
-    tmp <- combine_cols(x, "discard_data", c("Yr", "Seas", "Flt"))
-  })
-  # match 1 way: match each EM obs with an OM obs. extract only these OM obs.
-  matches <- which(Discards[[1]][, "combo"] %in% Discards[[2]][, "combo"])
-  # extract only the rows of interest and get rid of the "combo" column
-  new_dat[["discard_data"]] <- Discards[[1]][matches, -ncol(Discards[[1]])]
+  if (OM_dat[["discard_data"]] == 1) {
+    Discards <- lapply(dat, function(x) {
+      tmp <- combine_cols(x, "discard_data", c("Yr", "Seas", "Flt"))
+    })
+    # match 1 way: match each EM obs with an OM obs. extract only these OM obs.
+    matches <- which(Discards[[1]][, "combo"] %in% Discards[[2]][, "combo"])
+    # extract only the rows of interest and get rid of the "combo" column
+    new_dat[["discard_data"]] <- Discards[[1]][matches, -ncol(Discards[[1]])]
+  }
   
+  if (OM_dat[["CPUE"]] == 1) {
   CPUEs <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "CPUE", c("year", "seas", "index"))
   })
@@ -90,7 +95,8 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   matches <- which(CPUEs[[1]][, "combo"] %in% CPUEs[[2]][, "combo"])
   # extract only the rows of interest and get rid of the "combo" column
   new_dat[["CPUE"]] <- CPUEs[[1]][matches, -ncol(CPUEs[[1]])]
- 
+  }
+  
   # add in lcomps
   if (OM_dat[["use_lencomp"]] == 1) {
     lcomps <- lapply(dat, function(x) {
@@ -125,11 +131,12 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
     matches_meansize <- which(meansize[[1]][, "combo"] %in% meansize[[2]][, "combo"])
     new_dat[["meanbodywt"]] <- meansize[[1]][matches_meansize, -ncol(meansize[[1]])]
   }
+  
   if (!is.null(OM_dat[["MeanSize_at_Age_obs"]])) {
     size_at_age <- lapply(dat, function(x) {
       tmp <- combine_cols(
         x, "MeanSize_at_Age_obs",
-        c("Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr")
+        c("Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr")
       )
     })
     matches_size_at_age <- which(size_at_age[[1]][, "combo"] %in% size_at_age[[2]][, "combo"])
