@@ -67,7 +67,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   }
   dat <- list(OM_dat = OM_dat, EM_dat = EM_dat)
   
-  if (OM_dat[["discard_data"]] == 1) {
+  if (!is.null(OM_dat[["catch"]])) {
   Catches <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "catch", c("year", "seas", "fleet"))
   })
@@ -77,7 +77,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
   new_dat[["catch"]] <- Catches[[1]][matches, -ncol(Catches[[1]])]
   }
   
-  if (OM_dat[["discard_data"]] == 1) {
+  if (!is.null(OM_dat[["discard_data"]])) {
     Discards <- lapply(dat, function(x) {
       tmp <- combine_cols(x, "discard_data", c("Yr", "Seas", "Flt"))
     })
@@ -87,7 +87,7 @@ get_EM_dat <- function(OM_dat, EM_dat, do_checks = TRUE) {
     new_dat[["discard_data"]] <- Discards[[1]][matches, -ncol(Discards[[1]])]
   }
   
-  if (OM_dat[["CPUE"]] == 1) {
+  if (!is.null(OM_dat[["CPUE"]])) {
   CPUEs <- lapply(dat, function(x) {
     tmp <- combine_cols(x, "CPUE", c("year", "seas", "index"))
   })
