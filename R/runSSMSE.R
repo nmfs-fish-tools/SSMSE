@@ -611,6 +611,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       verbose = verbose, init_run = TRUE, seed = (iter_seed[["iter"]][1] + 12345)
     )
   }
+  
   if (use_SS_boot == FALSE) {
     stop(
       "Currently, only sampling can be done using the bootstrapping ",
@@ -648,6 +649,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
     seed = (iter_seed[["iter"]][1] + 123456),
     sample_struct = sample_struct # add for bias
   )
+ 
   message(
     "Finished getting catch (years ",
     min(new_catch_list[["catch"]][, "year"]), " to ", max(new_catch_list[["catch"]][, "year"]),
