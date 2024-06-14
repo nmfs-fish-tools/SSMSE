@@ -91,6 +91,16 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
       new_datfile_name = new_datfile_name,
       verbose = verbose
     )
+    
+    #Increment main recruitment phase end year by number of assessment years
+    #So the model can continue to estimate rec devs 
+    ctl <- SS_readctl(file.path(EM_out_dir, start[["ctlfile"]]),
+                      datlist = new_EM_dat
+    )
+    ctl$MainRdevYrLast <- ctl$MainRdevYrLast + nyrs_assess
+    r4ss::SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]),
+                      overwrite = TRUE
+    )
   }
   # Update SS random seed
   start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),

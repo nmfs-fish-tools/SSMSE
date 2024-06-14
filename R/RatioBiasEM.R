@@ -300,7 +300,7 @@ get_RatioEM_catch_df<-function(EM_dir, dat, dat_yrs,
 #'  init_loop is TRUE.
 #' @template OM_out_dir
 #' @template sample_struct
-#' @template seed
+#' @template seed 
 #' @param ... Any additional parameters
 
 #For example, if EM has a positive bias (e.g., EM catch = 1 when true OM catch = 0.5), the EM2OM multiplier should be less than 1 (EM2OM = 0.5)
@@ -662,6 +662,15 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
       verbose = verbose
     )
     
+    #Increment main recruitment phase end year by number of assessment years
+    #So the model can continue to estimate rec devs 
+    ctl <- SS_readctl(file.path(EM_out_dir, start[["ctlfile"]]),
+                      datlist = new_EM_dat
+    )
+    ctl$MainRdevYrLast <- ctl$MainRdevYrLast + nyrs_assess
+    r4ss::SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]),
+                      overwrite = TRUE
+    )
   } # end else not first iteration
   
   # Update SS random seed
