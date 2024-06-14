@@ -526,14 +526,17 @@ add_new_dat_BIAS<- function (OM_dat, EM_datfile, sample_struct, EM_dir, nyrs_ass
   SIMPLIFY = FALSE, USE.NAMES = TRUE)
   
   #extracted_dat takes observations from the OM; then below we use the EM2OM multiplier to put catch back into EM units and remove the EM2OMcatch_basis element so that it doesn't get added to the datafile. 
-  
+  extracted_dat$catch <- extracted_dat$catch[order(abs(extracted_dat$catch$fleet),abs(extracted_dat$catch$year),abs(extracted_dat$catch$seas)),]
   if(!is.null(extracted_dat$catch)){
     tmp_catch<- merge(extracted_dat$catch, sample_struct$EM2OMcatch_bias)
+    tmp_catch <- tmp_catch[order(abs(tmp_catch$fleet),abs(tmp_catch$year),abs(tmp_catch$seas)),]
     extracted_dat$catch$catch<- tmp_catch$catch / tmp_catch$bias ### EM2OM edits to get EM catch back to OM
   }
   
+  extracted_dat$discard_data <- extracted_dat$discard_data[order(abs(extracted_dat$discard_data$Flt),abs(extracted_dat$discard_data$Yr),abs(extracted_dat$discard_data$Seas)),]
   if(!is.null(extracted_dat$discard_data)){
     tmp_discard<- merge(extracted_dat$discard_data, sample_struct$EM2OMdiscard_bias)
+    tmp_discard <- tmp_discard[order(abs(tmp_discard$Flt),abs(tmp_discard$Yr),abs(tmp_discard$Seas)),]
     extracted_dat$discard_data$Discard<- tmp_discard$Discard / tmp_discard$bias
   }
   
