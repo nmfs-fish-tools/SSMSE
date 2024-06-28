@@ -439,10 +439,13 @@ RatioBiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = F
   }
   
   if(2 %in% OM_dat$fleetinfo$type){ # if bycatch fleet -- remove from catch list and keep only bycatch fleets in catch_F list
-    byc_f <- as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
-    new_OM_catch_list$catch<- new_OM_catch_list$catch[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[new_OM_catch_list$catch_F$fleet==byc_f,]
+    byc_f <- which(OM_dat$fleetinfo$type==2)#as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
+    new_OM_catch_list$catch<- new_OM_catch_list$catch[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[which(is.element(new_OM_catch_list$catch_F$fleet,byc_f)),]
+    # new_OM_catch_list$catch<- new_OM_catch_list$catch[new_OM_catch_list$catch$fleet!=byc_f,]
+    # new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[new_OM_catch_list$catch$fleet!=byc_f,]
+    # new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[new_OM_catch_list$catch_F$fleet==byc_f,]
   } else{
     new_OM_catch_list$catch_F <- NULL
   }
@@ -713,10 +716,14 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   }
   
   if(2 %in% OM_dat$fleetinfo$type){ # if bycatch fleet -- remove from catch list and keep only bycatch fleets in catch_F list
-    byc_f <- as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
-    new_OM_catch_list$catch<- new_OM_catch_list$catch[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[new_OM_catch_list$catch$fleet!=byc_f,]
-    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[new_OM_catch_list$catch_F$fleet==byc_f,]
+    # byc_f <- as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
+    # new_OM_catch_list$catch<- new_OM_catch_list$catch[new_OM_catch_list$catch$fleet!=byc_f,]
+    # new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[new_OM_catch_list$catch$fleet!=byc_f,]
+    # new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[new_OM_catch_list$catch_F$fleet==byc_f,]
+    byc_f <- which(OM_dat$fleetinfo$type==2)#as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
+    new_OM_catch_list$catch<- new_OM_catch_list$catch[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
+    new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[which(is.element(new_OM_catch_list$catch_F$fleet,byc_f)),]
   } else{
     new_OM_catch_list$catch_F <- NULL
   }
