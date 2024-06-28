@@ -91,6 +91,16 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
       new_datfile_name = new_datfile_name,
       verbose = verbose
     )
+    
+    #Increment main recruitment phase end year by number of assessment years
+    #So the model can continue to estimate rec devs 
+    ctl <- SS_readctl(file.path(EM_out_dir, start[["ctlfile"]]),
+                      datlist = new_EM_dat
+    )
+    ctl$MainRdevYrLast <- ctl$MainRdevYrLast + nyrs_assess
+    r4ss::SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]),
+                      overwrite = TRUE
+    )
   }
   # Update SS random seed
   start <- SS_readstarter(file.path(EM_out_dir, "starter.ss"),
@@ -267,6 +277,11 @@ get_EM_catch_df <- function(EM_dir, dat) {
   catch_df <- as.data.frame(catch_df)
   catch_bio_df <- as.data.frame(catch_bio_df)
   catch_F_df <- as.data.frame(catch_F_df)
+  
+  #sort data frames by year, season, fleet
+  catch_df <- catch_df[order(abs(catch_df[["fleet"]]),abs(catch_df[["year"]]),abs(catch_df[["seas"]])),]
+  catch_bio_df <- catch_bio_df[order(abs(catch_bio_df[["fleet"]]),abs(catch_bio_df[["year"]]),abs(catch_bio_df[["seas"]])),]
+  catch_F_df <- catch_F_df[order(abs(catch_F_df[["fleet"]]),abs(catch_F_df[["year"]]),abs(catch_F_df[["seas"]])),]
   # get discard, if necessary
   if (dat[["N_discard_fleets"]] > 0) {
     # discard units: 1, biomass/number according to set in catch
@@ -331,6 +346,16 @@ get_EM_catch_df <- function(EM_dir, dat) {
       }
     }
     dis_df <- do.call("rbind", dis_df_list)
+    dis_df <- dis_df %>%
+      dplyr::group_by(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]]) %>%
+      dplyr::summarise(Discard = sum(.data[["Discard"]])) %>%
+      merge(se_dis, all.x = TRUE, all.y = FALSE) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]], .data[["Discard"]], .data[["Std_in"]])
+    dis_df <- as.data.frame(dis_df)
+    #sort data frame by year, season, fleet
+    dis_df <- dis_df[order(abs(dis_df[["Flt"]]),abs(dis_df[["Yr"]]),abs(dis_df[["Seas"]])),]
+    
   } else {
     dis_df <- NULL
   }

@@ -268,6 +268,13 @@ get_RatioEM_catch_df<-function(EM_dir, dat, dat_yrs,
       }
     }
     dis_df <- do.call("rbind", dis_df_list)
+    dis_df <- dis_df %>%
+      dplyr::group_by(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]]) %>%
+      dplyr::summarise(Discard = sum(.data[["Discard"]])) %>%
+      merge(se_dis, all.x = TRUE, all.y = FALSE) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(.data[["Yr"]], .data[["Seas"]], .data[["Flt"]], .data[["Discard"]], .data[["Std_in"]])
+    dis_df <- as.data.frame(dis_df)
   } else {
     dis_df <- NULL
   }
@@ -293,7 +300,7 @@ get_RatioEM_catch_df<-function(EM_dir, dat, dat_yrs,
 #'  init_loop is TRUE.
 #' @template OM_out_dir
 #' @template sample_struct
-#' @template seed
+#' @template seed 
 #' @param ... Any additional parameters
 
 #For example, if EM has a positive bias (e.g., EM catch = 1 when true OM catch = 0.5), the EM2OM multiplier should be less than 1 (EM2OM = 0.5)
@@ -437,8 +444,8 @@ RatioBiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = F
     tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscard_bias, all.x=TRUE)
     new_OM_catch_list$discards$Discard <- new_OM_catch_list$discards$Discard * tmp_discards$bias 
   }
-  
   if(2 %in% OM_dat$fleetinfo$type){ # if bycatch fleet -- remove from catch list and keep only bycatch fleets in catch_F list
+
     byc_f <- which(OM_dat$fleetinfo$type==2)#as.numeric(row.names(OM_dat$fleetinfo[which(OM_dat$fleetinfo$type==2),]))
     new_OM_catch_list$catch<- new_OM_catch_list$catch[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
     new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[which(!is.element(new_OM_catch_list$catch$fleet,byc_f)),]
@@ -446,6 +453,7 @@ RatioBiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = F
     # new_OM_catch_list$catch<- new_OM_catch_list$catch[new_OM_catch_list$catch$fleet!=byc_f,]
     # new_OM_catch_list$catch_bio<- new_OM_catch_list$catch_bio[new_OM_catch_list$catch$fleet!=byc_f,]
     # new_OM_catch_list$catch_F<- new_OM_catch_list$catch_F[new_OM_catch_list$catch_F$fleet==byc_f,]
+
   } else{
     new_OM_catch_list$catch_F <- NULL
   }
@@ -522,14 +530,17 @@ add_new_dat_BIAS<- function (OM_dat, EM_datfile, sample_struct, EM_dir, nyrs_ass
   SIMPLIFY = FALSE, USE.NAMES = TRUE)
   
   #extracted_dat takes observations from the OM; then below we use the EM2OM multiplier to put catch back into EM units and remove the EM2OMcatch_basis element so that it doesn't get added to the datafile. 
-  
+  extracted_dat$catch <- extracted_dat$catch[order(abs(extracted_dat$catch$fleet),abs(extracted_dat$catch$year),abs(extracted_dat$catch$seas)),]
   if(!is.null(extracted_dat$catch)){
     tmp_catch<- merge(extracted_dat$catch, sample_struct$EM2OMcatch_bias)
+    tmp_catch <- tmp_catch[order(abs(tmp_catch$fleet),abs(tmp_catch$year),abs(tmp_catch$seas)),]
     extracted_dat$catch$catch<- tmp_catch$catch / tmp_catch$bias ### EM2OM edits to get EM catch back to OM
   }
   
+  extracted_dat$discard_data <- extracted_dat$discard_data[order(abs(extracted_dat$discard_data$Flt),abs(extracted_dat$discard_data$Yr),abs(extracted_dat$discard_data$Seas)),]
   if(!is.null(extracted_dat$discard_data)){
     tmp_discard<- merge(extracted_dat$discard_data, sample_struct$EM2OMdiscard_bias)
+    tmp_discard <- tmp_discard[order(abs(tmp_discard$Flt),abs(tmp_discard$Yr),abs(tmp_discard$Seas)),]
     extracted_dat$discard_data$Discard<- tmp_discard$Discard / tmp_discard$bias
   }
   
@@ -655,6 +666,15 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
       verbose = verbose
     )
     
+    #Increment main recruitment phase end year by number of assessment years
+    #So the model can continue to estimate rec devs 
+    ctl <- SS_readctl(file.path(EM_out_dir, start[["ctlfile"]]),
+                      datlist = new_EM_dat
+    )
+    ctl$MainRdevYrLast <- ctl$MainRdevYrLast + nyrs_assess
+    r4ss::SS_writectl(ctl, file.path(EM_out_dir, start[["ctlfile"]]),
+                      overwrite = TRUE
+    )
   } # end else not first iteration
   
   # Update SS random seed
@@ -699,19 +719,24 @@ BiasEM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   # For the simple approach, we can just apply a series of scalars from the EM catch list to create an OM catch list
   new_OM_catch_list = new_EM_catch_list
   
-  
+  sample_struct$EM2OMcatch_bias <- sample_struct$EM2OMcatch_bias[order(abs(sample_struct$EM2OMcatch_bias$fleet),abs(sample_struct$EM2OMcatch_bias$year),abs(sample_struct$EM2OMcatch_bias$seas)),]
+  sample_struct$EM2OMcatch_bias <- sample_struct$EM2OMcatch_bias[!duplicated(sample_struct$EM2OMcatch_bias),]
   if(!is.null(new_OM_catch_list$catch)){
-    tmp_catch <- base::merge(new_OM_catch_list$catch, sample_struct$EM2OMcatch_bias, all.x=TRUE, all.y=FALSE)
+    tmp_catch <- base::merge(abs(new_OM_catch_list$catch), abs(sample_struct$EM2OMcatch_bias), all.x=TRUE, all.y=FALSE)
+    tmp_catch <- tmp_catch[order(abs(tmp_catch$fleet),abs(tmp_catch$year),abs(tmp_catch$seas)),]
     new_OM_catch_list$catch$catch <- new_OM_catch_list$catch$catch * tmp_catch$bias 
   }
   if(!is.null(new_OM_catch_list$catch_bio)){
-    tmp_catch_bio <- base::merge(new_OM_catch_list$catch_bio, sample_struct$EM2OMcatch_bias, all.x=TRUE)
+    tmp_catch_bio <- base::merge(abs(new_OM_catch_list$catch_bio), abs(sample_struct$EM2OMcatch_bias), all.x=TRUE)
+    tmp_catch_bio <- tmp_catch_bio[order(abs(tmp_catch_bio$fleet),abs(tmp_catch_bio$year),abs(tmp_catch_bio$seas)),]
     new_OM_catch_list$catch_bio$catch <- new_OM_catch_list$catch_bio$catch * tmp_catch_bio$bias
   }
   # new_OM_catch_list$catch_bio <- NULL
-  
+  sample_struct$EM2OMdiscard_bias <- sample_struct$EM2OMdiscard_bias[order(abs(sample_struct$EM2OMdiscard_bias$Flt),abs(sample_struct$EM2OMdiscard_bias$Yr),abs(sample_struct$EM2OMdiscard_bias$Seas)),]
+  sample_struct$EM2OMdiscard_bias <- sample_struct$EM2OMdiscard_bias[!duplicated(sample_struct$EM2OMdiscard_bias),]
   if(!is.null(new_OM_catch_list$discards)){
-    tmp_discards <- base::merge(new_OM_catch_list$discards, sample_struct$EM2OMdiscard_bias, all.x=TRUE)
+    tmp_discards <- base::merge(abs(new_OM_catch_list$discards), abs(sample_struct$EM2OMdiscard_bias), all.x=TRUE) #need to sort to figure this out
+    tmp_discards <- tmp_discards[order(abs(tmp_discards$Flt),abs(tmp_discards$Yr),abs(tmp_discards$Seas)),]
     new_OM_catch_list$discards$Discard <- new_OM_catch_list$discards$Discard * tmp_discards$bias 
   }
   

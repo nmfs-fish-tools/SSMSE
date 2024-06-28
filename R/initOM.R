@@ -471,7 +471,7 @@ run_OM <- function(OM_dir,
   if (is.null(seed)) {
     seed <- stats::runif(1, 1, 9999999)
   }
-
+  
   start <- r4ss::SS_readstarter(file.path(OM_dir, "starter.ss"),
     verbose = FALSE
   )

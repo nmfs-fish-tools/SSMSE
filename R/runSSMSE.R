@@ -96,7 +96,7 @@ run_SSMSE <- function(scen_name_vec,
   if (!is.null(custom_MS_source)) {
     source(custom_MS_source)
   }
-  
+
   # input checks
   if (!all(MS_vec %in% c("EM", "no_catch", "Interim"))) {
     invalid_MS <- MS_vec[unlist(lapply(MS_vec, function(x) !exists(x)))]
@@ -169,7 +169,6 @@ run_SSMSE <- function(scen_name_vec,
     scen_seed[["iter"]] <- seed[["iter"]][[i]]
     scen_list[[i]][["scen_seed"]] <- scen_seed
   }
-  
   
   if (run_parallel) {
     if (!is.null(n_cores)) {
@@ -612,6 +611,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       verbose = verbose, init_run = TRUE, seed = (iter_seed[["iter"]][1] + 12345)
     )
   }
+  
   if (use_SS_boot == FALSE) {
     stop(
       "Currently, only sampling can be done using the bootstrapping ",
@@ -649,6 +649,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
     seed = (iter_seed[["iter"]][1] + 123456),
     sample_struct = sample_struct # add for bias
   )
+ 
   message(
     "Finished getting catch (years ",
     min(new_catch_list[["catch"]][, "year"]), " to ", max(new_catch_list[["catch"]][, "year"]),
@@ -732,6 +733,7 @@ run_SSMSE_iter <- function(out_dir = NULL,
       "Finished running and sampling OM through year ", max(new_catch_list[["catch"]][, "year"]),
       "."
     )
+
     if (run_EM_last_yr == FALSE && isTRUE(yr == test_run_EM_yr)) {
       skip_EM_run <- TRUE
     } else {
