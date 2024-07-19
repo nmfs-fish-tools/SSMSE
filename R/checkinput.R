@@ -195,6 +195,7 @@ check_sample_struct <- function(sample_struct,
                                   CPUE = c("Yr", "Seas", "FltSvy", "SE"),
                                   discard_data = c("Yr", "Seas", "FltSvy", "SE"),
                                   EM2OMdiscard_bias = c("Yr", "Seas", "FltSvy", "bias"), # added for EM2OM
+                                  FixedCatch = c("Yr","Seas","FltSvy","Catch","Units"), # added for custom (EM2OM) fixed catches
                                   lencomp = c(
                                     "Yr", "Seas", "FltSvy", "Sex",
                                     "Part", "Nsamp"

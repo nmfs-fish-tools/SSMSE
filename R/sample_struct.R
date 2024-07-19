@@ -7,7 +7,8 @@
 convert_to_r4ss_names <- function(sample_struct,
                                   convert_key = data.frame(
                                     df_name = c(
-                                      rep("catch", 4), rep("EM2OMcatch_bias", 4), rep("CPUE", 4), 
+                                      rep("catch", 4), rep("EM2OMcatch_bias", 4), rep("FixedCatch", 5), # added fixed catch
+                                      rep("CPUE", 4), 
                                       rep("discard_data", 4),rep("EM2OMdiscard_bias", 4), rep("lencomp", 6),
                                       rep("agecomp", 9), rep("meanbodywt", 6),
                                       rep("MeanSize_at_Age_obs", 7)
@@ -17,6 +18,8 @@ convert_to_r4ss_names <- function(sample_struct,
                                       "year", "seas", "fleet", "catch_se",
                                       #EM2OM bias names
                                       "year", "seas", "fleet", "bias", ## add for EM2OM catch bias
+                                      #FixedCatch names
+                                      "year", "seas", "fleet", "catch","units", ## add for Fixed Catch bias
                                       #CPUE names
                                       "year", "seas", "index", "se_log",
                                       #Discard names
@@ -43,6 +46,8 @@ convert_to_r4ss_names <- function(sample_struct,
                                       "Yr", "Seas", "FltSvy", "SE",
                                       #EM2OM catch bias names
                                       "Yr", "Seas", "FltSvy", "bias",
+                                      #FixedCatch bias names
+                                      "Yr", "Seas", "FltSvy", "Catch","Units", # added
                                       #CPUE names
                                       "Yr", "Seas", "FltSvy", "SE",
                                       #Discard names
@@ -595,6 +600,7 @@ get_full_sample_struct <- function(sample_struct,
         x <- switch(x_name,
           catch = x[, c("Yr", "Seas", "FltSvy", "SE")],
           EM2OMcatch_bias = x[, c("Yr", "Seas", "FltSvy", "bias")],
+          FixedCatch = x[, c("Yr","Seas","FltSvy","Catch","Units")], # added
           CPUE = x[, c("Yr", "Seas", "FltSvy", "SE")],
           discard_data = x[, c("Yr", "Seas", "FltSvy", "SE")],
           EM2OMdiscard_bias = x[, c("Yr", "Seas", "FltSvy", "bias")],
