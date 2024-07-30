@@ -27,7 +27,7 @@ Imports:
     ggplot2,
     magrittr,
     parallel,
-    r4ss,
+    r4ss (>= 1.50.0),
     ss3sim,
     stats,
     tidyr,

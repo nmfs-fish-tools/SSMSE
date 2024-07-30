@@ -12,17 +12,17 @@ convert_to_r4ss_names <- function(sample_struct,
                                       rep("MeanSize_at_Age_obs", 7)
                                     ),
                                     r4ss_name = c(
-                                      "year", "seas", "fleet", "catch_se",
-                                      "year", "seas", "index", "se_log",
-                                      "Yr", "Seas", "FltSvy", "Gender", "Part", "Nsamp",
-                                      "Yr", "Seas", "FltSvy", "Gender", "Part", "Ageerr", "Lbin_lo",
-                                      "Lbin_hi", "Nsamp",
+                                      "year", "seas", "fleet", "catch_se", # catch
+                                      "year", "month", "index", "se_log", # cpue
+                                      "year", "month", "fleet", "sex", "part", "Nsamp", #lencomp
+                                      "year", "month", "fleet", "sex", "part", "ageerr", "Lbin_lo",
+                                      "Lbin_hi", "Nsamp", #agecomp
                                       # mean size
-                                      "Year", "Seas", "Fleet", "Partition", "Type", "Std_in",
+                                      "year", "month", "fleet", "part", "type", "stderr",
                                       # generalized size comp
                                       # meansize at age - note sample sizes are for each bin and sex, but
                                       # currently SSMSE only allows repeating the same sample sizes.
-                                      "Yr", "Seas", "FltSvy", "Gender", "Part", "AgeErr", "N_"
+                                      "year", "month", "fleet", "sex", "part", "ageerr", "N_"
                                       # Tags releases
                                       # "Area", "Yr", "Season", "Gender", "Age", "Nrelease",
                                       # Morph comp
