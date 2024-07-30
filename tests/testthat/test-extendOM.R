@@ -40,12 +40,12 @@ extend_vals <- list(
   ),
   lencomp = data.frame(
     Yr = 101:103, Seas = 1, FltSvy = 1,
-    Gender = 0, Part = 0,
+    sex = 0, Part = 0,
     Nsamp = c(25, 50, 100)
   ),
   agecomp = data.frame(
     Yr = 101:104, Seas = 1, FltSvy = 2,
-    Gender = 0, Part = 0, Ageerr = 1,
+    sex = 0, Part = 0, Ageerr = 1,
     Lbin_lo = -1, Lbin_hi = -1,
     Nsamp = c(25, 50, 100, 150)
   )

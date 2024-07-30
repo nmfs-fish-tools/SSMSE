@@ -25,11 +25,11 @@ test_that("assumptions about r4ss colnames are true.", {
     CPUE = data.frame(year = c(102, 105), seas = 7, index = 2, se_log = 0.2),
     lencomp = data.frame(
       Yr = c(102, 105), Seas = 1, FltSvy = 1,
-      Gender = 0, Part = 0, Nsamp = 125
+      sex = 0, Part = 0, Nsamp = 125
     ),
     agecomp = data.frame(
       Yr = c(102, 105), Seas = 1, FltSvy = 2,
-      Gender = 0, Part = 0, Ageerr = 1,
+      sex = 0, Part = 0, Ageerr = 1,
       Lbin_lo = -1, Lbin_hi = -1, Nsamp = 500
     ),
     meanbodywt = data.frame(
@@ -44,7 +44,7 @@ test_that("assumptions about r4ss colnames are true.", {
       Yr = c(1971, 1995),
       Seas = 7,
       FltSvy = c(1, 1, 2, 2),
-      Gender = 3,
+      sex = 3,
       Part = 0,
       AgeErr = 1
     )
@@ -73,11 +73,11 @@ test_that("convert_to_r4ss_names works", {
   expect_equal(names(r4ss_sample_struct[["CPUE"]]), c("year", "seas", "index", "se_log"))
   expect_equal(names(r4ss_sample_struct[["lencomp"]]), c(
     "Yr", "Seas", "FltSvy",
-    "Gender", "Part", "Nsamp"
+    "sex", "Part", "Nsamp"
   ))
   expect_equal(names(r4ss_sample_struct[["agecomp"]]), c(
     "Yr", "Seas", "FltSvy",
-    "Gender", "Part", "Ageerr",
+    "sex", "Part", "Ageerr",
     "Lbin_lo", "Lbin_hi", "Nsamp"
   ))
 })

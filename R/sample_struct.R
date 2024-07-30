@@ -24,7 +24,7 @@ convert_to_r4ss_names <- function(sample_struct,
                                       # currently SSMSE only allows repeating the same sample sizes.
                                       "year", "month", "fleet", "sex", "part", "ageerr", "N_"
                                       # Tags releases
-                                      # "Area", "Yr", "Season", "Gender", "Age", "Nrelease",
+                                      # "Area", "Yr", "Season", "sex", "Age", "Nrelease",
                                       # Morph comp
                                     ),
                                     sample_struct_name = c(
@@ -191,7 +191,7 @@ create_sample_struct <- function(dat, nyrs, rm_NAs = FALSE) {
         }
         if (name %in% c("lencomp", "agecomp", "MeanSize_at_Age_obs")) {
           # Sex
-          sex_col <- grep("Sex|Gender", colnames(df),
+          sex_col <- grep("Sex|sex", colnames(df),
             ignore.case = TRUE,
             value = TRUE
           )
@@ -417,7 +417,7 @@ get_full_sample_struct <- function(sample_struct,
           )
           x[["Sex"]] <- NA
           for (i in unique(x[["FltSvy"]])) {
-            tmp_sx <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "Gender"])
+            tmp_sx <- unique(tmp_dat[tmp_dat[[flt_colname]] == i, "sex"])
             if (length(tmp_sx) == 1) {
               x[x[["FltSvy"]] == i, "Sex"] <- tmp_sx
             } else {
