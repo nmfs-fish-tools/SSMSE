@@ -673,12 +673,19 @@ Interim <- function(EM_out_dir = NULL, EM_init_dir = NULL,
 
     run_EM(EM_dir = EM_out_dir, verbose = verbose, check_converged = TRUE)
 
-    data_filename <- list.files(file.path(OM_dir), pattern = "data.ss_new|data_echo.ss_new")
 
-    Reference_dat <- SS_readdat(
-      file = file.path(EM_out_dir, data_filename),
-      version = 3.30, section = 2, verbose = FALSE
-    )
+    data_filename <- list.files(file.path(EM_out_dir), pattern = "data.ss_new|data_expval.ss")
+    if(data_filename == "data.ss_new") {
+      exp_vals <- SS_readdat(file.path(EM_out_dir, data_filename),
+        section = 2, #expected values data file in v3.30.21
+        verbose = FALSE
+      )
+    } else {
+      # for SS3 v3.30.21
+      exp_vals <- r4ss::SS_readdat(file.path(EM_out_dir, "data_expval.ss"),
+        verbose = FALSE
+      )
+    }
 
 
     ### This is test code that calculates the standard error of index residuals that could be
