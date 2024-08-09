@@ -126,6 +126,7 @@ EM <- function(EM_out_dir = NULL, init_loop = TRUE, OM_dat, verbose = FALSE,
   fcast <- change_yrs_fcast(fcast,
     make_yrs_rel = (init_loop == TRUE),
     nyrs_fore = nyrs_assess,
+    nyrs_increment = nyrs_assess,
     mod_styr = new_EM_dat[["styr"]],
     mod_endyr = new_EM_dat[["endyr"]]
   )
