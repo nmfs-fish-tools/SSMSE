@@ -138,26 +138,34 @@ match_parname <- function(list_pars, parlist) {
       obj = "SR_parms"
     )
   )
-  par_name_tbl <- rbind(
-    par_name_tbl,
-    data.frame(
-      pars = rownames(parlist[["Q_parms"]]),
-      obj = "Q_parms"
+  if(!is.null(parlist[["Q_parms"]])){
+    par_name_tbl <- rbind(
+      par_name_tbl,
+      data.frame(
+        pars = rownames(parlist[["Q_parms"]]),
+        obj = "Q_parms"
+      )
     )
-  )
-  par_name_tbl <- rbind(
-    par_name_tbl,
-    data.frame(
-      pars = rownames(parlist[["S_parms"]]),
-      obj = "S_parms"
+  }
+  if(!is.null(parlist[["S_parms"]])){
+    par_name_tbl <- rbind(
+      par_name_tbl,
+      data.frame(
+        pars = rownames(parlist[["S_parms"]]),
+        obj = "S_parms"
+      )
     )
-  )
+  }
   ## Edit to allow for recdevs labeled recdev2 not recdev1
-  rdnme <- names(parlist)[grepl("recdev", names(parlist))][1]
-  par_name_tbl <- rbind(par_name_tbl, data.frame(
-    pars = "rec_devs",
-    obj = rdnme
-  ))
+  rdnme <- names(parlist)[grepl("recdev", names(parlist))]
+  rdnme <- rdnme[!grepl("early", rdnme)]
+  rdnme <- rdnme[!grepl("forecast", rdnme)]
+  if(length(rdnme)>=1){
+    par_name_tbl <- rbind(par_name_tbl, data.frame(
+      pars = "rec_devs",
+      obj = rdnme[1]
+    ))
+  }
   par_name_tbl <- rbind(par_name_tbl, data.frame(pars = "impl_error", obj = NA))
   if (isTRUE(list_pars == "all")) {
     # TODO: consider which parameters should be included in the "all" option.
